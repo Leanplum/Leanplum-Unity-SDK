@@ -1,7 +1,20 @@
 # Leanplum-Unity-SDK
 Native, iOS & Android Leanplum SDK for Unity3D.
-## Installation & Usage
-Use LPM for development environment setup & building the binary.
+## Installation
+Make sure you have following [Homebrew](https://brew.sh) packages installed:
+```
+brew install maven
+brew install gradle
+brew install bash
+brew install android-sdk
+brew install Caskroom/cask/unity
+```
+
+## Usage
+TBD
+
+## Building
+`./build.sh --apple-sdk-version=1.7.0 --android-sdk-version=2.1.0`
 ## Contributing
 1. Fork it!
 2. Create your feature branch: `git checkout -b feature/my-new-feature`
