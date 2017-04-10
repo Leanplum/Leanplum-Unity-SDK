@@ -1,7 +1,7 @@
 # Leanplum-Unity-SDK
 Native, iOS & Android Leanplum SDK for Unity3D.
 ## Installation
-Make sure you have following [Homebrew](https://brew.sh) packages installed:
+- Make sure you have following [Homebrew](https://brew.sh) packages installed:
 ```
 brew install maven
 brew install gradle
@@ -9,9 +9,58 @@ brew install bash
 brew install android-sdk
 brew install Caskroom/cask/unity
 ```
-
+- Download iOS and Android module in Unity.
+- Go to Unity's preference to set Android SDK path. It should be same as $ANDROID_HOME, e.g. `~/Library/Android/sdk`
 ## Usage
-TBD
+### Unity files
+Unity will import a local copy of your assets so it is better to edit it outside (such as sublime) and see if it at least build on monodevelopment afterwards.n
+### All Files
+```
+open "Unity SDK/LeanplumSample/Assets/WebPlayerTemplates/DoNotCompile/Leanplum/Leanplum.cs"
+open "Unity SDK/LeanplumSample/Assets/WebPlayerTemplates/DoNotCompile/Leanplum/LeanplumSDKObject.cs"
+open "Unity SDK/LeanplumSample/Assets/WebPlayerTemplates/DoNotCompile/Leanplum/LeanplumNative/LeanplumNative.cs"
+open "Unity SDK/LeanplumSample/Assets/Standard Assets/Leanplum/LeanplumIOS/LeanplumIOS.cs"
+open "Unity SDK/LeanplumSample/Assets/Standard Assets/Leanplum/LeanplumAndroid/LeanplumAndroid.cs"
+open "Unity SDK/LeanplumSample/Assets/Plugins/iOS/LeanplumIOSBridge.mm"
+open "Unity SDK/Android/src/com/leanplum/UnityBridge.java"
+```
+### Overview of the files
+TLDR; Unity <-> Leanplum.cs <-> SDKObject <-> [PLATFORM].cs <-> Bridge <-> iOS/Android SDK
+
+First you declare your functions in Leanplum.cs which is just calling the SDK factory method. In order for Factory to work you need to have an abstract methods (interface/protocol), which is the LeanplumSDKObject.cs. You need to implement these methods for each platform: native, ios, and android. For Android/iOS there are bridge files. This is helpful when sending custom objects such as List<object> to C# by using JSON.
+### Test out the code in Unity
+`open "/Unity SDK/LeanplumSample/Assets/Standard Assets/Leanplum/LeanplumWrapper.cs"`
+
+Before calling Leanplum.Start() add 
+```
+Leanplum.Started += delegate(bool success) {
+  Debug.Log("Variants: " + Leanplum.Variants().Count);
+  Debug.Log("Messages: " + Leanplum.MessageMetadata().Keys.Count);
+};
+```
+
+You can see more at https://www.leanplum.com/dashboard#/5019738286063616/help/docs/unity
+
+### Open Unity with new project
+- Drag Unity SDK/LeanplumSample/Leanplum_Unity-VERSION.unitypackage into the assets folder
+- In Unity double click on LeanplumSample (unity icon) under LeanplumSample
+- In Hierarchy (Left bar) click on Leanplum (should be red)
+- Look at Inspector on the right. This is what this object contains. 
+- Go to your dashboard and copy the APP keys to the LeanplumWrapper script.
+- *Note: dev and prod key may contain spaces at the end. If so, delete them.
+- Click on the Start button, there should be no errors. (This is using UnityNative)
+#### Show Build Settings (Cmd+Shift B)
+- Click on Player Settings (next to build button) - Settings will show on the right nav.
+- -> Bundle Identifier = com.Leanplum.unityqaapp
+#### Android
+- Build Settings -> Google Project, Development Build -> Build
+- Open AndroidStudio -> Import the whole folder Unity created -> Deselect all import options.
+#### iOS
+- Build Settings -> Check on Development Build
+  -> Player Settings -> Target SDK = Simulator SDK, Scripting Backend = Mono2x 
+  -> Build
+
+- Open xcodeproject
 
 ## Building
 `./build.sh --apple-sdk-version=1.7.0 --android-sdk-version=2.1.0`
@@ -61,3 +110,6 @@ TBD
 © 2017 Leanplum, Inc. All rights reserved.
 
 You may not distribute this source code without prior written permission from Leanplum.
+
+Leanplum does not support custom modifications to the SDK, without an approved pull request. Please send a pull request if you wish to include your changes.
+
