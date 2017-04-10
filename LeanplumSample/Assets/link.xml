@@ -1,0 +1,28 @@
+<linker>
+  <assembly fullname="System.Security">
+    <namespace fullname="System.Security" preserve="all"/>
+    <namespace fullname="System.Security.Cryptography" preserve="all"/>
+    <namespace fullname="System.Security.Cryptography.AesCryptoServiceProvider" preserve="all"/>
+    <namespace fullname="System.Security.Cryptography.AesManaged" preserve="all"/>
+    <namespace fullname="System.Security.Cryptography" preserve="all"/>
+  </assembly>
+ 
+  <assembly fullname="mscorlib">
+    <namespace fullname="System.Threading" preserve="all"/>
+    <namespace fullname="System.Threading.WaitHandle" preserve="all"/>
+    <namespace fullname="System.Security" preserve="all"/>
+    <namespace fullname="System.Security.Cryptography" preserve="all"/>
+    <namespace fullname="System.Security.Cryptography.AesCryptoServiceProvider" preserve="all"/>
+    <namespace fullname="System.Security.Cryptography.AesManaged" preserve="all"/>
+  </assembly>
+ 
+  <assembly fullname="System.Core">
+    <namespace fullname="System.Security.Cryptography" preserve="all"/>
+  </assembly>
+ 
+  <assembly fullname="LeanplumSDK">
+    <namespace fullname="LeanplumSDK" preserve="all"/>
+    <namespace fullname="LeanplumSDK.AESCrypt" preserve="all"/>
+    <namespace fullname="System.Security.Cryptography" preserve="all"/>
+  </assembly>
+</linker>

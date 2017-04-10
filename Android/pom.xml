@@ -1,0 +1,108 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>LeanplumUnity</groupId>
+  <artifactId>LeanplumUnity</artifactId>
+  <version>%LP_UNITY_VERSION%</version>
+  <repositories>
+    <repository>
+      <id>android-support</id>
+      <url>file://${env.ANDROID_HOME}/extras/android/m2repository</url>
+    </repository>
+    <repository>
+      <id>leanplum.com</id>
+      <name>Leanplum Repository</name>
+      <url>https://repo-internal.leanplum.com/</url>
+    </repository>
+  </repositories>
+  <dependencies>
+    <!-- Android library classes. -->
+    <dependency>
+      <groupId>com.google.android</groupId>
+      <artifactId>android</artifactId>
+      <version>4.1.1.4</version>
+    </dependency>
+    <!-- Unity specific Android classes. -->
+    <dependency>
+      <groupId>com.leanplum</groupId>
+      <artifactId>UnityClasses</artifactId>
+      <version>0.0.0</version>
+      <scope>system</scope>
+      <systemPath>/Applications/Unity/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Classes/classes.jar</systemPath>
+    </dependency>
+    <!-- Gson for JSON parsing. -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.3.1</version>
+    </dependency>
+    <!-- Google Support libs. -->
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>support-v4</artifactId>
+      <version>[10.0.0,)</version>
+    </dependency>
+    <dependency>
+      <groupId>com.android.support</groupId>
+      <artifactId>appcompat-v7</artifactId>
+      <version>[10.0.0,)</version>
+    </dependency>
+    <!-- Leanplum Android SDK. -->
+    <dependency>
+      <groupId>com.leanplum</groupId>
+      <artifactId>Leanplum</artifactId>
+      <version>[1.2.25,)</version>
+      <type>jar</type>
+      <exclusions>
+        <exclusion>
+          <groupId>com.android.support</groupId>
+          <artifactId>support-v4</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.android.support</groupId>
+          <artifactId>appcompat-v7</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <!-- Plugin for handling AAR dependencies. -->
+      <plugin>
+        <groupId>com.simpligility.maven.plugins</groupId>
+        <artifactId>android-maven-plugin</artifactId>
+        <version>4.4.3</version>
+        <extensions>true</extensions>
+        <configuration>
+          <sdk>
+            <platform>25</platform>
+            <buildTools>25.0.2</buildTools>
+          </sdk>
+        </configuration>
+      </plugin>
+      <!-- Plugin for copying all dependencies on the LP Wrapper into /libs folder. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/../../LeanplumSample/Assets/Plugins/Android</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>false</overWriteSnapshots>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <excludeTransitive>true</excludeTransitive>
+              <excludeArtifactIds>android,UnityClasses</excludeArtifactIds>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
