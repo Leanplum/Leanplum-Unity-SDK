@@ -321,10 +321,13 @@ namespace LeanplumSDK
                 var getVariablesResponse = Util.GetLastResponse(varsUpdate) as IDictionary<string, object>;
                 var newVarValues = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARS) as IDictionary<string, object>;
                 var newVarFileAttributes = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object>;
-                if (!newVarValues.Equals(VarCache.Diffs) || !newVarFileAttributes.Equals(VarCache.FileAttributes))
+
+                if (newVarValues != null && newVarFileAttributes != null && // If the user does not exist we might receive no variables
+				    (!newVarValues.Equals(VarCache.Diffs) || !newVarFileAttributes.Equals(VarCache.FileAttributes)))
                 {
                     ApplyVariableDiffs(newVarValues, newVarFileAttributes);
                 }
+
                 if (callback != null)
                 {
                     callback();
