@@ -348,7 +348,7 @@ namespace LeanplumSDK
                 var parameters = new Dictionary<string, string>();
                 parameters[Constants.Params.VARIABLES] = Json.Serialize(valuesFromClient);
                 parameters[Constants.Params.KINDS] = Json.Serialize(defaultKinds);
-                LeanplumRequest.Post(Constants.Methods.SET_VARS, parameters).SendNow();
+                LeanplumUnityHelper.QueueOnMainThread(() => LeanplumRequest.Post(Constants.Methods.SET_VARS, parameters).SendNow());
                 return true;
             }
             return false;
