@@ -187,7 +187,10 @@ namespace LeanplumSDK.Prefs
 
 		public static void Flush()
 		{
-			if (hashTableChanged)
+			if (!hashTableChanged)
+                return;
+            
+            lock (fileName)
 			{
 				try {
 					hashTableChanged = false;
