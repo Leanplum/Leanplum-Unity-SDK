@@ -422,6 +422,8 @@ namespace LeanplumSDK
                 IDictionary<string, object> fileAttributes =
                     Util.GetValueOrDefault(response, Constants.Keys.FILE_ATTRIBUTES) as
                     IDictionary<string, object> ?? new Dictionary<string, object>();
+                List<object> variants = Util.GetValueOrDefault(response, Constants.Keys.VARIANTS) as
+                    List<object> ?? new List<object>();
                 bool isRegistered = (bool) Util.GetValueOrDefault(response,
                     Constants.Keys.IS_REGISTERED, false);
 
@@ -462,7 +464,7 @@ namespace LeanplumSDK
                     }
                 }
 
-                VarCache.ApplyVariableDiffs(values, fileAttributes);
+                VarCache.ApplyVariableDiffs(values, fileAttributes, variants);
                 _hasStarted = true;
                 startSuccessful = true;
                 OnStarted(true);
@@ -707,11 +709,10 @@ namespace LeanplumSDK
         /// <summary>
         ///     Return variant ids.
         ///     Used only for debugging purposes and advanced use cases.
-        ///     Not supported on Native.
         /// </summary>
         public override List<object> Variants()
         {
-            return new List<object>();
+            return VarCache.Variants;
         }
 
         /// <summary>
