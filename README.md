@@ -6,7 +6,8 @@ Native, iOS & Android Leanplum SDK for Unity3D.
 brew install maven
 brew install gradle
 brew install bash
-brew install android-sdk
+brew install wget
+brew install Caskroom/cask/android-sdk
 brew install Caskroom/cask/unity
 ```
 - Download iOS and Android module in Unity.
