@@ -109,8 +109,9 @@ build() {
 
   echo "Compiling Unity SDK..."
 
-  PATH_TO_UNITY="/Applications/Unity/Unity.app/Contents/MacOS/Unity"
-  PATH_TO_UNITYENGINE="/Applications/Unity/Unity.app/Contents/Managed/UnityEngine.dll"
+  PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
+  PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
+  PATH_TO_UNITYENGINE="$PATH_TO_UNITY_ROOT/Contents/Managed/UnityEngine.dll"
 
   PATH_TO_LP_IN_PROJECT="Assets/WebPlayerTemplates/DoNotCompile/Leanplum"
   PATH_TO_PROJECT="$(pwd)/LeanplumSample"
@@ -119,7 +120,7 @@ build() {
   export OUT_PKG="Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
 
   # Compile dll and place into project.
-  /Applications/Unity/Unity.app/Contents/Mono/bin/gmcs -r:"$PATH_TO_UNITYENGINE" \
+  $PATH_TO_UNITY_ROOT/Contents/Mono/bin/gmcs -r:"$PATH_TO_UNITYENGINE" \
       -target:library -out:"$OUT_DLL" -recurse:"$PATH_TO_PROJECT/$PATH_TO_LP_IN_PROJECT/*.cs"
 
   # Export unitypackage.
