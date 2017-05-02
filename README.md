@@ -1,4 +1,6 @@
 # Leanplum-Unity-SDK
+**Please refer to the active development branch develop to see the latest source code.**
+
 Native, iOS & Android Leanplum SDK for Unity3D.
 ## Installation
 - Make sure you have following [Homebrew](https://brew.sh) packages installed:
