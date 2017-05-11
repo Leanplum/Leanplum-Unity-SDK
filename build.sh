@@ -127,8 +127,6 @@ build() {
   $PATH_TO_UNITY -quit -batchmode -projectPath "$PATH_TO_PROJECT" -exportPackage \
   "Assets/LeanplumSample" "Assets/Standard Assets/Leanplum" "Assets/Plugins" "$OUT_PKG"
   
-  export UNITY_BINARY="$PATH_TO_PROJECT/$OUT_PKG"
-
   echo "Done"
 }
 
@@ -146,7 +144,8 @@ main() {
   if [[ -z "${BUILD_NUMBER+x}" ]]; then 
     BUILD_NUMBER=$(date "+%s")
   fi
-  export UNITY_VERSION_STRING="$UNITY_VERSION+$BUILD_NUMBER"
+  default="$UNITY_VERSION+$BUILD_NUMBER"
+  export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-$default}
 
   for i in "$@"; do
     case $i in
