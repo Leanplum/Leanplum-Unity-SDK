@@ -5,10 +5,6 @@
 #
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
-# Copied from "$LPM_PLUGIN_PATH/_common/constants.sh"
-UNITY_VERSION=1.4.2-SNAPSHOT
-
-# Copied from "$LPM_PLUGIN_PATH/_common/functions.sh"
 #######################################
 # Downloads the iOS SDK from internal repository.
 # Globals:
@@ -117,7 +113,7 @@ build() {
   PATH_TO_PROJECT="$(pwd)/LeanplumSample"
 
   OUT_DLL="$PATH_TO_PROJECT/Assets/Standard Assets/Leanplum/LeanplumSDK.dll"
-  export OUT_PKG="Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
+  export OUT_PKG="Leanplum_Unity-${UNITY_VERSION_STRING}.unitypackage"
 
   # Compile dll and place into project.
   $PATH_TO_UNITY_ROOT/Contents/Mono/bin/gmcs -r:"$PATH_TO_UNITYENGINE" \
