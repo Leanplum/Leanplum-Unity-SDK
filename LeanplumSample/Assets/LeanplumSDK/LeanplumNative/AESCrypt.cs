@@ -13,6 +13,17 @@ namespace LeanplumSDK
     /// </summary>
     internal class AESCrypt
     {
+#if LEANER_PLUM
+        public static string Encrypt(string plaintext, string key)
+        {
+            return plaintext;
+        }
+
+        public static string Decrypt(string ciphertext, string key)
+        {
+            return ciphertext;
+        }
+#else
         // Aliasing constants here to make minimal changes to the original code.
         private const int iterations = Constants.Crypt.ITER_COUNT;
         private const int keySize = Constants.Crypt.KEY_LENGTH;
@@ -121,5 +132,6 @@ namespace LeanplumSDK
             }
             return Encoding.UTF8.GetString(decrypted, 0, decryptedByteCount);
         }
+#endif
     }
 }

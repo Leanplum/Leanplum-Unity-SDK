@@ -663,6 +663,7 @@ namespace LeanplumSDK.WebSocketSharp.Net
 
 		#region Explicit Interface Implementation
 
+#pragma warning disable 0618
 		/// <summary>
 		/// Populates the specified <see cref="SerializationInfo"/> with the data to need to
 		/// serialize the <see cref="WebHeaderCollection"/> object.
@@ -676,12 +677,13 @@ namespace LeanplumSDK.WebSocketSharp.Net
 		/// <exception cref="ArgumentNullException">
 		/// <paramref name="serializationInfo"/> is <see langword="null"/>.
 		/// </exception>
-		[SecurityPermission (SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter, SerializationFormatter = true)]
+		[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter, SerializationFormatter = true)]
 		void ISerializable.GetObjectData (
 			SerializationInfo serializationInfo, StreamingContext streamingContext)
 		{
 			GetObjectData (serializationInfo, streamingContext);
 		}
+#pragma warning restore 0618
 
 		#endregion
 
@@ -953,6 +955,7 @@ namespace LeanplumSDK.WebSocketSharp.Net
 			       : values;
 		}
 
+#pragma warning disable 0618
 		/// <summary>
 		/// Populates the specified <see cref="SerializationInfo"/> with the data to need to
 		/// serialize the <see cref="WebHeaderCollection"/> object.
@@ -966,7 +969,7 @@ namespace LeanplumSDK.WebSocketSharp.Net
 		/// <exception cref="ArgumentNullException">
 		/// <paramref name="serializationInfo"/> is <see langword="null"/>.
 		/// </exception>
-		[SecurityPermission (SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+		[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
 		public override void GetObjectData (
 			SerializationInfo serializationInfo, StreamingContext streamingContext)
 		{
@@ -983,6 +986,7 @@ namespace LeanplumSDK.WebSocketSharp.Net
 				serializationInfo.AddValue ((count + i).ToString (), Get (i));
 			});
 		}
+#pragma warning restore 0618
 
 		/// <summary>
 		/// Determines whether the specified header can be set for the request.
