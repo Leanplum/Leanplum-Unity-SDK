@@ -23,6 +23,16 @@ using System.Collections.Generic;
 using System.Timers;
 using UnityEngine;
 
+#if LEANPLUM_UNITYWEBREQUEST
+#if UNITY_5_5_OR_NEWER
+using UnityNetworkingRequest = UnityEngine.Networking.UnityWebRequest;
+using DownloadHandlerAssetBundle = UnityEngine.Networking.DownloadHandlerAssetBundle;
+#else
+using UnityNetworkingRequest = UnityEngine.Experimental.Networking.UnityWebRequest;
+using DownloadHandlerAssetBundle = UnityEngine.Experimental.Networking.DownloadHandlerAssetBundle;
+#endif
+#endif
+
 namespace LeanplumSDK
 {
     /// <summary>
@@ -34,7 +44,7 @@ namespace LeanplumSDK
     {
         private static LeanplumUnityHelper instance;
 
-        internal static List<Action> delayed = new  List<Action>();
+        internal static List<Action> delayed = new List<Action>();
 
         private bool developerModeEnabled;
 
@@ -139,46 +149,87 @@ namespace LeanplumSDK
             StartCoroutine(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
         }
 
-        private static IEnumerator RunRequest(string url, WWWForm wwwForm, Action<WebResponse> responseHandler,
-                                              int timeout, bool isAsset)
+#if LEANPLUM_UNITYWEBREQUEST
+        private static UnityNetworkingRequest CreateWebRequest(string url, WWWForm wwwForm, bool isAsset)
         {
-            WWW www;
-
-            // If this is an assetbundle download request, try loading from cache first.
+            UnityNetworkingRequest result = null;
+            if (wwwForm == null)
+            {
+                result = UnityNetworkingRequest.Get(url);
+            }
+            else if (isAsset)
+            {
+                result = UnityNetworkingRequest.GetAssetBundle(url, 1);
+            }
+            else
+            {
+                result = UnityNetworkingRequest.Post(url, wwwForm);
+            }
+            return result;
+        }
+#else
+        private static WWW CreateWww(string url, WWWForm wwwForm, bool isAsset)
+        {
+            WWW result = null;
             if (isAsset)
             {
                 // Set an arbitrary version number - we identify different versions of assetbundles with
                 // different filenames in the url.
-                www = WWW.LoadFromCacheOrDownload(url, 1);
+                result = WWW.LoadFromCacheOrDownload(url, 1);
             }
             else
             {
-                www = wwwForm == null ? new WWW(url) : new WWW(url, wwwForm);
+                result = wwwForm == null ? new WWW(url) : new WWW(url, wwwForm);
             }
+            return result;
+        }
+#endif
 
-            // Create a timer to check for timeouts.
-            var timeoutTimer = new Timer(timeout * 1000);
-            timeoutTimer.Elapsed += delegate {
-                timeoutTimer.Stop();
-                www.Dispose();
-                QueueOnMainThread(() =>
+        private static IEnumerator RunRequest(string url, WWWForm wwwForm, Action<WebResponse> responseHandler,
+                                              int timeout, bool isAsset)
+        {
+#if LEANPLUM_UNITYWEBREQUEST
+            using (var request = CreateWebRequest(url, wwwForm, isAsset))
+            {
+                var operation = request.Send();
+                float elapsed = 0.0f;
+                while (!operation.isDone && elapsed < timeout)
+                {
+                    yield return null;
+                }
+
+                if (operation.isDone)
+                {
+                    responseHandler(new UnityWebResponse(request.error,
+                        (String.IsNullOrEmpty(request.error) && !isAsset)? request.downloadHandler.text : null,
+                        (String.IsNullOrEmpty(request.error) && isAsset) ? ((DownloadHandlerAssetBundle)request.downloadHandler) : null));
+                }
+                else
+                {
+                    responseHandler(new UnityWebResponse(Constants.NETWORK_TIMEOUT_MESSAGE, String.Empty, null));                    
+                }
+            }
+#else
+            using (WWW www = CreateWww(url, wwwForm, isAsset))
+            {
+                float elapsed = 0.0f;
+                while (!www.isDone && elapsed < timeout)
+                {
+                    yield return null;
+                }
+
+                if (www.isDone)
+                {
+                    responseHandler(new UnityWebResponse(www.error,
+                        String.IsNullOrEmpty(www.error) && !isAsset ? www.text : null,
+                        String.IsNullOrEmpty(www.error) ? www.assetBundle : null));
+                }
+                else
                 {
                     responseHandler(new UnityWebResponse(Constants.NETWORK_TIMEOUT_MESSAGE, String.Empty, null));
-                });
-            };
-            timeoutTimer.Start();
-
-            yield return www;
-
-            // If the timer is still enabled, the request didn't time out.
-            if (timeoutTimer.Enabled)
-            {
-                timeoutTimer.Stop();
-                responseHandler(new UnityWebResponse(www.error,
-                                                     String.IsNullOrEmpty(www.error) && !isAsset ? www.text : null,
-                                                     String.IsNullOrEmpty(www.error) ? www.assetBundle : null));
-                www.Dispose();
+                }
             }
+#endif
         }
 
         internal static void QueueOnMainThread(Action method)

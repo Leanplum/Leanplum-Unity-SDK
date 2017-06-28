@@ -87,6 +87,7 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 
 		#region Explicit Interface Implementation
 
+#pragma warning disable 0618
 		/// <summary>
 		/// Populates the specified <see cref="SerializationInfo"/> with the data needed to serialize the <see cref="CookieException"/>.
 		/// </summary>
@@ -96,7 +97,7 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		/// <param name="streamingContext">
 		/// A <see cref="StreamingContext"/> that specifies the destination for the serialization.
 		/// </param>
-		[SecurityPermission (SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter, SerializationFormatter = true)]
+		[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter, SerializationFormatter = true)]
 		void ISerializable.GetObjectData (SerializationInfo serializationInfo, StreamingContext streamingContext)
 		{
 			base.GetObjectData (serializationInfo, streamingContext);
@@ -115,11 +116,12 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		/// <param name="streamingContext">
 		/// A <see cref="StreamingContext"/> that specifies the destination for the serialization.
 		/// </param>
-		[SecurityPermission (SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+		[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
 		public override void GetObjectData (SerializationInfo serializationInfo, StreamingContext streamingContext)
 		{
 			base.GetObjectData (serializationInfo, streamingContext);
 		}
+#pragma warning restore 0618
 
 		#endregion
 	}
