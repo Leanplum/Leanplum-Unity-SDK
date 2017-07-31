@@ -176,7 +176,7 @@ namespace LeanplumSDK
                 timeoutTimer.Stop();
                 responseHandler(new UnityWebResponse(www.error,
                                                      String.IsNullOrEmpty(www.error) && !isAsset ? www.text : null,
-                                                     String.IsNullOrEmpty(www.error) ? www.assetBundle : null));
+                                                     String.IsNullOrEmpty(www.error) && isAsset ? www.assetBundle : null));
                 www.Dispose();
             }
         }
