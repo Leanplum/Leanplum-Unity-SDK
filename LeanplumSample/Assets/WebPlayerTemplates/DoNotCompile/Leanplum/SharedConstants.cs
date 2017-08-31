@@ -24,7 +24,7 @@ namespace LeanplumSDK
 	/// </summary>
 	public class SharedConstants
 	{
-		public const string SDK_VERSION = "1.4.1";
+		public const string SDK_VERSION = "1.4.2";
 
 		public class Kinds
 		{

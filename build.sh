@@ -123,8 +123,6 @@ build() {
   $PATH_TO_UNITY -quit -batchmode -projectPath "$PATH_TO_PROJECT" -exportPackage \
   "Assets/LeanplumSample" "Assets/Standard Assets/Leanplum" "Assets/Plugins" "$OUT_PKG"
   
-  export UNITY_BINARY="$PATH_TO_PROJECT/$OUT_PKG"
-
   echo "Done"
 }
 
