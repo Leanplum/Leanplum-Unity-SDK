@@ -5,10 +5,6 @@
 #
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
-# Copied from "$LPM_PLUGIN_PATH/_common/constants.sh"
-UNITY_VERSION=1.4.2-SNAPSHOT
-
-# Copied from "$LPM_PLUGIN_PATH/_common/functions.sh"
 #######################################
 # Downloads the iOS SDK from internal repository.
 # Globals:
@@ -109,25 +105,24 @@ build() {
 
   echo "Compiling Unity SDK..."
 
-  PATH_TO_UNITY="/Applications/Unity/Unity.app/Contents/MacOS/Unity"
-  PATH_TO_UNITYENGINE="/Applications/Unity/Unity.app/Contents/Managed/UnityEngine.dll"
+  PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
+  PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
+  PATH_TO_UNITYENGINE="$PATH_TO_UNITY_ROOT/Contents/Managed/UnityEngine.dll"
 
   PATH_TO_LP_IN_PROJECT="Assets/WebPlayerTemplates/DoNotCompile/Leanplum"
   PATH_TO_PROJECT="$(pwd)/LeanplumSample"
 
   OUT_DLL="$PATH_TO_PROJECT/Assets/Standard Assets/Leanplum/LeanplumSDK.dll"
-  export OUT_PKG="Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
+  export OUT_PKG="Leanplum_Unity-${UNITY_VERSION_STRING}.unitypackage"
 
   # Compile dll and place into project.
-  /Applications/Unity/Unity.app/Contents/Mono/bin/gmcs -r:"$PATH_TO_UNITYENGINE" \
+  $PATH_TO_UNITY_ROOT/Contents/Mono/bin/gmcs -r:"$PATH_TO_UNITYENGINE" \
       -target:library -out:"$OUT_DLL" -recurse:"$PATH_TO_PROJECT/$PATH_TO_LP_IN_PROJECT/*.cs"
 
   # Export unitypackage.
   $PATH_TO_UNITY -quit -batchmode -projectPath "$PATH_TO_PROJECT" -exportPackage \
   "Assets/LeanplumSample" "Assets/Standard Assets/Leanplum" "Assets/Plugins" "$OUT_PKG"
   
-  export UNITY_BINARY="$PATH_TO_PROJECT/$OUT_PKG"
-
   echo "Done"
 }
 
@@ -145,7 +140,8 @@ main() {
   if [[ -z "${BUILD_NUMBER+x}" ]]; then 
     BUILD_NUMBER=$(date "+%s")
   fi
-  export UNITY_VERSION_STRING="$UNITY_VERSION+$BUILD_NUMBER"
+  default="${UNITY_VERSION}_${BUILD_NUMBER}"
+  export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-$default}
 
   for i in "$@"; do
     case $i in

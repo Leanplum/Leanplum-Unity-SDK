@@ -19,6 +19,7 @@ namespace LeanplumSDK
         private static IDictionary<string, object> diffs = new Dictionary<string, object>();
         private static IDictionary<string, object> devModeValuesFromServer;
         private static IDictionary<string, object> fileAttributes = new Dictionary<string, object>();
+        private static List<object> variants = new List<object>();
         private static object merged;
 
         public static bool HasReceivedDiffs { get; private set; }
@@ -33,6 +34,11 @@ namespace LeanplumSDK
         {
             get { return diffs; }
             private set { diffs = value; }
+        }
+        public static List<object> Variants
+        {
+            get { return variants; }
+            private set { variants = value; }
         }
         public static int downloadsPending;
 
@@ -268,7 +274,8 @@ namespace LeanplumSDK
         }
 
         public static void ApplyVariableDiffs(IDictionary<string, object> diffs,
-                                              IDictionary<string, object> fileAttributes = null)
+                                              IDictionary<string, object> fileAttributes = null,
+                                              List<object> variants = null)
         {
             if (fileAttributes != null)
             {
@@ -281,6 +288,10 @@ namespace LeanplumSDK
             {
                 Diffs = diffs;
                 ComputeMergedDictionary();
+            }
+            if (variants != null)
+            {
+                Variants = variants;
             }
 
             foreach (Var lpVariable in vars.Values)
@@ -321,10 +332,10 @@ namespace LeanplumSDK
                 var getVariablesResponse = Util.GetLastResponse(varsUpdate) as IDictionary<string, object>;
                 var newVarValues = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARS) as IDictionary<string, object>;
                 var newVarFileAttributes = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object>;
-                if (!newVarValues.Equals(VarCache.Diffs) || !newVarFileAttributes.Equals(VarCache.FileAttributes))
-                {
-                    ApplyVariableDiffs(newVarValues, newVarFileAttributes);
-                }
+                var newVariants = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARIANTS) as List<object> ?? new List<object>();
+				
+                ApplyVariableDiffs(newVarValues, newVarFileAttributes, newVariants);
+
                 if (callback != null)
                 {
                     callback();
@@ -348,7 +359,7 @@ namespace LeanplumSDK
                 var parameters = new Dictionary<string, string>();
                 parameters[Constants.Params.VARIABLES] = Json.Serialize(valuesFromClient);
                 parameters[Constants.Params.KINDS] = Json.Serialize(defaultKinds);
-                LeanplumRequest.Post(Constants.Methods.SET_VARS, parameters).SendNow();
+                LeanplumUnityHelper.QueueOnMainThread(() => LeanplumRequest.Post(Constants.Methods.SET_VARS, parameters).SendNow());
                 return true;
             }
             return false;
