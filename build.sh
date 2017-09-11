@@ -140,8 +140,7 @@ main() {
   if [[ -z "${BUILD_NUMBER+x}" ]]; then 
     BUILD_NUMBER=$(date "+%s")
   fi
-  default="${UNITY_VERSION}_${BUILD_NUMBER}"
-  export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-$default}
+  export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION.$BUILD_NUMBER"}
 
   for i in "$@"; do
     case $i in
