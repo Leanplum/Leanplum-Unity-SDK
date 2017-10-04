@@ -109,9 +109,29 @@ build() {
 "play-services-gcm/${PLAY_SERVICES_VERSION}/"\
 "play-services-gcm-${PLAY_SERVICES_VERSION}.jar" \
 "../LeanplumSample/Assets/Plugins/Android/."
+# shellcheck disable=SC2140
+  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
+"play-services-base/${PLAY_SERVICES_VERSION}/"\
+"play-services-base-${PLAY_SERVICES_VERSION}.jar" \
+"../LeanplumSample/Assets/Plugins/Android/."
+# shellcheck disable=SC2140
+  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
+"play-services-basement/${PLAY_SERVICES_VERSION}/"\
+"play-services-basement-${PLAY_SERVICES_VERSION}.jar" \
+"../LeanplumSample/Assets/Plugins/Android/."
+# shellcheck disable=SC2140
+  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
+"play-services-tasks/${PLAY_SERVICES_VERSION}/"\
+"play-services-tasks-${PLAY_SERVICES_VERSION}.jar" \
+"../LeanplumSample/Assets/Plugins/Android/."
+# shellcheck disable=SC2140
+  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
+"play-services-iid/${PLAY_SERVICES_VERSION}/"\
+"play-services-iid-${PLAY_SERVICES_VERSION}.jar" \
+"../LeanplumSample/Assets/Plugins/Android/."
   # shellcheck disable=SC2140
   cp "$ANDROID_HOME/extras/google/m2repository/com/google/firebase/"\
-"firebase-messaging/10.2.4/firebase-messaging-10.2.4.jar" \
+"firebase-messaging/${PLAY_SERVICES_VERSION}/firebase-messaging-${PLAY_SERVICES_VERSION}.jar" \
 "../LeanplumSample/Assets/Plugins/Android/."
   # shellcheck disable=SC2140
   cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
