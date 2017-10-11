@@ -63,21 +63,6 @@ Leanplum.Started += delegate(bool success) {
 
 You can see more at https://www.leanplum.com/dashboard#/5019738286063616/help/docs/unity
 
-### Leanplum Internal Build Setup
-You can ignore this if you're just using a normal Unity workflow. These instructions are for Leanplum's internal staff ... ?
-#### Show Build Settings (Cmd+Shift B)
-- Click on Player Settings (next to build button) - Settings will show on the right nav.
-- -> Bundle Identifier = com.Leanplum.unityqaapp
-#### Android
-- Build Settings -> Google Project, Development Build -> Build
-- Open AndroidStudio -> Import the whole folder Unity created -> Deselect all import options.
-#### iOS
-- Build Settings -> Check on Development Build
-  -> Player Settings -> Target SDK = Simulator SDK, Scripting Backend = Mono2x 
-  -> Build
-
-- Open xcodeproject
-
 ## Contributing
 1. Fork it!
 2. Create your feature branch: `git checkout -b feature/my-new-feature`
