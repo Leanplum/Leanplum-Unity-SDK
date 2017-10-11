@@ -40,7 +40,7 @@ You may opt-in to *significantly* higher performance with the Leanplum SDK by de
 `LP_UNITYWEBREQUEST`: Defining this symbol will cause the Leanplum SDK to use [Unity's modern web stack](https://docs.unity3d.com/Manual/UnityWebRequest.html) instead of the legacy `www` class for network operations. This yields some important memory and performance benefits on mobile devices for some applications.
 
 #### Normal Workflow
-Unlike prior releases of this SDK, you no longer need to work with your script files externally from Unity or be afraid to open the editor. Everything simply works "normally" now - open Unity, make changes, test your changes, then publish.
+This release now supports the normal Unity workflow: open Unity, make changes, test your changes, then publish.
 #### Scripts are Exported
 The unitypackage that is generated for this SDK no longer contains a .DLL that was compiled with a fixed version of `gmcs` and fixed preprocessor symbols. Instead, the package now contains the source `.cs` files for Leanplum. This means you *can* now successfully rely on preprocessor symbols within this SDK, such as `UNITY_5_6_OR_NEWER`, the per-platform symbols (e.g. `UNITY_IOS`, `UNITY_ANDROID`, etc.) as needed and those conditionals *will* work properly in end users' projects.
 #### UnityWebRequest
