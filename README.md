@@ -35,9 +35,9 @@ There is a full changelog below, but these are highlights of recent changes that
 #### Optimizations
 You may opt-in to *significantly* higher performance with the Leanplum SDK by defining one or both of these preprocessor symbols in your Unity project:
 
-`LEANER_PLUM`: Defining this symbol will cause Leanplum to use Unity's optimized `PlayerPrefs` for local storage instead of its own string-concantenation-heavy, legacy-Hashtable-based, GC-hungry version. However, the price you pay is that local storage is no longer encrypted, so it's available in plaintext for hackers. Note that even with the heavier, AES encypted "out of the box" Leanplum settings, this was *still* not secure because your client contains the cryptography key and is trivial for a hacker to view. Therefore, taking the performance win here by admitting that you weren't secure anyway is probably sensible for most projects, but the choice is yours to make on a per-project basis.
+`LP_UNENCRYPTED`: Defining this symbol will cause Leanplum to use Unity's optimized `PlayerPrefs` for local storage instead of its own string-concantenation-heavy, legacy-Hashtable-based, GC-hungry version. However, the price you pay is that local storage is no longer encrypted. The choice is yours to make on a per-project basis.
 
-`LEANPLUM_UNITYWEBREQUEST`: Defining this symbol will cause the Leanplum SDK to use [Unity's modern web stack](https://docs.unity3d.com/Manual/UnityWebRequest.html) instead of the legacy `www` class for network operations. This yields some important memory and performance benefits on mobile devices.
+`LP_UNITYWEBREQUEST`: Defining this symbol will cause the Leanplum SDK to use [Unity's modern web stack](https://docs.unity3d.com/Manual/UnityWebRequest.html) instead of the legacy `www` class for network operations. This yields some important memory and performance benefits on mobile devices for some applications.
 
 #### Normal Workflow
 Unlike prior releases of this SDK, you no longer need to work with your script files externally from Unity or be afraid to open the editor. Everything simply works "normally" now - open Unity, make changes, test your changes, then publish.
