@@ -30,7 +30,7 @@ namespace LeanplumSDK
     /// </summary>
     internal class AESCrypt
     {
-#if LEANER_PLUM
+#if LP_UNENCRYPTED
         public static string Encrypt(string plaintext, string key)
         {
             return plaintext;

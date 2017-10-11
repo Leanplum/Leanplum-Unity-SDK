@@ -24,7 +24,7 @@ using System.Text;
 using UnityEngine;
 using System.Reflection;
 
-#if !LEANER_PLUM
+#if !LP_UNENCRYPTED
 using PlayerPrefs = LeanplumSDK.Prefs.PlayerPrefs;
 #endif
 
@@ -134,7 +134,7 @@ namespace LeanplumSDK
 
         public void FlushSavedSettings()
         {
-#if LEANER_PLUM
+#if LP_UNENCRYPTED
             PlayerPrefs.Save();
 #else
             PlayerPrefs.Flush();
