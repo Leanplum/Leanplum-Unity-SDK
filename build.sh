@@ -5,10 +5,6 @@
 #
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
-# Copied from "$LPM_PLUGIN_PATH/_common/constants.sh"
-UNITY_VERSION=1.4.2-SNAPSHOT
-
-# Copied from "$LPM_PLUGIN_PATH/_common/functions.sh"
 #######################################
 # Downloads the iOS SDK from internal repository.
 # Globals:
@@ -135,7 +131,7 @@ main() {
   if [[ -z "${BUILD_NUMBER+x}" ]]; then 
     BUILD_NUMBER=$(date "+%s")
   fi
-  export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION+$BUILD_NUMBER"}
+  export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION.$BUILD_NUMBER"}
 
   for i in "$@"; do
     case $i in
