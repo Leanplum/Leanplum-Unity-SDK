@@ -85,7 +85,7 @@ build() {
       cd ~-
     fi
   done < <(find "$ANDROID_HOME/extras/android/m2repository" -name '*.aar' -print0)
-  
+
   echo "Preparing dependencies..."
   # Copy AppleSDK
   rm -rf "LeanplumSample/Assets/Plugins/iOS/Leanplum.framework"
@@ -107,7 +107,6 @@ build() {
 
   PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
   PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
-  # Hmmm, dubious...
   PATH_TO_PROJECT="$(pwd)/LeanplumSample"
 
   export OUT_PKG="$PATH_TO_PROJECT/Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
@@ -128,7 +127,7 @@ build() {
 #######################################
 main() {
   # Check for Jenkins build number, otherwise default to curent time in seconds.
-  if [[ -z "${BUILD_NUMBER+x}" ]]; then 
+  if [[ -z "${BUILD_NUMBER+x}" ]]; then
     BUILD_NUMBER=$(date "+%s")
   fi
   export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION.$BUILD_NUMBER"}
