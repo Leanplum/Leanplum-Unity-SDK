@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 //
 // HttpListenerRequest.cs
@@ -755,3 +756,4 @@ namespace LeanplumSDK.WebSocketSharp.Net
 		#endregion
 	}
 }
+#endif

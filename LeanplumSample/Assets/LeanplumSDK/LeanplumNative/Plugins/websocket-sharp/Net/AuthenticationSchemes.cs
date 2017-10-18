@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // AuthenticationSchemes.cs
 //	Copied from System.Net.AuthenticationSchemes.cs
@@ -67,3 +68,4 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		Anonymous                       = 0x8000,
 	}
 }
+#endif

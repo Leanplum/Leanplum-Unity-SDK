@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // HttpHeaderType.cs
 //
@@ -42,3 +43,4 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		MultiValueInResponse = 1 << 5
 	}
 }
+#endif

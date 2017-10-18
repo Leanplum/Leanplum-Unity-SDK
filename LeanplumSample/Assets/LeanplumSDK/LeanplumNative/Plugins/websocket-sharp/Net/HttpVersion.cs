@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // HttpVersion.cs
 //	Copied from System.Net.HttpVersion.cs
@@ -50,3 +51,4 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		public HttpVersion () {}
 	}
 }
+#endif

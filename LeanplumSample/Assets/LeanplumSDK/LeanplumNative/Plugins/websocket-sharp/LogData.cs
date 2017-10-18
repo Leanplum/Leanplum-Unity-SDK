@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * LogData.cs
@@ -148,3 +149,4 @@ namespace LeanplumSDK.WebSocketSharp
     #endregion
   }
 }
+#endif

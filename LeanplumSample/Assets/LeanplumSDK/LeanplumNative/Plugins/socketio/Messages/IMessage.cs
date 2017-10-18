@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,3 +54,4 @@ namespace LeanplumSDK.SocketIOClient.Messages
 
     }
 }
+#endif

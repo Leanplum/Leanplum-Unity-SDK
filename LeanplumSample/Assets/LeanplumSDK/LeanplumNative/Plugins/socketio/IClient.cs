@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 using System;
 namespace LeanplumSDK.SocketIOClient
 {
@@ -31,3 +32,4 @@ namespace LeanplumSDK.SocketIOClient
 		//void Send(string rawEncodedMessageText);
 	}
 }
+#endif

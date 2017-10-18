@@ -39,7 +39,11 @@ namespace LeanplumSDK
         internal static bool isInPermanentFailureState = false;
         internal static bool loggingEnabled = false;
         internal static bool isNoop = false;
+#if UNITY_WEBGL
+        internal static bool EnableRealtimeUpdatesInDevelopmentMode = false;
+#else
         internal static bool EnableRealtimeUpdatesInDevelopmentMode = true;
+#endif
 
         internal static string API_SERVLET = "api";
 

@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // ChunkStream.cs
 //	Copied from System.Net.ChunkStream.cs
@@ -368,3 +369,4 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		#endregion
 	}
 }
+#endif

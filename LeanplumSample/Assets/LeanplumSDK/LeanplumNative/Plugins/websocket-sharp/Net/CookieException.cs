@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // CookieException.cs
 //	Copied from System.Net.CookieException.cs
@@ -126,3 +127,4 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		#endregion
 	}
 }
+#endif

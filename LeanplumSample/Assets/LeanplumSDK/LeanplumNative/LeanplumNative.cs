@@ -35,7 +35,9 @@ namespace LeanplumSDK
         private static bool isPaused;
         private static string customDeviceId;
         internal static ICompatibilityLayer CompatibilityLayer = new UnityCompatibilityLayer();
+#if !UNITY_WEBGL
         internal static LeanplumSocket leanplumSocket;
+#endif
         internal static bool isStopped;
 
         #region Helpers
@@ -236,7 +238,8 @@ namespace LeanplumSDK
                 if (VarCache.HasReceivedDiffs)
                     value();
             }
-            remove {
+            remove
+            {
                 variablesChanged -= value;
             }
         }
@@ -380,9 +383,12 @@ namespace LeanplumSDK
             };
 
             string deviceId;
-            if (customDeviceId != null) {
+            if (customDeviceId != null)
+            {
                 deviceId = customDeviceId;
-            } else {
+            }
+            else
+            {
                 deviceId = CompatibilityLayer.GetDeviceId();
             }
             LeanplumRequest.DeviceId = deviceId;
@@ -454,9 +460,12 @@ namespace LeanplumSDK
                         Util.GetValueOrDefault(response, Constants.Keys.VARS_FROM_CODE) as
                         Dictionary<string, object>);
 
+#if !UNITY_WEBGL
                     if (Constants.EnableRealtimeUpdatesInDevelopmentMode &&
-                        SocketUtilsFactory.Utils.AreSocketsAvailable) {
-                        leanplumSocket = new LeanplumSocket(delegate() {
+                        SocketUtilsFactory.Utils.AreSocketsAvailable)
+                    {
+                        leanplumSocket = new LeanplumSocket(delegate ()
+                        {
                             // Callback when we receive an updateVars command through the
                             // development socket.
                             // Set a flag so that the next time VarCache.CheckVarsUpdate() is
@@ -464,7 +473,7 @@ namespace LeanplumSDK
                             VarCache.VarsNeedUpdate = true;
                         });
                     }
-
+#endif
                     // Register device.
                     if (isRegistered)
                     {
@@ -834,10 +843,12 @@ namespace LeanplumSDK
                 CompatibilityLayer.LogError("You cannot call Stop before calling start.");
                 return;
             }
+#if !UNITY_WEBGL
             if (leanplumSocket != null)
             {
                 leanplumSocket.Close();
             }
+#endif
             LeanplumRequest.Post(Constants.Methods.STOP, null).SendIfConnected();
         }
 

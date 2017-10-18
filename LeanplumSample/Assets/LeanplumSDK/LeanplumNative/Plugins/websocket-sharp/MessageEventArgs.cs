@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * MessageEventArgs.cs
@@ -125,3 +126,4 @@ namespace LeanplumSDK.WebSocketSharp
     #endregion
   }
 }
+#endif
