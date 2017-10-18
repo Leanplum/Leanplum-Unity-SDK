@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * CloseStatusCode.cs
@@ -119,3 +120,4 @@ namespace LeanplumSDK.WebSocketSharp
     TLS_HANDSHAKE_FAILURE = 1015
   }
 }
+#endif

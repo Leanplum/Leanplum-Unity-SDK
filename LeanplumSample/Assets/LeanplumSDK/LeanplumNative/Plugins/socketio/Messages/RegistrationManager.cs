@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !UNITY_WEBGL
+using System;
 //using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -111,5 +112,6 @@ namespace LeanplumSDK.SocketIOClient.Eventing
 			this.callBackRegistry.Clear();
 			this.eventNameRegistry.Clear();
 		}
+	}
 }
-}
+#endif

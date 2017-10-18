@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * AuthenticationResponse.cs
@@ -326,3 +327,4 @@ namespace LeanplumSDK.WebSocketSharp {
     #endregion
   }
 }
+#endif

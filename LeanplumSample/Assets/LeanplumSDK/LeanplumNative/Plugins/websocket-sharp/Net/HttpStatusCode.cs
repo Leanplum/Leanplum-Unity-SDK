@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // HttpStatusCode.cs
 //	Copied from System.Net.HttpStatusCode.cs
@@ -361,3 +362,4 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		HttpVersionNotSupported = 505,
 	}
 }
+#endif

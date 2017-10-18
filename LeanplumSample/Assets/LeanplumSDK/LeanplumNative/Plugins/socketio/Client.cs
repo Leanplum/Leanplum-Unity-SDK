@@ -1,4 +1,5 @@
-﻿/* 
+﻿#if !UNITY_WEBGL
+/* 
  * UnitySocketIO - https://github.com/NetEase/UnitySocketIO 
  * 
  * (The MIT License)
@@ -646,3 +647,4 @@ namespace LeanplumSDK.SocketIOClient
         }
     }
 }
+#endif

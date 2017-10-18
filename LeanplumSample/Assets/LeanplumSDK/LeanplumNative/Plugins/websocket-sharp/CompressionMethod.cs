@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * CompressionMethod.cs
@@ -49,3 +50,4 @@ namespace LeanplumSDK.WebSocketSharp {
     DEFLATE
   }
 }
+#endif

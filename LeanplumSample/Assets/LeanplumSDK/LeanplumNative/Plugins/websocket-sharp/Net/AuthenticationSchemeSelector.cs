@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // AuthenticationSchemeSelector.cs
 //	Copied from System.Net.AuthenticationSchemeSelector.cs
@@ -42,3 +43,4 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 	/// </param>
 	internal delegate AuthenticationSchemes AuthenticationSchemeSelector (HttpListenerRequest httpRequest);
 }
+#endif

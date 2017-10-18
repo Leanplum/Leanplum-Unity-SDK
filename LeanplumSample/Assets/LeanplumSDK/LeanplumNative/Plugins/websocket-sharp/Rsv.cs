@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * Rsv.cs
@@ -36,3 +37,4 @@ namespace LeanplumSDK.WebSocketSharp {
     ON = 0x1
   }
 }
+#endif

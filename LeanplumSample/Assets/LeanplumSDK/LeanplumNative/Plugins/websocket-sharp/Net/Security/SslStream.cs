@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * SslStream.cs
@@ -81,3 +82,4 @@ namespace LeanplumSDK.WebSocketSharp.Net.Security {
     #endregion
   }
 }
+#endif

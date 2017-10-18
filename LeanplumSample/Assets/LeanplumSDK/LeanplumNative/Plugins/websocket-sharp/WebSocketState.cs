@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * WebSocketState.cs
@@ -59,3 +60,4 @@ namespace LeanplumSDK.WebSocketSharp {
     CLOSED = 3
   }
 }
+#endif

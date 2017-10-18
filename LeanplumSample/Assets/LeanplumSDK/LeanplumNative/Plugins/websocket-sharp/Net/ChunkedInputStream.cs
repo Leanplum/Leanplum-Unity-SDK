@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // ChunkedInputStream.cs
 //	Copied from System.Net.ChunkedInputStream.cs
@@ -202,3 +203,4 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		#endregion
 	}
 }
+#endif

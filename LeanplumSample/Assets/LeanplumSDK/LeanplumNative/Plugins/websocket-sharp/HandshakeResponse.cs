@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * HandshakeResponse.cs
@@ -150,3 +151,4 @@ namespace LeanplumSDK.WebSocketSharp
     #endregion
   }
 }
+#endif

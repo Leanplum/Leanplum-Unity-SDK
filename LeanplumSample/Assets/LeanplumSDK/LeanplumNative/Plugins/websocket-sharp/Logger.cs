@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * Logger.cs
@@ -317,3 +318,4 @@ namespace LeanplumSDK.WebSocketSharp
     #endregion
   }
 }
+#endif

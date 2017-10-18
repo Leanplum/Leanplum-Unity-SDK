@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * WebSocket.cs
@@ -1904,3 +1905,4 @@ namespace LeanplumSDK.WebSocketSharp
     #endregion
   }
 }
+#endif
