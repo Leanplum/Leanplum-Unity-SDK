@@ -36,6 +36,9 @@ public class RainController : MonoBehaviour
         };
         Debug.Log("Started with rainEmissionRate of " + rainEmissionRate.Value);
         UpdateEmissionRate(rainEmissionRate.Value < maxRate ? rainEmissionRate.Value : maxRate);
+#if UNITY_WEBGL
+        StartCoroutine(UpdateVariables());
+#endif
     }
 
     private void UpdateEmissionRate(float particlesPerSecond)
@@ -49,4 +52,17 @@ public class RainController : MonoBehaviour
         em.rate = newRate;
 #endif
     }
+
+#if UNITY_WEBGL
+    private IEnumerator UpdateVariables()
+    {
+        // Real apps would only update at key points in the application's user experience, of course...
+        var waiter = new WaitForSeconds(5.0f);
+        while (true)
+        {
+            yield return waiter;
+            Leanplum.ForceContentUpdate();
+        }
+    }
+#endif
 }
