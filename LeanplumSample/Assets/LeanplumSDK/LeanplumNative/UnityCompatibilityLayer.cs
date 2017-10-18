@@ -165,11 +165,15 @@ namespace LeanplumSDK
         }
 
         public string GetDeviceId()
-        {
+        {   
+#if UNITY_WEBGL
+            return PlayerPrefs.GetString("Leanplum.WebUniqueId", Guid.NewGuid().ToString("N"));            
+#else
             // Using reflection, to avoid automatic addition of android.permission.READ_PHONE_STATE
             Type systemInfo = typeof (SystemInfo);
             PropertyInfo property = systemInfo.GetProperty("deviceUniqueIdentifier");
             return (string) property.GetValue(null, null);
+#endif
         }
 
         public string GetDeviceModel()
