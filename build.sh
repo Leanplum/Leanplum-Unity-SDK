@@ -103,26 +103,17 @@ build() {
     "../LeanplumSample/Assets/Plugins/Android/LeanplumUnity-${UNITY_VERSION}.jar"
   cd ../
 
-  echo "Compiling Unity SDK..."
+  echo "Exporting Unity SDK Package..."
 
   PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
   PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
-  PATH_TO_UNITYENGINE="$PATH_TO_UNITY_ROOT/Contents/Managed/UnityEngine.dll"
-
-  PATH_TO_LP_IN_PROJECT="Assets/WebPlayerTemplates/DoNotCompile/Leanplum"
+  # Hmmm, dubious...
   PATH_TO_PROJECT="$(pwd)/LeanplumSample"
 
-  OUT_DLL="$PATH_TO_PROJECT/Assets/Standard Assets/Leanplum/LeanplumSDK.dll"
-  export OUT_PKG="Leanplum_Unity-${UNITY_VERSION_STRING}.unitypackage"
+  export OUT_PKG="$PATH_TO_PROJECT/Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
+  $PATH_TO_UNITY -quit -nographics -batchmode -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
+  export UNITY_BINARY="$PATH_TO_PROJECT/$OUT_PKG"
 
-  # Compile dll and place into project.
-  $PATH_TO_UNITY_ROOT/Contents/Mono/bin/gmcs -r:"$PATH_TO_UNITYENGINE" \
-      -target:library -out:"$OUT_DLL" -recurse:"$PATH_TO_PROJECT/$PATH_TO_LP_IN_PROJECT/*.cs"
-
-  # Export unitypackage.
-  $PATH_TO_UNITY -quit -batchmode -projectPath "$PATH_TO_PROJECT" -exportPackage \
-  "Assets/LeanplumSample" "Assets/Standard Assets/Leanplum" "Assets/Plugins" "$OUT_PKG"
-  
   echo "Done"
 }
 
