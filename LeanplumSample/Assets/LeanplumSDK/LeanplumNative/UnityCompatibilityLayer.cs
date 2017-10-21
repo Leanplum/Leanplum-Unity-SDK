@@ -24,19 +24,21 @@ using System.Text;
 using UnityEngine;
 using System.Reflection;
 
+#if !LP_UNENCRYPTED
 using PlayerPrefs = LeanplumSDK.Prefs.PlayerPrefs;
+#endif
 
 namespace LeanplumSDK
 {
     internal class UnityCompatibilityLayer : ICompatibilityLayer
     {
-                public void Init()
-    {
-      if (LeanplumUnityHelper.Instance == null)
-      {
-        LogWarning("Unable to listen for app lifecycle callbacks");
-      }
-    }
+        public void Init()
+        {
+            if (LeanplumUnityHelper.Instance == null)
+            {
+                LogWarning("Unable to listen for app lifecycle callbacks");
+            }
+        }
 
         /// <summary>
         ///     Gets or sets a value indicating whether the Leanplum code itself
@@ -67,7 +69,7 @@ namespace LeanplumSDK
 
         public void LogWarning(string message)
         {
-      if (LeanplumNative.isStopped)
+            if (LeanplumNative.isStopped)
             {
                 return;
             }
@@ -76,7 +78,7 @@ namespace LeanplumSDK
 
         public void LogError(string message)
         {
-      if (LeanplumNative.isStopped)
+            if (LeanplumNative.isStopped)
             {
                 return;
             }
@@ -132,7 +134,11 @@ namespace LeanplumSDK
 
         public void FlushSavedSettings()
         {
+#if LP_UNENCRYPTED
+            PlayerPrefs.Save();
+#else
             PlayerPrefs.Flush();
+#endif
         }
         #endregion Persistent settings
 
