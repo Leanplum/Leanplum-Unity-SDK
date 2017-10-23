@@ -8,7 +8,8 @@ Native, iOS & Android Leanplum SDK for Unity3D.
 brew install maven
 brew install gradle
 brew install bash
-brew install android-sdk
+brew install wget
+brew install Caskroom/cask/android-sdk
 brew install Caskroom/cask/unity
 ```
 - Download iOS and Android module in Unity.
@@ -109,9 +110,7 @@ You can see more at https://www.leanplum.com/dashboard#/5019738286063616/help/do
 - 1.0.1 Added an option to turn off realtime updates in development mode. Load cached values immediately after calling Start instead of when the API call finishes.
 - 1.0.0 Initial release.
 ## License
-© 2017 Leanplum, Inc. All rights reserved.
-
-You may not distribute this source code without prior written permission from Leanplum.
+See LICENSE file.
 
 Leanplum does not support custom modifications to the SDK, without an approved pull request. Please send a pull request if you wish to include your changes.
 
