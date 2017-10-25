@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // EndPointManager.cs
 //	Copied from System.Net.EndPointManager.cs
@@ -175,3 +176,4 @@ namespace LeanplumSDK.WebSocketSharp.Net
 		#endregion
 	}
 }
+#endif

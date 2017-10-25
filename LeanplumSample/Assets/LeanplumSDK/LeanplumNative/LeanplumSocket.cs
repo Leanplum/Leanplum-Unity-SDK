@@ -1,4 +1,4 @@
-//
+#if !UNITY_WEBGL
 // Copyright 2013, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
@@ -50,7 +50,8 @@ namespace LeanplumSDK
             // Initialize and start a timer to check periodically if the socket is still alive.
             reconnectTimer = new Timer(Constants.NETWORK_SOCKET_TIMEOUT_SECONDS * 1000);
             reconnectTimer.AutoReset = true;
-            reconnectTimer.Elapsed += delegate {
+            reconnectTimer.Elapsed += delegate
+            {
                 if (!connected && !connecting)
                 {
                     Connect();
@@ -154,3 +155,4 @@ namespace LeanplumSDK
         }
     }
 }
+#endif

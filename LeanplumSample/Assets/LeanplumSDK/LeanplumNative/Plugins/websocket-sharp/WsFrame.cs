@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * WsFrame.cs
@@ -716,3 +717,4 @@ Extended Payload Len: {7}
     #endregion
   }
 }
+#endif

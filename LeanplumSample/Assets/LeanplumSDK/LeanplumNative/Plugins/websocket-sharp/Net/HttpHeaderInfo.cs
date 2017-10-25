@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // HttpHeaderInfo.cs
 //
@@ -97,3 +98,4 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		#endregion
 	}
 }
+#endif

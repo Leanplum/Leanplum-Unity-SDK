@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * WsStream.cs
@@ -251,3 +252,4 @@ namespace LeanplumSDK.WebSocketSharp
     #endregion
   }
 }
+#endif

@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * Fin.cs
@@ -36,3 +37,4 @@ namespace LeanplumSDK.WebSocketSharp {
     FINAL = 0x1
   }
 }
+#endif

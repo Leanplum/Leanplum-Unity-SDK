@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // Cookie.cs
 //	Copied from System.Net.Cookie.cs
@@ -733,3 +734,4 @@ namespace LeanplumSDK.WebSocketSharp.Net
 		#endregion
 	}
 }
+#endif

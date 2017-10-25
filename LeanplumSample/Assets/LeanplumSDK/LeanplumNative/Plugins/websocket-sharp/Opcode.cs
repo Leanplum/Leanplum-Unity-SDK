@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * Opcode.cs
@@ -65,3 +66,4 @@ namespace LeanplumSDK.WebSocketSharp {
     PONG = 0xa
   }
 }
+#endif

@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * WsCredential.cs
@@ -117,3 +118,4 @@ namespace LeanplumSDK.WebSocketSharp {
     #endregion
   }
 }
+#endif

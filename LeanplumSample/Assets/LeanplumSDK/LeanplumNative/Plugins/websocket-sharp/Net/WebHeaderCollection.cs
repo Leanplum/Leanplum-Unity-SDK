@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // WebHeaderCollection.cs
 //	Copied from System.Net.WebHeaderCollection.cs
@@ -1230,3 +1231,4 @@ namespace LeanplumSDK.WebSocketSharp.Net
 		#endregion
 	}
 }
+#endif

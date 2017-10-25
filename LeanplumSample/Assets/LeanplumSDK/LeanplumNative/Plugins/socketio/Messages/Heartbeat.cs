@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !UNITY_WEBGL
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,3 +26,4 @@ namespace LeanplumSDK.SocketIOClient.Messages
 
     }
 }
+#endif

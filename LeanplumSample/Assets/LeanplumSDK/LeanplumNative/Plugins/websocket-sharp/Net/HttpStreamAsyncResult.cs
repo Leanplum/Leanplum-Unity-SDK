@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // HttpStreamAsyncResult.cs
 //	Copied from System.Net.HttpStreamAsyncResult.cs
@@ -111,3 +112,4 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		#endregion
 	}
 }
+#endif

@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * PayloadData.cs
@@ -177,3 +178,4 @@ namespace LeanplumSDK.WebSocketSharp
     #endregion
   }
 }
+#endif

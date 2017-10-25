@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * ByteOrder.cs
@@ -45,3 +46,4 @@ namespace LeanplumSDK.WebSocketSharp {
     BIG
   }
 }
+#endif

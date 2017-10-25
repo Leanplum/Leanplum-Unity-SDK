@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // HttpListener.cs
 //	Copied from System.Net.HttpListener.cs
@@ -651,3 +652,4 @@ namespace LeanplumSDK.WebSocketSharp.Net {
 		#endregion
 	}
 }
+#endif

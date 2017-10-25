@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !UNITY_WEBGL
+using System;
 using System.Net;
 using System.Collections.Generic;
 
@@ -49,3 +50,4 @@ namespace System.Collections.Concurrent
         }
     }
 }
+#endif

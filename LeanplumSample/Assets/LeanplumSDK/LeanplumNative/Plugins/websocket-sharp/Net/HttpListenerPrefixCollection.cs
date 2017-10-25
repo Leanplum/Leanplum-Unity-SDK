@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 //
 // HttpListenerPrefixCollection.cs
 //	Copied from System.Net.HttpListenerPrefixCollection.cs
@@ -286,3 +287,4 @@ namespace LeanplumSDK.WebSocketSharp.Net
 
 	}
 }
+#endif

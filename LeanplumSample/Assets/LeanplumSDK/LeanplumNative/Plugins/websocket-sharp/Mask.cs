@@ -1,3 +1,4 @@
+#if !UNITY_WEBGL
 #region License
 /*
  * Mask.cs
@@ -36,3 +37,4 @@ namespace LeanplumSDK.WebSocketSharp {
     MASK = 0x1
   }
 }
+#endif
