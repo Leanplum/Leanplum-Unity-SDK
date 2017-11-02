@@ -14,19 +14,38 @@ brew install Caskroom/cask/unity
 ```
 - Download iOS and Android module in Unity.
 - Go to Unity's preference to set Android SDK path. It should be same as $ANDROID_HOME, e.g. `~/Library/Android/sdk`
-## Usage
-### Unity files
-Unity will import a local copy of your assets so it is better to edit it outside (such as sublime) and see if it at least build on monodevelopment afterwards.n
-### All Files
-```
-open "Unity SDK/LeanplumSample/Assets/WebPlayerTemplates/DoNotCompile/Leanplum/Leanplum.cs"
-open "Unity SDK/LeanplumSample/Assets/WebPlayerTemplates/DoNotCompile/Leanplum/LeanplumSDKObject.cs"
-open "Unity SDK/LeanplumSample/Assets/WebPlayerTemplates/DoNotCompile/Leanplum/LeanplumNative/LeanplumNative.cs"
-open "Unity SDK/LeanplumSample/Assets/Standard Assets/Leanplum/LeanplumIOS/LeanplumIOS.cs"
-open "Unity SDK/LeanplumSample/Assets/Standard Assets/Leanplum/LeanplumAndroid/LeanplumAndroid.cs"
-open "Unity SDK/LeanplumSample/Assets/Plugins/iOS/LeanplumIOSBridge.mm"
-open "Unity SDK/Android/src/com/leanplum/UnityBridge.java"
-```
+
+## Build
+To build a `unitypackage` from source, execute the build shell script from the root of this repository:
+
+`./build.sh --apple-sdk-version=1.7.0 --android-sdk-version=2.1.0`
+
+This will create a new `unitypackage` that you can import into other projects.
+
+## Development
+To make changes to this SDK, open the `LeanplumSample` Unity project that is included in this repository. That project contains the Leanplum SDK itself as well as a small sample application that you can use to test your changes as you iterate.
+
+To run the sample and test your changes, open the scene `Assets/LeanplumSample/LeanplumSample.unity`. Populate your Leanplum App Id and keys from the Leanplum dashboard into the `Leanplum` GameObject in the hierarchy, then press Play. You can experiment with changing variables by changing the value of the `rainEmissionRate` variable on your Leanplum dashbaord. If everything's working properly, you should see the rain particles' emission change in realtime while the app is playing in your editor.
+
+You can make changes to this SDK directly in the project as needed, testing them with the sample scene as explained above. When you're satisfied with your changes, you can use the `Tools/Leanplum/Export Package` menu option to export a new unitypackage containing your latest changes. This menu option assumes you've run the `build.sh` script at least once.
+
+### Recent Changes
+There is a full changelog below, but these are highlights of recent changes that have serious architectural repurcussions.
+
+#### Optimizations
+You may opt-in to *significantly* higher performance with the Leanplum SDK by defining one or both of these preprocessor symbols in your Unity project:
+
+`LP_UNENCRYPTED`: Defining this symbol will cause Leanplum to use Unity's optimized `PlayerPrefs` for local storage instead of its own string-concantenation-heavy, legacy-Hashtable-based, GC-hungry version. However, the price you pay is that local storage is no longer encrypted. The choice is yours to make on a per-project basis.
+
+`LP_UNITYWEBREQUEST`: Defining this symbol will cause the Leanplum SDK to use [Unity's modern web stack](https://docs.unity3d.com/Manual/UnityWebRequest.html) instead of the legacy `www` class for network operations. This yields some important memory and performance benefits on mobile devices for some applications.
+
+#### Normal Workflow
+This release now supports the normal Unity workflow: open Unity, make changes, test your changes, then publish.
+#### Scripts are Exported
+The unitypackage that is generated for this SDK no longer contains a .DLL that was compiled with a fixed version of `gmcs` and fixed preprocessor symbols. Instead, the package now contains the source `.cs` files for Leanplum. This means you *can* now successfully rely on preprocessor symbols within this SDK, such as `UNITY_5_6_OR_NEWER`, the per-platform symbols (e.g. `UNITY_IOS`, `UNITY_ANDROID`, etc.) as needed and those conditionals *will* work properly in end users' projects.
+#### UnityWebRequest
+This release of the SDK adds support for UnityWebRequest and friends to reap the memory benefits and optimizations of moving away from the old `www` class in Unity.
+
 ### Overview of the files
 TLDR; Unity <-> Leanplum.cs <-> SDKObject <-> [PLATFORM].cs <-> Bridge <-> iOS/Android SDK
 
@@ -44,35 +63,13 @@ Leanplum.Started += delegate(bool success) {
 
 You can see more at https://www.leanplum.com/dashboard#/5019738286063616/help/docs/unity
 
-### Open Unity with new project
-- Drag Unity SDK/LeanplumSample/Leanplum_Unity-VERSION.unitypackage into the assets folder
-- In Unity double click on LeanplumSample (unity icon) under LeanplumSample
-- In Hierarchy (Left bar) click on Leanplum (should be red)
-- Look at Inspector on the right. This is what this object contains. 
-- Go to your dashboard and copy the APP keys to the LeanplumWrapper script.
-- *Note: dev and prod key may contain spaces at the end. If so, delete them.
-- Click on the Start button, there should be no errors. (This is using UnityNative)
-#### Show Build Settings (Cmd+Shift B)
-- Click on Player Settings (next to build button) - Settings will show on the right nav.
-- -> Bundle Identifier = com.Leanplum.unityqaapp
-#### Android
-- Build Settings -> Google Project, Development Build -> Build
-- Open AndroidStudio -> Import the whole folder Unity created -> Deselect all import options.
-#### iOS
-- Build Settings -> Check on Development Build
-  -> Player Settings -> Target SDK = Simulator SDK, Scripting Backend = Mono2x 
-  -> Build
-
-- Open xcodeproject
-
-## Building
-`./build.sh --apple-sdk-version=1.7.0 --android-sdk-version=2.1.0`
 ## Contributing
 1. Fork it!
 2. Create your feature branch: `git checkout -b feature/my-new-feature`
 3. Commit your changes: `git commit -am 'Add some feature'`
 4. Push to the branch: `git push origin feature/my-new-feature`
 5. Submit a pull request :D
+
 ## History
 - 1.4.1 - April 04, 2017 Includes all iOS 1.7.0 updates. Includes all Android 2.1.0 updates.
 - 1.3.4 - February 06, 2017 Includes all iOS 1.4.3 updates. Includes all Android 1.3.3 updates.
