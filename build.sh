@@ -5,6 +5,8 @@
 #
 set -eo pipefail; [[ $DEBUG ]] && set -x
 
+PLAY_SERVICES_VERSION=10.2.4
+
 #######################################
 # Downloads the iOS SDK from internal repository.
 # Globals:
@@ -79,13 +81,12 @@ build() {
     if [[ ! -a  $jarFile ]]; then
       echo "Converting from aar to jar: $f"
       cd "$filedir"
-      unzip "$f" classes.jar
-      target=$(basename "$jarFile")
-      mv classes.jar "$target"
+      unzip "$f" classes.jar || true
+      mv classes.jar "$(basename "$jarFile")" || true
       cd ~-
     fi
-  done < <(find "$ANDROID_HOME/extras/android/m2repository" -name '*.aar' -print0)
-
+  done < <(find "$ANDROID_HOME/extras/" -name '*.aar' -print0)
+  
   echo "Preparing dependencies..."
   # Copy AppleSDK
   rm -rf "LeanplumSample/Assets/Plugins/iOS/Leanplum.framework"
@@ -99,8 +100,45 @@ build() {
   mvn initialize
   mvn package -U
 
+  # Copy Leanplum Unity SDK to libs folder.
   cp "target/LeanplumUnity-${UNITY_VERSION}.jar" \
     "../LeanplumSample/Assets/Plugins/Android/LeanplumUnity-${UNITY_VERSION}.jar"
+  # Copy GCM, FCM, Location Packages to libs folder.
+  # shellcheck disable=SC2140
+  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
+"play-services-gcm/${PLAY_SERVICES_VERSION}/"\
+"play-services-gcm-${PLAY_SERVICES_VERSION}.jar" \
+"../LeanplumSample/Assets/Plugins/Android/."
+# shellcheck disable=SC2140
+  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
+"play-services-base/${PLAY_SERVICES_VERSION}/"\
+"play-services-base-${PLAY_SERVICES_VERSION}.jar" \
+"../LeanplumSample/Assets/Plugins/Android/."
+# shellcheck disable=SC2140
+  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
+"play-services-basement/${PLAY_SERVICES_VERSION}/"\
+"play-services-basement-${PLAY_SERVICES_VERSION}.jar" \
+"../LeanplumSample/Assets/Plugins/Android/."
+# shellcheck disable=SC2140
+  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
+"play-services-tasks/${PLAY_SERVICES_VERSION}/"\
+"play-services-tasks-${PLAY_SERVICES_VERSION}.jar" \
+"../LeanplumSample/Assets/Plugins/Android/."
+# shellcheck disable=SC2140
+  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
+"play-services-iid/${PLAY_SERVICES_VERSION}/"\
+"play-services-iid-${PLAY_SERVICES_VERSION}.jar" \
+"../LeanplumSample/Assets/Plugins/Android/."
+  # shellcheck disable=SC2140
+  cp "$ANDROID_HOME/extras/google/m2repository/com/google/firebase/"\
+"firebase-messaging/${PLAY_SERVICES_VERSION}/firebase-messaging-${PLAY_SERVICES_VERSION}.jar" \
+"../LeanplumSample/Assets/Plugins/Android/."
+  # shellcheck disable=SC2140
+  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
+"play-services-location/${PLAY_SERVICES_VERSION}/"\
+"play-services-location-${PLAY_SERVICES_VERSION}.jar" \
+"../LeanplumSample/Assets/Plugins/Android/."
+
   cd ../
 
   echo "Exporting Unity SDK Package..."
