@@ -147,7 +147,7 @@ build() {
   PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
   PATH_TO_PROJECT="$(pwd)/LeanplumSample"
 
-  export OUT_PKG="$PATH_TO_PROJECT/Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
+  export OUT_PKG="Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
   $PATH_TO_UNITY -quit -nographics -batchmode -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
   export UNITY_BINARY="$PATH_TO_PROJECT/$OUT_PKG"
 
@@ -194,6 +194,10 @@ main() {
 
   replace "Android/pom.xml" \
     "<version>%LP_UNITY_VERSION%</version>" "<version>${UNITY_VERSION}</version>"
+  replace "LeanplumSample/Assets/Plugins/Android/mainTemplate.gradle" \
+    "%LP_VERSION%" "${ANDROID_SDK_VERSION}"
+  replace "LeanplumSample/Assets/Plugins/Android/mainTemplate.gradle" \
+    "%LP_UNITY_VERSION%" "${UNITY_VERSION}"
   replace "Android/pom.xml" "<version>\[1.2.25,)</version>" \
     "<version>${ANDROID_SDK_VERSION}</version>"
 
