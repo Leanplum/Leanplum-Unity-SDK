@@ -50,7 +50,7 @@
     <dependency>
       <groupId>com.leanplum</groupId>
       <artifactId>leanplum-core</artifactId>
-      <version>[1.2.25,)</version>
+      <version>[4.0.0,)</version>
       <type>jar</type>
     <exclusions>
       <exclusion>
@@ -66,7 +66,7 @@
     <dependency>
       <groupId>com.leanplum</groupId>
       <artifactId>leanplum-push</artifactId>
-      <version>[1.2.25,)</version>
+      <version>[4.0.0,)</version>
       <type>jar</type>
     <exclusions>
       <exclusion>
@@ -82,7 +82,7 @@
     <dependency>
       <groupId>com.leanplum</groupId>
       <artifactId>leanplum-gcm</artifactId>
-      <version>[1.2.25,)</version>
+      <version>[4.0.0,)</version>
       <type>jar</type>
     <exclusions>
       <exclusion>
@@ -98,7 +98,7 @@
     <dependency>
       <groupId>com.leanplum</groupId>
       <artifactId>leanplum-location</artifactId>
-      <version>[1.2.25,)</version>
+      <version>[4.0.0,)</version>
       <type>jar</type>
     <exclusions>
       <exclusion>
