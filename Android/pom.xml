@@ -49,19 +49,67 @@
     <!-- Leanplum Android SDK. -->
     <dependency>
       <groupId>com.leanplum</groupId>
-      <artifactId>Leanplum</artifactId>
+      <artifactId>leanplum-core</artifactId>
       <version>[1.2.25,)</version>
       <type>jar</type>
-      <exclusions>
-        <exclusion>
-          <groupId>com.android.support</groupId>
-          <artifactId>support-v4</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.android.support</groupId>
-          <artifactId>appcompat-v7</artifactId>
-        </exclusion>
-      </exclusions>
+    <exclusions>
+      <exclusion>
+        <groupId>com.android.support</groupId>
+        <artifactId>support-v4</artifactId>
+      </exclusion>
+      <exclusion>
+        <groupId>com.android.support</groupId>
+        <artifactId>appcompat-v7</artifactId>
+      </exclusion>
+    </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.leanplum</groupId>
+      <artifactId>leanplum-push</artifactId>
+      <version>[1.2.25,)</version>
+      <type>jar</type>
+    <exclusions>
+      <exclusion>
+        <groupId>com.android.support</groupId>
+        <artifactId>support-v4</artifactId>
+      </exclusion>
+      <exclusion>
+        <groupId>com.android.support</groupId>
+        <artifactId>appcompat-v7</artifactId>
+      </exclusion>
+    </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.leanplum</groupId>
+      <artifactId>leanplum-gcm</artifactId>
+      <version>[1.2.25,)</version>
+      <type>jar</type>
+    <exclusions>
+      <exclusion>
+        <groupId>com.android.support</groupId>
+        <artifactId>support-v4</artifactId>
+      </exclusion>
+      <exclusion>
+        <groupId>com.android.support</groupId>
+        <artifactId>appcompat-v7</artifactId>
+      </exclusion>
+    </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.leanplum</groupId>
+      <artifactId>leanplum-location</artifactId>
+      <version>[1.2.25,)</version>
+      <type>jar</type>
+    <exclusions>
+      <exclusion>
+        <groupId>com.android.support</groupId>
+        <artifactId>support-v4</artifactId>
+      </exclusion>
+      <exclusion>
+        <groupId>com.android.support</groupId>
+        <artifactId>appcompat-v7</artifactId>
+      </exclusion>
+    </exclusions>
     </dependency>
   </dependencies>
   <build>
