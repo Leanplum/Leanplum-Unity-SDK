@@ -147,7 +147,7 @@ build() {
   PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
   PATH_TO_PROJECT="$(pwd)/LeanplumSample"
 
-  export OUT_PKG="$PATH_TO_PROJECT/Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
+  export OUT_PKG="Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
   $PATH_TO_UNITY -quit -nographics -batchmode -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
   export UNITY_BINARY="$PATH_TO_PROJECT/$OUT_PKG"
 
