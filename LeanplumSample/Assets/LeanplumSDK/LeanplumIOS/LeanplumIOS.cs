@@ -108,6 +108,12 @@ namespace LeanplumSDK
         [DllImport ("__Internal")]
         internal static extern string _objectForKeyPathComponents(string dictStringJSON);
 
+        [DllImport ("__Internal")]
+        internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude);
+
+        [DllImport ("__Internal")]
+        internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude, LPLocationAccuracyType type);
+
         public LeanplumIOS() {}
 
         public override event Leanplum.VariableChangedHandler VariablesChanged;
@@ -273,6 +279,27 @@ namespace LeanplumSDK
         {
             string jsonString = _objectForKeyPathComponents(Json.Serialize(pathComponents));
             return Json.Deserialize(jsonString);
+        }
+
+        /// <summary>
+        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if used in after calling disableLocationCollection.
+        /// </summary>
+        /// <param name="latitude"> Device location latitude. </param>
+        /// <param name="longitude"> Device location longitude. </param>
+        public override void SetDeviceLocationWithLatitude(double latitude, double longitude)
+        {
+          _setDeviceLocationWithLatitude(latitude, longitude);
+        }
+
+        /// <summary>
+        ///     Set location manually. Best if used in after calling disableLocationCollection. Useful if you want to apply additional logic before sending in the location.
+        /// </summary>
+        /// <param name="latitude"> Device location latitude. </param>
+        /// <param name="longitude"> Device location longitude. </param>
+        /// <param name="type"> LPLocationAccuracyType of the location. </param>
+        public override void SetDeviceLocationWithLatitude(double latitude, double longitude, LPLocationAccuracyType type)
+        {
+          _setDeviceLocationWithLatitude(latitude, longitude, type);
         }
 
         #endregion
