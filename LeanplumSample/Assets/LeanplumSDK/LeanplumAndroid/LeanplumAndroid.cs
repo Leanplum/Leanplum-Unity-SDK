@@ -224,7 +224,7 @@ namespace LeanplumSDK
     }
 
     /// <summary>
-    ///     Set location manually. Calls SetDeviceLocation with cell type. Best if used in after calling disableLocationCollection.
+    ///     Set location manually. Calls SetDeviceLocation with cell type. Best if used in after calling DisableLocationCollection.
     /// </summary>
     /// <param name="latitude"> Device location latitude. </param>
     /// <param name="longitude"> Device location longitude. </param>
@@ -234,7 +234,7 @@ namespace LeanplumSDK
     }
 
     /// <summary>
-    ///     Set location manually. Best if used in after calling disableLocationCollection. Useful if you want to apply additional logic before sending in the location.
+    ///     Set location manually. Best if used in after calling DisableLocationCollection. Useful if you want to apply additional logic before sending in the location.
     /// </summary>
     /// <param name="latitude"> Device location latitude. </param>
     /// <param name="longitude"> Device location longitude. </param>
@@ -242,6 +242,14 @@ namespace LeanplumSDK
     public override void SetDeviceLocation(double latitude, double longitude, LeanplumLocationAccuracyType type)
     {
       NativeSDK.CallStatic("setDeviceLocation", latitude, longitude, type);
+    }
+
+    /// <summary>
+    ///     Disable location collection by setting |locationCollectionEnabled| to false.
+    /// </summary>
+    public override void DisableLocationCollection()
+    {
+      NativeSDK.CallStatic("disableLocationCollection");
     }
     #endregion
 

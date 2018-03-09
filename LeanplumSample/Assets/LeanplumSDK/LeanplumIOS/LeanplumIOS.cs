@@ -113,6 +113,9 @@ namespace LeanplumSDK
 
         [DllImport ("__Internal")]
         internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude, LPLocationAccuracyType type);
+       
+        [DllImport ("__Internal")]
+        internal static extern void _disableLocationCollection();
 
         public LeanplumIOS() {}
 
@@ -282,7 +285,7 @@ namespace LeanplumSDK
         }
 
         /// <summary>
-        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if used in after calling disableLocationCollection.
+        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if used in after calling DisableLocationCollection.
         /// </summary>
         /// <param name="latitude"> Device location latitude. </param>
         /// <param name="longitude"> Device location longitude. </param>
@@ -292,7 +295,7 @@ namespace LeanplumSDK
         }
 
         /// <summary>
-        ///     Set location manually. Best if used in after calling disableLocationCollection. Useful if you want to apply additional logic before sending in the location.
+        ///     Set location manually. Best if used in after calling DisableLocationCollection. Useful if you want to apply additional logic before sending in the location.
         /// </summary>
         /// <param name="latitude"> Device location latitude. </param>
         /// <param name="longitude"> Device location longitude. </param>
@@ -302,6 +305,13 @@ namespace LeanplumSDK
           _setDeviceLocationWithLatitude(latitude, longitude, type);
         }
 
+        /// <summary>
+        ///    Disables collecting location automatically. Will do nothing if Leanplum-Location is not used.
+        /// </summary>
+        public override void DisableLocationCollection()
+        {
+          _disableLocationCollection();
+        }
         #endregion
 
         #region API Calls

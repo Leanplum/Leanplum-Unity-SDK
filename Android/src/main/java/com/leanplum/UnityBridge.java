@@ -288,4 +288,8 @@ public class UnityBridge {
     location.setLongitude(longitude);
     Leanplum.setDeviceLocation(location, type);
   }
+
+  public static void disableLocationCollection() {
+    Leanplum.disableLocationCollection();
+  }
 }

@@ -268,6 +268,11 @@ extern "C"
                                       longitude: longitude
                                            type: type];
     }
+    
+    void _disableLocationCollection()
+    {
+        [Leanplum disableLocationCollection];
+    }
 
     void _setGameObject(const char *gameObject)
     {
