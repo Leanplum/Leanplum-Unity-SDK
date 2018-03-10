@@ -108,6 +108,15 @@ namespace LeanplumSDK
         [DllImport ("__Internal")]
         internal static extern string _objectForKeyPathComponents(string dictStringJSON);
 
+        [DllImport ("__Internal")]
+        internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude);
+
+        [DllImport ("__Internal")]
+        internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude, LPLocationAccuracyType type);
+       
+        [DllImport ("__Internal")]
+        internal static extern void _disableLocationCollection();
+
         public LeanplumIOS() {}
 
         public override event Leanplum.VariableChangedHandler VariablesChanged;
@@ -275,6 +284,34 @@ namespace LeanplumSDK
             return Json.Deserialize(jsonString);
         }
 
+        /// <summary>
+        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if used in after calling DisableLocationCollection.
+        /// </summary>
+        /// <param name="latitude"> Device location latitude. </param>
+        /// <param name="longitude"> Device location longitude. </param>
+        public override void SetDeviceLocationWithLatitude(double latitude, double longitude)
+        {
+          _setDeviceLocationWithLatitude(latitude, longitude);
+        }
+
+        /// <summary>
+        ///     Set location manually. Best if used in after calling DisableLocationCollection. Useful if you want to apply additional logic before sending in the location.
+        /// </summary>
+        /// <param name="latitude"> Device location latitude. </param>
+        /// <param name="longitude"> Device location longitude. </param>
+        /// <param name="type"> LPLocationAccuracyType of the location. </param>
+        public override void SetDeviceLocationWithLatitude(double latitude, double longitude, LPLocationAccuracyType type)
+        {
+          _setDeviceLocationWithLatitude(latitude, longitude, type);
+        }
+
+        /// <summary>
+        ///    Disables collecting location automatically. Will do nothing if Leanplum-Location is not used.
+        /// </summary>
+        public override void DisableLocationCollection()
+        {
+          _disableLocationCollection();
+        }
         #endregion
 
         #region API Calls

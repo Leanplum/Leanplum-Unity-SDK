@@ -255,6 +255,24 @@ extern "C"
                              [[NSString stringWithFormat:@"ForceContentUpdateWithCallback:%d", key] UTF8String]);
         }];
     }
+    
+    void _setDeviceLocationWithLatitude(double latitude, double longitude)
+    {
+        [Leanplum setDeviceLocationWithLatitude: latitude
+                                      longitude: longitude];
+    }
+    
+    void _setDeviceLocationWithLatitude(double latitude, double longitude, LPLocationAccuracyType type)
+    {
+        [Leanplum setDeviceLocationWithLatitude: latitude
+                                      longitude: longitude
+                                           type: type];
+    }
+    
+    void _disableLocationCollection()
+    {
+        [Leanplum disableLocationCollection];
+    }
 
     void _setGameObject(const char *gameObject)
     {
