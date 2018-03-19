@@ -143,6 +143,18 @@ namespace LeanplumSDK
         ///     or integers representing indices in a list.
         /// </summary>
         public abstract object ObjectForKeyPathComponents (object[] pathComponents);
+
+        /// <summary>
+        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if used in after calling DisableLocationCollection.
+        /// </summary>
+        /// <param name="latitude"> Device location latitude. </param>
+        /// <param name="longitude"> Device location longitude. </param>
+        public abstract void SetDeviceLocationWithLatitude(double latitude, double longitude);
+
+        /// <summary>
+        ///    Disables collecting location automatically. Will do nothing if Leanplum-Location is not used.
+        /// </summary>
+        public abstract void DisableLocationCollection();
         #endregion
 
         #region API Calls

@@ -262,13 +262,6 @@ extern "C"
                                       longitude: longitude];
     }
     
-    void _setDeviceLocationWithLatitude(double latitude, double longitude, LPLocationAccuracyType type)
-    {
-        [Leanplum setDeviceLocationWithLatitude: latitude
-                                      longitude: longitude
-                                           type: type];
-    }
-    
     void _disableLocationCollection()
     {
         [Leanplum disableLocationCollection];

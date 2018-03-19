@@ -35,7 +35,6 @@ import com.google.gson.reflect.TypeToken;
 import com.leanplum.callbacks.StartCallback;
 import com.leanplum.callbacks.VariableCallback;
 import com.leanplum.callbacks.VariablesChangedCallback;
-import com.leanplum.LeanplumLocationAccuracyType;
 import com.leanplum.json.JsonConverter;
 import com.unity3d.player.UnityPlayer;
 
@@ -279,14 +278,6 @@ public class UnityBridge {
     location.setLatitude(latitude);
     location.setLongitude(longitude);
     Leanplum.setDeviceLocation(location);
-  }
-
-  public static void setDeviceLocation(double latitude, double longitude,
-      LeanplumLocationAccuracyType type) {
-    Location location = new Location("");
-    location.setLatitude(latitude);
-    location.setLongitude(longitude);
-    Leanplum.setDeviceLocation(location, type);
   }
 
   public static void disableLocationCollection() {
