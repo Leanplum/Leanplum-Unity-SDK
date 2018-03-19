@@ -110,9 +110,6 @@ namespace LeanplumSDK
 
         [DllImport ("__Internal")]
         internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude);
-
-        [DllImport ("__Internal")]
-        internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude, LPLocationAccuracyType type);
        
         [DllImport ("__Internal")]
         internal static extern void _disableLocationCollection();
@@ -285,28 +282,19 @@ namespace LeanplumSDK
         }
 
         /// <summary>
-        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if used in after calling DisableLocationCollection.
+        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
+        ///     used in after calling DisableLocationCollection. Not supported on Native.
         /// </summary>
         /// <param name="latitude"> Device location latitude. </param>
         /// <param name="longitude"> Device location longitude. </param>
-        public override void SetDeviceLocationWithLatitude(double latitude, double longitude)
+        public override void SetDeviceLocation(double latitude, double longitude)
         {
           _setDeviceLocationWithLatitude(latitude, longitude);
         }
 
         /// <summary>
-        ///     Set location manually. Best if used in after calling DisableLocationCollection. Useful if you want to apply additional logic before sending in the location.
-        /// </summary>
-        /// <param name="latitude"> Device location latitude. </param>
-        /// <param name="longitude"> Device location longitude. </param>
-        /// <param name="type"> LPLocationAccuracyType of the location. </param>
-        public override void SetDeviceLocationWithLatitude(double latitude, double longitude, LPLocationAccuracyType type)
-        {
-          _setDeviceLocationWithLatitude(latitude, longitude, type);
-        }
-
-        /// <summary>
-        ///    Disables collecting location automatically. Will do nothing if Leanplum-Location is not used.
+        ///    Disables collecting location automatically. Will do nothing if Leanplum-Location is 
+        ///    not used. Not supported on Native.
         /// </summary>
         public override void DisableLocationCollection()
         {
