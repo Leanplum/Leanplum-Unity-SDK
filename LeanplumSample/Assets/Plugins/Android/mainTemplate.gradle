@@ -36,7 +36,7 @@ apply plugin: 'com.android.application'
 
 dependencies {
     // Leanplum Android SDK
-    compile 'com.leanplum:Leanplum:' + LP_VERSION
+    compile 'com.leanplum:leanplum-core:' + LP_VERSION
 
     // Leanplum Unity SDK
     compile fileTree(dir: 'libs', include: ['LeanplumUnity-' + LP_UNITY_VERSION + '.jar'])
@@ -45,12 +45,15 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.2'
 
     // For GCM Messaging support, uncomment following line:
+    // compile 'com.leanplum:leanplum-gcm:' + LP_VERSION
     // compile('com.google.android.gms:play-services-gcm:[8.3.0,)')
 
     // For FCM Messaging support, uncomment following line:
+    // compile 'com.leanplum:leanplum-fcm:' + LP_VERSION
     // compile('com.google.firebase:firebase-messaging:[10.0.0,)')
 
     // For Location support, uncomment following line:
+    // compile 'com.leanplum:leanplum-location:' + LP_VERSION
     // compile('com.google.android.gms:play-services-location:[10.0.0,)')
 }
 
