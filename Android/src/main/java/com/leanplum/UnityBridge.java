@@ -28,6 +28,7 @@ import org.json.JSONException;
 
 import android.content.Context;
 import android.util.Log;
+import android.location.Location;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -270,5 +271,16 @@ public class UnityBridge {
 
   public static String varNameComponents(String name) {
     return gson.toJson(Var.define(name, null).nameComponents());
+  }
+
+  public static void setDeviceLocation(double latitude, double longitude) {
+    Location location = new Location("");
+    location.setLatitude(latitude);
+    location.setLongitude(longitude);
+    Leanplum.setDeviceLocation(location);
+  }
+
+  public static void disableLocationCollection() {
+    Leanplum.disableLocationCollection();
   }
 }
