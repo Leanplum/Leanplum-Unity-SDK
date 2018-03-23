@@ -229,6 +229,24 @@ namespace LeanplumSDK
         {
             return LeanplumFactory.SDK.ObjectForKeyPathComponents(pathComponents);
         }
+
+        /// <summary>
+        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
+        ///     used in after calling DisableLocationCollection. Not supported on Native.
+        /// </summary>
+        /// <param name="latitude"> Device location latitude. </param>
+        /// <param name="longitude"> Device location longitude. </param>
+        public static void SetDeviceLocation(double latitude, double longitude) {
+            LeanplumFactory.SDK.SetDeviceLocation(latitude, longitude);
+        }
+
+        /// <summary>
+        ///    Disables collecting location automatically. Will do nothing if Leanplum-Location is 
+        ///    not used. Not supported on Native.
+        /// </summary>
+        public static void DisableLocationCollection() {
+            LeanplumFactory.SDK.DisableLocationCollection();
+        }
         #endregion
 
         #region Callbacks
