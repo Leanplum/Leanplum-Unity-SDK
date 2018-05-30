@@ -3,9 +3,24 @@
 //  Leanplum
 //
 //  Created by Aleksandar Gyorev on 05/08/15.
-//  Copyright (c) 2015 Leanplum. All rights reserved.
+//  Copyright (c) 2015 Leanplum, Inc. All rights reserved.
 //
+//  Licensed to the Apache Software Foundation (ASF) under one
+//  or more contributor license agreements.  See the NOTICE file
+//  distributed with this work for additional information
+//  regarding copyright ownership.  The ASF licenses this file
+//  to you under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
 //
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing,
+//  software distributed under the License is distributed on an
+//  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+//  KIND, either express or implied.  See the License for the
+//  specific language governing permissions and limitations
+//  under the License.
 
 #import <Foundation/Foundation.h>
 
@@ -80,7 +95,8 @@
 /**
  * This block is used when you define a callback.
  */
-typedef void (^LeanplumInboxChangedBlock)();
+typedef void (^LeanplumInboxChangedBlock)(void);
+typedef void (^LeanplumInboxSyncedBlock)(BOOL success);
 
 @interface LPInbox : NSObject
 
@@ -136,6 +152,13 @@ typedef void (^LeanplumInboxChangedBlock)();
 - (void)onChanged:(LeanplumInboxChangedBlock)block;
 
 /**
+ * Block to call when forceContentUpdate was called.
+ * Returns true if syncing was successful.
+ * Note: use onChanged: for UI.
+ */
+- (void)onForceContentUpdate:(LeanplumInboxSyncedBlock)block;
+
+/**
  @{
  * Adds a responder to be executed when an event happens.
  * Uses NSInvocation instead of blocks.
@@ -152,7 +175,7 @@ typedef void (^LeanplumInboxChangedBlock)();
 
 @end
 
-typedef void (^LeanplumNewsfeedChangedBlock)();
+typedef void (^LeanplumNewsfeedChangedBlock)(void);
 
 @interface LPNewsfeed : NSObject
 
