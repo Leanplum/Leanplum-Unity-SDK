@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>LeanplumUnity</groupId>
   <artifactId>LeanplumUnity</artifactId>
-  <version>1.4.5-SNAPSHOT</version>
+  <version>%LP_UNITY_VERSION%</version>
   <repositories>
     <repository>
       <id>android-support</id>
