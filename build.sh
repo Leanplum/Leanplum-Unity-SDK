@@ -3,7 +3,14 @@
 # LPM | Author: Ben Marten
 # Copyright (c) 2017 Leanplum Inc. All rights reserved.
 #
-set -eo pipefail; [[ $DEBUG ]] && set -x
+# This will not work standalone. You must call it from `make unitypackage`
+#
+
+set -o noglob
+set -o nounset
+set -o xtrace
+set -o pipefail
+set -o errexit
 
 PLAY_SERVICES_VERSION=10.2.4
 
@@ -206,7 +213,7 @@ main() {
   # Restore variable Android version
   git checkout "Android/pom.xml"
 
-  echo "${GREEN} Done.${NORMAL}"
+  echo "Done."
 }
 
 main "$@"
