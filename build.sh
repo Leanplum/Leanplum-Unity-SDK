@@ -12,7 +12,7 @@ set -o xtrace
 set -o pipefail
 set -o errexit
 
-PLAY_SERVICES_VERSION=10.2.4
+PLAY_SERVICES_VERSION=11.0.1
 
 #######################################
 # Downloads the iOS SDK from internal repository.
@@ -25,21 +25,18 @@ PLAY_SERVICES_VERSION=10.2.4
 #######################################
 download_ios_sdk() {
   local version=$1
-  local repo=https://github.com/Leanplum/Leanplum-iOS-SDK-static
+  local repo=https://github.com/Leanplum/Leanplum-iOS-SDK
 
   echo "Downloading AppleSDK ${version} ..."
   if [ -d "/tmp/Leanplum-${version}.framework" ]; then
     rm -rf "/tmp/Leanplum-${version}.framework"
   fi
 
-  # Try official repo first, fallback to internal repo.
+  # Download from offical git repo.
   local destination="/tmp/Leanplum-${version}.zip"
-  if ! wget --show-progress -O "$destination" \
-      "${repo}/releases/download/${version}/Leanplum.framework.zip" ; then
-    repo="${repo}-internal"
-    wget --show-progress -O "$destination" \
-      "${repo}/releases/download/${version}/Leanplum.framework.zip"
-  fi
+  wget --show-progress -O "$destination" \
+    "${repo}/releases/download/${version}/Leanplum.framework.zip"
+
   echo "Extracting AppleSDK ..."
   rm -rf "/tmp/Leanplum.framework"
   unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/"
