@@ -18,7 +18,15 @@ brew install Caskroom/cask/unity
 ## Build
 To build a `unitypackage` from source, execute the build shell script from the root of this repository:
 
-`./build.sh --apple-sdk-version=1.7.0 --android-sdk-version=2.1.0`
+`./build.sh --apple-sdk-version=2.2.0 --android-sdk-version=4.2.1 --version=1.6.1`
+
+or to use latest version of Android/iOS SDK (this uses public github api to make request)
+
+`./build.sh`
+
+or
+
+`make unitypackage`
 
 This will create a new `unitypackage` that you can import into other projects.
 
