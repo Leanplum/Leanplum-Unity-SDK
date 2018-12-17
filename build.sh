@@ -8,11 +8,25 @@
 
 set -o noglob
 set -o nounset
-set -o xtrace
 set -o pipefail
 set -o errexit
 
-PLAY_SERVICES_VERSION=10.2.4
+PLAY_SERVICES_VERSION=11.0.1
+
+#######################################
+# Gets the latest version of specified repo
+# Globals:
+#   None
+# Arguments:
+#   Repo to get from
+# Returns:
+#   Latest published version
+#######################################
+get_latest_version() {
+    curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+    grep '"tag_name":' |                                            # Get tag line
+    sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
+}
 
 #######################################
 # Downloads the iOS SDK from internal repository.
@@ -25,21 +39,18 @@ PLAY_SERVICES_VERSION=10.2.4
 #######################################
 download_ios_sdk() {
   local version=$1
-  local repo=https://github.com/Leanplum/Leanplum-iOS-SDK-static
+  local repo=https://github.com/Leanplum/Leanplum-iOS-SDK
 
   echo "Downloading AppleSDK ${version} ..."
   if [ -d "/tmp/Leanplum-${version}.framework" ]; then
     rm -rf "/tmp/Leanplum-${version}.framework"
   fi
 
-  # Try official repo first, fallback to internal repo.
+  # Download from offical git repo.
   local destination="/tmp/Leanplum-${version}.zip"
-  if ! wget --show-progress -O "$destination" \
-      "${repo}/releases/download/${version}/Leanplum.framework.zip" ; then
-    repo="${repo}-internal"
-    wget --show-progress -O "$destination" \
-      "${repo}/releases/download/${version}/Leanplum.framework.zip"
-  fi
+  wget --show-progress -O "$destination" \
+    "${repo}/releases/download/${version}/Leanplum.framework.zip"
+
   echo "Extracting AppleSDK ..."
   rm -rf "/tmp/Leanplum.framework"
   unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/"
@@ -171,12 +182,6 @@ build() {
 #   None
 #######################################
 main() {
-  # Check for Jenkins build number, otherwise default to curent time in seconds.
-  if [[ -z "${BUILD_NUMBER+x}" ]]; then
-    BUILD_NUMBER=$(date "+%s")
-  fi
-  export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION.$BUILD_NUMBER"}
-
   for i in "$@"; do
     case $i in
       --apple-sdk-version=*)
@@ -187,15 +192,37 @@ main() {
       ANDROID_SDK_VERSION="${i#*=}"
       shift # past argument=value
       ;;
+      --version=*)
+      UNITY_VERSION="${i#*=}"
+      shift # past argument=value
+      ;;
+      --stacktrace)
+      set -o xtrace
+      shift
+      ;;
     esac
   done
 
+  # Check for Jenkins build number, otherwise default to curent time in seconds.
+  if [[ -z "${BUILD_NUMBER+x}" ]]; then
+    BUILD_NUMBER=$(date "+%s")
+  fi
+
+  if [[ -z "${UNITY_VERSION+x}" ]]; then
+    echo "Unity SDK version not specified, using current: ${APPLE_SDK_VERSION}"
+  fi
+
   if [[ -z ${APPLE_SDK_VERSION+x} ]]; then
-    echo "Please specify the Apple SDK version with --apple-sdk-version=<VERSION>" && exit 1
+    APPLE_SDK_VERSION=$(get_latest_version "Leanplum/Leanplum-iOS-SDK")
+    echo "iOS SDK version not specified, using latest: ${APPLE_SDK_VERSION}"
   fi
   if [[ -z ${ANDROID_SDK_VERSION+x} ]]; then
-    echo "Please specify the Android SDK version with --android-sdk-version=<VERSION>" && exit 1
+    ANDROID_SDK_VERSION=$(get_latest_version "Leanplum/Leanplum-Android-SDK")
+    echo "Android SDK version not specified, using latest: ${ANDROID_SDK_VERSION}"
   fi
+
+  export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION.$BUILD_NUMBER"}
+  echo "Building unitypackage with version ${UNITY_VERSION_STRING}, using iOS ${APPLE_SDK_VERSION} and Android ${ANDROID_SDK_VERSION}"
 
   download_ios_sdk $APPLE_SDK_VERSION
 
