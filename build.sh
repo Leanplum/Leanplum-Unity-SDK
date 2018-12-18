@@ -164,10 +164,13 @@ build() {
   PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
   PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
   PATH_TO_PROJECT="$(pwd)/LeanplumSample"
+  PATH_TO_EXPORT="$(pwd)/Leanplum-Unity-Plugin"
 
   export OUT_PKG="Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
   $PATH_TO_UNITY -quit -nographics -batchmode -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
   export UNITY_BINARY="$PATH_TO_PROJECT/$OUT_PKG"
+
+  mv $UNITY_BINARY $PATH_TO_EXPORT
 
   echo "Done"
 }
@@ -209,7 +212,7 @@ main() {
   fi
 
   if [[ -z "${UNITY_VERSION+x}" ]]; then
-    echo "Unity SDK version not specified, using current: ${APPLE_SDK_VERSION}"
+    echo "Unity SDK version not specified, using current: ${UNITY_VERSION}"
   fi
 
   if [[ -z ${APPLE_SDK_VERSION+x} ]]; then

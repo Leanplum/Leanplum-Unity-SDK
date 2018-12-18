@@ -3,6 +3,10 @@
   <groupId>LeanplumUnity</groupId>
   <artifactId>LeanplumUnity</artifactId>
   <version>%LP_UNITY_VERSION%</version>
+  <properties>
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
+  </properties>
   <repositories>
     <repository>
       <id>android-support</id>
