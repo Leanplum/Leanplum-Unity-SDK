@@ -235,6 +235,33 @@ namespace LeanplumSDK
     }
 
     /// <summary>
+    ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
+    ///     used in after calling DisableLocationCollection. Not supported on Native.
+    /// </summary>
+    /// <param name="latitude"> Device location latitude. </param>
+    /// <param name="longitude"> Device location longitude. </param>
+    /// <param name="type"> Location accuracy type. </param>
+    public override void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type) 
+    {
+      NativeSDK.CallStatic("setDeviceLocation", latitude, longitude, (int) type);
+    }
+
+    /// <summary>
+    ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
+    ///     used in after calling DisableLocationCollection. Not supported on Native.
+    /// </summary>
+    /// <param name="latitude"> Device location latitude. </param>
+    /// <param name="longitude"> Device location longitude. </param>
+    /// <param name="city"> Location city. </param>
+    /// <param name="region"> Location region. </param>
+    /// <param name="country"> Country ISO code. </param>
+    /// <param name="type"> Location accuracy type. </param>
+    public override void SetDeviceLocation(double latitude, double longitude, string city, string region, string country, LPLocationAccuracyType type)
+    {
+      NativeSDK.CallStatic("setDeviceLocation", latitude, longitude, (int) type);
+    }
+
+    /// <summary>
     ///    Disables collecting location automatically. Will do nothing if Leanplum-Location is 
     ///    not used. Not supported on Native.
     /// </summary>

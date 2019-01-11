@@ -110,6 +110,12 @@ namespace LeanplumSDK
 
         [DllImport ("__Internal")]
         internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude);
+
+        [DllImport ("__Internal")]
+        internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude, int type);
+
+        [DllImport ("__Internal")]
+        internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude, string city, string region, string country, int type);
        
         [DllImport ("__Internal")]
         internal static extern void _disableLocationCollection();
@@ -290,6 +296,33 @@ namespace LeanplumSDK
         public override void SetDeviceLocation(double latitude, double longitude)
         {
           _setDeviceLocationWithLatitude(latitude, longitude);
+        }
+
+        /// <summary>
+        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
+        ///     used in after calling DisableLocationCollection. Not supported on Native.
+        /// </summary>
+        /// <param name="latitude"> Device location latitude. </param>
+        /// <param name="longitude"> Device location longitude. </param>
+        /// <param name="type"> Location accuracy type. </param>
+        public override void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type) 
+        {
+            _setDeviceLocationWithLatitude(latitude, longitude, (int) type);
+        }
+
+        /// <summary>
+        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
+        ///     used in after calling DisableLocationCollection. Not supported on Native.
+        /// </summary>
+        /// <param name="latitude"> Device location latitude. </param>
+        /// <param name="longitude"> Device location longitude. </param>
+        /// <param name="city"> Location city. </param>
+        /// <param name="region"> Location region. </param>
+        /// <param name="country"> Country ISO code. </param>
+        /// <param name="type"> Location accuracy type. </param>
+        public override void SetDeviceLocation(double latitude, double longitude, string city, string region, string country, LPLocationAccuracyType type)
+        {
+            _setDeviceLocationWithLatitude(latitude, longitude, city, region, country, (int) type);
         }
 
         /// <summary>
