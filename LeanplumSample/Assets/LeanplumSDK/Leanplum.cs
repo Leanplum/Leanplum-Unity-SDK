@@ -24,6 +24,12 @@ using UnityEngine;
 
 namespace LeanplumSDK
 {
+    public enum LPLocationAccuracyType {
+        LPLocationAccuracyIP = 0,
+        LPLocationAccuracyCELL = 1,
+        LPLocationAccuracyGPS = 2
+    }
+
     /// <summary>
     ///     Leanplum Unity SDK.
     /// </summary>
@@ -238,6 +244,33 @@ namespace LeanplumSDK
         /// <param name="longitude"> Device location longitude. </param>
         public static void SetDeviceLocation(double latitude, double longitude) {
             LeanplumFactory.SDK.SetDeviceLocation(latitude, longitude);
+        }
+
+        /// <summary>
+        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
+        ///     used in after calling DisableLocationCollection. Not supported on Native.
+        /// </summary>
+        /// <param name="latitude"> Device location latitude. </param>
+        /// <param name="longitude"> Device location longitude. </param>
+        /// <param name="type"> Location accuracy type. </param>
+        public static void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type) 
+        {
+            LeanplumFactory.SDK.SetDeviceLocation(latitude, longitude, type);
+        }
+
+        /// <summary>
+        ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
+        ///     used in after calling DisableLocationCollection. Not supported on Native.
+        /// </summary>
+        /// <param name="latitude"> Device location latitude. </param>
+        /// <param name="longitude"> Device location longitude. </param>
+        /// <param name="city"> Location city. </param>
+        /// <param name="region"> Location region. </param>
+        /// <param name="country"> Country ISO code. </param>
+        /// <param name="type"> Location accuracy type. </param>
+        public static void SetDeviceLocation(double latitude, double longitude, string city, string region, string country, LPLocationAccuracyType type)
+        {
+            LeanplumFactory.SDK.SetDeviceLocation(latitude, longitude, city, region, country, type);
         }
 
         /// <summary>
