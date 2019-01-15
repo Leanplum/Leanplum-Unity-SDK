@@ -86,6 +86,7 @@ namespace LeanplumSDK
             internal const string LATEST_VERSION = "latestVersion";
             internal const string LOCALE = "locale";
             internal const string LOCATION = "location";
+            internal const string LOCATION_ACCURACY_TYPE = "locationAccuracyType";
             internal const string MESSAGE = "message";
             internal const string REASON = "reason";
             internal const string RESPONSE = "response";

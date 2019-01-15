@@ -55,6 +55,21 @@ namespace LeanplumSDK
                 }
             }
         }
+
+        private static string LocationAccuracyTypeToString(LPLocationAccuracyType type)
+        {
+	        switch (type)
+	        {
+		        case LPLocationAccuracyType.LPLocationAccuracyIP:
+			        return "IP";
+		        case LPLocationAccuracyType.LPLocationAccuracyGPS:
+			        return "GPS";
+		        case LPLocationAccuracyType.LPLocationAccuracyCELL:
+			        return "CELL";
+		        default:
+			        throw new NotImplementedException(string.Format("LPLocationAccuracyType {0} is not implemented yet", type));
+	        }
+        }
         #endregion
 
         private static bool _hasStarted;
@@ -218,29 +233,35 @@ namespace LeanplumSDK
 
         /// <summary>
         ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
-        ///     used in after calling DisableLocationCollection. Not supported on Native.
+        ///     used in after calling DisableLocationCollection.
         /// </summary>
         /// <param name="latitude"> Device location latitude. </param>
         /// <param name="longitude"> Device location longitude. </param>
-        public override void SetDeviceLocation(double latitude, double longitude) {
-            // Not implemented.
+        public override void SetDeviceLocation(double latitude, double longitude)
+        {
+	        var parameters = new Dictionary<string, string>();
+	        parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
+	        LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
         }
 
         /// <summary>
         ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
-        ///     used in after calling DisableLocationCollection. Not supported on Native.
+        ///     used in after calling DisableLocationCollection.
         /// </summary>
         /// <param name="latitude"> Device location latitude. </param>
         /// <param name="longitude"> Device location longitude. </param>
         /// <param name="type"> Location accuracy type. </param>
         public override void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type) 
         {
-            // Not implemented.
+	        var parameters = new Dictionary<string, string>();
+	        parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
+	        parameters[Constants.Keys.LOCATION_ACCURACY_TYPE] = LocationAccuracyTypeToString(type);
+	        LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
         }
 
         /// <summary>
         ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
-        ///     used in after calling DisableLocationCollection. Not supported on Native.
+        ///     used in after calling DisableLocationCollection.
         /// </summary>
         /// <param name="latitude"> Device location latitude. </param>
         /// <param name="longitude"> Device location longitude. </param>
@@ -250,7 +271,13 @@ namespace LeanplumSDK
         /// <param name="type"> Location accuracy type. </param>
         public override void SetDeviceLocation(double latitude, double longitude, string city, string region, string country, LPLocationAccuracyType type)
         {
-            // Not implemented.
+	        var parameters = new Dictionary<string, string>();
+	        parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
+	        parameters[Constants.Keys.LOCATION_ACCURACY_TYPE] = LocationAccuracyTypeToString(type);
+	        parameters[Constants.Keys.COUNTRY] = city;
+	        parameters[Constants.Keys.REGION] = region;
+	        parameters[Constants.Keys.CITY] = country;
+	        LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
         }
 
         /// <summary>
