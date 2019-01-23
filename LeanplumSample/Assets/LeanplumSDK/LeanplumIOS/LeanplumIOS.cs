@@ -22,6 +22,7 @@
 using System;
 using UnityEngine;
 using LeanplumSDK.MiniJSON;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -609,6 +610,45 @@ namespace LeanplumSDK
             return (cached != null) ? (Var<Dictionary<string, string>>) cached :
                 new IOSVar<Dictionary<string, string>>(name, Constants.Kinds.DICTIONARY,
                     defaultValue);
+        }
+
+        public override Var<U> Define<U>(string name, U defaultValue)
+        {
+            string kind = null;
+            if (defaultValue is int || defaultValue is long || defaultValue is short ||
+                defaultValue is char || defaultValue is sbyte || defaultValue is byte)
+            {
+                kind = Constants.Kinds.INT;
+            }
+            else if (defaultValue is float || defaultValue is double || defaultValue is decimal)
+            {
+                kind = Constants.Kinds.FLOAT;
+            }
+            else if (defaultValue is string)
+            {
+                kind = Constants.Kinds.STRING;
+            }
+            else if (defaultValue is IList || defaultValue is Array)
+            {
+                kind = Constants.Kinds.ARRAY;
+            }
+            else if (defaultValue is IDictionary)
+            {
+                kind = Constants.Kinds.DICTIONARY;
+            }
+            else if (defaultValue is bool)
+            {
+                kind = Constants.Kinds.BOOLEAN;
+            }
+            else
+            {
+                Debug.LogError("Leanplum Error: Default value for \"" + name +
+                    "\" not recognized or supported.");
+                return null;
+            }
+
+            Var cached = GetOrDefineVariable(name, kind, defaultValue);
+            return (cached != null) ? (Var<U>) cached : new IOSVar<U>(name, kind, defaultValue);
         }
 
         public override Var<AssetBundle> DefineAssetBundle(string name,
