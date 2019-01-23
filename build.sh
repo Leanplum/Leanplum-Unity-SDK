@@ -206,11 +206,6 @@ main() {
     esac
   done
 
-  # Check for Jenkins build number, otherwise default to curent time in seconds.
-  if [[ -z "${BUILD_NUMBER+x}" ]]; then
-    BUILD_NUMBER=$(date "+%s")
-  fi
-
   if [[ -z "${UNITY_VERSION+x}" ]]; then
     echo "Unity SDK version not specified, using current: ${UNITY_VERSION}"
   fi
@@ -224,7 +219,7 @@ main() {
     echo "Android SDK version not specified, using latest: ${ANDROID_SDK_VERSION}"
   fi
 
-  export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION.$BUILD_NUMBER"}
+  export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION"}
   echo "Building unitypackage with version ${UNITY_VERSION_STRING}, using iOS ${APPLE_SDK_VERSION} and Android ${ANDROID_SDK_VERSION}"
 
   download_ios_sdk $APPLE_SDK_VERSION
