@@ -28,7 +28,21 @@ or
 
 `make unitypackage`
 
-This will create a new `unitypackage` that you can import into other projects.
+This will create a new `unitypackage` in `Leanplum-Unity-Plugin` that you can import into other projects.
+
+## Release
+
+Open up `Makefile` and update versions of the SDK to desired version.
+
+To manually release new build run:
+
+`make unitypackage`
+
+or
+
+`make release`
+
+which will build new version of the Unity SDK, tag it with `UNITY_VERSION` specified in `Makefile` and push new commit to master branch.
 
 ## Development
 To make changes to this SDK, open the `LeanplumSample` Unity project that is included in this repository. That project contains the Leanplum SDK itself as well as a small sample application that you can use to test your changes as you iterate.
