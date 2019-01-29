@@ -242,6 +242,14 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        ///     Logs a pruchase event in your application. The string can be any
+        ///     value of your choosing, however in most cases you will want to use
+        ///     Leanplum.PURCHASE_EVENT_NAME
+        /// </summary>
+        public abstract void TrackPurchase(string eventName, double value, string currencyCode,
+            IDictionary<string, object> parameters);
+
+        /// <summary>
         ///     Logs a particular event in your application. The string can be
         ///     any value of your choosing, and will show up in the dashboard.
         ///     To track purchases, use Leanplum.PURCHASE_EVENT_NAME as the event name.

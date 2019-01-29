@@ -308,6 +308,17 @@ extern "C"
         [Leanplum trackInAppPurchases];
     }
 
+    void _trackPurchase(const char *event, double value, const char *currencyCode, const char *dictStringJSON)
+    {
+        NSData *data = [leanplum_createNSString(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
+                                                                   options:NSUTF8StringEncoding
+                                                                     error:nil];
+
+        [Leanplum trackPurchase:leanplum_createNSString(event) withValue:value andCurrencyCode:leanplum_createNSString(currencyCode)
+          andParameters:dictionary];
+    }
+
     void _track(const char *event, double value, const char *info, const char *dictStringJSON)
     {
         NSData *data = [leanplum_createNSString(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];

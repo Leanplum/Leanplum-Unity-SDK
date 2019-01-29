@@ -175,6 +175,12 @@ public class UnityBridge {
     Leanplum.start(bridgeContext, userId, attributes);
   }
 
+  public static void trackPurchase(String eventName, double value, String currencyCode,
+      String jsonParameters) {
+    Leanplum.trackPurchase(eventName, value, currencyCode,
+        JsonConverter.fromJson(jsonParameters));
+  }
+
   public static void track(String eventName, double value, String info,
       String jsonParameters) {
     Leanplum.track(eventName, value, info,

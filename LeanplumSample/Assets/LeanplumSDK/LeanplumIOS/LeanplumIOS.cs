@@ -57,6 +57,10 @@ namespace LeanplumSDK
         internal static extern void _trackIOSInAppPurchases();
 
         [DllImport ("__Internal")]
+        internal static extern void _trackPurchase(string _event, double value, string currencyCode,
+          string dictStringJSON);
+
+        [DllImport ("__Internal")]
         internal static extern void _track(string _event, double value, string info,
           string dictStringJSON);
 
@@ -355,6 +359,18 @@ namespace LeanplumSDK
         public override void TrackIOSInAppPurchases()
         {
             _trackIOSInAppPurchases();
+        }
+
+        /// <summary>
+        ///     Logs a pruchase event in your application. The string can be any
+        ///     value of your choosing, however in most cases you will want to use
+        ///     Leanplum.PURCHASE_EVENT_NAME
+        /// </summary>
+        public override void TrackPurchase(string eventName, double value, string currencyCode,
+            IDictionary<string, object> parameters)
+        {
+            string parametersString = parameters == null ? null : Json.Serialize(parameters);
+            _trackPurchase(eventName, value, currencyCode, parametersString);
         }
 
         /// <summary>
