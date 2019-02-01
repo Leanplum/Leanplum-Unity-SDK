@@ -474,6 +474,17 @@ namespace LeanplumSDK
         ///     any value of your choosing, and will show up in the dashboard.
         ///     To track purchases, use Leanplum.PURCHASE_EVENT_NAME as the event name.
         /// </summary>
+        public static void TrackPurchase(string eventName, double value, string currencyCode,
+            IDictionary<string, object> parameters)
+        {
+            LeanplumFactory.SDK.TrackPurchase(eventName, value, currencyCode, parameters);
+        }
+
+        /// <summary>
+        ///     Logs a particular event in your application. The string can be
+        ///     any value of your choosing, and will show up in the dashboard.
+        ///     To track purchases, use Leanplum.PURCHASE_EVENT_NAME as the event name.
+        /// </summary>
         public static void Track(string eventName, double value, string info,
             IDictionary<string, object> parameters)
         {
