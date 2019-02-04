@@ -11,31 +11,37 @@
     <!-- GSON for Leanplum Unity SDK JSON parsing -->
     <androidPackage spec="com.google.code.gson:gson:2.8.2" />
 
-    <!-- GCM Messaging support --> 
+    <!-- GCM Messaging support -->
+     <!-- 
      <androidPackage spec="com.leanplum:leanplum-gcm:%LP_VERSION%">
        <repositories>
          <repository>https://repo.leanplum.com</repository>
        </repositories>
      </androidPackage>
-     <androidPackage spec="com.google.android.gms:play-services-gcm:15.0.1" />
+     <androidPackage spec="com.google.android.gms:play-services-gcm:15.0.1" /> 
+     -->
     
 
-    <!-- FCM Messaging support --> 
+    <!-- FCM Messaging support -->
+    <!--
      <androidPackage spec="com.leanplum:leanplum-fcm:%LP_VERSION%">
        <repositories>
          <repository>https://repo.leanplum.com</repository>
        </repositories>
      </androidPackage>
      <androidPackage spec="com.google.firebase:firebase-messaging:15.0.1" />
+     -->
     
 
     <!-- Location support -->
+    <!--
      <androidPackage spec="com.leanplum:leanplum-location:%LP_VERSION%">
        <repositories>
          <repository>https://repo.leanplum.com</repository>
        </repositories>
      </androidPackage>
      <androidPackage spec="com.google.android.gms:play-services-location:15.0.1" />
-    
+     -->
+
    </androidPackages>
  </dependencies>
