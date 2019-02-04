@@ -32,10 +32,6 @@ import android.location.Location;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.leanplum.Leanplum;
-import com.leanplum.LeanplumActivityHelper;
-import com.leanplum.LeanplumPushService;
-import com.leanplum.Var;
 import com.leanplum.callbacks.StartCallback;
 import com.leanplum.callbacks.VariableCallback;
 import com.leanplum.callbacks.VariablesChangedCallback;
@@ -179,6 +175,12 @@ public class UnityBridge {
     Leanplum.start(bridgeContext, userId, attributes);
   }
 
+  public static void trackPurchase(String eventName, double value, String currencyCode,
+      String jsonParameters) {
+    Leanplum.trackPurchase(eventName, value, currencyCode,
+        JsonConverter.fromJson(jsonParameters));
+  }
+
   public static void track(String eventName, double value, String info,
       String jsonParameters) {
     Leanplum.track(eventName, value, info,
@@ -282,6 +284,13 @@ public class UnityBridge {
     location.setLatitude(latitude);
     location.setLongitude(longitude);
     Leanplum.setDeviceLocation(location);
+  }
+
+  public static void setDeviceLocation(double latitude, double longitude, int type) {
+    Location location = new Location("");
+    location.setLatitude(latitude);
+    location.setLongitude(longitude);
+    Leanplum.setDeviceLocation(location, LeanplumLocationAccuracyType.values()[type]);
   }
 
   public static void disableLocationCollection() {
