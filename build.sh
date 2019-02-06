@@ -183,6 +183,10 @@ main() {
 
   build
 
+  git checkout Leanplum-Android-SDK-Unity/
+  git checkout LeanplumSample/Assets/LeanplumSDK/
+  git checkout LeanplumSample/Assets/Plugins/
+
   echo "Done."
 }
 
