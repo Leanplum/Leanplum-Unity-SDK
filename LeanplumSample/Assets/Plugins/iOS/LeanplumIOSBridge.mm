@@ -294,7 +294,9 @@ extern "C"
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
-        [Leanplum startWithUserId:leanplum_createNSString(userId) userAttributes:dictionary
+        
+        NSString *userIdString = userId != NULL ? [NSString stringWithUTF8String:userId] : nil;
+        [Leanplum startWithUserId:userIdString userAttributes:dictionary
                   responseHandler:^(BOOL success) {
                       int res = [@(success) intValue];
                       UnitySendMessage(__LPgameObject, "NativeCallback",
