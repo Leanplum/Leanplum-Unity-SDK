@@ -91,20 +91,6 @@ replace() {
 #   None
 #######################################
 build() {
-  echo "Converting aar-only dependencies to jar..."
-  while IFS= read -r -d '' f; do
-    local jarFile="${f/.aar/.jar}"
-    local filedir
-    filedir="$(dirname "$f")"
-    if [[ ! -a  $jarFile ]]; then
-      echo "Converting from aar to jar: $f"
-      cd "$filedir"
-      unzip "$f" classes.jar || true
-      mv classes.jar "$(basename "$jarFile")" || true
-      cd ~-
-    fi
-  done < <(find "$ANDROID_HOME/extras/" -name '*.aar' -print0)
-  
   echo "Preparing dependencies..."
   # Copy AppleSDK
   rm -rf "LeanplumSample/Assets/Plugins/iOS/Leanplum.framework"
@@ -114,52 +100,19 @@ build() {
   # Build Android SDK
   rm -rf "../LeanplumSample/Assets/Plugins/Android"
   mkdir -p "../LeanplumSample/Assets/Plugins/Android"
-  cd Android
-  mvn initialize
-  mvn package -U
+  
+  cd Leanplum-Android-SDK-Unity/
+  ./gradlew clean assembleRelease
 
-  # Copy Leanplum Unity SDK to libs folder.
-  cp "target/LeanplumUnity-${UNITY_VERSION}.jar" \
-    "../LeanplumSample/Assets/Plugins/Android/LeanplumUnity-${UNITY_VERSION}.jar"
-  # Copy GCM, FCM, Location Packages to libs folder.
-  # shellcheck disable=SC2140
-  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
-"play-services-gcm/${PLAY_SERVICES_VERSION}/"\
-"play-services-gcm-${PLAY_SERVICES_VERSION}.jar" \
-"../LeanplumSample/Assets/Plugins/Android/."
-# shellcheck disable=SC2140
-  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
-"play-services-base/${PLAY_SERVICES_VERSION}/"\
-"play-services-base-${PLAY_SERVICES_VERSION}.jar" \
-"../LeanplumSample/Assets/Plugins/Android/."
-# shellcheck disable=SC2140
-  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
-"play-services-basement/${PLAY_SERVICES_VERSION}/"\
-"play-services-basement-${PLAY_SERVICES_VERSION}.jar" \
-"../LeanplumSample/Assets/Plugins/Android/."
-# shellcheck disable=SC2140
-  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
-"play-services-tasks/${PLAY_SERVICES_VERSION}/"\
-"play-services-tasks-${PLAY_SERVICES_VERSION}.jar" \
-"../LeanplumSample/Assets/Plugins/Android/."
-# shellcheck disable=SC2140
-  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
-"play-services-iid/${PLAY_SERVICES_VERSION}/"\
-"play-services-iid-${PLAY_SERVICES_VERSION}.jar" \
-"../LeanplumSample/Assets/Plugins/Android/."
-  # shellcheck disable=SC2140
-  cp "$ANDROID_HOME/extras/google/m2repository/com/google/firebase/"\
-"firebase-messaging/${PLAY_SERVICES_VERSION}/firebase-messaging-${PLAY_SERVICES_VERSION}.jar" \
-"../LeanplumSample/Assets/Plugins/Android/."
-  # shellcheck disable=SC2140
-  cp "$ANDROID_HOME/extras/google/m2repository/com/google/android/gms/"\
-"play-services-location/${PLAY_SERVICES_VERSION}/"\
-"play-services-location-${PLAY_SERVICES_VERSION}.jar" \
-"../LeanplumSample/Assets/Plugins/Android/."
+  CLASSES_JAR=android-unity-wrapper/build/outputs/aar/android-unity-wrapper-release.aar
+  UNITY_DIR=LeanplumSample/Assets/Plugins/Android
+
+  cp "${CLASSES_JAR}" "../${UNITY_DIR}/com.leanplum.unity-wrapper-$UNITY_VERSION_STRING.aar"
 
   cd ../
 
   echo "Exporting Unity SDK Package..."
+  pwd
 
   PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
   PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
@@ -167,7 +120,7 @@ build() {
   PATH_TO_EXPORT="$(pwd)/Leanplum-Unity-Plugin"
 
   export OUT_PKG="Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
-  $PATH_TO_UNITY -quit -nographics -batchmode -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
+  $PATH_TO_UNITY -gvh_disable -quit -nographics -batchmode -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
   export UNITY_BINARY="$PATH_TO_PROJECT/$OUT_PKG"
 
   mv $UNITY_BINARY $PATH_TO_EXPORT
@@ -224,19 +177,15 @@ main() {
 
   download_ios_sdk $APPLE_SDK_VERSION
 
-  replace "Android/pom.xml" \
-    "<version>%LP_UNITY_VERSION%</version>" "<version>${UNITY_VERSION}</version>"
-  replace "LeanplumSample/Assets/Plugins/Android/mainTemplate.gradle" \
-    "%LP_VERSION%" "${ANDROID_SDK_VERSION}"
-  replace "LeanplumSample/Assets/Plugins/Android/mainTemplate.gradle" \
-    "%LP_UNITY_VERSION%" "${UNITY_VERSION}"
-  replace "Android/pom.xml" "<version>\[1.2.25,)</version>" \
-    "<version>${ANDROID_SDK_VERSION}</version>"
+  replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
+  replace "LeanplumSample/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml" "%LP_VERSION%" $ANDROID_SDK_VERSION
+  replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_UNITY_VERSION%" $UNITY_VERSION
 
   build
 
-  # Restore variable Android version
-  git checkout "Android/pom.xml"
+  git checkout Leanplum-Android-SDK-Unity/
+  git checkout LeanplumSample/Assets/LeanplumSDK/
+  git checkout LeanplumSample/Assets/Plugins/
 
   echo "Done."
 }

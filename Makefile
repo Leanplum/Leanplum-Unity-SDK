@@ -13,8 +13,6 @@ release:
 	find Leanplum-Unity-Plugin/ -type f -delete
 	./build.sh --apple-sdk-version=${IOS_SDK_VERSION} --android-sdk-version=${ANDROID_SDK_VERSION} --version=${UNITY_VERSION}
 	git add Leanplum-Unity-Plugin/
-	git clean -f -d
-	git checkout .
 	@while [ -z "$$CONTINUE" ]; do \
 		read -r -p "Push new release to master? [y/N]: " CONTINUE; \
 	done ; \
