@@ -18,7 +18,7 @@ brew install Caskroom/cask/unity
 ## Build
 To build a `unitypackage` from source, execute the build shell script from the root of this repository:
 
-`./build.sh --apple-sdk-version=2.2.0 --android-sdk-version=4.2.1 --version=1.6.1`
+`./build.sh --apple-sdk-version=2.3.0 --android-sdk-version=4.3.1 --version=1.7.0`
 
 or to use latest version of Android/iOS SDK (this uses public github api to make request)
 
@@ -44,10 +44,26 @@ or
 
 which will build new version of the Unity SDK, tag it with `UNITY_VERSION` specified in `Makefile` and push new commit to master branch.
 
-## Dependencies 
+## Usage
 
-Leanpum-Unity-SDK uses `unity-jar-resolver` to handle Android dependencies. If you want to include other Leanplum libraries
-edit the `LeanplumDependencies.xml` located in `Leanplum-Unity-SDK/LeanplumSample/Assets/LeanplumSDK/Editor/`.
+Import `unitypackage` into your project, make sure you select `Editor, LeanplumSDK and Plugins` folders, `LeanplumSample` is optional.
+
+### Android Export
+
+Make sure you add 
+```
+android.enableJetifier=true
+android.useAndroidX=true
+```
+in your `gradle.properties` file, because latest Leanplum SDK is using `androidx` support libraries.
+
+You can choose Leanplum dependencies in your `gradle.build` file of the exported project.
+
+If you are using FCM, download `google-service.json` file and put it into root of `Assets` folder. When Android project is exported it will automatically parse the file.
+
+## iOS Export
+
+No additional setup is needed.
 
 ## Development
 To make changes to this SDK, open the `LeanplumSample` Unity project that is included in this repository. That project contains the Leanplum SDK itself as well as a small sample application that you can use to test your changes as you iterate.
