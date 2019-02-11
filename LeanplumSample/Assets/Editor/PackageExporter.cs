@@ -12,7 +12,7 @@ namespace Leanplum.Private
             "Assets/LeanplumSample",
             "Assets/Plugins",
             "Assets/LeanplumSDK",
-            "Assets/PlayServicesResolver",
+            "Assets/Editor/LeanplumBuildProcessor.cs",
             "Assets/link"
         };
 

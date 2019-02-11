@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
  <dependencies>
    <androidPackages>
+
+     <!-- NOTE: unity-jar-resolver doesnt work properly with libs that use androidx support libraries. -->
+
      <!-- Leanplum Android SDK -->
+     <!-- 
      <androidPackage spec="com.leanplum:leanplum-core:%LP_VERSION%">
        <repositories>
          <repository>https://repo.leanplum.com</repository>
        </repositories>
      </androidPackage>
+     -->
 
     <!-- GSON for Leanplum Unity SDK JSON parsing -->
+    <!-- 
     <androidPackage spec="com.google.code.gson:gson:2.8.2" />
+    -->
 
     <!-- GCM Messaging support -->
      <!-- 
