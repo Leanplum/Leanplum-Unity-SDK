@@ -35,15 +35,12 @@ dependencies {
     implementation "com.leanplum:leanplum-core:${LEANPLUM_SDK_VERSION}"
     // implementation "com.leanplum:leanplum-push:${LEANPLUM_SDK_VERSION}"
     // implementation "com.leanplum:leanplum-fcm:${LEANPLUM_SDK_VERSION}"
-    // implementation "com.leanplum:leanplum-gcm:${LEANPLUM_SDK_VERSION}"
     // implementation "com.leanplum:leanplum-location:${LEANPLUM_SDK_VERSION}"
 
     implementation 'com.google.code.gson:gson:2.8.5'
 
     // Uncomment for FCM
     // implementation 'com.google.firebase:firebase-messaging:17.3.4'
-    // Uncomment for GCM
-    // implementation "com.google.android.gms:play-services-gcm:11.8+"
 **DEPS**}
 
 android {

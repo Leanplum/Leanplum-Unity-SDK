@@ -1,5 +1,5 @@
 
-IOS_SDK_VERSION?=2.3.0
+IOS_SDK_VERSION?=2.3.1
 ANDROID_SDK_VERSION?=4.3.1
 UNITY_VERSION?=1.7.0
 export ANDROID_HOME?=$(shell echo ${HOME})/Library/Android/sdk
