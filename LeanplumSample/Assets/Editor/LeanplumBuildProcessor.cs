@@ -5,15 +5,33 @@ using System.IO;
 using LeanplumSDK.MiniJSON;
 using UnityEditor;
 using UnityEditor.Build;
+
+#if UNITY_2018_1_OR_NEWER
 using UnityEditor.Build.Reporting;
+#endif
 
 namespace Leanplum.Private
 {
+    #if UNITY_2018_1_OR_NEWER
     class LeanplumBuildProcessor : IPreprocessBuildWithReport
+    #else
+    class LeanplumBuildProcessor : IPreprocessBuild
+    #endif
     {
 
-        public int callbackOrder { get { return 0; } }
+        public int callbackOrder
+        {
+            get { return 0; }
+        }
+
+        #if UNITY_2018_1_OR_NEWER
         public void OnPreprocessBuild(BuildReport report)
+        {
+            OnPreprocessBuild(report.summary.platform, report.summary.outputPath);
+        }
+        #endif
+
+        public void OnPreprocessBuild(BuildTarget target, string path)
         {
             string assets = Directory.GetCurrentDirectory() + "/Assets/";
 
