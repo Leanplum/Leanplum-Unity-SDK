@@ -54,7 +54,7 @@
     <dependency>
       <groupId>com.leanplum</groupId>
       <artifactId>leanplum-core</artifactId>
-      <version>[4.0.0,)</version>
+      <version>%LP_ANDROID_VERSION%</version>
       <type>jar</type>
     <exclusions>
       <exclusion>
@@ -70,7 +70,7 @@
     <dependency>
       <groupId>com.leanplum</groupId>
       <artifactId>leanplum-push</artifactId>
-      <version>[4.0.0,)</version>
+      <version>%LP_ANDROID_VERSION%</version>
       <type>jar</type>
     <exclusions>
       <exclusion>
@@ -86,7 +86,7 @@
     <dependency>
       <groupId>com.leanplum</groupId>
       <artifactId>leanplum-gcm</artifactId>
-      <version>[4.0.0,)</version>
+      <version>%LP_ANDROID_VERSION%</version>
       <type>jar</type>
     <exclusions>
       <exclusion>
@@ -102,7 +102,7 @@
     <dependency>
       <groupId>com.leanplum</groupId>
       <artifactId>leanplum-location</artifactId>
-      <version>[4.0.0,)</version>
+      <version>%LP_ANDROID_VERSION%</version>
       <type>jar</type>
     <exclusions>
       <exclusion>

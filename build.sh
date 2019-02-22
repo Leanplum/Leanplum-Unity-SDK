@@ -235,7 +235,7 @@ main() {
     "%LP_VERSION%" "${ANDROID_SDK_VERSION}"
   replace "LeanplumSample/Assets/Plugins/Android/mainTemplate.gradle" \
     "%LP_UNITY_VERSION%" "${UNITY_VERSION}"
-  replace "Android/pom.xml" "<version>\[1.2.25,)</version>" \
+  replace "Android/pom.xml" "<version>%LP_ANDROID_VERSION%</version>" \
     "<version>${ANDROID_SDK_VERSION}</version>"
 
   build
