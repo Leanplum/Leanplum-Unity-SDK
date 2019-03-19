@@ -182,11 +182,13 @@ main() {
   replace "LeanplumSample/Assets/Plugins/Android/mainTemplate.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
   replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_UNITY_VERSION%" $UNITY_VERSION
 
+  find Leanplum-Unity-Plugin -name '*.unitypackage' -delete
+  find LeanplumSample/Assets/Plugins/ -name '*.aar' -delete
+
   build
 
   git checkout Leanplum-Android-SDK-Unity/
-  git checkout LeanplumSample/Assets/LeanplumSDK/
-  git checkout LeanplumSample/Assets/Plugins/
+  git checkout LeanplumSample/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml
 
   echo "Done."
 }

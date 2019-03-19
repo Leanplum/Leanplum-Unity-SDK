@@ -42,6 +42,7 @@
 #import "LeanplumRequest.h"
 #import "LeanplumSocket.h"
 #import "LPAPIConfig.h"
+#import "LPFileTransferManager.h"
 #import "LPNetworkEngine.h"
 #import "LPNetworkFactory.h"
 #import "LPNetworkOperation.h"

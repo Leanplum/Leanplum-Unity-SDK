@@ -31,11 +31,10 @@
 
 + (instancetype)sharedInstance;
 
-- (NSDictionary *)createHeaders;
 - (NSMutableDictionary *)createArgsDictionaryForRequest:(id<LPRequesting>)request;
 - (void)attachApiKeys:(NSMutableDictionary *)dict;
 
-- (void)sendRequest:(id<LPRequesting>)request;
+- (void)send:(id<LPRequesting>)request;
 - (void)sendNow:(id<LPRequesting>)request;
 - (void)sendEventually:(id<LPRequesting>)request;
 - (void)sendIfConnected:(id<LPRequesting>)request;
