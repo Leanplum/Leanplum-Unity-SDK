@@ -530,7 +530,7 @@ namespace LeanplumSDK.SocketIOClient
                         this.outboundQueue.Enqueue(msg.Encoded);
                         if (this.HeartBeatTimerEvent != null)
                         {
-                            this.HeartBeatTimerEvent.BeginInvoke(this, EventArgs.Empty, EndAsyncEvent, null);
+                            this.HeartBeatTimerEvent.BeginInvoke(this, EventArgs.Empty, EndAsyncEvent, this.HeartBeatTimerEvent);
                         }
                     }
                 }
@@ -543,8 +543,7 @@ namespace LeanplumSDK.SocketIOClient
         }
         private void EndAsyncEvent(IAsyncResult result)
         {
-            var ar = (System.Runtime.Remoting.Messaging.AsyncResult)result;
-            var invokedMethod = (EventHandler)ar.AsyncDelegate;
+            var invokedMethod = (EventHandler)result.AsyncState;
             
             try
             {
