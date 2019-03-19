@@ -13,6 +13,7 @@ namespace Leanplum.Private
             "Assets/Plugins",
             "Assets/LeanplumSDK",
             "Assets/Editor/LeanplumBuildProcessor.cs",
+            "Assets/Editor/LeanplumAndroidBuildProcessor.cs",
             "Assets/link"
         };
 
