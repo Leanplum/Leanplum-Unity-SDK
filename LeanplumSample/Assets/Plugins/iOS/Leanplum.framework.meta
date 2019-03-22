@@ -107,7 +107,7 @@ PluginImporter:
     second:
       enabled: 1
       settings:
-        AddToEmbeddedBinaries: true
+        AddToEmbeddedBinaries: false
         CompileFlags: 
         FrameworkDependencies: Security;StoreKit;
   userData: 
