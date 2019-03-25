@@ -407,15 +407,6 @@ namespace LeanplumSDK
                 return;
             }
 
-            if (CompatibilityLayer.GetPlatformName() == "Standalone")
-            {
-                // TODO: Fix this.
-                // This is a workaround for SSL issues when running on
-                // standalone when connecting with the production server.
-                // No issue on staging.
-                Constants.API_SSL = false;
-            }
-
             if (startResponseAction != null)
             {
                 Started += startResponseAction;
