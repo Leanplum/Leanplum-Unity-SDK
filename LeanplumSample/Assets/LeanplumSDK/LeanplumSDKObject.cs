@@ -33,10 +33,6 @@ namespace LeanplumSDK
         public abstract event Leanplum.StartHandler Started;
 
         #region Accessors and Mutators
-        public virtual string LeanplumGcmSenderId
-        {
-            get { return ""; }
-        }
 
         /// <summary>
         ///     Gets a value indicating whether Leanplum has finished starting.
@@ -126,8 +122,6 @@ namespace LeanplumSDK
         /// </summary>
         public abstract void SetRealtimeUpdatesInDevelopmentModeEnabled (bool enabled);
 
-        public virtual void SetGcmSenderId(string senderId) {}
-        public virtual void SetGcmSenderIds(string[] senderIds) {}
         public virtual void RegisterForIOSRemoteNotifications() {}
 
         /// <summary>

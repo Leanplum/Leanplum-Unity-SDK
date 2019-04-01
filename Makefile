@@ -1,7 +1,7 @@
 
-IOS_SDK_VERSION?=2.4.0
-ANDROID_SDK_VERSION?=4.4.0
-UNITY_VERSION?=1.7.3
+IOS_SDK_VERSION?=2.4.1
+ANDROID_SDK_VERSION?=5.0.0
+UNITY_VERSION?=2.0.0
 export ANDROID_HOME?=$(shell echo ${HOME})/Library/Android/sdk
 unitypackage:
 	./build.sh --apple-sdk-version=${IOS_SDK_VERSION} --android-sdk-version=${ANDROID_SDK_VERSION} --version=${UNITY_VERSION}

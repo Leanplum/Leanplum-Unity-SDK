@@ -184,22 +184,7 @@ namespace LeanplumSDK
       NativeSDK.CallStatic("setFileUploadingEnabledInDevelopmentMode", enabled);
     }
 
-    public override string LeanplumGcmSenderId
-    {
-      get { return NativeSDK.GetStatic<string>("LEANPLUM_SENDER_ID"); }
-        }
-
-        public override void SetGcmSenderId(string senderId)
-    {
-      NativeSDK.CallStatic("setGcmSenderId", senderId);
-        }
-
-    public override void SetGcmSenderIds(string[] senderIds)
-    {
-      NativeSDK.CallStatic("setGcmSenderIds", Json.Serialize(senderIds));
-    }
-
-        /// <summary>
+    /// <summary>
     ///     Traverses the variable structure with the specified path.
     ///     Path components can be either strings representing keys in a dictionary,
     ///     or integers representing indices in a list.

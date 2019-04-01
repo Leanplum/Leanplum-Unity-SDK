@@ -18,17 +18,6 @@
     <androidPackage spec="com.google.code.gson:gson:2.8.2" />
     -->
 
-    <!-- GCM Messaging support -->
-     <!-- 
-     <androidPackage spec="com.leanplum:leanplum-gcm:%LP_VERSION%">
-       <repositories>
-         <repository>https://repo.leanplum.com</repository>
-       </repositories>
-     </androidPackage>
-     <androidPackage spec="com.google.android.gms:play-services-gcm:15.0.1" /> 
-     -->
-    
-
     <!-- FCM Messaging support -->
     <!--
      <androidPackage spec="com.leanplum:leanplum-fcm:%LP_VERSION%">

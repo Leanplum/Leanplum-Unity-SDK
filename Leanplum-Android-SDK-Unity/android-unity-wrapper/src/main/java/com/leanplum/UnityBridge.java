@@ -70,25 +70,6 @@ public class UnityBridge {
         .getApplication());
   }
 
-  public static void setGcmSenderId(String senderId) {
-    LeanplumPushService.setGcmSenderId(senderId);
-  }
-
-  public static void setGcmSenderIds(String senderIds) {
-    final List<Object> ids;
-    try {
-      ids = JsonConverter.listFromJson(new JSONArray(senderIds));
-    } catch (JSONException e) {
-      Log.e("Leanplum", "Error parsing JSON data", e);
-      return;
-    }
-    String[] idArray = new String[ids.size()];
-    for (int i = 0; i < ids.size(); i++) {
-      idArray[i] = ids.get(i).toString();
-    }
-    LeanplumPushService.setGcmSenderIds(senderIds);
-  }
-
   public static boolean hasStarted() {
     return Leanplum.hasStarted();
   }

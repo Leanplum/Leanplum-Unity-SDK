@@ -11,10 +11,6 @@ public class RainController : MonoBehaviour
 
     void Awake()
     {
-        // First, you need to setup your AndroidManifest.xml file to use push notifications.
-        // See the documentation in Help > Docs > Unity > In-App & Push.
-        Leanplum.SetGcmSenderId(Leanplum.LeanplumGcmSenderId);
-
         // Enables push notifications on iOS.
         Leanplum.RegisterForIOSRemoteNotifications();
 

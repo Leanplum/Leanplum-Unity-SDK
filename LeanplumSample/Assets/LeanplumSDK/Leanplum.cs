@@ -42,13 +42,6 @@ namespace LeanplumSDK
         public const string PURCHASE_EVENT_NAME = "Purchase";
 
         #region Accessors and Mutators
-        /// <summary>
-        /// Built-in Google API project number for registering push IDs.
-        /// </summary>
-        public static string LeanplumGcmSenderId
-        {
-            get { return LeanplumFactory.SDK.LeanplumGcmSenderId; }
-        }
 
         /// <summary>
         ///     Gets a value indicating whether Leanplum has finished starting.
@@ -178,29 +171,6 @@ namespace LeanplumSDK
         public static void SetRealtimeUpdatesInDevelopmentModeEnabled(bool enabled)
         {
             LeanplumFactory.SDK.SetRealtimeUpdatesInDevelopmentModeEnabled(enabled);
-        }
-
-        /// <summary>
-        ///     Sets the Google Cloud Messaging sender ID. Required for push notifications to work.
-        /// </summary>
-        /// <param name="senderId">The GCM sender ID to permit notifications from.
-        ///     Use Leanplum.LeanplumGcmSenderId to use the built-in sender ID.
-        ///     If you have multiple sender IDs, use Leanplum.setGcmSenderIds.
-        /// </param>
-        public static void SetGcmSenderId(string senderId)
-        {
-            LeanplumFactory.SDK.SetGcmSenderId(senderId);
-        }
-
-        /// <summary>
-        ///     Sets the Google Cloud Messaging sender ID. Required for push notifications to work.
-        /// </summary>
-        /// <param name="senderIds">The GCM sender IDs to permit notifications from.
-        ///     Use Leanplum.LeanplumGcmSenderId to use the built-in sender ID.
-        /// </param>
-        public static void SetGcmSenderIds(params string[] senderIds)
-        {
-            LeanplumFactory.SDK.SetGcmSenderIds(senderIds);
         }
 
         /// <summary>
