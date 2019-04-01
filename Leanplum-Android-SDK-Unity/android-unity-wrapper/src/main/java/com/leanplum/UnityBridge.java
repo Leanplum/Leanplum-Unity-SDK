@@ -43,7 +43,6 @@ public class UnityBridge {
   private static boolean isDeveloper = false;
   private static Gson gson = new Gson();
   private static Context bridgeContext;
-  public static final String LEANPLUM_SENDER_ID = LeanplumPushService.LEANPLUM_SENDER_ID;
 
   private static final String CLIENT = "unity-nativeandroid";
 
