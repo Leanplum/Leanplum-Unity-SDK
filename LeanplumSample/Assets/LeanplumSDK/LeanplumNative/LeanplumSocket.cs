@@ -41,7 +41,7 @@ namespace LeanplumSDK
         public LeanplumSocket(Action onUpdate)
         {
             onUpdateVars = onUpdate;
-            socketIOClient = new Client("http://" + Constants.SOCKET_HOST + ":" + Constants.SOCKET_PORT);
+            socketIOClient = new Client("https://" + Constants.SOCKET_HOST + ":" + Constants.SOCKET_PORT);
             socketIOClient.Opened += OnSocketOpened;
             socketIOClient.Message += OnSocketMessage;
             socketIOClient.SocketConnectionClosed += OnSocketConnectionClosed;

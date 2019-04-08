@@ -28,7 +28,7 @@ namespace LeanplumSDK
         internal const string EVENT_EXCEPTION = "__exception";
         internal static string API_HOST_NAME = "www.leanplum.com";
         internal static string SOCKET_HOST = "dev.leanplum.com";
-        internal static int SOCKET_PORT = 80;
+        internal static int SOCKET_PORT = 443;
         internal static bool API_SSL = true;
         internal static int NETWORK_TIMEOUT_SECONDS = 10;
         internal static int NETWORK_TIMEOUT_SECONDS_FOR_DOWNLOADS = 10;
