@@ -24,7 +24,7 @@ allprojects {
     }
 }
 
-def LEANPLUM_SDK_VERSION = "4.4.0"
+def LEANPLUM_SDK_VERSION = "%LP_VERSION%"
 
 apply plugin: 'com.android.application'
 **APPLY_PLUGINS**
