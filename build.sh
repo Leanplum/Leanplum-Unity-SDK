@@ -189,6 +189,7 @@ main() {
 
   git checkout Leanplum-Android-SDK-Unity/
   git checkout LeanplumSample/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml
+  git checkout LeanplumSample/Assets/Plugins/Android/mainTemplate.gradle
 
   echo "Done."
 }
