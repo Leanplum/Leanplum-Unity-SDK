@@ -12,8 +12,8 @@ namespace Leanplum.Private
             "Assets/LeanplumSample",
             "Assets/Plugins",
             "Assets/LeanplumSDK",
-            "Assets/Editor/LeanplumBuildProcessor.cs",
-            "Assets/Editor/LeanplumAndroidBuildProcessor.cs",
+            "Assets/Editor/LeanplumAndroidBuildPreProcessor.cs",
+            "Assets/Editor/LeanplumAndroidGradleBuildProcessor.cs",
             "Assets/link"
         };
 
