@@ -13,9 +13,9 @@ using UnityEditor.Build.Reporting;
 namespace Leanplum.Private
 {
     #if UNITY_2018_1_OR_NEWER
-    class LeanplumBuildProcessor : IPreprocessBuildWithReport
+    class LeanplumAndroidBuildPreProcessor : IPreprocessBuildWithReport
     #else
-    class LeanplumBuildProcessor : IPreprocessBuild
+    class LeanplumAndroidBuildPreProcessor : IPreprocessBuild
     #endif
     {
 
@@ -33,6 +33,8 @@ namespace Leanplum.Private
 
         public void OnPreprocessBuild(BuildTarget target, string path)
         {
+            #if UNITY_ANDROID
+
             string assets = Directory.GetCurrentDirectory() + "/Assets/";
 
             string playServicesJson = assets + "google-services.json";
@@ -60,6 +62,8 @@ namespace Leanplum.Private
                 var xml = CreateXml(projectNumber, clientId, appId);
                 WriteFile(xml, destPath);
             }
+
+            #endif
         }
 
         private void CreateFolderIfNeed(string folderPath)
