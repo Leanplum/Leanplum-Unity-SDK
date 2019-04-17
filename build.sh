@@ -181,6 +181,7 @@ main() {
   replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_UNITY_VERSION%" $UNITY_VERSION
   sed -i '' -e "s/SDK_VERSION =.*/SDK_VERSION = \"$UNITY_VERSION\";/" "LeanplumSample/Assets/LeanplumSDK/SharedConstants.cs"
 
+  find Leanplum-Unity-Plugin -name '*.unitypackage' -delete
   find LeanplumSample/Assets/Plugins/ -name '*.aar' -delete
 
   build
