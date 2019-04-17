@@ -27,18 +27,9 @@
 
 #define IOS_6_SUPPORTED defined(_ARM_ARCH_7) || defined(__i386__) || defined(__LP64__)
 
-#ifndef LP_NOT_TV
-#if (!defined(TARGET_OS_TV) || !TARGET_OS_TV)
-#define LP_NOT_TV 1
-#else
-#define LP_NOT_TV 0
-#endif
-#endif
-
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 #define IS_SUPPORTED_IOS_VERSION (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"4.3"))
 #define RETURN_IF_NOT_SUPPORTED_IOS_VERSION if (!(IS_SUPPORTED_IOS_VERSION)) return;
-#define IS_IOS_8_OR_HIGHER (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))
 #define APP_NAME (([[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"]) ?: \
 ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"]))
 
@@ -49,7 +40,7 @@
 #define IS_NOOP ((!IS_SUPPORTED_IOS_VERSION) || IS_JAILBROKEN || [LPConstantsState sharedState].isTestMode || [LPConstantsState sharedState].isInPermanentFailureState)
 #define RETURN_IF_NOOP if (IS_NOOP) return
 
-#define LEANPLUM_SDK_VERSION @"2.4.0"
+#define LEANPLUM_SDK_VERSION @"2.4.1"
 #define LEANPLUM_CLIENT @"ios"
 #define LEANPLUM_SUPPORTED_ENCODING @"gzip"
 
