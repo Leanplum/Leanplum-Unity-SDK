@@ -381,5 +381,40 @@ namespace LeanplumSDK
             }
             return false;
         }
+
+        public static string KindFromValue(object defaultValue)
+        {
+            string kind = null;
+            if (defaultValue is int || defaultValue is long || defaultValue is short ||
+                defaultValue is char || defaultValue is sbyte || defaultValue is byte)
+            {
+                kind = Constants.Kinds.INT;
+            }
+            else if (defaultValue is float || defaultValue is double || defaultValue is decimal)
+            {
+                kind = Constants.Kinds.FLOAT;
+            }
+            else if (defaultValue is string)
+            {
+                kind = Constants.Kinds.STRING;
+            }
+            else if (defaultValue is IList || defaultValue is Array)
+            {
+                kind = Constants.Kinds.ARRAY;
+            }
+            else if (defaultValue is IDictionary)
+            {
+                kind = Constants.Kinds.DICTIONARY;
+            }
+            else if (defaultValue is bool)
+            {
+                kind = Constants.Kinds.BOOLEAN;
+            }
+            else
+            {
+                return null;
+            }
+            return kind;
+        }
     }
 }

@@ -333,6 +333,9 @@ namespace LeanplumSDK
         ///
         public abstract void ForceContentUpdate (Action callback);
 
+        public abstract void DefineAction(string name, Constants.ActionKind kind, ActionArgs args,
+            IDictionary<string, object> options, Action responder);
+
         #endregion
 
         public virtual void NativeCallback(string message) {}

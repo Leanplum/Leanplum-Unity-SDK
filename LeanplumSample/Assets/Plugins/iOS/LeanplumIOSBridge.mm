@@ -363,6 +363,78 @@ extern "C"
         }
     }
 
+    void _defineAction(const char* name, int kind, const char *args, const char *options)
+    {
+        if (name == nil) {
+            NSLog(@"_defineAction: name provided is nil");
+            return;
+        }
+
+        NSString *actionName = leanplum_createNSString(name);
+        LeanplumActionKind actionKind = (LeanplumActionKind) kind;
+        
+        NSData *argsData = [leanplum_createNSString(args) dataUsingEncoding:NSUTF8StringEncoding];
+        NSArray *argsArray = [NSJSONSerialization JSONObjectWithData:argsData
+                                                                   options:NSUTF8StringEncoding
+                                                                     error:nil];
+
+        NSData *optionsData = [leanplum_createNSString(options) dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *optionsDictionary = [NSJSONSerialization JSONObjectWithData:optionsData
+                                                                   options:NSUTF8StringEncoding
+                                                                     error:nil];
+        
+        NSMutableArray *arguments = [NSMutableArray new];
+        
+        static NSString *LP_KIND_INT = @"integer";
+        static NSString *LP_KIND_FLOAT = @"float";
+        static NSString *LP_KIND_STRING = @"string";
+        static NSString *LP_KIND_BOOLEAN = @"bool";
+        static NSString *LP_KIND_DICTIONARY = @"group";
+        static NSString *LP_KIND_ARRAY = @"list";
+        static NSString *LP_KIND_ACTION = @"action";
+        static NSString *LP_KIND_COLOR = @"color";
+        
+        for (NSDictionary* arg in argsArray) {
+            NSString* argName = arg[@"name"];
+            NSString* argKind = arg[@"kind"];
+            id defaultValue = arg[@"defaultValue"];
+            
+            if (argName == nil || argKind == nil || defaultValue == nil) {
+                continue;
+            }
+            
+            if ([argKind isEqualToString:LP_KIND_ACTION]) {
+                [arguments addObject:[LPActionArg argNamed:argName withAction:defaultValue]];
+            } else if ([argKind isEqualToString:LP_KIND_COLOR]) {
+                [arguments addObject:[LPActionArg argNamed:argName withColor:defaultValue]];
+            } else if ([argKind isEqualToString:LP_KIND_INT]) {
+                [arguments addObject:[LPActionArg argNamed:argName withNumber:defaultValue]];
+            } else if ([argKind isEqualToString:LP_KIND_FLOAT]) {
+                [arguments addObject:[LPActionArg argNamed:argName withNumber:defaultValue]];
+            } else if ([argKind isEqualToString:LP_KIND_STRING]) {
+                [arguments addObject:[LPActionArg argNamed:argName withString:defaultValue]];
+            } else if ([argKind isEqualToString:LP_KIND_BOOLEAN]) {
+                [arguments addObject:[LPActionArg argNamed:argName withBool:defaultValue]];
+            } else if ([argKind isEqualToString:LP_KIND_DICTIONARY]) {
+                [arguments addObject:[LPActionArg argNamed:argName withDict:defaultValue]];
+            } else if ([argKind isEqualToString:LP_KIND_ARRAY]) {
+                [arguments addObject:[LPActionArg argNamed:argName withArray:defaultValue]];
+            }
+        }
+        
+        [Leanplum defineAction:actionName
+                        ofKind:actionKind
+                 withArguments:arguments
+                   withOptions:optionsDictionary
+                 withResponder:^BOOL(LPActionContext *context) {
+                     // Propagate back event to unity layer
+                     UnitySendMessage(__LPgameObject, "NativeCallback",
+                                      [[NSString stringWithFormat:@"ActionResponder:%@", actionName] UTF8String]);
+
+                     return YES;
+                 }];
+    }
+
     // Leanplum Content
     void _defineVariable(const char *name, const char *kind, const char *jsonValue)
     {

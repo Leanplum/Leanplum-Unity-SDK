@@ -377,6 +377,21 @@ namespace LeanplumSDK
             LeanplumFactory.SDK.Start(userId, attributes, startResponseAction);
         }
 
+        public static void DefineAction(string name, Constants.ActionKind kind, ActionArgs args)
+        {
+            LeanplumFactory.SDK.DefineAction(name, kind, args, null, null);
+        }
+
+        public static void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options)
+        {
+            LeanplumFactory.SDK.DefineAction(name, kind, args, options, null);
+        }
+
+        public static void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action responder)
+        {
+            LeanplumFactory.SDK.DefineAction(name, kind, args, options, responder);
+        }
+
         /// <summary>
         ///     Logs in-app purchase data from Google Play.
         /// </summary>
