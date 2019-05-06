@@ -30,14 +30,6 @@
 #import "LPMessageArchiveData.h"
 #import "LPEnumConstants.h"
 
-#ifndef LP_NOT_TV
-#if (!defined(TARGET_OS_TV) || !TARGET_OS_TV)
-#define LP_NOT_TV 1
-#else
-#define LP_NOT_TV 0
-#endif
-#endif
-
 #define _LP_DEFINE_HELPER(name,val,type) LPVar* name; \
 static void __attribute__((constructor)) initialize_##name() { \
 @autoreleasepool { \
@@ -121,9 +113,7 @@ name = [LPVar define:[@#name stringByReplacingOccurrencesOfString:@"_" withStrin
 
 @class LPActionContext;
 @class SKPaymentTransaction;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
 @class NSExtensionContext;
-#endif
 
 /**
  * @defgroup _ Callback Blocks
@@ -223,13 +213,11 @@ typedef enum {
 + (void)setAppId:(NSString *)appId withProductionKey:(NSString *)accessKey;
 /**@}*/
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
 /**
  * Apps running as extensions need to call this before start.
  * @param context The current extensionContext. You can get this from UIViewController.
  */
 + (void)setExtensionContext:(NSExtensionContext *)context;
-#endif
 
 /**
  * @{
@@ -421,7 +409,6 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
         "delegate, you should remove any calls to [Leanplum handleNotification] and call the "
         "completion handler yourself.")));
 
-#if LP_NOT_TV
 /**
  * Call this to handle custom actions for local notifications.
  */
@@ -432,7 +419,6 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
               forLocalNotification:(UILocalNotification *)notification
                  completionHandler:(void (^)())completionHandler;
 #pragma clang diagnostic pop
-#endif
 
 /**
  * Call this to handle custom actions for remote notifications.
