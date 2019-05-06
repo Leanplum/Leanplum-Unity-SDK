@@ -32,9 +32,11 @@ import android.location.Location;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.leanplum.callbacks.ActionCallback;
 import com.leanplum.callbacks.StartCallback;
 import com.leanplum.callbacks.VariableCallback;
 import com.leanplum.callbacks.VariablesChangedCallback;
+import com.leanplum.internal.Util;
 import com.leanplum.json.JsonConverter;
 import com.unity3d.player.UnityPlayer;
 
@@ -205,6 +207,62 @@ public class UnityBridge {
       @Override
       public void variablesChanged() {
         makeCallbackToUnity("ForceContentUpdateWithCallback:" + key);
+      }
+    });
+  }
+
+  public static void defineAction(final String name, int kind, String args, String options) {
+    if (name == null) {
+      return;
+    }
+
+    List<Object> argsArray = gson.fromJson(args,
+            new TypeToken<List<Object>>() {
+            }.getType());
+    Map<String, Object> optionsDictionary = JsonConverter.fromJson(options);
+
+    ActionArgs actionArgs = new ActionArgs();
+
+    for (Object arg : argsArray) {
+      if (arg instanceof Map) {
+        Map<String, Object> dict = (Map<String, Object>) arg;
+        String argName = (String) dict.get("name");
+        String argKind = (String) dict.get("kind");
+        Object defaultValue = dict.get("defaultValue");
+
+        if (argName == null || argKind == null || defaultValue == null) {
+          continue;
+        }
+
+        if (argKind.equals("integer")) {
+          actionArgs.with(argName, defaultValue);
+        } else if (argKind.equals("float")) {
+          actionArgs.with(argName, defaultValue);
+        } else if (argKind.equals("string")) {
+          actionArgs.with(argName, defaultValue);
+        } else if (argKind.equals("bool")) {
+          actionArgs.with(argName, defaultValue);
+        } else if (argKind.equals("group")) {
+          actionArgs.with(argName, defaultValue);
+        } else if (argKind.equals("list")) {
+          actionArgs.with(argName, defaultValue);
+        } else if (argKind.equals("action")) {
+          if (defaultValue instanceof String) {
+            actionArgs.withAction(argName, (String) defaultValue);
+          }
+        } else if (argKind.equals("color")) {
+          if (defaultValue instanceof Integer) {
+            actionArgs.withColor(argName, (int) defaultValue);
+          }
+        }
+      }
+    }
+
+    Leanplum.defineAction(name, kind, actionArgs, new ActionCallback() {
+      @Override
+      public boolean onResponse(ActionContext context) {
+        makeCallbackToUnity("ActionResponder:" + name);
+        return true;
       }
     });
   }

@@ -113,6 +113,8 @@ namespace LeanplumSDK
             public const string FILE = "file";
             public const string DICTIONARY = "group";
             public const string ARRAY = "list";
+            public const string COLOR = "color";
+            public const string ACTION = "action";
         }
 
         internal class Methods
@@ -174,6 +176,13 @@ namespace LeanplumSDK
             public const string DETECT = "(detect)";
             public const string ACTION_PREFIX = "__action__";
             public const string RESOURCES_VARIABLE = "__Unity Resources";
+        }
+
+        [System.Flags]
+        public enum ActionKind
+        {
+            MESSAGE = 0x1,
+            ACTION = 0x2
         }
     }
 }

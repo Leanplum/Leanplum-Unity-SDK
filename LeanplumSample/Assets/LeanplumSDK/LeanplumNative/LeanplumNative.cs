@@ -570,6 +570,11 @@ namespace LeanplumSDK
             req.SendIfConnected();
         }
 
+        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action responder)
+        {
+
+        }
+
         public override void TrackGooglePlayPurchase(string item, long priceMicros,
             string currencyCode, string purchaseData, string dataSignature,
             IDictionary<string, object> parameters)

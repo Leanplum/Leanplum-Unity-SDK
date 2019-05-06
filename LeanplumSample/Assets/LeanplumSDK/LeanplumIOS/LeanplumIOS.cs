@@ -105,6 +105,9 @@ namespace LeanplumSDK
         internal static extern void _forceContentUpdate();
 
         [DllImport ("__Internal")]
+        internal static extern void _defineAction(string name, int kind, string argsJSON, string optionsJSON);
+
+        [DllImport ("__Internal")]
         internal static extern void _forceContentUpdateWithCallback(int key);
 
         [DllImport ("__Internal")]
@@ -128,11 +131,12 @@ namespace LeanplumSDK
         public LeanplumIOS() {}
 
         public override event Leanplum.VariableChangedHandler VariablesChanged;
-        public override event Leanplum.VariablesChangedAndNoDownloadsPendingHandler
-          VariablesChangedAndNoDownloadsPending;
+        public override event Leanplum.VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
         public override event Leanplum.StartHandler Started;
-        private Dictionary <int, Action> ForceContentUpdateCallbackDictionary =
-          new Dictionary<int, Action>();
+
+        private Dictionary<int, Action> ForceContentUpdateCallbackDictionary = new Dictionary<int, Action>();
+        private Dictionary<string, Action> ActionRespondersDictionary = new Dictionary<string, Action>();
+
         static private int DictionaryKey = 0;
 
         #region Accessors and Mutators
@@ -356,6 +360,23 @@ namespace LeanplumSDK
             _start(SharedConstants.SDK_VERSION, userId, attributesString);
         }
 
+        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action responder)
+        {
+            if (name == null)
+            {
+                return;
+            }
+            if (responder != null)
+            {
+                ActionRespondersDictionary.Add("ActionResponder:" + name, responder);
+            }
+
+            string argString = args == null ? null : args.ToJSON();
+            string optionString = options == null ? null : Json.Serialize(options);
+
+            _defineAction(name, (int) kind, argString, optionString);
+        }
+
         public override void TrackIOSInAppPurchases()
         {
             _trackIOSInAppPurchases();
@@ -485,29 +506,50 @@ namespace LeanplumSDK
 
         public override void NativeCallback(string message)
         {
-            if (message.StartsWith("VariablesChanged:")) {
-                if (VariablesChanged != null) {
+            if (message.StartsWith("VariablesChanged:"))
+            {
+                if (VariablesChanged != null)
+                {
                     VariablesChanged();
                 }
-            } else if (message.StartsWith("VariablesChangedAndNoDownloadsPending:")) {
-                if (VariablesChangedAndNoDownloadsPending != null) {
+            }
+            else if (message.StartsWith("VariablesChangedAndNoDownloadsPending:"))
+            {
+                if (VariablesChangedAndNoDownloadsPending != null)
+                {
                     VariablesChangedAndNoDownloadsPending();
                 }
-            } else if (message.StartsWith("Started:")) {
-                if (Started != null) {
+            }
+            else if (message.StartsWith("Started:"))
+            {
+                if (Started != null)
+                {
                     bool success = message.EndsWith("1");
                     Started(success);
                 }
-            } else if (message.StartsWith("VariableValueChanged:")) {
+            }
+            else if (message.StartsWith("VariableValueChanged:"))
+            {
                 // Drop the beginning of the message to get the name of the variable
                 // Then dispatch to the correct variable
                 LeanplumIOS.VariableValueChanged(message.Substring(21));
-            } else if (message.StartsWith("ForceContentUpdateWithCallback:")) {
-                int key = Convert.ToInt32(message.Substring (31));
+            }
+            else if (message.StartsWith("ForceContentUpdateWithCallback:"))
+            {
+                int key = Convert.ToInt32(message.Substring(31));
                 Action callback;
-                if (ForceContentUpdateCallbackDictionary.TryGetValue(key, out callback)) {
+                if (ForceContentUpdateCallbackDictionary.TryGetValue(key, out callback))
+                {
                     callback();
-                    ForceContentUpdateCallbackDictionary.Remove (key);
+                    ForceContentUpdateCallbackDictionary.Remove(key);
+                }
+            }
+            else if (message.StartsWith("ActionResponder:"))
+            {
+                Action callback;
+                if (ActionRespondersDictionary.TryGetValue(message, out callback))
+                {
+                    callback();
                 }
             }
         }
