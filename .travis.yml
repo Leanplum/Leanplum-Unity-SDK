@@ -1,8 +1,13 @@
 language: objective-c
 osx_image: xcode10
 
-rvm:
-- 2.2
+android:
+  components:
+    - tools
+    - platform-tools
+    - build-tools-28.0.3
+    - android-28
+
 before_install:
 - chmod a+x ./Tools/install.sh
 install:
