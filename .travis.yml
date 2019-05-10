@@ -1,4 +1,6 @@
-language: objective-c
+language: 
+  - objective-c
+  - android
 osx_image: xcode10
 
 android:
