@@ -118,7 +118,7 @@ build() {
   PATH_TO_EXPORT="$(pwd)/Leanplum-Unity-Plugin"
 
   export OUT_PKG="Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
-  $PATH_TO_UNITY -gvh_disable -quit -nographics -batchmode -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
+  $PATH_TO_UNITY -gvh_disable -username ${UNITY_EMAIL} -password ${UNITY_PASSWORD} -quit -batchmode -noUpm -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
   export UNITY_BINARY="$PATH_TO_PROJECT/$OUT_PKG"
 
   mv $UNITY_BINARY $PATH_TO_EXPORT
