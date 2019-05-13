@@ -404,17 +404,20 @@ extern "C"
             }
             
             if ([argKind isEqualToString:LP_KIND_ACTION]) {
-                [arguments addObject:[LPActionArg argNamed:argName withAction:defaultValue]];
-            } else if ([argKind isEqualToString:LP_KIND_COLOR]) {
-                [arguments addObject:[LPActionArg argNamed:argName withColor:defaultValue]];
+                NSString* actionValue = [defaultValue stringValue];
+                [arguments addObject:[LPActionArg argNamed:argName withAction:actionValue]];
             } else if ([argKind isEqualToString:LP_KIND_INT]) {
-                [arguments addObject:[LPActionArg argNamed:argName withNumber:defaultValue]];
+                NSNumber* intValue = [defaultValue numberValue];
+                [arguments addObject:[LPActionArg argNamed:argName withNumber:intValue]];
             } else if ([argKind isEqualToString:LP_KIND_FLOAT]) {
-                [arguments addObject:[LPActionArg argNamed:argName withNumber:defaultValue]];
+                NSNumber* floatValue = [defaultValue numberValue];
+                [arguments addObject:[LPActionArg argNamed:argName withNumber:floatValue]];
             } else if ([argKind isEqualToString:LP_KIND_STRING]) {
-                [arguments addObject:[LPActionArg argNamed:argName withString:defaultValue]];
+                NSString* stringValue = [defaultValue stringValue];
+                [arguments addObject:[LPActionArg argNamed:argName withString:stringValue]];
             } else if ([argKind isEqualToString:LP_KIND_BOOLEAN]) {
-                [arguments addObject:[LPActionArg argNamed:argName withBool:defaultValue]];
+                BOOL boolValue = [defaultValue boolValue];
+                [arguments addObject:[LPActionArg argNamed:argName withBool:boolValue]];
             } else if ([argKind isEqualToString:LP_KIND_DICTIONARY]) {
                 [arguments addObject:[LPActionArg argNamed:argName withDict:defaultValue]];
             } else if ([argKind isEqualToString:LP_KIND_ARRAY]) {
