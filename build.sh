@@ -132,14 +132,12 @@ activateLicense() {
     UNITY_PATH="/Applications/Unity/Unity.app/Contents/MacOS/Unity"
 
     ${UNITY_PATH} \
-        -logFile "${TRAVIS_BUILD_DIR}/unity.activation.log" \
+        -logFile \
         -username ${UNITY_EMAIL} \
         -password ${UNITY_PASSWORD} \
         -batchmode \
         -noUpm \
         -quit
-    echo "Unity activation log"
-    cat "${TRAVIS_BUILD_DIR}/unity.activation.log"
 }
 
 #######################################
