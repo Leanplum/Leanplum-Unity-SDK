@@ -118,12 +118,28 @@ build() {
   PATH_TO_EXPORT="$(pwd)/Leanplum-Unity-Plugin"
 
   export OUT_PKG="Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
-  $PATH_TO_UNITY -gvh_disable -username ${UNITY_EMAIL} -password ${UNITY_PASSWORD} -quit -batchmode -noUpm -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
+  $PATH_TO_UNITY -gvh_disable -quit -nographics -batchmode -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
   export UNITY_BINARY="$PATH_TO_PROJECT/$OUT_PKG"
 
   mv $UNITY_BINARY $PATH_TO_EXPORT
 
   echo "Done"
+}
+
+activateLicense() {
+    echo "Activate Unity"
+
+    UNITY_PATH="/Applications/Unity/Unity.app/Contents/MacOS/Unity"
+
+    ${UNITY_PATH} \
+        -logFile "${TRAVIS_BUILD_DIR}/unity.activation.log" \
+        -username ${UNITY_EMAIL} \
+        -password ${UNITY_PASSWORD} \
+        -batchmode \
+        -noUpm \
+        -quit
+    echo "Unity activation log"
+    cat "${TRAVIS_BUILD_DIR}/unity.activation.log"
 }
 
 #######################################
@@ -184,6 +200,7 @@ main() {
   find Leanplum-Unity-Plugin -name '*.unitypackage' -delete
   find LeanplumSample/Assets/Plugins/ -name '*.aar' -delete
 
+  activateLicense
   build
 
   git checkout Leanplum-Android-SDK-Unity/
