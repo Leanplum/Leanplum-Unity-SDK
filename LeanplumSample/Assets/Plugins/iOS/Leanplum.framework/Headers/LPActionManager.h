@@ -26,9 +26,7 @@
 
 #import <Foundation/Foundation.h>
 #import "LPContextualValues.h"
-#if LP_NOT_TV
 #import <UserNotifications/UserNotifications.h>
-#endif
 
 struct LeanplumMessageMatchResult {
     BOOL matchedTrigger;
@@ -62,9 +60,12 @@ typedef enum {
 
 + (LPActionManager*) sharedManager;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000 && LP_NOT_TV
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
+
 - (void)sendUserNotificationSettingsIfChanged:(UIUserNotificationSettings *)notificationSettings;
-#endif
+#pragma clang diagnostic pop
 
 + (void)getForegroundRegionNames:(NSMutableSet **)foregroundRegionNames
         andBackgroundRegionNames:(NSMutableSet **)backgroundRegionNames;
