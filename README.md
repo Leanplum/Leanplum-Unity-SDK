@@ -104,6 +104,9 @@ Leanplum.Started += delegate(bool success) {
 You can see more at https://www.leanplum.com/dashboard#/5019738286063616/help/docs/unity
 
 ## Contributing
+Please follow the guidelines under https://github.com/Leanplum/Leanplum-Unity-SDK/blob/master/CONTRIBUTING.md
+
+Once you have done that, in general:
 1. Fork it!
 2. Create your feature branch: `git checkout -b feature/my-new-feature`
 3. Commit your changes: `git commit -am 'Add some feature'`
