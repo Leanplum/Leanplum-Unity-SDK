@@ -65,6 +65,53 @@ If you are using FCM, download `google-service.json` file and put it into root o
 
 No additional setup is needed.
 
+## iOS Archiving
+
+The Leanplum SDK contains binaries for all architectures (including simulator), when archiving and publishing the app on the app store simulator bitcode needs to be removed from all frameworks including our own. This can be achived with provided script
+
+```
+echo "Target architectures: $ARCHS"
+
+APP_PATH="${TARGET_BUILD_DIR}/${WRAPPER_NAME}"
+
+find "$APP_PATH" -name '*.framework' -type d | while read -r FRAMEWORK
+do
+FRAMEWORK_EXECUTABLE_NAME=$(defaults read "$FRAMEWORK/Info.plist" CFBundleExecutable)
+FRAMEWORK_EXECUTABLE_PATH="$FRAMEWORK/$FRAMEWORK_EXECUTABLE_NAME"
+echo "Executable is $FRAMEWORK_EXECUTABLE_PATH"
+echo $(lipo -info "$FRAMEWORK_EXECUTABLE_PATH")
+
+FRAMEWORK_TMP_PATH="$FRAMEWORK_EXECUTABLE_PATH-tmp"
+
+# remove simulator's archs if location is not simulator's directory
+case "${TARGET_BUILD_DIR}" in
+*"iphonesimulator")
+    echo "No need to remove archs"
+    ;;
+*)
+    if $(lipo "$FRAMEWORK_EXECUTABLE_PATH" -verify_arch "i386") ; then
+    lipo -output "$FRAMEWORK_TMP_PATH" -remove "i386" "$FRAMEWORK_EXECUTABLE_PATH"
+    echo "i386 architecture removed"
+    rm "$FRAMEWORK_EXECUTABLE_PATH"
+    mv "$FRAMEWORK_TMP_PATH" "$FRAMEWORK_EXECUTABLE_PATH"
+    fi
+    if $(lipo "$FRAMEWORK_EXECUTABLE_PATH" -verify_arch "x86_64") ; then
+    lipo -output "$FRAMEWORK_TMP_PATH" -remove "x86_64" "$FRAMEWORK_EXECUTABLE_PATH"
+    echo "x86_64 architecture removed"
+    rm "$FRAMEWORK_EXECUTABLE_PATH"
+    mv "$FRAMEWORK_TMP_PATH" "$FRAMEWORK_EXECUTABLE_PATH"
+    fi
+    ;;
+esac
+
+echo "Completed for executable $FRAMEWORK_EXECUTABLE_PATH"
+echo $(lipo -info "$FRAMEWORK_EXECUTABLE_PATH")
+
+done
+```
+To accomplish this, add `Run Script` in your build steps after `Embed Frameworks` phase.
+
+
 ## Development
 To make changes to this SDK, open the `LeanplumSample` Unity project that is included in this repository. That project contains the Leanplum SDK itself as well as a small sample application that you can use to test your changes as you iterate.
 
