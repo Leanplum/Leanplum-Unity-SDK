@@ -14,13 +14,18 @@ download() {
 
 install() {
   package=$1
-  download "$package"
+  # download "$package"
 
   echo "Installing "`basename "$package"`
   sudo installer -dumplog -package `basename "$package"` -target /
+}
+
+activate() {
+	/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -serial $UNITY_LICENSE -username $UNITY_EMAIL -password $UNITY_PASSWORD
 }
 
 # See $BASE_URL/$HASH/unity-$VERSION-$PLATFORM.ini for complete list
 # of available packages, where PLATFORM is `osx` or `win`
 
 install "MacEditorInstaller/Unity-$VERSION.pkg"
+activate
