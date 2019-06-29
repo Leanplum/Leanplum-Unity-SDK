@@ -9,5 +9,6 @@ before_install:
   - chmod a+x ./Tools/install.sh
 install:
   - ./Tools/install.sh
+  - /Applications/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -serial $UNITY_LICENSE -username $UNITY_EMAIL -password $UNITY_PASSWORD
 script:
   - make unitypackage
