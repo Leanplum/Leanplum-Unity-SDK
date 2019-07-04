@@ -30,13 +30,56 @@
 #import "LPMessageArchiveData.h"
 #import "LPEnumConstants.h"
 
-#ifndef LP_NOT_TV
-#if (!defined(TARGET_OS_TV) || !TARGET_OS_TV)
-#define LP_NOT_TV 1
-#else
-#define LP_NOT_TV 0
-#endif
-#endif
+#import "Leanplum_WebSocket.h"
+#import "LPNetworkOperation.h"
+#import "LPUtils.h"
+#import "LPResponse.h"
+#import "Leanplum_SocketIO.h"
+#import "LeanplumSocket.h"
+#import "LPRequesting.h"
+//#import "LPActionManager.h"
+#import "LeanplumCompatibility.h"
+#import "LPUIAlert.h"
+//#import "LPRequest.h"
+#import "JRSwizzle.h"
+//#import "LeanplumInternal.h"
+#import "LPEventDataManager.h"
+#import "LPEventCallbackManager.h"
+#import "LPAppIconManager.h"
+#import "Leanplum_AsyncSocket.h"
+#import "LPUIEditorWrapper.h"
+//#import "LPVar-Internal.h"
+//#import "LPRegisterDevice.h"
+#import "LPRevenueManager.h"
+#import "LPContextualValues.h"
+#import "LPFeatureFlagManager.h"
+#import "LPConstants.h"
+#import "LPKeychainWrapper.h"
+#import "LPNetworkFactory.h"
+#import "LPCountAggregator.h"
+#import "LPFileManager.h"
+#import "LPVarCache.h"
+#import "LPDatabase.h"
+#import "NSString+MD5Addition.h"
+//#import "Leanplum_Reachability.h"
+//#import "LPAPIConfig.h"
+//#import "LPActionContext-Internal.h"
+//#import "LPInternalState.h"
+#import "FileMD5Hash.h"
+#import "LPJSON.h"
+#import "LPNetworkProtocol.h"
+//#import "LPRequestFactory.h"
+//#import "LPRequestSender.h"
+#import "LPExceptionHandler.h"
+//#import "LPFileTransferManager.h"
+#import "LPMessageTemplates.h"
+#import "LPFeatureFlags.h"
+#import "UIDevice+IdentifierAddition.h"
+//#import "LeanplumRequest.h"
+#import "NSTimer+Blocks.h"
+#import "LPEventCallback.h"
+#import "LPNetworkEngine.h"
+#import "LPAES.h"
 
 #define _LP_DEFINE_HELPER(name,val,type) LPVar* name; \
 static void __attribute__((constructor)) initialize_##name() { \
@@ -121,9 +164,7 @@ name = [LPVar define:[@#name stringByReplacingOccurrencesOfString:@"_" withStrin
 
 @class LPActionContext;
 @class SKPaymentTransaction;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
 @class NSExtensionContext;
-#endif
 
 /**
  * @defgroup _ Callback Blocks
@@ -223,13 +264,11 @@ typedef enum {
 + (void)setAppId:(NSString *)appId withProductionKey:(NSString *)accessKey;
 /**@}*/
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
 /**
  * Apps running as extensions need to call this before start.
  * @param context The current extensionContext. You can get this from UIViewController.
  */
 + (void)setExtensionContext:(NSExtensionContext *)context;
-#endif
 
 /**
  * @{
@@ -421,7 +460,6 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
         "delegate, you should remove any calls to [Leanplum handleNotification] and call the "
         "completion handler yourself.")));
 
-#if LP_NOT_TV
 /**
  * Call this to handle custom actions for local notifications.
  */
@@ -432,7 +470,6 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
               forLocalNotification:(UILocalNotification *)notification
                  completionHandler:(void (^)())completionHandler;
 #pragma clang diagnostic pop
-#endif
 
 /**
  * Call this to handle custom actions for remote notifications.
