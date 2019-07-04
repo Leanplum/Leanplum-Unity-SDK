@@ -15,8 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LPFileTransferManager : NSObject
 
-@property (nonatomic, strong) NSString *uploadUrl;
+@property (nonatomic, strong, nullable) NSString *uploadUrl;
 @property (nonatomic, readonly) int numPendingDownloads;
+@property (nonatomic, strong) NSDictionary *filenameToURLs;
 
 + (instancetype)sharedInstance;
 - (void)sendFilesNow:(NSArray *)filenames fileData:(NSArray *)fileData;
