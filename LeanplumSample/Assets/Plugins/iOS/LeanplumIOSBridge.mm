@@ -394,33 +394,48 @@ extern "C"
         static NSString *LP_KIND_ACTION = @"action";
         static NSString *LP_KIND_COLOR = @"color";
         
-        for (NSDictionary* arg in argsArray) {
+        for (NSDictionary* arg in argsArray)
+        {
             NSString* argName = arg[@"name"];
             NSString* argKind = arg[@"kind"];
             id defaultValue = arg[@"defaultValue"];
             
-            if (argName == nil || argKind == nil || defaultValue == nil) {
+            if (argName == nil || argKind == nil || defaultValue == nil)
+            {
                 continue;
             }
             
-            if ([argKind isEqualToString:LP_KIND_ACTION]) {
-                NSString* actionValue = [defaultValue stringValue];
+            if ([argKind isEqualToString:LP_KIND_ACTION] && [defaultValue isKindOfClass:[NSString class]])
+            {
+                NSString* actionValue = (NSString*) defaultValue;
                 [arguments addObject:[LPActionArg argNamed:argName withAction:actionValue]];
-            } else if ([argKind isEqualToString:LP_KIND_INT]) {
-                NSNumber* intValue = [defaultValue numberValue];
+            }
+            else if ([argKind isEqualToString:LP_KIND_INT] && [defaultValue isKindOfClass:[NSNumber class]])
+            {
+                NSNumber* intValue = (NSNumber*) defaultValue;
                 [arguments addObject:[LPActionArg argNamed:argName withNumber:intValue]];
-            } else if ([argKind isEqualToString:LP_KIND_FLOAT]) {
-                NSNumber* floatValue = [defaultValue numberValue];
+            }
+            else if ([argKind isEqualToString:LP_KIND_FLOAT] && [defaultValue isKindOfClass:[NSNumber class]])
+            {
+                NSNumber* floatValue = (NSNumber*) defaultValue;
                 [arguments addObject:[LPActionArg argNamed:argName withNumber:floatValue]];
-            } else if ([argKind isEqualToString:LP_KIND_STRING]) {
-                NSString* stringValue = [defaultValue stringValue];
+            }
+            else if ([argKind isEqualToString:LP_KIND_STRING] && [defaultValue isKindOfClass:[NSString class]])
+            {
+                NSString* stringValue = (NSString*) defaultValue;
                 [arguments addObject:[LPActionArg argNamed:argName withString:stringValue]];
-            } else if ([argKind isEqualToString:LP_KIND_BOOLEAN]) {
+            }
+            else if ([argKind isEqualToString:LP_KIND_BOOLEAN])
+            {
                 BOOL boolValue = [defaultValue boolValue];
                 [arguments addObject:[LPActionArg argNamed:argName withBool:boolValue]];
-            } else if ([argKind isEqualToString:LP_KIND_DICTIONARY]) {
+            }
+            else if ([argKind isEqualToString:LP_KIND_DICTIONARY])
+            {
                 [arguments addObject:[LPActionArg argNamed:argName withDict:defaultValue]];
-            } else if ([argKind isEqualToString:LP_KIND_ARRAY]) {
+            }
+            else if ([argKind isEqualToString:LP_KIND_ARRAY])
+            {
                 [arguments addObject:[LPActionArg argNamed:argName withArray:defaultValue]];
             }
         }
