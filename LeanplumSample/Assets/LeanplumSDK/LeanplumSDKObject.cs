@@ -183,7 +183,8 @@ namespace LeanplumSDK
         public abstract void Start(string userId, IDictionary<string, object> attributes,
             Leanplum.StartHandler startResponseAction);
 
-        public virtual void TrackIOSInAppPurchases() {}
+        [Obsolete("TrackIOSInAppPurchase is obsolete. Please use TrackPurchase.")]
+        public virtual void TrackIOSInAppPurchases() { }
 
         /// <summary>
         ///     Logs in-app purchase data from Google Play.
@@ -198,12 +199,12 @@ namespace LeanplumSDK
         ///     com.android.vending.billing.util.Purchase.getSignature().
         /// </param>
         /// <param name="parameters">Optional event parameters.</param>
+        [Obsolete("TrackGooglePlayPurchase is obsolete. Please use TrackPurchase.")]
         public virtual void TrackGooglePlayPurchase(string item, long priceMicros,
             string currencyCode, string purchaseData, string dataSignature,
             IDictionary<string, object> parameters)
         {
-            Debug.LogError("TrackGooglePlayPurchase is not supported on the current platform. " +
-                "Call the method in the platform's native SDK.");
+            TrackPurchase(Leanplum.PURCHASE_EVENT_NAME,priceMicros, currencyCode, parameters);
         }
 
         /// <summary>
@@ -227,12 +228,12 @@ namespace LeanplumSDK
         ///     [[NSBundle mainBundle] appStoreReceiptURL]] base64EncodedStringWithOptions:0].
         /// </param>
         /// <param name="parameters">Optional event parameters.</param>
+        [Obsolete("TrackIOSInAppPurchase is obsolete. Please use TrackPurchase.")]
         public virtual void TrackIOSInAppPurchase(string item, double unitPrice, int quantity,
             string currencyCode, string transactionIdentifier, string receiptData,
             IDictionary<string, object> parameters)
         {
-            Debug.LogError("TrackIOSInAppPurchase is not supported on the current platform. Call " +
-                "the method in the platform's native SDK.");
+            TrackPurchase(Leanplum.PURCHASE_EVENT_NAME, unitPrice, currencyCode, parameters);
         }
 
         /// <summary>
