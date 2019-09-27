@@ -15,7 +15,7 @@ cache:
 
 
 before_install:
-- chmod a+x ./scripts/*.sh
+- chmod a+x scripts/*.sh
 - chmod a+x ./*.sh
 
 install:
@@ -23,7 +23,7 @@ install:
 - ./scripts/install-unity.sh
 
 script:
-  - make unitypackage
+- make unitypackage
 # - ./build.sh
 
 after_success:
