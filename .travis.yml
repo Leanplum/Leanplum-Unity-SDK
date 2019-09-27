@@ -1,5 +1,8 @@
 language: objective-c
 osx_image: xcode9.2
+matrix:
+  include:
+    - language: android
 rvm:
 - 2.2 #see before_install for getting RVM stable.
 
