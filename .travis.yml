@@ -15,7 +15,7 @@ cache:
 
 
 before_install:
-- chmod a+x ./Scripts/*.sh
+- chmod a+x ./scripts/*.sh
 - chmod a+x ./*.sh
 
 install:
