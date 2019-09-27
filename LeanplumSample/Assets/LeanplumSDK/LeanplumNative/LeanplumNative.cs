@@ -570,9 +570,9 @@ namespace LeanplumSDK
             req.SendIfConnected();
         }
 
-        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action responder)
+        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action<Dictionary<string, object>> responder)
         {
-
+            Debug.Log("[Leanplum] Define Action not Available on Selected Platform");
         }
 
         public override void TrackGooglePlayPurchase(string item, long priceMicros,

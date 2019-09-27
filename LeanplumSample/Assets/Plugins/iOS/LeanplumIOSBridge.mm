@@ -445,11 +445,17 @@ extern "C"
                  withArguments:arguments
                    withOptions:optionsDictionary
                  withResponder:^BOOL(LPActionContext *context) {
-                     // Propagate back event to unity layer
-                     UnitySendMessage(__LPgameObject, "NativeCallback",
-                                      [[NSString stringWithFormat:@"ActionResponder:%@", actionName] UTF8String]);
-
-                     return YES;
+                    @try{
+                        NSDictionary *updateProperties = [context actionArgs];
+                        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:updateProperties options:(NSJSONWritingOptions)0 error:nil];
+                        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+                        UnitySendMessage(__LPgameObject, "NativeCallback", [jsonString UTF8String]);
+                        return YES;
+                    }
+                    @catch(NSException *e){
+                        NSLog(@"LeanplumIOSBridge.withResponder: Failed to Process Action Response for %@ with Exception: %@", actionName, e);
+                        return NO;
+                    }
                  }];
     }
 

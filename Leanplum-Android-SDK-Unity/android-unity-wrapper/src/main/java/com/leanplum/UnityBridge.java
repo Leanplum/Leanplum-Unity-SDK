@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
@@ -261,7 +262,18 @@ public class UnityBridge {
     Leanplum.defineAction(name, kind, actionArgs, new ActionCallback() {
       @Override
       public boolean onResponse(ActionContext context) {
-        makeCallbackToUnity("ActionResponder:" + name);
+        // Action Responses without Actual Data is Useless
+        try {
+           Map<String, Object> onResponseData = context.getArgs();
+           if(onResponseData != null)
+           {
+              makeCallbackToUnity(new JSONObject(onResponseData).toString());
+           }
+        }
+        catch(Exception ex) {
+          Log.e("[LPUnity/onResponse]",  "Action Response Failed with Exception" + ex);
+          return false;
+        }
         return true;
       }
     });

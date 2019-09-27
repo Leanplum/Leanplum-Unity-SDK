@@ -135,7 +135,7 @@ namespace LeanplumSDK
         public override event Leanplum.StartHandler Started;
 
         private Dictionary<int, Action> ForceContentUpdateCallbackDictionary = new Dictionary<int, Action>();
-        private Dictionary<string, Action> ActionRespondersDictionary = new Dictionary<string, Action>();
+        private Dictionary<string, Action<Dictionary<string , object>>> ActionRespondersDictionary = new Dictionary<string, Action<Dictionary<string , object>>>();
 
         static private int DictionaryKey = 0;
 
@@ -360,7 +360,7 @@ namespace LeanplumSDK
             _start(SharedConstants.SDK_VERSION, userId, attributesString);
         }
 
-        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action responder)
+        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action<Dictionary<string, object>> responder)
         {
             if (name == null)
             {
@@ -544,12 +544,25 @@ namespace LeanplumSDK
                     ForceContentUpdateCallbackDictionary.Remove(key);
                 }
             }
-            else if (message.StartsWith("ActionResponder:"))
+            else
             {
-                Action callback;
-                if (ActionRespondersDictionary.TryGetValue(message, out callback))
+                try
                 {
-                    callback();
+                    var dataAsDict = (Dictionary<string, object>) Json.Deserialize(message);
+
+                    if (dataAsDict == null || !dataAsDict.ContainsKey("__name__"))
+                        return;
+                    var actionName = Convert.ToString(dataAsDict["__name__"]);
+
+                    Action<Dictionary<string, object>> callback;
+                    if (ActionRespondersDictionary.TryGetValue("ActionResponder:" + actionName, out callback))
+                    {
+                        callback(dataAsDict);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogWarning(string.Format("[LeanplumiOS/NativeCallback] Failed To Serialize Data from: {0}, with Exception: {1}", message, exception));
                 }
             }
         }
