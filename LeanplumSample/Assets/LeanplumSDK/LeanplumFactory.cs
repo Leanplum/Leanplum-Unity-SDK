@@ -28,13 +28,23 @@ namespace LeanplumSDK
 
 		public static LeanplumSDKObject SDK
 		{
+			set {}
 			get
 			{
+				if (_sdk == null) 
+				{
+					#if UNITY_EDITOR
+					_sdk = new LeanplumNative();
+					#elif UNITY_IPHONE
+					_sdk = new LeanplumIOS();
+					#elif UNITY_ANDROID
+					_sdk = new LeanplumAndroid();
+					#else
+					_sdk = new LeanplumNative();
+					#endif
+				}
+				
 				return _sdk;
-			}
-			set
-			{
-				_sdk = value;
 			}
 		}
 	}
