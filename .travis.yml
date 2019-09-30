@@ -3,11 +3,26 @@ osx_image: xcode11
 
 env:
   - TRAVIS_TAG="Deploy-2017.2.0f3" PROJECT_NAME="UnityExamplePackage" UNITY_PROJECT_PATH="UnityExample" DEPLOY_UNITYPACKAGE="path set in deploy script"
-  - ANDROID_SDK_VERSION=4333796
+  - ANDROID_HOME=$HOME/android-sdk
+
+before_cache:
+  # Do not cache a few Gradle files/directories (see https://docs.travis-ci.com/user/languages/java/#Caching)
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
 cache:
   directories:
     - $UNITY_DOWNLOAD_CACHE
+      # Android SDK
+    - $HOME/android-sdk-dl
+    - $HOME/android-sdk
+
+    # Gradle dependencies
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+    # Android build cache (see http://tools.android.com/tech-docs/build-cache)
+    - $HOME/.android/build-cache
 
 before_install:
   - chmod a+x scripts/*.sh
@@ -15,13 +30,14 @@ before_install:
 
 install:
   # SDK Tools.
-  - curl -o android-sdk.zip https://dl.google.com/android/repository/sdk-tools-darwin-4333796.zip
-  - unzip android-sdk.zip
-  - export ANDROID_HOME=$PWD/android-sdk-macosx
-  - export PATH=$PATH:$ANDROID_HOME/tools
-  - export PATH=$PATH:$ANDROID_HOME/platform-tools
-  - export JAVA_HOME=$(/usr/libexec/java_home)
-  - echo "y" | android update sdk --no-ui --all --filter tool,platform-tool,android-28,build-tools-28.0.3
+  - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-darwin-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ; fi
+  - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d $HOME/android-sdk
+
+  # Install or update Android SDK components (will not do anything if already up to date thanks to the cache mechanism)
+  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platform-tools' > /dev/null
+  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;28.0.3' > /dev/null
+  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-28' > /dev/null
+
   - cat /etc/hosts
   - ./scripts/install-unity.sh
 
