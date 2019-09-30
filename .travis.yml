@@ -10,19 +10,18 @@ cache:
     - $UNITY_DOWNLOAD_CACHE
 
 before_install:
-  - PKG_OS='darwin';
-  - export ANDROID_HOME="${HOME}/android-sdk";
-  - export PATH=$PATH:"${ANDROID_HOME}/tools/bin";
-  - mkdir $ANDROID_HOME 
   - chmod a+x scripts/*.sh
   - chmod a+x ./*.sh
 
 install:
   # SDK Tools.
-  - curl -o sdk.zip "https://dl.google.com/android/repository/sdk-tools-${PKG_OS}-${ANDROID_SDK_VERSION}.zip" &&
-  - unzip -q sdk.zip -d $ANDROID_HOME;
-  - yes | sdkmanager --licenses > /dev/null
-  - sdkmanager 'build-tools;27.0.0' 'platforms;android-27' > /dev/null
+  - curl -o android-sdk.zip http://dl.google.com/android/android-sdk_r24.4.1-macosx.zip
+  - unzip android-sdk.zip
+  - export ANDROID_HOME=$PWD/android-sdk-macosx
+  - export PATH=$PATH:$ANDROID_HOME/tools
+  - export PATH=$PATH:$ANDROID_HOME/platform-tools
+  - export JAVA_HOME=$(/usr/libexec/java_home)
+  - echo "y" | android update sdk --no-ui --all --filter tool,platform-tool,android-19,build-tools-22.0.1
   - cat /etc/hosts
   - ./scripts/install-unity.sh
 
@@ -43,4 +42,4 @@ deploy:
   skip_cleanup: true
   overwrite: true
   on:
-    tags: true 
+    tags: true
