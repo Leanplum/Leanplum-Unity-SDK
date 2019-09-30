@@ -387,7 +387,7 @@ namespace LeanplumSDK
             LeanplumFactory.SDK.DefineAction(name, kind, args, options, null);
         }
 
-        public static void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action responder)
+        public static void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action<Dictionary<string, object>> responder)
         {
             LeanplumFactory.SDK.DefineAction(name, kind, args, options, responder);
         }
