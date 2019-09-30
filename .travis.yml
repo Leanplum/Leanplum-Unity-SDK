@@ -15,6 +15,10 @@ cache:
 
 
 before_install:
+- brew tap caskroom/cask
+- brew cask install android-sdk
+- export ANDROID_HOME=/usr/local/share/android-sdk
+- yes | sdkmanager --licenses && sdkmanager --update
 - chmod a+x scripts/*.sh
 - chmod a+x ./*.sh
 
