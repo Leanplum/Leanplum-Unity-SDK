@@ -10,18 +10,17 @@ cache:
     - $UNITY_DOWNLOAD_CACHE
 
 before_install:
-  PKG_OS='darwin';
-  export ANDROID_HOME="${HOME}/android-sdk";
-  export PATH=$PATH:"${ANDROID_HOME}/tools/bin";
-  mkdir $ANDROID_HOME 
+  - PKG_OS='darwin';
+  - export ANDROID_HOME="${HOME}/android-sdk";
+  - export PATH=$PATH:"${ANDROID_HOME}/tools/bin";
+  - mkdir $ANDROID_HOME 
   - chmod a+x scripts/*.sh
   - chmod a+x ./*.sh
 
 install:
   # SDK Tools.
-  - >
-    curl -o sdk.zip "https://dl.google.com/android/repository/sdk-tools-${PKG_OS}-${ANDROID_SDK_VERSION}.zip" &&
-    unzip -q sdk.zip -d $ANDROID_HOME;
+  - curl -o sdk.zip "https://dl.google.com/android/repository/sdk-tools-${PKG_OS}-${ANDROID_SDK_VERSION}.zip" &&
+  - unzip -q sdk.zip -d $ANDROID_HOME;
   - yes | sdkmanager --licenses > /dev/null
   - sdkmanager 'build-tools;27.0.0' 'platforms;android-27' > /dev/null
   - cat /etc/hosts
