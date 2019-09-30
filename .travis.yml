@@ -10,15 +10,7 @@ cache:
     - $UNITY_DOWNLOAD_CACHE
 
 before_install:
-  - >
-    is_mac() {
-      [ "$TRAVIS_OS_NAME" = 'osx' ];
-    };
-    PKG_OS="$TRAVIS_OS_NAME";
-    if is_mac; then
-      PKG_OS='darwin';
-    fi
-  - >
+  PKG_OS='darwin';
   export ANDROID_HOME="${HOME}/android-sdk";
   export PATH=$PATH:"${ANDROID_HOME}/tools/bin";
   mkdir $ANDROID_HOME 
