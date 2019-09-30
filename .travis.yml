@@ -1,18 +1,31 @@
-language: objective-c
-osx_image: xcode11
 matrix:
   include:
-    - language: android
-rvm:
-- 2.2 #see before_install for getting RVM stable.
-
+    - osx_image: xcode11
+      language: android
+      licenses:
+        - 'android-sdk-preview-license-.+'
+        - 'android-sdk-license-.+'
+        - 'google-gdk-license-.+'
+      android:
+        components:
+          - tools
+          - platform-tools
+          - build-tools-25.0.3
+          - android-25
+          - sys-img-armeabi-v7a-google_apis-25
+          - extra-android-m2repository
+          - extra-google-m2repository
+          - extra-google-android-support
+      jdk: oraclejdk8
+      sudo: false
+    - osx_image: xcode11
+      language: generic
 env:
 - TRAVIS_TAG="Deploy-2017.2.0f3" PROJECT_NAME="UnityExamplePackage" UNITY_PROJECT_PATH="UnityExample" DEPLOY_UNITYPACKAGE="path set in deploy script"
 
 cache:
   directories:
     - $UNITY_DOWNLOAD_CACHE
-
 
 before_install:
 - brew tap caskroom/cask
