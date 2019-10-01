@@ -1,7 +1,7 @@
 os: osx
 osx_image: xcode11
 jdk:
-  - oraclejdk8
+  - oraclejdk11
 
 env:
   - TRAVIS_TAG="Deploy-2017.2.0f3" PROJECT_NAME="UnityExamplePackage" UNITY_PROJECT_PATH="UnityExample" DEPLOY_UNITYPACKAGE="path set in deploy script"
