@@ -58,6 +58,7 @@
 #import "LPDatabase.h"
 #import "LPJSON.h"
 #import "LPKeychainWrapper.h"
+#import "LPOperationQueue.h"
 #import "LPSwizzle.h"
 #import "LPUtils.h"
 #import "NSTimer+Blocks.h"
