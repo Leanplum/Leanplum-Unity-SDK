@@ -12,6 +12,7 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Timers;
@@ -40,14 +41,28 @@ namespace LeanplumSDK.Prefs
 
 			if (File.Exists(fileName))
 			{
-				fileReader = new StreamReader(fileName);
+				try 
+				{
+					fileReader = new StreamReader(fileName);
+					serializedInput = fileReader.ReadLine();
 
-				serializedInput = fileReader.ReadLine();
+					Deserialize();
 
-				Deserialize();
-
-				fileReader.Close();
-
+					fileReader.Close();
+				} 
+				catch (Exception e) 
+				{
+					Debug.Log("Failed to load previous prefs.");
+					Debug.LogException(e);
+				} 
+				finally 
+				{
+					if (fileReader != null) 
+					{
+						fileReader.Close();
+					}
+				}
+				
                 flushTimer = new Timer(flushFrequencyInSeconds * 1000);
                 flushTimer.Elapsed += delegate { Flush(); };
                 flushTimer.Start();
@@ -189,11 +204,13 @@ namespace LeanplumSDK.Prefs
 		{
 			if (hashTableChanged)
 			{
-				try {
+				StreamWriter fileWriter = null;
+
+				try 
+				{
 					hashTableChanged = false;
 					Serialize();
 
-					StreamWriter fileWriter = null;
 					fileWriter = File.CreateText(fileName);
 
 					if (fileWriter == null)
@@ -202,13 +219,21 @@ namespace LeanplumSDK.Prefs
 					}
 
 					fileWriter.WriteLine(serializedOutput);
-
 					fileWriter.Close();
 
 					serializedOutput = "";
-				} catch (Exception e) {
+				} 
+				catch (Exception e) 
+				{
 					Debug.LogError("Error when trying to save preferences.");
 					Debug.LogException(e);
+				} 
+				finally 
+				{
+					if (fileWriter != null) 
+					{
+						fileWriter.Close();
+					}
 				}
 			}
 		}
@@ -217,11 +242,11 @@ namespace LeanplumSDK.Prefs
 		{
 			IDictionaryEnumerator myEnumerator = playerPrefsHashtable.GetEnumerator();
 
-			while ( myEnumerator.MoveNext() )
+			while (myEnumerator.MoveNext())
 			{
                 if (myEnumerator != null && myEnumerator.Key != null && myEnumerator.Value != null)
                 {
-    				if(serializedOutput != "")
+    				if (serializedOutput != "")
     				{
     					serializedOutput += " " + PARAMETERS_SEPERATOR + " ";
     				}
