@@ -11,6 +11,8 @@ set -o nounset
 set -o pipefail
 set -o errexit
 
+PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
+
 #######################################
 # Gets the latest version of specified repo
 # Globals:
@@ -80,6 +82,19 @@ replace() {
 }
 
 #######################################
+# Tries to find Unity installation path through Unity Hub
+# Globals:
+#   None
+# Returns:
+#   None
+#######################################
+get_unity_from_hub() {
+  UNITY_HUB="/Applications/Unity Hub.app/Contents/MacOS/Unity Hub"
+
+  echo $("${UNITY_HUB}" -- --headless editors -i | head -1 | awk '{print $NF}')
+}
+
+#######################################
 # Builds the Unity SDK.
 # Globals:
 #   None
@@ -112,7 +127,12 @@ build() {
   echo "Exporting Unity SDK Package..."
   pwd
 
-  PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
+  if [ -f "$PATH_TO_UNITY_ROOT" ]; then
+      echo "$PATH_TO_UNITY_ROOT exist"
+  else 
+      PATH_TO_UNITY_ROOT=$(get_unity_from_hub)
+  fi
+
   PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
   PATH_TO_PROJECT="$(pwd)/LeanplumSample"
   PATH_TO_EXPORT="$(pwd)/Leanplum-Unity-Plugin"
