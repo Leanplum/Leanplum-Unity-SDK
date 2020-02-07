@@ -10,7 +10,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 28
         versionCode 1
-        versionName "4.2.9"
+        versionName "5.3.3"
 
     }
 
@@ -28,6 +28,6 @@ dependencies {
     compileOnly fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.google.code.gson:gson:2.8.5'
 
-    implementation(name: 'com.leanplum.leanplum-core-TP-4.2.9', ext:'aar')
-    implementation(name: 'com.leanplum.leanplum-push-TP-4.2.9', ext:'aar')
+    implementation(name: 'com.leanplum.leanplum-core-TP-5.3.3', ext:'aar')
+    implementation(name: 'com.leanplum.leanplum-push-TP-5.3.3', ext:'aar')
 }
