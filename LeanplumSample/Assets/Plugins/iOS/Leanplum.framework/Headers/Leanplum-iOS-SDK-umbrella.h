@@ -19,6 +19,7 @@
 #import "LPUIEditorWrapper.h"
 #import "LPVar-Internal.h"
 #import "LPVarCache.h"
+#import "EmbeddedHTMLUrlCallback.h"
 #import "LPFeatureFlagManager.h"
 #import "LPFeatureFlags.h"
 #import "LeanplumInternal.h"
