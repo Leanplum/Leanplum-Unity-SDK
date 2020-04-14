@@ -36,6 +36,11 @@
 - (NSString *)messageId;
 
 /**
+ * Returns the message identifier of the inbox message.
+ */
+- (NSString *)actionData;
+
+/**
  * Returns the title of the inbox message.
  */
 - (NSString *)title;
