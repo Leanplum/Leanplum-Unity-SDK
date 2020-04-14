@@ -50,27 +50,23 @@ namespace LeanplumSDK
 			{
 				if (destination is IDictionary)
 				{
-					bool cleared = false;
 					foreach (object key in ((IDictionary) source).Keys)
 					{
 						object typedKey = Convert.ChangeType(key, destination.GetType().GetGenericArguments()[0]);
 						if (((IDictionary) source)[key] is IDictionary ||
 						    ((IDictionary) source)[key] is IList)
 						{
-							if (((IDictionary) destination).Contains(typedKey))
-							{
-								FillInValues(((IDictionary) source)[key],
-								             ((IDictionary) destination)[typedKey]);
-							}
+							
+							var newSourceLevel = ((IDictionary) source)[key];
+							var newDestination = ((IDictionary) destination)[typedKey];
+
+							if (newDestination == null)
+								((IDictionary) destination)[typedKey] = newDestination = newSourceLevel;
+
+							FillInValues(newSourceLevel, newDestination);
 						}
 						else
 						{
-							if (!cleared)
-							{
-								cleared = true;
-								((IDictionary) destination).Clear();
-							}
-							
 							((IDictionary) destination)[typedKey] =
 								Convert.ChangeType(((IDictionary) source)[key],
 								                   destination.GetType().GetGenericArguments()[1]);
