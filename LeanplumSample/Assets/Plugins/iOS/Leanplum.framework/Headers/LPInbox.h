@@ -64,6 +64,11 @@
 - (NSDictionary *)data;
 
 /**
+ * Returns the action data of the inbox message.
+ */
+- (NSString *)actionData;
+
+/**
  * Returns the delivery timestamp of the inbox message.
  */
 - (NSDate *)deliveryTimestamp;
