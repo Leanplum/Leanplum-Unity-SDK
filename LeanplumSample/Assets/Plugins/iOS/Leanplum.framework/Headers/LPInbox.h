@@ -36,11 +36,6 @@
 - (NSString *)messageId;
 
 /**
- * Returns the message identifier of the inbox message.
- */
-- (NSString *)actionData;
-
-/**
  * Returns the title of the inbox message.
  */
 - (NSString *)title;
@@ -67,6 +62,11 @@
  * Returns the data of the inbox message. Advanced use only.
  */
 - (NSDictionary *)data;
+
+/**
+ * Returns the action data of the inbox message.
+ */
+- (NSString *)actionData;
 
 /**
  * Returns the delivery timestamp of the inbox message.

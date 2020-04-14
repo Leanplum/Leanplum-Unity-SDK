@@ -21,6 +21,9 @@ allprojects {
         maven {
             url "https://repo.leanplum.com/"
         }
+        flatDir {
+            dirs 'libs'
+        }
     }
 }
 
