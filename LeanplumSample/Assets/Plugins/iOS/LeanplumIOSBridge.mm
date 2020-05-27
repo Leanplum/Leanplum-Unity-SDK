@@ -137,8 +137,6 @@ extern "C"
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         UIRemoteNotificationType remoteNotificationTypes = UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound;
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes:remoteNotificationTypes];
-        
-        return;
 #pragma clang diagnostic pop
 #endif
 
