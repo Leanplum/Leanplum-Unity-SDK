@@ -20,8 +20,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Timers;
 using UnityEngine;
+using UnityEngine.Networking;
 
 #if LP_UNITYWEBREQUEST
 #if UNITY_5_5_OR_NEWER
@@ -159,7 +159,7 @@ namespace LeanplumSDK
             }
             else if (isAsset)
             {
-                result = UnityNetworkingRequest.GetAssetBundle(url, 1);
+                result = UnityWebRequestAssetBundle.GetAssetBundle(url, 1);
             }
             else
             {
@@ -185,28 +185,30 @@ namespace LeanplumSDK
         }
 #endif
 
-        private static IEnumerator RunRequest(string url, WWWForm wwwForm, Action<WebResponse> responseHandler,
-                                              int timeout, bool isAsset)
+        private static IEnumerator RunRequest(string url, WWWForm wwwForm, Action<WebResponse> responseHandler, int timeout, bool isAsset)
         {
 #if LP_UNITYWEBREQUEST
             using (var request = CreateWebRequest(url, wwwForm, isAsset))
             {
-                var operation = request.Send();
-                float elapsed = 0.0f;
-                while (!operation.isDone && elapsed < timeout)
+                request.timeout = timeout;
+
+                yield return request.SendWebRequest();
+
+                while (!request.isDone)
                 {
                     yield return null;
                 }
 
-                if (operation.isDone)
+                if (request.isNetworkError || request.isHttpError)
                 {
-                    responseHandler(new UnityWebResponse(request.error,
-                        (String.IsNullOrEmpty(request.error) && !isAsset)? request.downloadHandler.text : null,
-                        (String.IsNullOrEmpty(request.error) && isAsset) ? ((DownloadHandlerAssetBundle)request.downloadHandler) : null));
+                    responseHandler(new UnityWebResponse(request.responseCode, request.error, null, null));
                 }
                 else
                 {
-                    responseHandler(new UnityWebResponse(Constants.NETWORK_TIMEOUT_MESSAGE, String.Empty, null));                    
+                    responseHandler(new UnityWebResponse(request.responseCode,
+                        request.error,
+                        !isAsset ? request.downloadHandler.text : null,
+                        isAsset ? ((DownloadHandlerAssetBundle)request.downloadHandler) : null));
                 }
             }
 #else
@@ -215,18 +217,19 @@ namespace LeanplumSDK
                 float elapsed = 0.0f;
                 while (!www.isDone && elapsed < timeout)
                 {
+                    elapsed += Time.deltaTime;
                     yield return null;
                 }
 
                 if (www.isDone)
                 {
-                    responseHandler(new UnityWebResponse(www.error,
+                    responseHandler(new UnityWebResponse(200, www.error,
                         (String.IsNullOrEmpty(www.error) && !isAsset) ? www.text : null,
                         (String.IsNullOrEmpty(www.error) && isAsset) ? www.assetBundle : null));
                 }
                 else
                 {
-                    responseHandler(new UnityWebResponse(Constants.NETWORK_TIMEOUT_MESSAGE, String.Empty, null));
+                    responseHandler(new UnityWebResponse(408, Constants.NETWORK_TIMEOUT_MESSAGE, String.Empty, null));
                 }
             }
 #endif

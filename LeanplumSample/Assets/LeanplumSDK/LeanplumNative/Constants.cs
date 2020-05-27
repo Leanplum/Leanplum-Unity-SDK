@@ -150,6 +150,7 @@ namespace LeanplumSDK
             internal const string DEVICE_NAME = "deviceName";
             internal const string DEVICE_SYSTEM_NAME = "systemName";
             internal const string DEVICE_SYSTEM_VERSION = "systemVersion";
+            internal const string REQUEST_ID = "reqId";
             internal const string EMAIL = "email";
             internal const string EVENT = "event";
             internal const string FILE = "file";

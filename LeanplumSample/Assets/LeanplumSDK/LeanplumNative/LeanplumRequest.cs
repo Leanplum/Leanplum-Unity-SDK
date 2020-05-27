@@ -20,8 +20,6 @@
 using LeanplumSDK.MiniJSON;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 
 namespace LeanplumSDK
 {
@@ -33,9 +31,11 @@ namespace LeanplumSDK
         public delegate void NoPendingDownloadsHandler();
 
         private static object padLock = new object();
+
         private readonly string apiMethod;
         private readonly string httpMethod;
         private readonly string resourceUrl;
+        private readonly string requestId = Guid.NewGuid().ToString().ToLower();
         private readonly IDictionary<string, string> parameters;
 
         public LeanplumRequest(string httpMethod, string resourceUrl)
@@ -123,21 +123,24 @@ namespace LeanplumSDK
 
         internal virtual IDictionary<string, string> CreateArgsDictionary()
         {
-            IDictionary<string, string> args = new Dictionary<string, string>();
-            args [Constants.Params.DEVICE_ID] = DeviceId;
-            args [Constants.Params.ACTION] = apiMethod;
-            args [Constants.Params.USER_ID] = UserId;
-            args [Constants.Params.SDK_VERSION] = SharedConstants.SDK_VERSION;
-            args [Constants.Params.DEV_MODE] = Constants.isDevelopmentModeEnabled.ToString();
-            args [Constants.Params.TIME] = Util.GetUnixTimestamp().ToString();
+            IDictionary<string, string> args = new Dictionary<string, string>
+            {
+                [Constants.Params.DEVICE_ID] = DeviceId,
+                [Constants.Params.ACTION] = apiMethod,
+                [Constants.Params.USER_ID] = UserId,
+                [Constants.Params.SDK_VERSION] = SharedConstants.SDK_VERSION,
+                [Constants.Params.DEV_MODE] = Constants.isDevelopmentModeEnabled.ToString(),
+                [Constants.Params.TIME] = Util.GetUnixTimestamp().ToString(),
+                [Constants.Params.REQUEST_ID] = requestId
+            };
             if (Token != null)
             {
-                args [Constants.Params.TOKEN] = Token;
+                args[Constants.Params.TOKEN] = Token;
             }
 
             foreach (var param in parameters)
             {
-                args [param.Key] = param.Value;
+                args[param.Key] = param.Value;
             }
 
             return args;
@@ -251,11 +254,14 @@ namespace LeanplumSDK
             SendEventually();
 
             IList<IDictionary<string, string>> requestsToSend = PopUnsentRequests();
-            IDictionary<string, string> multiRequestArgs = new Dictionary<string, string>();
-            multiRequestArgs [Constants.Params.DATA] = JsonEncodeUnsentRequests(requestsToSend);
-            multiRequestArgs [Constants.Params.SDK_VERSION] = SharedConstants.SDK_VERSION;
-            multiRequestArgs [Constants.Params.ACTION] = Constants.Methods.MULTI;
-            multiRequestArgs [Constants.Params.TIME] = Util.GetUnixTimestamp().ToString();
+            IDictionary<string, string> multiRequestArgs = new Dictionary<string, string>
+            {
+                [Constants.Params.DATA] = JsonEncodeUnsentRequests(requestsToSend),
+                [Constants.Params.SDK_VERSION] = SharedConstants.SDK_VERSION,
+                [Constants.Params.ACTION] = Constants.Methods.MULTI,
+                [Constants.Params.TIME] = Util.GetUnixTimestamp().ToString()
+            };
+
             if (!AttachApiKeys(multiRequestArgs))
             {
                 return;
@@ -263,26 +269,22 @@ namespace LeanplumSDK
 
 			LeanplumNative.CompatibilityLayer.LogDebug("sending: " + Json.Serialize(multiRequestArgs));
 
-            Util.CreateWebRequest(Constants.API_HOST_NAME, Constants.API_SERVLET, multiRequestArgs, httpMethod,
-                Constants.API_SSL, Constants.NETWORK_TIMEOUT_SECONDS).GetResponseAsync(
-                    delegate(WebResponse response)
+            Util.CreateWebRequest(Constants.API_HOST_NAME,
+                Constants.API_SERVLET,
+                multiRequestArgs,
+                httpMethod,
+                Constants.API_SSL,
+                Constants.NETWORK_TIMEOUT_SECONDS).GetResponseAsync(delegate (WebResponse response)
             {
+                LeanplumNative.CompatibilityLayer.LogDebug("recieved response with status code: " + response.GetStatusCode() + " and error: " + response.GetError());
+
                 if (!String.IsNullOrEmpty(response.GetError()))
-                {
-                    // Parse out the http error code by taking the first 3 characters.
-					string errorMessage = null;
-                    string statusCode = null;
-                    if (response.GetError() [0] == '4' || response.GetError() [0] == '5')
-                    {
-                        statusCode = response.GetError().Substring(0, 3);
-                    }
-                    else
-                    {
-                        statusCode = response.GetError();
-                    }
-					bool connectionError = response.GetError() != null &&
-						response.GetError().Contains("Could not resolve host");
-					if (statusCode == "408" || statusCode == "502" || statusCode == "503" || statusCode == "504")
+                {   
+					string errorMessage = response.GetError();
+                    long statusCode = response.GetStatusCode();
+					bool connectionError = response.GetError() != null && response.GetError().Contains("Could not resolve host");
+
+					if (statusCode == 408 || statusCode == 502 || statusCode == 503 || statusCode == 504)
                     {
                         errorMessage = "Server is busy; will retry later";
 						LeanplumNative.CompatibilityLayer.LogWarning(errorMessage);
@@ -295,12 +297,10 @@ namespace LeanplumSDK
 					}
                     else
                     {
-                        errorMessage = statusCode;
                         object json = response.GetResponseBodyAsJson();
                         if (json != null && json.GetType() == typeof(IDictionary<string, object>))
                         {
-                            IDictionary<string, object> responseDictionary =
-                                        Util.GetLastResponse(response.GetResponseBodyAsJson()) as IDictionary<string, object>;
+                            IDictionary<string, object> responseDictionary = Util.GetLastResponse(response.GetResponseBodyAsJson()) as IDictionary<string, object>;
                             if (responseDictionary != null)
                             {
                                 string error = GetResponseError(responseDictionary);
@@ -337,8 +337,7 @@ namespace LeanplumSDK
                 }
                 else
                 {
-                    IDictionary<string, object> responseDictionary =
-                                Util.GetLastResponse(response.GetResponseBodyAsJson()) as IDictionary<string, object>;
+                    IDictionary<string, object> responseDictionary = Util.GetLastResponse(response.GetResponseBodyAsJson()) as IDictionary<string, object>;
 					LeanplumNative.CompatibilityLayer.LogDebug("received: " + response.GetResponseBody());
                     if (IsResponseSuccess(responseDictionary))
                     {
