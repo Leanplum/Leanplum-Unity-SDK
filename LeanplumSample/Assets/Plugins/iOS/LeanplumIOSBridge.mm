@@ -133,16 +133,13 @@ extern "C"
         
         // iOS 3.0
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 30000
-        if (@available(iOS 3.0, *))
-        {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            UIRemoteNotificationType remoteNotificationTypes = UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound;
-            [[UIApplication sharedApplication] registerForRemoteNotificationTypes:remoteNotificationTypes];
-            
-            return;
+        UIRemoteNotificationType remoteNotificationTypes = UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound;
+        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:remoteNotificationTypes];
+        
+        return;
 #pragma clang diagnostic pop
-        }
 #endif
 
     }
