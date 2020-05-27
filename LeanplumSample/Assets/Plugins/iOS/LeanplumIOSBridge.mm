@@ -98,44 +98,53 @@ extern "C"
 
     void _registerForNotifications()
     {
-        // IOS 10.0, tvOS 10.0, macOS 10.14
-        #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000 || __TV_OS_VERSION_MAX_ALLOWED >= 100000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101400
-                if (@available(iOS 10, tvOS 10, macOS 10.14, *))
-                {
-                    UNUserNotificationCenter *notificationCenter = [UNUserNotificationCenter currentNotificationCenter];
-                    UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound;
-                    [notificationCenter requestAuthorizationWithOptions:options completionHandler:^(BOOL granted, NSError * _Nullable error) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            if (granted) {
-                                [[UIApplication sharedApplication] registerForRemoteNotifications];
-                            } else {
-                                NSLog(@"Leanplum: Failed to request authorization for user notifications: %@", error ? error : @"nil");
-                            }
-                        });
-                    }];
-                    
-                    return;
-                }
-        #endif
+        // iOS 10.0, tvOS 10.0, macOS 10.14
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000 || __TV_OS_VERSION_MAX_ALLOWED >= 100000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101400
+        if (@available(iOS 10, tvOS 10, macOS 10.14, *))
+        {
+            UNUserNotificationCenter *notificationCenter = [UNUserNotificationCenter currentNotificationCenter];
+            UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound;
+            [notificationCenter requestAuthorizationWithOptions:options completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (granted) {
+                        [[UIApplication sharedApplication] registerForRemoteNotifications];
+                    } else {
+                        NSLog(@"Leanplum: Failed to request authorization for user notifications: %@", error ? error : @"nil");
+                    }
+                });
+            }];
+            
+            return;
+        }
+#endif
+        
+        // iOS 8.0
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+        if (@available(iOS 8.0, *))
+        {
+            UIUserNotificationType notificationTypes = UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound;
+            UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:notificationTypes categories:nil];
+            [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
+            
+            return;
+        }
+#endif
+        
+        // iOS 3.0
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 30000
+        if (@available(iOS 3.0, *))
+        {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            UIRemoteNotificationType remoteNotificationTypes = UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound;
+            [[UIApplication sharedApplication] registerForRemoteNotificationTypes:remoteNotificationTypes];
+            
+            return;
+#pragma clang diagnostic pop
+        }
+#endif
 
-        // IOS 8.0
-        #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
-                if (@available(iOS 8.0, *))
-                {
-                    UIUserNotificationType notificationTypes = UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound;
-                    UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:notificationTypes categories:nil];
-                    [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
-                    [[UIApplication sharedApplication] registerForRemoteNotifications];
-                    
-                    return;
-                }
-        #endif
-
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        UIUserNotificationType notificationTypes = UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound;
-        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:notificationTypes];
-        #pragma clang diagnostic pop
     }
 
     void _setAppIdDeveloper(const char *appId, const char *accessKey)
