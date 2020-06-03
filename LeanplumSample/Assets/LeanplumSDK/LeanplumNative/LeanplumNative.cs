@@ -575,6 +575,7 @@ namespace LeanplumSDK
 
         }
 
+        [Obsolete("TrackGooglePlayPurchase is obsolete. Please use TrackPurchase.")]
         public override void TrackGooglePlayPurchase(string item, long priceMicros,
             string currencyCode, string purchaseData, string dataSignature,
             IDictionary<string, object> parameters)
@@ -596,6 +597,7 @@ namespace LeanplumSDK
             Track(PURCHASE_EVENT_NAME, priceMicros / 1000000.0, null, modifiedParams, arguments);
         }
 
+        [Obsolete("TrackIOSInAppPurchase is obsolete. Please use TrackPurchase.")]
         public override void TrackIOSInAppPurchase(string item, double unitPrice, int quantity,
             string currencyCode, string transactionIdentifier, string receiptData,
             IDictionary<string, object> parameters)
