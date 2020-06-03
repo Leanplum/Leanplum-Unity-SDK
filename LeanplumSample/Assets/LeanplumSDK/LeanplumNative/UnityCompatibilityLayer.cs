@@ -150,7 +150,7 @@ namespace LeanplumSDK
 
         public string URLEncode(string str)
         {
-            return WWW.EscapeURL(str, Encoding.UTF8);
+            return Uri.EscapeUriString(str);
         }
         #endregion Web
 

@@ -476,7 +476,7 @@ namespace LeanplumSDK
             parameters[Constants.Params.DEVICE_SYSTEM_NAME] = CompatibilityLayer.GetSystemName();
             parameters[Constants.Params.DEVICE_SYSTEM_VERSION] =
                 CompatibilityLayer.GetSystemVersion();
-            TimeZone timezone = System.TimeZone.CurrentTimeZone;
+            var timezone = TimeZoneInfo.Local;
             if (timezone.IsDaylightSavingTime(DateTime.UtcNow))
             {
                 parameters[Constants.Keys.TIMEZONE] = timezone.DaylightName;

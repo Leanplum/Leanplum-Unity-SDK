@@ -191,7 +191,7 @@ namespace LeanplumSDK
 #if LP_UNITYWEBREQUEST
             using (var request = CreateWebRequest(url, wwwForm, isAsset))
             {
-                var operation = request.Send();
+                var operation = request.SendWebRequest();
                 float elapsed = 0.0f;
                 while (!operation.isDone && elapsed < timeout)
                 {
