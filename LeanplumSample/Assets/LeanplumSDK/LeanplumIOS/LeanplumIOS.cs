@@ -384,7 +384,7 @@ namespace LeanplumSDK
         }
 
         /// <summary>
-        ///     Logs a pruchase event in your application. The string can be any
+        ///     Logs a purchase event in your application. The string can be any
         ///     value of your choosing, however in most cases you will want to use
         ///     Leanplum.PURCHASE_EVENT_NAME
         /// </summary>
