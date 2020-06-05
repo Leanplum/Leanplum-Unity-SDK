@@ -22,20 +22,46 @@ namespace LeanplumSDK
     internal class UnityWebResponse : WebResponse
     {
         private readonly string error;
+        private long statusCode;
         private readonly string responseBody;
         private readonly object responseBodyAsAsset;
 
-        public UnityWebResponse(string error, string text, object data)
+        public UnityWebResponse(long statusCode, string error, string text, object data)
         {
-            if (string.IsNullOrEmpty(error))
+            this.statusCode = statusCode;
+            this.error = error;
+            this.responseBody = text;
+            this.responseBodyAsAsset = data;
+        }
+
+        public override long GetStatusCode()
+        {
+#if LP_UNITYWEBREQUEST
+            return statusCode;
+#else
+            if (error != null)
             {
-                responseBody = text;
-                responseBodyAsAsset = data;
+                if (error[0] == '4' || error[0] == '5')
+                {
+
+                    string code = error.Substring(0, 3);
+                    if (!string.IsNullOrEmpty(code) && long.TryParse(code, out statusCode))
+                    {
+                        return statusCode;
+                    }
+                    else
+                    {
+                        return 400;
+                    }
+
+                }
+                else
+                {
+                    return statusCode;
+                }
             }
-            else
-            {
-                this.error = error;
-            }
+            return statusCode;
+#endif
         }
 
         public override string GetError()
