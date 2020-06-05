@@ -24,6 +24,7 @@ namespace LeanplumSDK
     internal abstract class WebResponse
     {
         public abstract string GetError();
+        public abstract long GetStatusCode();
         public abstract string GetResponseBody();
         public abstract object GetResponseAsAsset();
 
