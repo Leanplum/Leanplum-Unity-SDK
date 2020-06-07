@@ -377,13 +377,14 @@ namespace LeanplumSDK
             _defineAction(name, (int) kind, argString, optionString);
         }
 
+        [Obsolete("TrackIOSInAppPurchase is obsolete. Please use TrackPurchase.")]
         public override void TrackIOSInAppPurchases()
         {
             _trackIOSInAppPurchases();
         }
 
         /// <summary>
-        ///     Logs a pruchase event in your application. The string can be any
+        ///     Logs a purchase event in your application. The string can be any
         ///     value of your choosing, however in most cases you will want to use
         ///     Leanplum.PURCHASE_EVENT_NAME
         /// </summary>

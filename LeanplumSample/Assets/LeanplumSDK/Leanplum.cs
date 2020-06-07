@@ -403,6 +403,7 @@ namespace LeanplumSDK
         /// <param name="dataSignature">Purchase data signature from
         /// com.android.vending.billing.util.Purchase.getSignature().</param>
         /// <param name="parameters">Optional event parameters.</param>
+        [Obsolete("TrackGooglePlayPurchase is obsolete. Please use TrackPurchase.")]
         public static void TrackGooglePlayPurchase(string item, long priceMicros,
             string currencyCode, string purchaseData, string dataSignature,
             IDictionary<string, object> parameters)
@@ -414,6 +415,7 @@ namespace LeanplumSDK
         /// <summary>
         ///     Automatically track in-app purchases on iOS.
         /// </summary>
+        [Obsolete("TrackIOSInAppPurchases is obsolete. Please use TrackPurchase.")]
         public static void TrackIOSInAppPurchases()
         {
             LeanplumFactory.SDK.TrackIOSInAppPurchases();
@@ -446,6 +448,7 @@ namespace LeanplumSDK
         /// <param name="parameters">
         ///     Optional event parameters.
         /// </param>
+        [Obsolete("TrackIOSInAppPurchase is obsolete. Please use TrackPurchase.")]
         public static void TrackIOSInAppPurchase(string item, double unitPrice, int quantity,
             string currencyCode, string transactionIdentifier, string receiptData,
             IDictionary<string, object> parameters)
