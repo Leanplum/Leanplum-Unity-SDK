@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import <Leanplum/Leanplum.h>
+#import <Leanplum/LPPushNotificationsManager.h>
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
 
@@ -27,13 +28,12 @@ typedef void (*LeanplumRequestAuthorization)
 (id, SEL, unsigned long long, void (^)(BOOL, NSError *__nullable));
 
 @interface Leanplum()
-+ (void)_initPush;
 + (void)setClient:(NSString *)client withVersion:(NSString *)version;
 @end
 
-__attribute__ ((__constructor__)) static void leanplum_push_swizzle(void) {
-    [[NSNotificationCenter defaultCenter] addObserver:[Leanplum class] selector:@selector(_initPush)
-                                                 name:@"UIApplicationDidFinishLaunchingNotification" object:nil];
+__attribute__ ((__constructor__)) static void initialize_bridge(void)
+{
+    [LPPushNotificationsManager sharedManager];
 }
 
 static char *__LPgameObject;
@@ -98,48 +98,7 @@ extern "C"
 
     void _registerForNotifications()
     {
-        // Otherwise use boilerplate code from docs.
-        id notificationCenterClass = NSClassFromString(@"UNUserNotificationCenter");
-        if (notificationCenterClass) {
-            // iOS 10.
-            SEL selector = NSSelectorFromString(@"currentNotificationCenter");
-            id notificationCenter =
-            ((id (*)(id, SEL)) [notificationCenterClass methodForSelector:selector])
-            (notificationCenterClass, selector);
-            if (notificationCenter) {
-                selector =
-                NSSelectorFromString(@"requestAuthorizationWithOptions:completionHandler:");
-                IMP method = [notificationCenter methodForSelector:selector];
-                LeanplumRequestAuthorization func =
-                (LeanplumRequestAuthorization) method;
-                func(notificationCenter, selector,
-                     0b111, /* badges, sounds, alerts */
-                     ^(BOOL granted, NSError *__nullable error) {
-                         if (error) {
-                             NSLog(@"Leanplum: Failed to request authorization for user "
-                                   "notifications: %@", error);
-                         }
-                     });
-            }
-            [[UIApplication sharedApplication] registerForRemoteNotifications];
-        } else if ([[UIApplication sharedApplication] respondsToSelector:
-                    @selector(registerUserNotificationSettings:)]) {
-            // iOS 8-9.
-            UIUserNotificationSettings *settings = [UIUserNotificationSettings
-                                                    settingsForTypes:UIUserNotificationTypeAlert |
-                                                    UIUserNotificationTypeBadge |
-                                                    UIUserNotificationTypeSound categories:nil];
-            [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
-            [[UIApplication sharedApplication] registerForRemoteNotifications];
-        } else {
-            // iOS 7 and below.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            [[UIApplication sharedApplication] registerForRemoteNotificationTypes:
-#pragma clang diagnostic pop
-             UIUserNotificationTypeSound | UIUserNotificationTypeAlert |
-             UIUserNotificationTypeBadge];
-        }
+        [[LPPushNotificationsManager sharedManager] enableSystemPush];
     }
 
     void _setAppIdDeveloper(const char *appId, const char *accessKey)
