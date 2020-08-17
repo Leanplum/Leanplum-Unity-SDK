@@ -109,6 +109,14 @@ public class UnityBridge {
     Leanplum.setDeviceId(deviceId);
   }
 
+  public static String getDeviceId() {
+    return Leanplum.getDeviceId();
+  }
+
+  public static String getUserId() {
+    return Leanplum.getUserId();
+  }
+
   public static void setTestModeEnabled(boolean enabled) {
     Leanplum.setIsTestModeEnabled(enabled);
   }

@@ -24,6 +24,48 @@
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
 
+namespace lp 
+{
+    static char *copy_string(const char *str)
+    {
+        if (str == NULL) 
+        {
+            return NULL;
+        }
+        char *res = (char *) malloc(strlen(str) + 1);
+        strcpy(res, str);
+        return res;
+    }
+
+    static NSString *to_nsstring(const char *str)
+    {
+        if (str != NULL) {
+            return [NSString stringWithUTF8String:str];
+        } else {
+            return [NSString stringWithUTF8String:""];
+        }
+    }
+
+    static char *to_string(NSString *str)
+    {
+        return copy_string([str UTF8String]);
+    }
+
+    static char *to_json_string(id obj)
+    {
+        if (!obj) {
+            return NULL;
+        }
+
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:obj
+                                                           options:NSUTF8StringEncoding
+                                                             error:nil];
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData
+                                                     encoding:NSUTF8StringEncoding];
+        return copy_string([jsonString UTF8String]);
+    }
+}
+
 typedef void (*LeanplumRequestAuthorization)
 (id, SEL, unsigned long long, void (^)(BOOL, NSError *__nullable));
 
@@ -38,40 +80,6 @@ __attribute__ ((__constructor__)) static void initialize_bridge(void)
 
 static char *__LPgameObject;
 static NSMutableArray *__LPVariablesCache = [NSMutableArray array];
-
-static char *leanplum_cStringCopy(const char *string)
-{
-    if (string == NULL) {
-        return NULL;
-    }
-    char *res = (char *)malloc(strlen(string) + 1);
-    strcpy(res, string);
-    return res;
-}
-
-static NSString *leanplum_createNSString(const char *string)
-{
-    if (string != NULL) {
-        return [NSString stringWithUTF8String:string];
-    } else {
-        return [NSString stringWithUTF8String:""];
-    }
-}
-
-static char *leanplum_cStringFromObject(id obj)
-{
-    if (!obj) {
-        return NULL;
-    }
-
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:obj
-                                                       options:NSUTF8StringEncoding
-                                                         error:nil];
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData
-                                                 encoding:NSUTF8StringEncoding];
-    return leanplum_cStringCopy([jsonString UTF8String]);
-}
-
 
 // Variable Delegate class
 @interface LPUnityVarDelegate : NSObject <LPVarDelegate>
@@ -103,16 +111,17 @@ extern "C"
 
     void _setAppIdDeveloper(const char *appId, const char *accessKey)
     {
-        NSString *NSSAppId = leanplum_createNSString(appId);
-        NSString *NSSAccessKey = leanplum_createNSString(accessKey);
+        
+        NSString *NSSAppId = lp::to_nsstring(appId);
+        NSString *NSSAccessKey = lp::to_nsstring(accessKey);
 
         [Leanplum setAppId:NSSAppId withDevelopmentKey:NSSAccessKey];
     }
 
     void _setAppIdProduction(const char *appId, const char *accessKey)
     {
-        NSString *NSSAppId = leanplum_createNSString(appId);
-        NSString *NSSAccessKey = leanplum_createNSString(accessKey);
+        NSString *NSSAppId = lp::to_nsstring(appId);
+        NSString *NSSAccessKey = lp::to_nsstring(accessKey);
 
         [Leanplum setAppId:NSSAppId withProductionKey:NSSAccessKey];
     }
@@ -129,8 +138,8 @@ extern "C"
 
     void _setApiHostName(const char *hostName, const char *servletName, int useSSL)
     {
-        [Leanplum setApiHostName:leanplum_createNSString(hostName)
-                 withServletName:leanplum_createNSString(servletName) usingSsl:[@(useSSL) boolValue]];
+        [Leanplum setApiHostName:lp::to_nsstring(hostName)
+                 withServletName:lp::to_nsstring(servletName) usingSsl:[@(useSSL) boolValue]];
     }
 
     void _setNetworkTimeout(int seconds, int downloadSeconds)
@@ -140,12 +149,22 @@ extern "C"
 
     void _setAppVersion(const char *version)
     {
-        [Leanplum setAppVersion:leanplum_createNSString(version)];
+        [Leanplum setAppVersion:lp::to_nsstring(version)];
     }
 
     void _setDeviceId(const char *deviceId)
     {
-        [Leanplum setDeviceId:leanplum_createNSString(deviceId)];
+        [Leanplum setDeviceId:lp::to_nsstring(deviceId)];
+    }
+
+    const char *_getDeviceId()
+    {
+        return lp::to_string([Leanplum deviceId]);
+    }
+
+    const char *_getUserId()
+    {
+        return lp::to_string([Leanplum userId]);
     }
 
     void _setTestModeEnabled(bool isTestModeEnabled)
@@ -155,7 +174,7 @@ extern "C"
 
     void _setTrafficSourceInfo(const char *dictStringJSON)
     {
-        NSData *data = [leanplum_createNSString(dictStringJSON)
+        NSData *data = [lp::to_nsstring(dictStringJSON)
                         dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
@@ -165,21 +184,21 @@ extern "C"
 
     void _advanceTo(const char *state, const char *info, const char *dictStringJSON)
     {
-        NSData *data = [leanplum_createNSString(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
-        [Leanplum advanceTo:leanplum_createNSString(state)
-                   withInfo:leanplum_createNSString(info) andParameters:dictionary];
+        [Leanplum advanceTo:lp::to_nsstring(state)
+                   withInfo:lp::to_nsstring(info) andParameters:dictionary];
     }
 
     void _setUserAttributes(const char *newUserId, const char *dictStringJSON)
     {
-        NSData *data = [leanplum_createNSString(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
-        [Leanplum setUserId:leanplum_createNSString(newUserId) withUserAttributes:dictionary];
+        [Leanplum setUserId:lp::to_nsstring(newUserId) withUserAttributes:dictionary];
     }
 
     void _pauseState()
@@ -194,12 +213,12 @@ extern "C"
 
     const char * _variants()
     {
-        return leanplum_cStringFromObject([Leanplum variants]);
+        return lp::to_json_string([Leanplum variants]);
     }
 
     const char * _messageMetadata()
     {
-        return leanplum_cStringFromObject([Leanplum messageMetadata]);
+        return lp::to_json_string([Leanplum messageMetadata]);
     }
 
     void _forceContentUpdate()
@@ -247,9 +266,9 @@ extern "C"
 
     void _start(const char *sdkVersion, const char *userId, const char *dictStringJSON)
     {
-        [Leanplum setClient:LEANPLUM_CLIENT withVersion:leanplum_createNSString(sdkVersion)];
+        [Leanplum setClient:LEANPLUM_CLIENT withVersion:lp::to_nsstring(sdkVersion)];
 
-        NSData *data = [leanplum_createNSString(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
@@ -271,47 +290,47 @@ extern "C"
 
     void _trackPurchase(const char *event, double value, const char *currencyCode, const char *dictStringJSON)
     {
-        NSData *data = [leanplum_createNSString(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
 
-        [Leanplum trackPurchase:leanplum_createNSString(event) withValue:value andCurrencyCode:leanplum_createNSString(currencyCode)
+        [Leanplum trackPurchase:lp::to_nsstring(event) withValue:value andCurrencyCode:lp::to_nsstring(currencyCode)
           andParameters:dictionary];
     }
 
     void _track(const char *event, double value, const char *info, const char *dictStringJSON)
     {
-        NSData *data = [leanplum_createNSString(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
 
-        [Leanplum track:leanplum_createNSString(event) withValue:value andInfo:leanplum_createNSString(info)
+        [Leanplum track:lp::to_nsstring(event) withValue:value andInfo:lp::to_nsstring(info)
           andParameters:dictionary];
     }
 
     const char *_objectForKeyPath(const char *dictStringJSON)
     {
-        NSData *data = [leanplum_createNSString(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
-        return leanplum_cStringFromObject([Leanplum objectForKeyPath:dictionary, nil]);
+        return lp::to_json_string([Leanplum objectForKeyPath:dictionary, nil]);
     }
 
     const char *_objectForKeyPathComponents(const char *dictStringJSON)
     {
-        NSData *data = [leanplum_createNSString(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         id object = [NSJSONSerialization JSONObjectWithData:data
                                                     options:NSUTF8StringEncoding
                                                       error:nil];
-        return leanplum_cStringFromObject([Leanplum objectForKeyPathComponents:object]);
+        return lp::to_json_string([Leanplum objectForKeyPathComponents:object]);
     }
 
     void _registerVariableCallback(const char *name)
     {
-        NSString *varName = leanplum_createNSString(name);
+        NSString *varName = lp::to_nsstring(name);
         for (int i = 0; i < __LPVariablesCache.count; i++) {
             LPVar *var = [__LPVariablesCache objectAtIndex:i];
             if ([var.name isEqualToString:varName]) {
@@ -329,15 +348,15 @@ extern "C"
             return;
         }
 
-        NSString *actionName = leanplum_createNSString(name);
+        NSString *actionName = lp::to_nsstring(name);
         LeanplumActionKind actionKind = (LeanplumActionKind) kind;
         
-        NSData *argsData = [leanplum_createNSString(args) dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *argsData = [lp::to_nsstring(args) dataUsingEncoding:NSUTF8StringEncoding];
         NSArray *argsArray = [NSJSONSerialization JSONObjectWithData:argsData
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
 
-        NSData *optionsData = [leanplum_createNSString(options) dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *optionsData = [lp::to_nsstring(options) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *optionsDictionary = [NSJSONSerialization JSONObjectWithData:optionsData
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
@@ -416,8 +435,8 @@ extern "C"
     void _defineVariable(const char *name, const char *kind, const char *jsonValue)
     {
         LPVar *var;
-        NSString *nameString = leanplum_createNSString(name);
-        NSData *data = [leanplum_createNSString(jsonValue) dataUsingEncoding:NSUTF8StringEncoding];
+        NSString *nameString = lp::to_nsstring(name);
+        NSData *data = [lp::to_nsstring(jsonValue) dataUsingEncoding:NSUTF8StringEncoding];
         NSObject *object = [NSJSONSerialization JSONObjectWithData:data
                                                            options:NSUTF8StringEncoding error:nil];
 
@@ -427,49 +446,49 @@ extern "C"
                                         @"Unsupported value %@ for variable %@", object, nameString]);
                 object = nil;
             }
-            var = [LPVar define:leanplum_createNSString(name) withInteger:[(NSNumber *)object integerValue]];
+            var = [LPVar define:lp::to_nsstring(name) withInteger:[(NSNumber *)object integerValue]];
         } else if (strcmp(kind, "float") == 0) {
             if (![object.class isSubclassOfClass:NSNumber.class]) {
                 NSLog(@"Leanplum: %@", [NSString stringWithFormat:
                                         @"Unsupported value %@ for variable %@", object, nameString]);
                 object = nil;
             }
-            var = [LPVar define:leanplum_createNSString(name) withFloat:[(NSNumber *)object floatValue]];
+            var = [LPVar define:lp::to_nsstring(name) withFloat:[(NSNumber *)object floatValue]];
         } else if (strcmp(kind, "bool") == 0) {
             if (![object.class isSubclassOfClass:NSNumber.class]) {
                 NSLog(@"Leanplum: %@", [NSString stringWithFormat:
                                         @"Unsupported value %@ for variable %@", object, nameString]);
                 object = nil;
             }
-            var = [LPVar define:leanplum_createNSString(name) withBool:[(NSNumber *)object boolValue]];
+            var = [LPVar define:lp::to_nsstring(name) withBool:[(NSNumber *)object boolValue]];
         } else if (strcmp(kind, "file") == 0) {
             if (![object.class isSubclassOfClass:NSString.class]) {
                 NSLog(@"Leanplum: %@", [NSString stringWithFormat:
                                         @"Unsupported value %@ for variable %@", object, nameString]);
                 object = nil;
             }
-            var = [LPVar define:leanplum_createNSString(name) withFile:(NSString *) object];
+            var = [LPVar define:lp::to_nsstring(name) withFile:(NSString *) object];
         } else if (strcmp(kind, "group") == 0) {
             if (![object.class isSubclassOfClass:NSDictionary.class]) {
                 NSLog(@"Leanplum: %@", [NSString stringWithFormat:
                                         @"Unsupported value %@ for variable %@", object, nameString]);
                 object = nil;
             }
-            var = [LPVar define:leanplum_createNSString(name) withDictionary:(NSDictionary *)object];
+            var = [LPVar define:lp::to_nsstring(name) withDictionary:(NSDictionary *)object];
         } else if (strcmp(kind, "list") == 0) {
             if (![object.class isSubclassOfClass:NSArray.class]) {
                 NSLog(@"Leanplum: %@", [NSString stringWithFormat:
                                         @"Unsupported value %@ for variable %@", object, nameString]);
                 object = nil;
             }
-            var = [LPVar define:leanplum_createNSString(name) withArray:(NSArray *)object];
+            var = [LPVar define:lp::to_nsstring(name) withArray:(NSArray *)object];
         } else if (strcmp(kind, "string") == 0) {
             if (![object.class isSubclassOfClass:NSString.class]) {
                 NSLog(@"Leanplum: %@", [NSString stringWithFormat:
                                         @"Unsupported value %@ for variable %@", object, nameString]);
                 object = nil;
             }
-            var = [LPVar define:leanplum_createNSString(name) withString:(NSString *) object];
+            var = [LPVar define:lp::to_nsstring(name) withString:(NSString *) object];
         } else {
             NSLog(@"Leanplum: Unsupported type %s", kind);
             return;
@@ -487,12 +506,12 @@ extern "C"
 
     const char *_getVariableValue(const char *name, const char *kind)
     {
-        LPVar *var = [LPVar define:leanplum_createNSString(name)];
+        LPVar *var = [LPVar define:lp::to_nsstring(name)];
 
         if (var == nil) {
             return NULL;
         }
-        return leanplum_cStringFromObject([var objectForKeyPath:nil]);
+        return lp::to_json_string([var objectForKeyPath:nil]);
 
     }
     

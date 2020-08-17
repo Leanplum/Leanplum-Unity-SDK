@@ -189,6 +189,19 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        ///     Gets Device ID.
+        /// </summary>
+        /// <returns>device id</returns>
+        public override string GetDeviceId()
+        {
+            if (customDeviceId != null)
+            {
+                return customDeviceId;
+            }
+            return CompatibilityLayer.GetDeviceId();
+        }
+
+        /// <summary>
         ///     This should be your first statement in a unit test. Setting this to true
         ///     will prevent Leanplum from communicating with the server.
         /// </summary>
@@ -777,6 +790,15 @@ namespace LeanplumSDK
                     VarCache.SaveDiffs();
                 }
             }
+        }
+
+        /// <summary>
+        ///     Gets the current user id.
+        /// </summary>
+        /// <returns>user id</returns>
+        public override string GetUserId()
+        {
+            return LeanplumRequest.UserId;
         }
 
         /// <summary>

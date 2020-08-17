@@ -156,6 +156,15 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        ///     Get device id.
+        /// </summary>
+        /// <returns>device id</returns>
+        public static string GetDeviceId()
+        {
+            return LeanplumFactory.SDK.GetDeviceId();
+        }
+
+        /// <summary>
         ///     This should be your first statement in a unit test. Setting this to true
         ///     will prevent Leanplum from communicating with the server.
         /// </summary>
@@ -598,6 +607,15 @@ namespace LeanplumSDK
         public static void SetUserId(string newUserId)
         {
             LeanplumFactory.SDK.SetUserId(newUserId);
+        }
+
+        /// <summary>
+        ///     Get user id.
+        /// </summary>
+        /// <returns>user id</returns>
+        public static string GetUserId()
+        {
+            return LeanplumFactory.SDK.GetUserId();
         }
 
         /// <summary>

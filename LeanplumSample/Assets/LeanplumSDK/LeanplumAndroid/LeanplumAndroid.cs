@@ -165,6 +165,22 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        ///     Get device id.
+        /// </summary>
+        public override string GetDeviceId()
+        {
+            return NativeSDK.CallStatic<string>("getDeviceId");
+        }
+        
+        /// <summary>
+        ///     Get user id.
+        /// </summary>
+        public override string GetUserId()
+        {
+            return NativeSDK.CallStatic<string>("getUserId");
+        }
+
+        /// <summary>
         ///     This should be your first statement in a unit test. Setting this to true
         ///     will prevent Leanplum from communicating with the server.
         /// </summary>
