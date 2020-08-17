@@ -399,7 +399,9 @@ namespace LeanplumSDK
             _defineAction(name, (int) kind, argString, optionString);
         }
 
-        [Obsolete("TrackIOSInAppPurchase is obsolete. Please use TrackPurchase.")]
+        /// <summary>
+        ///     Automatically tracks InApp purchase and does server side receipt validation.
+        /// </summary>
         public override void TrackIOSInAppPurchases()
         {
             _trackIOSInAppPurchases();
