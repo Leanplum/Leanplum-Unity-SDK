@@ -111,6 +111,12 @@ namespace LeanplumSDK
         public abstract void SetDeviceId (string deviceId);
 
         /// <summary>
+        ///     Gets device id.
+        /// </summary>
+        /// <returns>device id</returns>
+        public abstract string GetDeviceId();
+
+        /// <summary>
         ///     This should be your first statement in a unit test. Setting this to true
         ///     will prevent Leanplum from communicating with the server.
         /// </summary>
@@ -275,6 +281,12 @@ namespace LeanplumSDK
         {
             this.SetUserAttributes(newUserId, null);
         }
+
+        /// <summary>
+        ///     Gets user id.
+        /// </summary>
+        /// <returns>user id</returns>
+        public abstract string GetUserId();
 
         /// <summary>
         ///     Adds or modifies user attributes.

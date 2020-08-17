@@ -76,6 +76,12 @@ namespace LeanplumSDK
 
         [DllImport ("__Internal")]
         internal static extern void _setDeviceId(string deviceId);
+        
+        [DllImport ("__Internal")]
+        internal static extern string _getDeviceId();
+
+        [DllImport ("__Internal")]
+        internal static extern string _getUserId();
 
         [DllImport ("__Internal")]
         internal static extern void _setTestModeEnabled(bool enabled);
@@ -254,6 +260,22 @@ namespace LeanplumSDK
         public override void SetDeviceId(string deviceId)
         {
             _setDeviceId(deviceId);
+        }
+
+        /// <summary>
+        ///     Gets current Device ID
+        /// </summary>
+        public override string GetDeviceId()
+        {
+            return _getDeviceId();
+        }
+
+        /// <summary>
+        ///     Gets current User ID
+        /// </summary>
+        public override string GetUserId()
+        {
+            return _getUserId();
         }
 
         /// <summary>
