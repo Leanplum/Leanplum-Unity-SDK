@@ -189,7 +189,9 @@ namespace LeanplumSDK
         public abstract void Start(string userId, IDictionary<string, object> attributes,
             Leanplum.StartHandler startResponseAction);
 
-        [Obsolete("TrackIOSInAppPurchase is obsolete. Please use TrackPurchase.")]
+        /// <summary>
+        ///     Automatically tracks InApp purchase and does server side receipt validation.
+        /// </summary>
         public virtual void TrackIOSInAppPurchases() { }
 
         /// <summary>
@@ -210,7 +212,7 @@ namespace LeanplumSDK
             string currencyCode, string purchaseData, string dataSignature,
             IDictionary<string, object> parameters)
         {
-            TrackPurchase(Leanplum.PURCHASE_EVENT_NAME,priceMicros, currencyCode, parameters);
+            TrackPurchase(Leanplum.PURCHASE_EVENT_NAME, priceMicros, currencyCode, parameters);
         }
 
         /// <summary>
