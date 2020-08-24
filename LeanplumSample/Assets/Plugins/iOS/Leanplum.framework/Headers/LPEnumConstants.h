@@ -29,10 +29,10 @@
 
 @interface LPEnumConstants : NSObject {}
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, LPGeofenceEventType) {
     LPEnterRegion,
     LPExitRegion
-} LPGeofenceEventType;
+} NS_SWIFT_NAME(Leanplum.GeofenceEventType);
 
 
 + (NSString *)getEventNameFromGeofenceType:(LPGeofenceEventType)event;

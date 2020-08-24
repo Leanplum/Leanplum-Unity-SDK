@@ -32,6 +32,8 @@ namespace LeanplumSDK
             VariablesChangedAndNoDownloadsPending;
         public abstract event Leanplum.StartHandler Started;
 
+        public abstract LeanplumInbox Inbox { get; }
+
         #region Accessors and Mutators
 
         /// <summary>

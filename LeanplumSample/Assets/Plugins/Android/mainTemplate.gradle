@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.1'
+        classpath 'com.android.tools.build:gradle:3.5.2'
 **BUILD_SCRIPT_DEPS**}
 }
 
@@ -41,6 +41,7 @@ dependencies {
 
     // Uncomment for FCM
     // implementation 'com.google.firebase:firebase-messaging:17.3.4'
+    // implementation(name: "com.leanplum.unity-wrapper-${LEANPLUM_SDK_VERSION}", ext:'aar')
 **DEPS**}
 
 android {

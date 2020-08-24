@@ -696,6 +696,13 @@ namespace LeanplumSDK
             LeanplumFactory.SDK.ForceContentUpdate(callback);
         }
 
+        public static LeanplumInbox Inbox
+        {
+            get
+            {
+                return LeanplumFactory.SDK.Inbox;
+            } 
+        }
         #endregion
     }
 }

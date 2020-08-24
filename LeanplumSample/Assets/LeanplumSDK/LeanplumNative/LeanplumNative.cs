@@ -40,6 +40,14 @@ namespace LeanplumSDK
 #endif
         internal static bool isStopped;
 
+        public override LeanplumInbox Inbox
+        {
+            get
+            {
+                return null;
+            }
+        }
+
         #region Helpers
         private static void ValidateAttributes(IDictionary<string, object> attributes)
         {
