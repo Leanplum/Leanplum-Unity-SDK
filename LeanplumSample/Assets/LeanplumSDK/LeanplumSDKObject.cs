@@ -32,8 +32,6 @@ namespace LeanplumSDK
             VariablesChangedAndNoDownloadsPending;
         public abstract event Leanplum.StartHandler Started;
 
-        public abstract LeanplumInbox Inbox { get; }
-
         #region Accessors and Mutators
 
         /// <summary>
@@ -180,6 +178,11 @@ namespace LeanplumSDK
         ///    not used. Not supported on Native.
         /// </summary>
         public abstract void DisableLocationCollection();
+
+        /// <summary>
+        /// Returns an instance to the LeanplumInbox object.
+        /// </summary>
+        public abstract LeanplumInbox Inbox { get; }
         #endregion
 
         #region API Calls
