@@ -603,4 +603,9 @@ extern "C"
             [msg remove];
         }
     }
+
+    void _inbox_disableImagePrefetching()
+    {
+        [[Leanplum inbox] disableImagePrefetching];
+    }
 } // extern "C"

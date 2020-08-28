@@ -420,4 +420,8 @@ public class UnityBridge {
       message.remove();
     }
   }
+
+  public static void inboxDisableImagePrefetching() {
+    LeanplumInbox.disableImagePrefetching();
+  }
 }

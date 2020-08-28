@@ -79,7 +79,7 @@ namespace LeanplumSDK
             }
         }
 
-        public override void MarkAsRead(string messageId)
+        internal override void MarkAsRead(string messageId)
         {
             if (messageId != null)
             {
@@ -89,7 +89,7 @@ namespace LeanplumSDK
             InboxChanged?.Invoke();
         }
 
-        public override void MarkAsRead(LeanplumMessage message)
+        internal override void MarkAsRead(LeanplumMessage message)
         {
             if (message != null)
             {
@@ -111,6 +111,11 @@ namespace LeanplumSDK
             {
                 Remove(message.Id);
             }
+        }
+
+        public override void DisableImagePrefetching()
+        {
+            nativeSdk.CallStatic("inboxDisableImagePrefetching");
         }
 
         internal override void NativeCallback(string message)

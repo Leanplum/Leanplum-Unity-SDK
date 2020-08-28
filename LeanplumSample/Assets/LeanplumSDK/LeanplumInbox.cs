@@ -44,14 +44,24 @@ namespace LeanplumSDK
         public abstract List<LeanplumMessage> Messages { get; }
         public abstract List<LeanplumMessage> UnreadMessages { get; }
 
+        public LeanplumMessage MessageForId(string id)
+        {
+            return Messages.Find(msg =>
+            {
+                return msg.Id == id;
+            });
+        }
+
         public abstract void Read(string messageId);
         public abstract void Read(LeanplumMessage message);
 
-        public abstract void MarkAsRead(string messageId);
-        public abstract void MarkAsRead(LeanplumMessage message);
+        internal abstract void MarkAsRead(string messageId);
+        internal abstract void MarkAsRead(LeanplumMessage message);
 
         public abstract void Remove(string messageId);
         public abstract void Remove(LeanplumMessage message);
+
+        public abstract void DisableImagePrefetching();
 
         internal abstract void NativeCallback(string message);
 
