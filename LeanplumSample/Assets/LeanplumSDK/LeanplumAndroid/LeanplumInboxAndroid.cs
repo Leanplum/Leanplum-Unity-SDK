@@ -45,7 +45,7 @@ namespace LeanplumSDK
             }
         }
 
-        public override List<LeanplumMessage> Messages
+        public override List<Message> Messages
         {
             get
             {
@@ -54,7 +54,7 @@ namespace LeanplumSDK
             }
         }
 
-        public override List<LeanplumMessage> UnreadMessages
+        public override List<Message> UnreadMessages
         {
             get
             {
@@ -71,7 +71,7 @@ namespace LeanplumSDK
             }
         }
 
-        public override void Read(LeanplumMessage message)
+        public override void Read(Message message)
         {
             if (message != null)
             {
@@ -89,7 +89,7 @@ namespace LeanplumSDK
             InboxChanged?.Invoke();
         }
 
-        internal override void MarkAsRead(LeanplumMessage message)
+        internal override void MarkAsRead(Message message)
         {
             if (message != null)
             {
@@ -105,7 +105,7 @@ namespace LeanplumSDK
             }
         }
 
-        public override void Remove(LeanplumMessage message)
+        public override void Remove(Message message)
         {
             if (message != null)
             {

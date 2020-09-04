@@ -30,9 +30,9 @@ namespace LeanplumSDK
         public abstract event OnForceContentUpdate ForceContentUpdate;
 
         /// <summary>
-        /// LeanplumMessage class encapsulating a message delivered from platform.
+        /// Message class encapsulating a message delivered from platform.
         /// </summary>
-        public class LeanplumMessage
+        public class Message
         {
             /// <summary>
             /// Returns the message identifier of the inbox message.
@@ -112,21 +112,21 @@ namespace LeanplumSDK
         /// on the device, sorted in ascending chronological order, i.e.the oldest message is the
         /// first one, and the most recent one is the last one in the array.
         /// </summary>
-        public abstract List<LeanplumMessage> Messages { get; }
+        public abstract List<Message> Messages { get; }
 
         /// <summary>
         /// Returns an array containing all of the unread inbox messages on the device, sorted
         /// in ascending chronological order, i.e.the oldest message is the first one, and the
         /// most recent one is the last one in the array.
         /// </summary>
-        public abstract List<LeanplumMessage> UnreadMessages { get; }
+        public abstract List<Message> UnreadMessages { get; }
 
         /// <summary>
         /// Returns the inbox message associated with the given messageId identifier.
         /// </summary>
         /// <param name="id">Id of the wanted message.</param>
         /// <returns>LeanplumMessage or null if not found.</returns>
-        public LeanplumMessage MessageForId(string id)
+        public Message MessageForId(string id)
         {
             return Messages.Find(msg =>
             {
@@ -144,7 +144,7 @@ namespace LeanplumSDK
         /// Read the inbox message, marking it as read and invoking its open action.
         /// </summary>
         /// <param name="message">LeanplumMessage to read.</param>
-        public abstract void Read(LeanplumMessage message);
+        public abstract void Read(Message message);
 
         /// <summary>
         /// Mark the inbox message as read without invoking its open action.
@@ -156,7 +156,7 @@ namespace LeanplumSDK
         /// Mark the inbox message as read without invoking its open action.
         /// </summary>
         /// <param name="message">LeanplumMessage to mark as read.</param>
-        internal abstract void MarkAsRead(LeanplumMessage message);
+        internal abstract void MarkAsRead(Message message);
 
         /// <summary>
         /// Remove the inbox message from the inbox.
@@ -168,7 +168,7 @@ namespace LeanplumSDK
         /// Remove the inbox message from the inbox.
         /// </summary>
         /// <param name="message">LeanplumMessage to remove.</param>
-        public abstract void Remove(LeanplumMessage message);
+        public abstract void Remove(Message message);
 
         /// <summary>
         /// Call this method if you don't want Inbox images to be prefetched.
@@ -187,15 +187,15 @@ namespace LeanplumSDK
         /// </summary>
         /// <param name="json">JSON containing messages</param>
         /// <returns>List of LeanplumMessages</returns>
-        internal List<LeanplumMessage> ParseMessages(string json)
+        internal List<Message> ParseMessages(string json)
         {
             var msgs = (List<object>) Json.Deserialize(json);
-            var messages = new List<LeanplumMessage>();
+            var messages = new List<Message>();
 
             foreach (var msg in msgs)
             {
                 var dict = msg as Dictionary<string, object>;
-                var leanpluMessage = new LeanplumMessage();
+                var leanpluMessage = new Message();
 
                 if (dict.TryGetValue("id", out var id))
                 {
