@@ -74,6 +74,40 @@ public class LeanplumWrapper : MonoBehaviour
             Leanplum.SetAppIdForProductionMode(AppID, ProductionKey);
         }
 
-        Leanplum.Start();
+        Leanplum.Inbox.InboxChanged += inboxChanged;
+        Leanplum.Inbox.ForceContentUpdate += forceContentUpdate;
+
+        Leanplum.Start((success) => {
+            Debug.Log("Inbox count: " + Leanplum.Inbox.Count);
+            Debug.Log("Inbox unread count: " + Leanplum.Inbox.UnreadCount);
+
+            Debug.Log("Inbox message ids:");
+            Leanplum.Inbox.MessageIds.ForEach(msg => {
+                Debug.Log("Inbox message id: " + msg.ToString());
+            });
+
+            Debug.Log("Inbox messages:");
+            Leanplum.Inbox.Messages.ForEach(msg => {
+                Debug.Log("Inbox message: " + msg.ToString());
+            });
+
+            Debug.Log("Inbox unread messages:");
+            Leanplum.Inbox.UnreadMessages.ForEach(msg => {
+                Debug.Log("Inbox unread message: " + msg.ToString());
+            });
+
+            Leanplum.ForceContentUpdate();
+        });
     }
+
+    void inboxChanged()
+    {
+        Debug.Log("Inbox changed delegate called");
+    }
+
+    void forceContentUpdate(bool success)
+    {
+        Debug.Log("forceContentUpdate delegate called: " + success);
+    }
+
 }

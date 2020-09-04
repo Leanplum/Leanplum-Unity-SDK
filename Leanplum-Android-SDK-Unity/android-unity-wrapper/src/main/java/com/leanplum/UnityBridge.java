@@ -20,6 +20,10 @@
 package com.leanplum;
 
 import java.lang.reflect.Method;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +37,8 @@ import android.location.Location;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.leanplum.callbacks.ActionCallback;
+import com.leanplum.callbacks.InboxChangedCallback;
+import com.leanplum.callbacks.InboxSyncedCallback;
 import com.leanplum.callbacks.StartCallback;
 import com.leanplum.callbacks.VariableCallback;
 import com.leanplum.callbacks.VariablesChangedCallback;
@@ -157,6 +163,20 @@ public class UnityBridge {
       @Override
       public void onResponse(boolean arg0) {
         makeCallbackToUnity("Started:" + arg0);
+      }
+    });
+
+    Leanplum.getInbox().addChangedHandler(new InboxChangedCallback() {
+      @Override
+      public void inboxChanged() {
+        makeCallbackToUnity("InboxOnChanged");
+      }
+    });
+
+    Leanplum.getInbox().addSyncedHandler(new InboxSyncedCallback() {
+      @Override
+      public void onForceContentUpdate(boolean success) {
+        makeCallbackToUnity("InboxForceContentUpdate:" + (success ? 1 : 0));
       }
     });
 
@@ -341,5 +361,67 @@ public class UnityBridge {
 
   public static void disableLocationCollection() {
     Leanplum.disableLocationCollection();
+  }
+
+  public static int inboxCount() {
+    return Leanplum.getInbox().count();
+  }
+
+  public static int inboxUnreadCount() {
+    return Leanplum.getInbox().unreadCount();
+  }
+
+  public static String inboxMessageIds() {
+    return gson.toJson(Leanplum.getInbox().messagesIds());
+  }
+
+  public static String inboxMessages() {
+    String pattern = "yyyy-MM-dd'T'HH:mm:ssZZZZZ";
+    SimpleDateFormat formatter = new SimpleDateFormat(pattern);
+
+    ArrayList<Map<String, Object>> messages = new ArrayList<>();
+    for(LeanplumInboxMessage msg : Leanplum.getInbox().allMessages()) {
+      Map<String, Object> message = new HashMap<>();
+      message.put("id", msg.getMessageId());
+      message.put("title", msg.getTitle());
+      message.put("subtitle", msg.getSubtitle());
+      message.put("imageFilePath", msg.getImageFilePath());
+      message.put("imageURL", msg.getImageUrl());
+      if (msg.getDeliveryTimestamp() != null) {
+        message.put("deliveryTimestamp", formatter.format(msg.getDeliveryTimestamp()));
+      }
+      if (msg.getExpirationTimestamp() != null) {
+        message.put("expirationTimestamp", formatter.format(msg.getExpirationTimestamp()));
+      }
+      message.put("isRead", msg.isRead());
+      messages.add(message);
+    }
+    return gson.toJson(messages);
+  }
+
+  public static void inboxRead(String messageId) {
+    LeanplumInboxMessage message = Leanplum.getInbox().messageForId(messageId);
+    if (message != null) {
+      message.read();
+    }
+  }
+
+  public static void inboxMarkAsRead(String messageId) {
+    LeanplumInboxMessage message = Leanplum.getInbox().messageForId(messageId);
+    if (message != null) {
+      // todo: fix to mark message as read
+      message.read();
+    }
+  }
+
+  public static void inboxRemove(String messageId) {
+    LeanplumInboxMessage message = Leanplum.getInbox().messageForId(messageId);
+    if (message != null) {
+      message.remove();
+    }
+  }
+
+  public static void inboxDisableImagePrefetching() {
+    LeanplumInbox.disableImagePrefetching();
   }
 }

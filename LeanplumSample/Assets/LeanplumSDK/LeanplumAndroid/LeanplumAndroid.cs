@@ -44,6 +44,20 @@ namespace LeanplumSDK
             }
         }
 
+        private LeanplumInbox inbox;
+        public override LeanplumInbox Inbox
+        {
+            get
+            {
+                if (inbox == null)
+                {
+                    inbox = new LeanplumInboxAndroid(NativeSDK);
+                    return inbox;
+                }
+                return inbox;
+            }
+        }
+
         public override event Leanplum.VariableChangedHandler VariablesChanged;
         public override event Leanplum.VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
         public override event Leanplum.StartHandler Started;
@@ -429,17 +443,11 @@ namespace LeanplumSDK
         {
             if (message.StartsWith("VariablesChanged:"))
             {
-                if (VariablesChanged != null)
-                {
-                    VariablesChanged();
-                }
+                VariablesChanged?.Invoke();
             }
             else if (message.StartsWith("VariablesChangedAndNoDownloadsPending:"))
             {
-                if (VariablesChangedAndNoDownloadsPending != null)
-                {
-                    VariablesChangedAndNoDownloadsPending();
-                }
+                VariablesChangedAndNoDownloadsPending?.Invoke();
             }
             else if (message.StartsWith("Started:"))
             {
@@ -472,6 +480,11 @@ namespace LeanplumSDK
                 {
                     callback();
                 }
+            }
+
+            if (Inbox != null)
+            {
+                Inbox.NativeCallback(message);
             }
         }
 

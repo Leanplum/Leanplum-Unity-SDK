@@ -259,6 +259,17 @@ namespace LeanplumSDK
         public static void DisableLocationCollection() {
             LeanplumFactory.SDK.DisableLocationCollection();
         }
+
+        /// <summary>
+        /// Returns an instance to the LeanplumInbox object.
+        /// </summary>
+        public static LeanplumInbox Inbox
+        {
+            get
+            {
+                return LeanplumFactory.SDK.Inbox;
+            }
+        }
         #endregion
 
         #region Callbacks
@@ -695,7 +706,6 @@ namespace LeanplumSDK
         {
             LeanplumFactory.SDK.ForceContentUpdate(callback);
         }
-
         #endregion
     }
 }

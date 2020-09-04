@@ -262,6 +262,17 @@ extern "C"
             UnitySendMessage(__LPgameObject, "NativeCallback",
                              "VariablesChangedAndNoDownloadsPending:");
         }];
+
+        [[Leanplum inbox] onChanged:^{
+            UnitySendMessage(__LPgameObject, "NativeCallback",
+                             [@"InboxOnChanged" UTF8String]);
+        }];
+
+        [[Leanplum inbox] onForceContentUpdate:^(BOOL success) {
+            int res = [@(success) intValue];
+            UnitySendMessage(__LPgameObject, "NativeCallback",
+                                 [[NSString stringWithFormat:@"InboxForceContentUpdate:%d", res] UTF8String]);
+        }];
     }
 
     void _start(const char *sdkVersion, const char *userId, const char *dictStringJSON)
@@ -512,7 +523,89 @@ extern "C"
             return NULL;
         }
         return lp::to_json_string([var objectForKeyPath:nil]);
+    }
 
+    int _inbox_count()
+    {
+        return (int) [Leanplum inbox].count;
     }
     
+    int _inbox_unreadCount()
+    {
+        return (int) [Leanplum inbox].unreadCount;
+    }
+
+    const char *_inbox_messageIds()
+    {
+        return lp::to_json_string([Leanplum inbox].messagesIds);
+    }
+
+    const char *_inbox_messages()
+    {
+        NSMutableArray<NSDictionary *> *messageData = [NSMutableArray new];
+        NSArray<LPInboxMessage *> *messages = [Leanplum inbox].allMessages;
+
+        NSDateFormatter *formatter = [NSDateFormatter new];
+        [formatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+
+        for (LPInboxMessage *message : messages) {
+            NSString *expirationTimestamp = nil;
+            NSString *deliveryTimestamp = nil;
+
+            if (message.deliveryTimestamp) {
+                deliveryTimestamp = [formatter stringFromDate:message.deliveryTimestamp];
+            }
+            if (message.expirationTimestamp) {
+                expirationTimestamp = [formatter stringFromDate:message.expirationTimestamp];
+            }
+
+            expirationTimestamp = nil;
+
+            NSDictionary *data = @{
+                @"id": message.messageId,
+                @"title": message.title,
+                @"subtitle": message.subtitle,
+                @"imageFilePath": message.imageFilePath ?: @"",
+                @"imageURL": [message.imageURL absoluteString] ?: @"",
+                @"deliveryTimestamp": deliveryTimestamp ?: [NSNull null],
+                @"expirationTimestamp": expirationTimestamp ?: [NSNull null],
+                @"isRead": @(message.isRead),
+            };
+            [messageData addObject:data];
+        }
+        return lp::to_json_string(messageData);
+    }
+
+    void _inbox_read(const char *messageId)
+    {
+        NSString *msgId = lp::to_nsstring(messageId);
+        LPInboxMessage *msg = [[Leanplum inbox] messageForId:msgId];
+        if (msg) {
+            [msg read];
+        }
+    }
+
+    void _inbox_markAsRead(const char *messageId)
+    {
+        NSString *msgId = lp::to_nsstring(messageId);
+        LPInboxMessage *msg = [[Leanplum inbox] messageForId:msgId];
+        if (msg) {
+            // todo: fix to mark message as read
+            [msg read];
+        }
+    }
+
+    void _inbox_remove(const char *messageId)
+    {
+        NSString *msgId = lp::to_nsstring(messageId);
+        LPInboxMessage *msg = [[Leanplum inbox] messageForId:msgId];
+        if (msg) {
+            [msg remove];
+        }
+    }
+
+    void _inbox_disableImagePrefetching()
+    {
+        [[Leanplum inbox] disableImagePrefetching];
+    }
 } // extern "C"

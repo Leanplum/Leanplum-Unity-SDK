@@ -178,6 +178,11 @@ namespace LeanplumSDK
         ///    not used. Not supported on Native.
         /// </summary>
         public abstract void DisableLocationCollection();
+
+        /// <summary>
+        /// Returns an instance to the LeanplumInbox object.
+        /// </summary>
+        public abstract LeanplumInbox Inbox { get; }
         #endregion
 
         #region API Calls

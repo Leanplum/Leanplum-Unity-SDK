@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 
 namespace LeanplumSDK
 {
-    public class LeanplumIOS: LeanplumSDKObject
+    public class LeanplumIOS : LeanplumSDKObject
     {
         private bool isDeveloper = false;
 
@@ -134,6 +134,21 @@ namespace LeanplumSDK
         [DllImport ("__Internal")]
         internal static extern void _disableLocationCollection();
 
+
+        private LeanplumInbox inbox;
+        public override LeanplumInbox Inbox
+        {
+            get
+            {
+                if (inbox == null)
+                {
+                    inbox = new LeanplumInboxiOS();
+                    return inbox;
+                }
+                return inbox;
+            }
+        }
+
         public LeanplumIOS() {}
 
         public override event Leanplum.VariableChangedHandler VariablesChanged;
@@ -146,6 +161,7 @@ namespace LeanplumSDK
         static private int DictionaryKey = 0;
 
         #region Accessors and Mutators
+
         public override void RegisterForIOSRemoteNotifications()
         {
             _registerForNotifications();
@@ -533,17 +549,11 @@ namespace LeanplumSDK
         {
             if (message.StartsWith("VariablesChanged:"))
             {
-                if (VariablesChanged != null)
-                {
-                    VariablesChanged();
-                }
+                VariablesChanged?.Invoke();
             }
             else if (message.StartsWith("VariablesChangedAndNoDownloadsPending:"))
             {
-                if (VariablesChangedAndNoDownloadsPending != null)
-                {
-                    VariablesChangedAndNoDownloadsPending();
-                }
+                VariablesChangedAndNoDownloadsPending?.Invoke();
             }
             else if (message.StartsWith("Started:"))
             {
@@ -576,6 +586,11 @@ namespace LeanplumSDK
                 {
                     callback();
                 }
+            }
+
+            if (Inbox != null)
+            {
+                Inbox.NativeCallback(message);
             }
         }
 
