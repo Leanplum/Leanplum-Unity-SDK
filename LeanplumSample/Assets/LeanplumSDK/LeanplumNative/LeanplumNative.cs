@@ -40,11 +40,17 @@ namespace LeanplumSDK
 #endif
         internal static bool isStopped;
 
+        private LeanplumInboxNative inbox;
         public override LeanplumInbox Inbox
         {
             get
             {
-                return null;
+                if (inbox == null)
+                {
+                    inbox = new LeanplumInboxNative();
+                    return inbox;
+                }
+                return inbox;
             }
         }
 
@@ -478,6 +484,12 @@ namespace LeanplumSDK
             }
             LeanplumRequest.DeviceId = deviceId;
 
+            // load saved inbox messages
+            if (Inbox is LeanplumInboxNative native)
+            {
+                native.Load();
+            }
+
             // Don't overwrite UserID if it was set previously if Start()
             // was called without a new UserID.
             if (!String.IsNullOrEmpty(userId))
@@ -518,22 +530,29 @@ namespace LeanplumSDK
                 parameters[Constants.Params.USER_ATTRIBUTES] = Json.Serialize(attributes);
             }
 
+            parameters[Constants.Keys.INBOX_MESSAGES] = Json.Serialize(Inbox.MessageIds);
+
+
             // Issue start API call.
             LeanplumRequest req = LeanplumRequest.Post(Constants.Methods.START, parameters);
             req.Response += delegate(object responsesObject)
             {
-                IDictionary<string, object> response =
-                    Util.GetLastResponse(responsesObject) as IDictionary<string, object>;
-                IDictionary<string, object> values =
-                    Util.GetValueOrDefault(response, Constants.Keys.VARS) as
-                    IDictionary<string, object> ?? new Dictionary<string, object>();
-                IDictionary<string, object> fileAttributes =
-                    Util.GetValueOrDefault(response, Constants.Keys.FILE_ATTRIBUTES) as
-                    IDictionary<string, object> ?? new Dictionary<string, object>();
-                List<object> variants = Util.GetValueOrDefault(response, Constants.Keys.VARIANTS) as
-                    List<object> ?? new List<object>();
-                bool isRegistered = (bool) Util.GetValueOrDefault(response,
-                    Constants.Keys.IS_REGISTERED, false);
+                IDictionary<string, object> response = Util.GetLastResponse(responsesObject) as IDictionary<string, object>;
+                IDictionary<string, object> values = Util.GetValueOrDefault(response, Constants.Keys.VARS) as IDictionary<string, object> ?? new Dictionary<string, object>();
+                IDictionary<string, object> fileAttributes = Util.GetValueOrDefault(response, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object> ?? new Dictionary<string, object>();
+                List<object> variants = Util.GetValueOrDefault(response, Constants.Keys.VARIANTS) as List<object> ?? new List<object>();
+
+                bool isRegistered = (bool) Util.GetValueOrDefault(response, Constants.Keys.IS_REGISTERED, false);
+                bool syncInbox = (bool) Util.GetValueOrDefault(response, Constants.Keys.SYNC_INBOX, false);
+
+                // Download inbox messages
+                if (syncInbox)
+                {
+                    if (Inbox is LeanplumInboxNative nativeInbox)
+                    {
+                        nativeInbox.DownloadMessages();
+                    }
+                }
 
                 LeanplumRequest.Token = Util.GetValueOrDefault(response, Constants.Keys.TOKEN) as
                     string ?? "";
