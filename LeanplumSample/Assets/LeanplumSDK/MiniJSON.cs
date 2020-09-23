@@ -480,6 +480,12 @@ namespace LeanplumSDK.MiniJSON {
             }
 
             void SerializeString(string str) {
+                if (str == "[]")
+                {
+                    builder.Append("[]");
+                    return;
+                }
+
                 builder.Append('\"');
 
                 char[] charArray = str.ToCharArray();
