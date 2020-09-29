@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 #
-# LPM | Author: Ben Marten
-# Copyright (c) 2017 Leanplum Inc. All rights reserved.
-#
-# This will not work standalone. You must call it from `make unitypackage`
+# Copyright (c) 2020 Leanplum Inc. All rights reserved.
 #
 
 set -o noglob
@@ -96,14 +93,14 @@ get_unity_from_hub() {
 
 buildAndroid() {
   # Build Android SDK
-  rm -rf "../LeanplumSample/Assets/Plugins/Android"
-  mkdir -p "../LeanplumSample/Assets/Plugins/Android"
+  rm -rf "../Leanplum-Unity-SDK/Assets/Plugins/Android"
+  mkdir -p "../Leanplum-Unity-SDK/Assets/Plugins/Android"
   
   cd Leanplum-Android-SDK-Unity/
   ./gradlew clean assembleRelease
 
   CLASSES_JAR=android-unity-wrapper/build/outputs/aar/android-unity-wrapper-release.aar
-  UNITY_DIR=LeanplumSample/Assets/Plugins/Android
+  UNITY_DIR=Leanplum-Unity-SDK/Assets/Plugins/Android
 
   cp "${CLASSES_JAR}" "../${UNITY_DIR}/com.leanplum.unity-wrapper-$UNITY_VERSION_STRING.aar"
 
@@ -122,9 +119,9 @@ buildAndroid() {
 build() {
   echo "Preparing dependencies..."
   # Copy AppleSDK
-  rm -rf "LeanplumSample/Assets/Plugins/iOS/Leanplum.framework"
+  rm -rf "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.framework"
   cp -r "/tmp/Leanplum-$APPLE_SDK_VERSION.framework" \
-    "LeanplumSample/Assets/Plugins/iOS/Leanplum.framework"
+    "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.framework"
 
   # Build Android SDK
   buildAndroid
@@ -139,8 +136,8 @@ build() {
   fi
 
   PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
-  PATH_TO_PROJECT="$(pwd)/LeanplumSample"
-  PATH_TO_EXPORT="$(pwd)/Leanplum-Unity-Plugin"
+  PATH_TO_PROJECT="$(pwd)/Leanplum-Unity-SDK"
+  PATH_TO_EXPORT="$(pwd)/Leanplum-Unity-Package"
 
   export OUT_PKG="Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
   $PATH_TO_UNITY -gvh_disable -quit -nographics -batchmode -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
@@ -201,19 +198,19 @@ main() {
   download_ios_sdk $APPLE_SDK_VERSION
 
   replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
-  replace "LeanplumSample/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml" "%LP_VERSION%" $ANDROID_SDK_VERSION
-  replace "LeanplumSample/Assets/Plugins/Android/mainTemplate.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
+  replace "Leanplum-Unity-SDK/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml" "%LP_VERSION%" $ANDROID_SDK_VERSION
+  replace "Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
   replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_UNITY_VERSION%" $UNITY_VERSION
-  sed -i '' -e "s/SDK_VERSION =.*/SDK_VERSION = \"$UNITY_VERSION\";/" "LeanplumSample/Assets/LeanplumSDK/SharedConstants.cs"
+  sed -i '' -e "s/SDK_VERSION =.*/SDK_VERSION = \"$UNITY_VERSION\";/" "Leanplum-Unity-SDK/Assets/LeanplumSDK/SharedConstants.cs"
 
-  find Leanplum-Unity-Plugin -name '*.unitypackage' -delete
-  find LeanplumSample/Assets/Plugins/ -name '*.aar' -delete
+  find Leanplum-Unity-Package -name '*.unitypackage' -delete
+  find Leanplum-Unity-SDK/Assets/Plugins/ -name '*.aar' -delete
 
   build
 
   git checkout Leanplum-Android-SDK-Unity/
-  git checkout LeanplumSample/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml
-  git checkout LeanplumSample/Assets/Plugins/Android/mainTemplate.gradle
+  git checkout Leanplum-Unity-SDK/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml
+  git checkout Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle
 
   echo "Done."
 }
