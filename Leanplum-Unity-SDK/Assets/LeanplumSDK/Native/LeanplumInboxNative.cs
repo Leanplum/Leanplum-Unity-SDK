@@ -1,4 +1,24 @@
-﻿using System;
+﻿//
+// Copyright 2020, Leanplum, Inc.
+//
+//  Licensed to the Apache Software Foundation (ASF) under one
+//  or more contributor license agreements.  See the NOTICE file
+//  distributed with this work for additional information
+//  regarding copyright ownership.  The ASF licenses this file
+//  to you under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing,
+//  software distributed under the License is distributed on an
+//  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+//  KIND, either express or implied.  See the License for the
+//  specific language governing permissions and limitations
+//  under the License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -55,7 +75,7 @@ namespace LeanplumSDK
         {
             get
             {
-                return Messages.FindAll(msg => { return msg.IsRead == false; })
+                return Messages.FindAll(msg => msg.IsRead == false)
                                .ToList();
             }
         }
@@ -64,10 +84,7 @@ namespace LeanplumSDK
         {
             if (messageId != null)
             {
-                var msg = _messages.Find(message =>
-                {
-                    return message.Id == messageId;
-                });
+                var msg = _messages.Find(message => message.Id == messageId);
 
                 if (msg != null)
                 {
@@ -114,9 +131,7 @@ namespace LeanplumSDK
         {
             if (messageId != null)
             {
-                var msgs = _messages.FindAll(msg => {
-                    return msg.Id != messageId;
-                }).ToList();
+                var msgs = _messages.FindAll(msg => msg.Id != messageId).ToList();
 
                 UpdateMessages(msgs);
 
@@ -145,7 +160,7 @@ namespace LeanplumSDK
 
         internal override void NativeCallback(string message)
         {
-
+            // ignored
         }
 
         internal void DownloadMessages()
@@ -157,71 +172,82 @@ namespace LeanplumSDK
                 {
                     var response = Util.GetLastResponse(data) as IDictionary<string, object>;
                     var messages = Util.GetValueOrDefault(response, Constants.Keys.INBOX_MESSAGES) as IDictionary<string, object>;
-                    var inboxMessasges = new List<Message>();
+                    var inboxMessages = new List<Message>();
 
-                    foreach(var pair in messages)
+                    if (messages != null)
                     {
-                        var id = pair.Key;
-                        if (pair.Value is IDictionary<string, object> value)
+                        foreach (var pair in messages)
                         {
-                            var message = new Message
+                            var id = pair.Key;
+                            if (pair.Value is IDictionary<string, object> value)
                             {
-                                Id = id
-                            };
+                                var message = new Message
+                                {
+                                    Id = id
+                                };
 
-                            if (value.TryGetValue(Constants.Keys.MESSAGE_IS_READ, out var isRead))
-                            {
-                                if (isRead is bool b)
+                                if (value.TryGetValue(Constants.Keys.MESSAGE_IS_READ, out var isRead))
                                 {
-                                    message.IsRead = b;
-                                }
-                            }
-                            if (value.TryGetValue(Constants.Keys.DELIVERY_TIMESTAMP, out var deliveryTimestamp))
-                            {
-                                if (deliveryTimestamp is long l)
-                                {
-                                    message.DeliveryTimestamp = DateTime.FromFileTimeUtc(l);
-                                }
-                            }
-                            if (value.TryGetValue(Constants.Keys.EXPIRATION_TIMESTAMP, out var expirationTimestamp))
-                            {
-                                if (expirationTimestamp is long l)
-                                {
-                                    message.ExpirationTimestamp = DateTime.FromFileTimeUtc(l);
-                                }
-                            }
-                            if (value.TryGetValue(Constants.Keys.MESSAGE_DATA, out var messageData))
-                            {
-                                if (messageData is IDictionary<string, object> dict)
-                                {
-                                    if (dict.TryGetValue(Constants.Keys.VARS, out var vars))
+                                    if (isRead is bool b)
                                     {
-                                        if (vars is Dictionary<string, object> varsDict)
-                                        {
-                                            message.ActionContext = (IDictionary<string, object>) varsDict;
+                                        message.IsRead = b;
+                                    }
+                                }
 
-                                            if (varsDict.TryGetValue(Constants.Keys.TITLE, out var title))
+                                if (value.TryGetValue(Constants.Keys.DELIVERY_TIMESTAMP, out var deliveryTimestamp))
+                                {
+                                    if (deliveryTimestamp is long l)
+                                    {
+                                        TimeSpan ts = TimeSpan.FromMilliseconds(l);
+                                        DateTime date = new DateTime(1970, 1, 1).AddTicks(ts.Ticks);
+                                        message.DeliveryTimestamp = date;
+                                    }
+                                }
+
+                                if (value.TryGetValue(Constants.Keys.EXPIRATION_TIMESTAMP, out var expirationTimestamp))
+                                {
+                                    if (expirationTimestamp is long l)
+                                    {
+                                        TimeSpan ts = TimeSpan.FromMilliseconds(l);
+                                        DateTime date = new DateTime(1970, 1, 1).AddTicks(ts.Ticks);
+                                        message.ExpirationTimestamp = date;
+                                    }
+                                }
+
+                                if (value.TryGetValue(Constants.Keys.MESSAGE_DATA, out var messageData))
+                                {
+                                    if (messageData is IDictionary<string, object> dict)
+                                    {
+                                        if (dict.TryGetValue(Constants.Keys.VARS, out var vars))
+                                        {
+                                            if (vars is Dictionary<string, object> varsDict)
                                             {
-                                                message.Title = title as string;
-                                            }
-                                            if (varsDict.TryGetValue(Constants.Keys.SUBTITLE, out var subtitle))
-                                            {
-                                                message.Subtitle = subtitle as string;
-                                            }
-                                            if (varsDict.TryGetValue(Constants.Keys.IMAGE, out var image))
-                                            {
-                                                message.ImageURL = image as string;
+                                                message.ActionContext = varsDict;
+
+                                                if (varsDict.TryGetValue(Constants.Keys.TITLE, out var title))
+                                                {
+                                                    message.Title = title as string;
+                                                }
+
+                                                if (varsDict.TryGetValue(Constants.Keys.SUBTITLE, out var subtitle))
+                                                {
+                                                    message.Subtitle = subtitle as string;
+                                                }
+
+                                                if (varsDict.TryGetValue(Constants.Keys.IMAGE, out var image))
+                                                {
+                                                    message.ImageURL = image as string;
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
 
-                            inboxMessasges.Add(message);
+                                inboxMessages.Add(message);
+                            }
                         }
                     }
-
-                    UpdateMessages(inboxMessasges);
+                    UpdateMessages(inboxMessages);
                 }
                 catch (Exception exception)
                 {
@@ -259,8 +285,16 @@ namespace LeanplumSDK
                 msgData[Constants.Keys.SUBTITLE] = msg.Subtitle;
                 msgData[Constants.Keys.MESSAGE_IS_READ] = msg.IsRead;
                 msgData[Constants.Keys.IMAGE] = msg.ImageURL;
-                msgData[Constants.Keys.DELIVERY_TIMESTAMP] = msg.DeliveryTimestamp.ToString();
-                msgData[Constants.Keys.EXPIRATION_TIMESTAMP] = msg.ExpirationTimestamp.ToString();
+                if (msg.DeliveryTimestamp.HasValue)
+                {
+                    msgData[Constants.Keys.DELIVERY_TIMESTAMP] = 
+                        Util.GetUnixTimestampFromDate(msg.DeliveryTimestamp.Value);
+                }
+                if (msg.ExpirationTimestamp.HasValue)
+                {
+                    msgData[Constants.Keys.EXPIRATION_TIMESTAMP] = 
+                        Util.GetUnixTimestampFromDate(msg.ExpirationTimestamp.Value);
+                }
                 msgData[Constants.Keys.MESSAGE_DATA] = msg.ActionContext;
 
                 msgs.Add(msgData);
@@ -269,6 +303,7 @@ namespace LeanplumSDK
             var json = MiniJSON.Json.Serialize(msgs);
             LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.APP_INBOX_MESSAGES_KEY,
                 AESCrypt.Encrypt(json, LeanplumRequest.Token));
+            LeanplumNative.CompatibilityLayer.FlushSavedSettings();
         }
 
         internal void Load()
@@ -277,8 +312,11 @@ namespace LeanplumSDK
             var json = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.APP_INBOX_MESSAGES_KEY, "{}");
             if (json != null)
             {
-                var msgs = MiniJSON.Json.Deserialize(json == "{}" ? json : AESCrypt.Decrypt(json, LeanplumRequest.Token)) as List<IDictionary<string, object>>;
-                foreach (var msgData in msgs)
+                json = json == "{}" ? json : AESCrypt.Decrypt(json, LeanplumRequest.Token);
+                var msgs = MiniJSON.Json.Deserialize(json) as List<object>;
+                if (msgs == null) return;
+
+                foreach (IDictionary<string, object> msgData in msgs)
                 {
                     var message = new Message();
 
@@ -309,14 +347,14 @@ namespace LeanplumSDK
                     {
                         if (deliveryTimestamp is long l)
                         {
-                            message.DeliveryTimestamp = DateTime.FromFileTimeUtc(l);
+                            message.DeliveryTimestamp = Util.GetDateFromUnixTimestamp(l);
                         }
                     }
                     if (msgData.TryGetValue(Constants.Keys.EXPIRATION_TIMESTAMP, out var expirationTimestamp))
                     {
                         if (expirationTimestamp is long l)
                         {
-                            message.ExpirationTimestamp = DateTime.FromFileTimeUtc(l);
+                            message.ExpirationTimestamp = Util.GetDateFromUnixTimestamp(l);
                         }
                     }
                     if (msgData.TryGetValue(Constants.Keys.MESSAGE_DATA, out var actionContext))
@@ -328,9 +366,7 @@ namespace LeanplumSDK
                 }
 
                 // remove inactive messages
-                inboxMessage = inboxMessage.FindAll(msg => {
-                    return msg.IsActive() == true;
-                }).ToList();
+                inboxMessage = inboxMessage.FindAll(msg => msg.IsActive() == true).ToList();
 
                 UpdateMessages(inboxMessage);
             }

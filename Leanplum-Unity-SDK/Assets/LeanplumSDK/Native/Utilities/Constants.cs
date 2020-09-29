@@ -66,7 +66,7 @@ namespace LeanplumSDK
             internal const string FILE_ATTRIBUTES_KEY = "__leanplum_file_attributes";
             internal const string TOKEN_KEY = "__leanplum_token";
             internal const string USERID_KEY = "___leanplum_userid";
-            internal const string APP_INBOX_MESSAGES_KEY = "___leanplum_app_inbox_messages";
+            internal const string APP_INBOX_MESSAGES_KEY = "__leanplum_app_inbox_messages";
         }
 
         internal class Files

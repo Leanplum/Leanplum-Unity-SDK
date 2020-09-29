@@ -95,8 +95,6 @@ public class LeanplumWrapper : MonoBehaviour
             Leanplum.Inbox.UnreadMessages.ForEach(msg => {
                 Debug.Log("Inbox unread message: " + msg.ToString());
             });
-
-            Leanplum.ForceContentUpdate();
         });
     }
 

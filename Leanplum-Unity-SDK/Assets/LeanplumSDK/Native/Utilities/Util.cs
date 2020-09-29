@@ -133,6 +133,28 @@ namespace LeanplumSDK
             return Convert.ToInt32(timeDelta.TotalSeconds);
         }
 
+        /// <summary>
+        /// Gets timestamp in milliseconds
+        /// </summary>
+        /// <param name="date">DateTime to convert</param>
+        /// <returns>ts in milliseconds </returns>
+        internal static long GetUnixTimestampFromDate(DateTime date)
+        {
+            TimeSpan timeDelta = (date - new DateTime(1970, 1, 1));
+            return (long) timeDelta.TotalMilliseconds;
+        }
+
+        /// <summary>
+        /// Gets DateTime from milliseconds ts
+        /// </summary>
+        /// <param name="timestamp">ts in milliseconds</param>
+        /// <returns>DateTime from ts</returns>
+        internal static DateTime GetDateFromUnixTimestamp(long timestamp)
+        {
+            TimeSpan ts = TimeSpan.FromMilliseconds(timestamp);
+            return new DateTime(1970, 1, 1).AddTicks(ts.Ticks);
+        }
+
         public static void MaybeThrow(LeanplumException exception)
         {
             if (Constants.isDevelopmentModeEnabled)
