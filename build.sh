@@ -94,6 +94,22 @@ get_unity_from_hub() {
   echo $("${UNITY_HUB}" -- --headless editors -i | head -1 | awk '{print $NF}')
 }
 
+buildAndroid() {
+  # Build Android SDK
+  rm -rf "../LeanplumSample/Assets/Plugins/Android"
+  mkdir -p "../LeanplumSample/Assets/Plugins/Android"
+  
+  cd Leanplum-Android-SDK-Unity/
+  ./gradlew clean assembleRelease
+
+  CLASSES_JAR=android-unity-wrapper/build/outputs/aar/android-unity-wrapper-release.aar
+  UNITY_DIR=LeanplumSample/Assets/Plugins/Android
+
+  cp "${CLASSES_JAR}" "../${UNITY_DIR}/com.leanplum.unity-wrapper-$UNITY_VERSION_STRING.aar"
+
+  cd ../
+}
+
 #######################################
 # Builds the Unity SDK.
 # Globals:
@@ -111,18 +127,7 @@ build() {
     "LeanplumSample/Assets/Plugins/iOS/Leanplum.framework"
 
   # Build Android SDK
-  rm -rf "../LeanplumSample/Assets/Plugins/Android"
-  mkdir -p "../LeanplumSample/Assets/Plugins/Android"
-  
-  cd Leanplum-Android-SDK-Unity/
-  ./gradlew clean assembleRelease
-
-  CLASSES_JAR=android-unity-wrapper/build/outputs/aar/android-unity-wrapper-release.aar
-  UNITY_DIR=LeanplumSample/Assets/Plugins/Android
-
-  cp "${CLASSES_JAR}" "../${UNITY_DIR}/com.leanplum.unity-wrapper-$UNITY_VERSION_STRING.aar"
-
-  cd ../
+  buildAndroid
 
   echo "Exporting Unity SDK Package..."
   pwd

@@ -31,8 +31,6 @@
 #import "LPInternalState.h"
 #import "LPCountAggregator.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @class LeanplumSocket;
 @class LPRegisterDevice;
 
@@ -42,14 +40,14 @@ typedef void (^LeanplumStartIssuedBlock)(void);
 typedef void (^LeanplumEventsChangedBlock)(void);
 typedef void (^LeanplumHandledBlock)(BOOL success);
 
-typedef NS_ENUM(NSUInteger, LPLogType) {
+typedef enum {
     LPError,
     LPWarning,
     LPInfo,
     LPVerbose,
     LPInternal,
     LPDebug
-} NS_SWIFT_NAME(Leanplum.LogType);
+} LPLogType;
 
 + (void)throwError:(NSString *)reason;
 
@@ -58,18 +56,16 @@ typedef NS_ENUM(NSUInteger, LPLogType) {
 + (void)pause;
 + (void)resume;
 
-+ (void)track:(nullable NSString *)event
++ (void)track:(NSString *)event
     withValue:(double)value
-      andArgs:(nullable NSDictionary<NSString *, id> *)args
-andParameters:(nullable NSDictionary<NSString *, id> *)params
-NS_SWIFT_NAME(track(event:value:args:params:));
+      andArgs:(NSDictionary *)args
+andParameters:(NSDictionary *)params;
 
-+ (void)track:(nullable NSString *)event
++ (void)track:(NSString *)event
     withValue:(double)value
-      andInfo:(nullable NSString *)info
-      andArgs:(nullable NSDictionary<NSString *, id> *)args
-andParameters:(nullable NSDictionary<NSString *, id> *)params
-NS_SWIFT_NAME(track(event:value:info:args:params:));
+      andInfo:(NSString *)info
+      andArgs:(NSDictionary *)args
+andParameters:(NSDictionary *)params;
 
 + (void)setUserLocationAttributeWithLatitude:(double)latitude
                                    longitude:(double)longitude
@@ -77,24 +73,29 @@ NS_SWIFT_NAME(track(event:value:info:args:params:));
                                       region:(NSString *)region
                                      country:(NSString *)country
                                         type:(LPLocationAccuracyType)type
-                             responseHandler:(nullable LeanplumSetLocationBlock)response;
+                             responseHandler:(LeanplumSetLocationBlock)response;
 
 + (LPActionContext *)createActionContextForMessageId:(NSString *)messageId;
 + (void)triggerAction:(LPActionContext *)context;
-+ (void)triggerAction:(LPActionContext *)context
-         handledBlock:(nullable LeanplumHandledBlock)handledBlock;
-+ (void)maybePerformActions:(NSArray<NSString *> *)whenConditions
-              withEventName:(nullable NSString *)eventName
++ (void)triggerAction:(LPActionContext *)context handledBlock:(LeanplumHandledBlock)handledBlock;
++ (void)maybePerformActions:(NSArray *)whenConditions
+              withEventName:(NSString *)eventName
                  withFilter:(LeanplumActionFilter)filter
-              fromMessageId:(nullable NSString *)sourceMessage
-       withContextualValues:(nullable LPContextualValues *)contextualValues;
+              fromMessageId:(NSString *)sourceMessage
+       withContextualValues:(LPContextualValues *)contextualValues;
 
 + (NSInvocation *)createInvocationWithResponder:(id)responder selector:(SEL)selector;
 + (void)addInvocation:(NSInvocation *)invocation toSet:(NSMutableSet *)responders;
 + (void)removeResponder:(id)responder withSelector:(SEL)selector fromSet:(NSMutableSet *)responders;
 
 + (void)onStartIssued:(LeanplumStartIssuedBlock)block;
++ (void)onEventsChanged:(LeanplumEventsChangedBlock)block;
 + (void)synchronizeDefaults;
+
+/**
+ * Returns a push token using app ID, device ID, and user ID.
+ */
++ (NSString *)pushTokenKey;
 
 void LPLog(LPLogType type, NSString* format, ...);
 
@@ -149,4 +150,3 @@ typedef void (^LeanplumInboxCacheUpdateBlock)(void);
 
 @end
 
-NS_ASSUME_NONNULL_END

@@ -2,15 +2,15 @@
 //  LPConfirmMessageTemplate.h
 //  LeanplumSDK-iOS
 //
-//  Created by Milos Jakovljevic on 15/04/2020.
+//  Created by Mayank Sanganeria on 1/27/20.
 //  Copyright © 2020 Leanplum. All rights reserved.
 //
 
-#import "LPMessageTemplateProtocol.h"
+#import "LPBaseAlertMessageTemplate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LPConfirmMessageTemplate : NSObject <LPMessageTemplateProtocol>
+@interface LPConfirmMessageTemplate : LPBaseAlertMessageTemplate
 
 @end
 
