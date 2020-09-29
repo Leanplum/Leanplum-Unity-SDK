@@ -159,8 +159,6 @@ namespace LeanplumSDK
                     var messages = Util.GetValueOrDefault(response, Constants.Keys.INBOX_MESSAGES) as IDictionary<string, object>;
                     var inboxMessasges = new List<Message>();
 
-                    Debug.Log(messages);
-
                     foreach(var pair in messages)
                     {
                         var id = pair.Key;

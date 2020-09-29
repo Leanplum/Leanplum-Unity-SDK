@@ -33,8 +33,6 @@ namespace LeanplumSDK.Prefs
 
         static PlayerPrefs()
         {
-            Debug.Log(fileName);
-
             // load previous settings
             if (File.Exists(fileName))
             {

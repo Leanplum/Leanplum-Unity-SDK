@@ -18,8 +18,6 @@
 //  specific language governing permissions and limitations
 //  under the License.
 
-#define LP_UNITYWEBREQUEST
-
 using System;
 using System.Collections;
 using System.Collections.Generic;

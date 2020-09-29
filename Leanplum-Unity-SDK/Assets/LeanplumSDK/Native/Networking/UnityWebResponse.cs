@@ -36,7 +36,7 @@ namespace LeanplumSDK
 
         public override long GetStatusCode()
         {
-#if LP_UNITYWEBREQUEST
+#if !LP_UNITY_LEGACY_WWW
             return statusCode;
 #else
             if (error != null)
