@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-#if LP_UNITYWEBREQUEST
+#if !LP_UNITY_LEGACY_WWW
 #if UNITY_5_5_OR_NEWER
 using UnityNetworkingRequest = UnityEngine.Networking.UnityWebRequest;
 using DownloadHandlerAssetBundle = UnityEngine.Networking.DownloadHandlerAssetBundle;
@@ -149,7 +149,7 @@ namespace LeanplumSDK
             StartCoroutine(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
         }
 
-#if LP_UNITYWEBREQUEST
+#if !LP_UNITY_LEGACY_WWW
         private static UnityNetworkingRequest CreateWebRequest(string url, WWWForm wwwForm, bool isAsset)
         {
             UnityNetworkingRequest result = null;
@@ -187,7 +187,7 @@ namespace LeanplumSDK
 
         private static IEnumerator RunRequest(string url, WWWForm wwwForm, Action<WebResponse> responseHandler, int timeout, bool isAsset)
         {
-#if LP_UNITYWEBREQUEST
+#if !LP_UNITY_LEGACY_WWW
             using (var request = CreateWebRequest(url, wwwForm, isAsset))
             {
                 request.timeout = timeout;
