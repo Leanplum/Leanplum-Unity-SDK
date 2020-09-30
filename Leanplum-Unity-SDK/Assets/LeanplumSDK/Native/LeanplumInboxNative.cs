@@ -301,8 +301,7 @@ namespace LeanplumSDK
             }
 
             var json = MiniJSON.Json.Serialize(msgs);
-            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.APP_INBOX_MESSAGES_KEY,
-                AESCrypt.Encrypt(json, LeanplumRequest.Token));
+            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.APP_INBOX_MESSAGES_KEY, json);
             LeanplumNative.CompatibilityLayer.FlushSavedSettings();
         }
 
@@ -312,7 +311,6 @@ namespace LeanplumSDK
             var json = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.APP_INBOX_MESSAGES_KEY, "{}");
             if (json != null)
             {
-                json = json == "{}" ? json : AESCrypt.Decrypt(json, LeanplumRequest.Token);
                 var msgs = MiniJSON.Json.Deserialize(json) as List<object>;
                 if (msgs == null) return;
 

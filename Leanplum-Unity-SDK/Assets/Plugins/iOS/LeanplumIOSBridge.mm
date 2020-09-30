@@ -445,7 +445,7 @@ extern "C"
     // Leanplum Content
     void _defineVariable(const char *name, const char *kind, const char *jsonValue)
     {
-        LPVar *var;
+        LPVar *var = nil;
         NSString *nameString = lp::to_nsstring(name);
         NSData *data = [lp::to_nsstring(jsonValue) dataUsingEncoding:NSUTF8StringEncoding];
         NSObject *object = [NSJSONSerialization JSONObjectWithData:data

@@ -544,6 +544,9 @@ namespace LeanplumSDK
 
                 bool isRegistered = (bool) Util.GetValueOrDefault(response, Constants.Keys.IS_REGISTERED, false);
                 bool syncInbox = (bool) Util.GetValueOrDefault(response, Constants.Keys.SYNC_INBOX, false);
+                
+                LeanplumRequest.Token = Util.GetValueOrDefault(response, Constants.Keys.TOKEN) as
+                    string ?? "";
 
                 // Download inbox messages
                 if (syncInbox)
@@ -553,9 +556,6 @@ namespace LeanplumSDK
                         nativeInbox.DownloadMessages();
                     }
                 }
-
-                LeanplumRequest.Token = Util.GetValueOrDefault(response, Constants.Keys.TOKEN) as
-                    string ?? "";
 
                 // Allow bidirectional realtime variable updates.
                 if (Constants.isDevelopmentModeEnabled)
