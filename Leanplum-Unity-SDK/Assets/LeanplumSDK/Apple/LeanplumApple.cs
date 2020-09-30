@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 
 namespace LeanplumSDK
 {
-    public class LeanplumIOS : LeanplumSDKObject
+    public class LeanplumApple : LeanplumSDKObject
     {
         private bool isDeveloper = false;
 
@@ -142,14 +142,14 @@ namespace LeanplumSDK
             {
                 if (inbox == null)
                 {
-                    inbox = new LeanplumInboxiOS();
+                    inbox = new LeanplumInboxApple();
                     return inbox;
                 }
                 return inbox;
             }
         }
 
-        public LeanplumIOS() {}
+        public LeanplumApple() {}
 
         public override event Leanplum.VariableChangedHandler VariablesChanged;
         public override event Leanplum.VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
@@ -395,7 +395,7 @@ namespace LeanplumSDK
             _setGameObject(LeanplumUnityHelper.Instance.gameObject.name);
             Started += startResponseAction;
             string attributesString = attributes == null ? null : Json.Serialize(attributes);
-            _start(SharedConstants.SDK_VERSION, userId, attributesString);
+            _start(Constants.SDK_VERSION, userId, attributesString);
         }
 
         public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action responder)
@@ -567,7 +567,7 @@ namespace LeanplumSDK
             {
                 // Drop the beginning of the message to get the name of the variable
                 // Then dispatch to the correct variable
-                LeanplumIOS.VariableValueChanged(message.Substring(21));
+                LeanplumApple.VariableValueChanged(message.Substring(21));
             }
             else if (message.StartsWith("ForceContentUpdateWithCallback:"))
             {
@@ -626,70 +626,70 @@ namespace LeanplumSDK
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.INT, defaultValue);
             return (cached != null) ? (Var<int>) cached :
-                new IOSVar<int>(name, Constants.Kinds.INT, defaultValue);
+                new AppleVar<int>(name, Constants.Kinds.INT, defaultValue);
         }
 
         public override Var<long> Define(string name, long defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.INT, defaultValue);
             return (cached != null) ? (Var<long>) cached :
-                new IOSVar<long>(name, Constants.Kinds.INT, defaultValue);
+                new AppleVar<long>(name, Constants.Kinds.INT, defaultValue);
         }
 
         public override Var<short> Define(string name, short defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.INT, defaultValue);
             return (cached != null) ? (Var<short>) cached :
-                new IOSVar<short>(name, Constants.Kinds.INT, defaultValue);
+                new AppleVar<short>(name, Constants.Kinds.INT, defaultValue);
         }
 
         public override Var<byte> Define(string name, byte defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.INT, defaultValue);
             return (cached != null) ? (Var<byte>) cached :
-                new IOSVar<byte>(name, Constants.Kinds.INT, defaultValue);
+                new AppleVar<byte>(name, Constants.Kinds.INT, defaultValue);
         }
 
         public override Var<bool> Define(string name, bool defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.BOOLEAN, defaultValue);
             return (cached != null) ? (Var<bool>) cached :
-                new IOSVar<bool>(name, Constants.Kinds.BOOLEAN, defaultValue);
+                new AppleVar<bool>(name, Constants.Kinds.BOOLEAN, defaultValue);
         }
 
         public override Var<float> Define(string name, float defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.FLOAT, defaultValue);
             return (cached != null) ? (Var<float>) cached :
-                new IOSVar<float>(name, Constants.Kinds.FLOAT, defaultValue);
+                new AppleVar<float>(name, Constants.Kinds.FLOAT, defaultValue);
         }
 
         public override Var<double> Define(string name, double defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.FLOAT, defaultValue);
             return (cached != null) ? (Var<double>) cached :
-                new IOSVar<double>(name, Constants.Kinds.FLOAT, defaultValue);
+                new AppleVar<double>(name, Constants.Kinds.FLOAT, defaultValue);
         }
 
         public override Var<string> Define(string name, string defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.STRING, defaultValue);
             return (cached != null) ? (Var<string>) cached :
-                new IOSVar<string>(name, Constants.Kinds.STRING, defaultValue);
+                new AppleVar<string>(name, Constants.Kinds.STRING, defaultValue);
         }
 
         public override Var<List<object>> Define(string name, List<object> defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.ARRAY, defaultValue);
             return (cached != null) ? (Var<List<object>>) cached :
-                new IOSVar<List<object>>(name, Constants.Kinds.ARRAY, defaultValue);
+                new AppleVar<List<object>>(name, Constants.Kinds.ARRAY, defaultValue);
         }
 
         public override Var<List<string>> Define(string name, List<string> defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.ARRAY, defaultValue);
             return (cached != null) ? (Var<List<string>>) cached :
-                new IOSVar<List<string>>(name, Constants.Kinds.ARRAY, defaultValue);
+                new AppleVar<List<string>>(name, Constants.Kinds.ARRAY, defaultValue);
         }
 
         public override Var<Dictionary<string, object>> Define(string name,
@@ -697,7 +697,7 @@ namespace LeanplumSDK
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.DICTIONARY, defaultValue);
             return (cached != null) ? (Var<Dictionary<string, object>>) cached :
-                new IOSVar<Dictionary<string, object>>(name, Constants.Kinds.DICTIONARY,
+                new AppleVar<Dictionary<string, object>>(name, Constants.Kinds.DICTIONARY,
                     defaultValue);
         }
 
@@ -706,7 +706,7 @@ namespace LeanplumSDK
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.DICTIONARY, defaultValue);
             return (cached != null) ? (Var<Dictionary<string, string>>) cached :
-                new IOSVar<Dictionary<string, string>>(name, Constants.Kinds.DICTIONARY,
+                new AppleVar<Dictionary<string, string>>(name, Constants.Kinds.DICTIONARY,
                     defaultValue);
         }
 
@@ -746,7 +746,7 @@ namespace LeanplumSDK
             }
 
             Var cached = GetOrDefineVariable(name, kind, defaultValue);
-            return (cached != null) ? (Var<U>) cached : new IOSVar<U>(name, kind, defaultValue);
+            return (cached != null) ? (Var<U>) cached : new AppleVar<U>(name, kind, defaultValue);
         }
 
         public override Var<AssetBundle> DefineAssetBundle(string name,

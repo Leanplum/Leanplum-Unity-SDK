@@ -35,19 +35,19 @@ namespace LeanplumSDK
 	///     Type of the variable.
 	///     Can be Boolean, Byte, Short, Integer, Long, Float, Double, Character, String,
 	///     List, Dictionary, or Unity's AssetBundle. You may nest lists and dictionaries arbitrarily. </param>
-	public class IOSVar<T> : Var<T>
+	public class AppleVar<T> : Var<T>
 	{
 		private VariableCallback valueChanged;
 		private T _defaultValue;
 		private T _val;
 		
-		public IOSVar(string name, string kind, T defaultValue,  string filename = "")
+		public AppleVar(string name, string kind, T defaultValue,  string filename = "")
 		{
 			Name = name;
 			Kind = kind;
 			FileName = filename;
 			_val = _defaultValue = defaultValue;
-			LeanplumIOS.IOSVarCache[name] = this;
+			LeanplumApple.IOSVarCache[name] = this;
 		}
 
 		public override event VariableCallback ValueChanged
@@ -77,7 +77,7 @@ namespace LeanplumSDK
 		{ 
 			get
 			{
-				string jsonRepresentation = LeanplumIOS._getVariableValue(Name, Kind);
+				string jsonRepresentation = LeanplumApple._getVariableValue(Name, Kind);
 
 				if (jsonRepresentation == null)
 				{
@@ -103,7 +103,7 @@ namespace LeanplumSDK
 
 				if (newValue is IDictionary || newValue is IList)
 				{
-					SharedUtil.FillInValues(newValue, _val);
+					Util.FillInValues(newValue, _val);
 				}
 				else
 				{

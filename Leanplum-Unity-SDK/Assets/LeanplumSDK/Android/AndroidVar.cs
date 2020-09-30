@@ -88,7 +88,7 @@ namespace LeanplumSDK
 			{
 				string jsonRepresentation = LeanplumAndroid.NativeSDK.CallStatic<string>("varNameComponents", Name);
 				string[] result = new string[jsonRepresentation.Count(x => x == ',') + 1];
-				SharedUtil.FillInValues(Json.Deserialize(jsonRepresentation), result);
+				Util.FillInValues(Json.Deserialize(jsonRepresentation), result);
 				return result;
 			}
 		}
@@ -117,7 +117,7 @@ namespace LeanplumSDK
 					object newValue = Json.Deserialize(jsonRepresentation);
 					if (newValue is IDictionary || newValue is IList)
 					{
-						SharedUtil.FillInValues(newValue, currentValue);
+						Util.FillInValues(newValue, currentValue);
 					}
 					else if (newValue == null)
 					{

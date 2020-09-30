@@ -299,7 +299,7 @@ namespace LeanplumSDK
             // This also constructs LeanplumUnityHelper and the game object.
             gameObjectName = LeanplumUnityHelper.Instance.gameObject.name;
 
-            NativeSDK.CallStatic("initialize", gameObjectName, SharedConstants.SDK_VERSION, null);
+            NativeSDK.CallStatic("initialize", gameObjectName, Constants.SDK_VERSION, null);
             NativeSDK.CallStatic("start", userId, Json.Serialize(attributes));
         }
 

@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace LeanplumSDK
 {
-    public class LeanplumInboxiOS : LeanplumInbox
+    public class LeanplumInboxApple : LeanplumInbox
     {
         public override event OnInboxChanged InboxChanged;
         public override event OnForceContentUpdate ForceContentUpdate;
@@ -38,7 +38,7 @@ namespace LeanplumSDK
         [DllImport("__Internal")]
         internal static extern int _inbox_disableImagePrefetching();
 
-        internal LeanplumInboxiOS()
+        internal LeanplumInboxApple()
         {
 
         }
