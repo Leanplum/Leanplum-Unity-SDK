@@ -66,6 +66,7 @@ namespace LeanplumSDK
             internal const string FILE_ATTRIBUTES_KEY = "__leanplum_file_attributes";
             internal const string TOKEN_KEY = "__leanplum_token";
             internal const string USERID_KEY = "___leanplum_userid";
+            internal const string APP_INBOX_MESSAGES_KEY = "___leanplum_app_inbox_messages";
         }
 
         internal class Files
@@ -102,6 +103,17 @@ namespace LeanplumSDK
             internal const string URL = "url";
             internal const string VARIANTS = "variants";
             internal const string VARS = "vars";
+            internal const string SYNC_INBOX = "syncNewsfeed";
+            internal const string INBOX_MESSAGES = "newsfeedMessages";
+            internal const string MESSAGE_DATA = "messageData";
+            internal const string MESSAGE_IS_READ = "isRead";
+            internal const string DELIVERY_TIMESTAMP = "deliveryTimestamp";
+            internal const string EXPIRATION_TIMESTAMP = "expirationTimestamp";
+            internal const string TITLE = @"Title";
+            internal const string SUBTITLE = @"Subtitle";
+            internal const string IMAGE = @"Image";
+            internal const string DATA = @"Data";
+            internal const string ID = @"id";
         }
 
         public class Kinds
@@ -135,6 +147,9 @@ namespace LeanplumSDK
             internal const string TRACK = "track";
             internal const string UPLOAD_FILE = "uploadFile";
             internal const string SET_TRAFFIC_SOURCE_INFO = "setTrafficSourceInfo";
+            internal const string GET_INBOX_MESSAGES = "getNewsfeedMessages";
+            internal const string MARK_INBOX_MESSAGE_AS_READ = "markNewsfeedMessageAsRead";
+            internal const string DELETE_INBOX_MESSAGE = "deleteNewsfeedMessage";
         }
 
         internal class Params
@@ -170,6 +185,7 @@ namespace LeanplumSDK
             internal const string VERSION_CODE = "versionCode";
             internal const string VERSION_NAME = "versionName";
             internal const string TRAFFIC_SOURCE = "trafficSource";
+            internal const string INBOX_MESSAGE_ID = "newsfeedMessageId";
         }
 
         public class Values

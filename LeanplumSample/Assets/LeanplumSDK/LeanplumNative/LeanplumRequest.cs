@@ -392,7 +392,22 @@ namespace LeanplumSDK
 		                    {
 								if (entry.Value != null)
 								{
-		                        	requestArgsAsStrings [entry.Key] = entry.Value.ToString();
+                                    if (entry.Value is IList<object> value)
+                                    {
+                                        // avoid double json encoding for empty array
+                                        if (value.Count == 0)
+                                        {
+                                            requestArgsAsStrings[entry.Key] = "[]";
+                                        }
+                                        else
+                                        {
+                                            requestArgsAsStrings[entry.Key] = entry.Value.ToString();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        requestArgsAsStrings[entry.Key] = entry.Value.ToString();
+                                    }
 								}
 		                    }
 		                    requestData.Add(requestArgsAsStrings);

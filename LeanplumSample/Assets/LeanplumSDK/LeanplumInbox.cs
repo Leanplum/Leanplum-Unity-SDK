@@ -23,6 +23,7 @@ namespace LeanplumSDK
         /// that can update in realtime.
         /// </summary>
         public abstract event OnInboxChanged InboxChanged;
+
         /// <summary>
         /// Function to call when ForceContentUpdate was called.
         /// </summary>
@@ -32,6 +33,7 @@ namespace LeanplumSDK
         /// <summary>
         /// Message class encapsulating a message delivered from platform.
         /// </summary>
+        [Serializable]
         public class Message
         {
             /// <summary>
@@ -74,7 +76,26 @@ namespace LeanplumSDK
             /// <summary>
             /// Returns true if the inbox message is read.
             /// </summary>
-            public bool IsRead;
+            public bool IsRead = false;
+
+            /// <summary>
+            /// ActionContext containing message data
+            /// </summary>
+            internal IDictionary<string, object> ActionContext = null;
+
+            /// <summary>
+            /// Checks whether the message is still active.
+            /// </summary>
+            /// <returns>true if it is, false otherwise</returns>
+            internal bool IsActive()
+            {
+                if (ExpirationTimestamp == null)
+                {
+                    return true;
+                }
+                var now = DateTime.Now;
+                return now.CompareTo(ExpirationTimestamp) < 0;
+            }
 
             public override string ToString()
             {
