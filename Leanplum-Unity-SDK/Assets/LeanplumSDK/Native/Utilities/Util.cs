@@ -58,6 +58,10 @@ namespace LeanplumSDK
 								FillInValues(((IDictionary) source)[key],
 								             ((IDictionary) destination)[typedKey]);
 							}
+							else
+							{
+								((IDictionary) destination)[typedKey] = ((IDictionary) source)[key];
+							}
 						}
 						else
 						{
