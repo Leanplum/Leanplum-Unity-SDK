@@ -247,7 +247,6 @@ public class UnityBridge {
     List<Object> argsArray = gson.fromJson(args,
             new TypeToken<List<Object>>() {
             }.getType());
-    Map<String, Object> optionsDictionary = JsonConverter.fromJson(options);
 
     ActionArgs actionArgs = new ActionArgs();
 

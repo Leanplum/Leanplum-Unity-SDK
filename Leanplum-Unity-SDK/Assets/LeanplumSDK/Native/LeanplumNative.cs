@@ -989,7 +989,7 @@ namespace LeanplumSDK
         /// <summary>
         ///     Allows start to be called again.
         /// </summary>
-        internal static void Reset()
+        public static void Reset()
         {
             if (calledStart)
             {
