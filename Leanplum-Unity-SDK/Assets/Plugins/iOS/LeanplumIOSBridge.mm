@@ -371,6 +371,10 @@ extern "C"
         NSDictionary *optionsDictionary = [NSJSONSerialization JSONObjectWithData:optionsData
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
+        if (optionsDictionary == nil) {
+            optionsDictionary = @{};
+        }
+
         
         NSMutableArray *arguments = [NSMutableArray new];
         

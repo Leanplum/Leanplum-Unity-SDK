@@ -410,7 +410,7 @@ namespace LeanplumSDK
             }
 
             string argString = args == null ? null : args.ToJSON();
-            string optionString = options == null ? null : Json.Serialize(options);
+            string optionString = options == null ? "" : Json.Serialize(options);
 
             _defineAction(name, (int) kind, argString, optionString);
         }
