@@ -24,7 +24,7 @@ namespace LeanplumSDK
     /// </summary>
     public class Constants
     {
-        public const string SDK_VERSION = "3.0.0-beta2";
+        public const string SDK_VERSION = "3.0.0";
 
         internal const string CLIENT_PREFIX = "unity";
         internal const string EVENT_EXCEPTION = "__exception";
@@ -176,7 +176,7 @@ namespace LeanplumSDK
             internal const string KINDS = "kinds";
             internal const string NEW_USER_ID = "newUserId";
             internal const string PARAMS = "params";
-            internal const string SDK_VERSION = "3.0.0-beta2";
+            internal const string SDK_VERSION = "3.0.0";
             internal const string STATE = "state";
             internal const string TIME = "time";
             internal const string TOKEN = "token";
