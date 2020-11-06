@@ -2,15 +2,15 @@
 //  LPCenterPopupMessageTemplate.h
 //  LeanplumSDK-iOS
 //
-//  Created by Milos Jakovljevic on 06/04/2020.
+//  Created by Mayank Sanganeria on 2/7/20.
 //  Copyright © 2020 Leanplum. All rights reserved.
 //
 
-#import "LPMessageTemplateProtocol.h"
+#import "LPBaseInterstitialMessageTemplate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LPCenterPopupMessageTemplate : NSObject <LPMessageTemplateProtocol>
+@interface LPCenterPopupMessageTemplate : LPBaseInterstitialMessageTemplate
 
 @end
 

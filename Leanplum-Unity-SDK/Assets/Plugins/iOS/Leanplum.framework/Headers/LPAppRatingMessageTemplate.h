@@ -6,11 +6,11 @@
 //  Copyright © 2020 Leanplum. All rights reserved.
 //
 
-#import "LPMessageTemplateProtocol.h"
+#import "LPBaseMessageTemplate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LPAppRatingMessageTemplate : NSObject <LPMessageTemplateProtocol>
+@interface LPAppRatingMessageTemplate : LPBaseMessageTemplate
 
 @end
 

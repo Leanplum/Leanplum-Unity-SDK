@@ -24,60 +24,34 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
-NS_SWIFT_NAME(ActionContext)
 @interface LPActionContext : NSObject
 
-- (instancetype)init NS_UNAVAILABLE;
+- (NSString *)actionName;
 
-- (NSString *)actionName
-NS_SWIFT_NAME(action());
-
-- (nullable NSString *)stringNamed:(NSString *)name
-NS_SWIFT_NAME(string(name:));
-
-- (nullable NSString *)fileNamed:(NSString *)name
-NS_SWIFT_NAME(file(name:));
-
-- (nullable NSNumber *)numberNamed:(NSString *)name
-NS_SWIFT_NAME(number(name:));
-
-- (BOOL)boolNamed:(NSString *)name
-NS_SWIFT_NAME(boolean(name:));
-
-- (nullable NSDictionary *)dictionaryNamed:(NSString *)name
-NS_SWIFT_NAME(dictionary(name:));
-
-- (nullable NSArray *)arrayNamed:(NSString *)name
-NS_SWIFT_NAME(array(name:));
-
-- (nullable UIColor *)colorNamed:(NSString *)name
-NS_SWIFT_NAME(color(name:));
-
-- (nullable NSURL *)htmlWithTemplateNamed:(NSString *)templateName
-NS_SWIFT_NAME(htmlTemplate(name:));
+- (NSString *)stringNamed:(NSString *)name;
+- (NSString *)fileNamed:(NSString *)name;
+- (NSNumber *)numberNamed:(NSString *)name;
+- (BOOL)boolNamed:(NSString *)name;
+- (NSDictionary *)dictionaryNamed:(NSString *)name;
+- (NSArray *)arrayNamed:(NSString *)name;
+- (UIColor *)colorNamed:(NSString *)name;
+- (NSURL *)htmlWithTemplateNamed:(NSString *)templateName;
 
 /**
  * Runs the action given by the "name" key.
  */
-- (void)runActionNamed:(NSString *)name
-NS_SWIFT_NAME(runAction(name:));
+- (void)runActionNamed:(NSString *)name;
 
 /**
  * Runs and tracks an event for the action given by the "name" key.
  * This will track an event if no action is set.
  */
-- (void)runTrackedActionNamed:(NSString *)name
-NS_SWIFT_NAME(runTrackedAction(name:));
+- (void)runTrackedActionNamed:(NSString *)name;
 
 /**
  * Tracks an event in the context of the current message.
  */
-- (void)track:(NSString *)event
-    withValue:(double)value
-andParameters:(nullable NSDictionary<NSString *, id> *)params
-NS_SWIFT_NAME(track(event:value:params:));
+- (void)track:(NSString *)event withValue:(double)value andParameters:(NSDictionary *)params;
 
 /**
  * Tracks an event in the conext of the current message, with any parent actions prepended to the
@@ -85,9 +59,8 @@ NS_SWIFT_NAME(track(event:value:params:));
  */
 - (void)trackMessageEvent:(NSString *)event
                 withValue:(double)value
-                  andInfo:(nullable NSString *)info
-            andParameters:(nullable NSDictionary<NSString *, id> *)params
-NS_SWIFT_NAME(trackMessage(event:value:info:params:));
+                  andInfo:(NSString *)info
+            andParameters:(NSDictionary *)params;
 
 /**
  * Prevents the currently active message from appearing again in the future.
@@ -100,5 +73,3 @@ NS_SWIFT_NAME(trackMessage(event:value:info:params:));
 - (BOOL)hasMissingFiles;
 
 @end
-
-NS_ASSUME_NONNULL_END

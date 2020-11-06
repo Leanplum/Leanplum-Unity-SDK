@@ -1,18 +1,16 @@
 //
-//  LPPushAskToAskMessageTemplate.h
+//  LPPushAsktoAskMessageTemplate.h
 //  LeanplumSDK-iOS
 //
 //  Created by Mayank Sanganeria on 2/6/20.
 //  Copyright © 2020 Leanplum. All rights reserved.
 //
 
-#import "LPMessageTemplateProtocol.h"
+#import "LPBasePushMessageTemplate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LPPushAskToAskMessageTemplate : NSObject <LPMessageTemplateProtocol>
-
-- (void)enableSystemPush;
+@interface LPPushAsktoAskMessageTemplate : LPBasePushMessageTemplate
 
 @end
 

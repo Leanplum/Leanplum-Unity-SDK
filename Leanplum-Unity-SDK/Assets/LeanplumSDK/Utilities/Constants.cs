@@ -24,7 +24,7 @@ namespace LeanplumSDK
     /// </summary>
     public class Constants
     {
-        public const string SDK_VERSION = "2.2.0";
+        public const string SDK_VERSION = "3.1.0-beta1";
 
         internal const string CLIENT_PREFIX = "unity";
         internal const string EVENT_EXCEPTION = "__exception";
@@ -131,6 +131,43 @@ namespace LeanplumSDK
             public const string ACTION = "action";
         }
 
+        public class Args
+        {
+            public const string URL = "URL";
+            public const string TITLE = "Title";
+            public const string MESSAGE = "Message";
+            public const string ACCEPT_TEXT = "Accept text";
+            public const string CANCEL_TEXT = "Cancel text";
+            public const string DISMISS_TEXT = "Dismiss text";
+            public const string ACCEPT_ACTION = "Accept action";
+            public const string CANCEL_ACTION = "Cancel action";
+            public const string DISMISS_ACTION = "Dismiss action";
+            public const string TITLE_TEXT = "Title.Text";
+            public const string TITLE_COLOR = "Title.Color";
+            public const string MESSAGE_TEXT = "Message.Text";
+            public const string MESSAGE_COLOR = "Message.Color";
+            public const string ACCEPT_BUTTON_TEXT = "Accept button.Text";
+            public const string ACCEPT_BUTTON_BACKGROUND_COLOR = "Accept button.Background color";
+            public const string ACCEPT_BUTTON_TEXT_COLOR = "Accept button.Text color";
+            public const string BACKGROUND_IMAGE = "Background image";
+            public const string BACKGROUND_COLOR = "Background color";
+            public const string LAYOUT_WIDTH = "Layout.Width";
+            public const string LAYOUT_HEIGHT = "Layout.Height";
+            public const string HTML_WIDTH = "HTML Width";
+            public const string HTML_HEIGHT = "HTML Height";
+            public const string HTML_Y_OFFSET = "HTML Y Offset";
+            public const string HTML_TAP_OUTSIDE_TO_CLOSE = "Tap Outside to Close";
+            public const string HTML_ALIGN = "HTML Align";
+            public const string HTML_ALIGN_TOP = "Top";
+            public const string HTML_ALIGN_BOTTOM = "Bottom";
+            public const string CLOSE_URL = "Close URL";
+            public const string HAS_DISMISS_BUTTON = "Has dismiss button";
+            public const string OPEN_URL = "Open URL";
+            public const string TRACK_URL = "Track URL";
+            public const string ACTION_URL = "Action URL";
+            public const string TRACK_ACTION_URL = "Track Action URL";
+        }
+
         internal class Methods
         {
             internal const string ADVANCE = "advance";
@@ -176,7 +213,7 @@ namespace LeanplumSDK
             internal const string KINDS = "kinds";
             internal const string NEW_USER_ID = "newUserId";
             internal const string PARAMS = "params";
-            internal const string SDK_VERSION = "sdkVersion";
+            internal const string SDK_VERSION = "3.1.0-beta1";
             internal const string STATE = "state";
             internal const string TIME = "time";
             internal const string TOKEN = "token";

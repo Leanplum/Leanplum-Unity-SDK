@@ -24,8 +24,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 typedef void (^LeanplumVariablesChangedBlock)(void);
 
 @class LPVar;
@@ -33,7 +31,6 @@ typedef void (^LeanplumVariablesChangedBlock)(void);
 /**
  * Receives callbacks for {@link LPVar}
  */
-NS_SWIFT_NAME(VarDelegate)
 @protocol LPVarDelegate <NSObject>
 @optional
 /**
@@ -50,61 +47,35 @@ NS_SWIFT_NAME(VarDelegate)
  * A variable is any part of your application that can change from an experiment.
  * Check out {@link Macros the macros} for defining variables more easily.
  */
-NS_SWIFT_NAME(Var)
 @interface LPVar : NSObject
 /**
  * @{
  * Defines a {@link LPVar}
  */
 
-- (instancetype)init NS_UNAVAILABLE;
-
-+ (LPVar *)define:(NSString *)name
-NS_SWIFT_NAME(init(name:));
-+ (LPVar *)define:(NSString *)name withInt:(int)defaultValue
-NS_SWIFT_NAME(init(name:integer:));
-+ (LPVar *)define:(NSString *)name withFloat:(float)defaultValue
-NS_SWIFT_NAME(init(name:float:));
-+ (LPVar *)define:(NSString *)name withDouble:(double)defaultValue
-NS_SWIFT_NAME(init(name:double:));
-+ (LPVar *)define:(NSString *)name withCGFloat:(CGFloat)cgFloatValue
-NS_SWIFT_NAME(init(name:cgFloat:));
-+ (LPVar *)define:(NSString *)name withShort:(short)defaultValue
-NS_SWIFT_NAME(init(name:integer:));
-+ (LPVar *)define:(NSString *)name withChar:(char)defaultValue
-NS_SWIFT_NAME(init(name:integer:));
-+ (LPVar *)define:(NSString *)name withBool:(BOOL)defaultValue
-NS_SWIFT_NAME(init(name:boolean:));
-+ (LPVar *)define:(NSString *)name withString:(nullable NSString *)defaultValue
-NS_SWIFT_NAME(init(name:string:));
-+ (LPVar *)define:(NSString *)name withNumber:(nullable NSNumber *)defaultValue
-NS_SWIFT_NAME(init(name:number:));
-+ (LPVar *)define:(NSString *)name withInteger:(NSInteger)defaultValue
-NS_SWIFT_NAME(init(name:integer:));
-+ (LPVar *)define:(NSString *)name withLong:(long)defaultValue
-NS_SWIFT_NAME(init(name:integer:));
-+ (LPVar *)define:(NSString *)name withLongLong:(long long)defaultValue
-NS_SWIFT_NAME(init(name:integer:));
-+ (LPVar *)define:(NSString *)name withUnsignedChar:(unsigned char)defaultValue
-NS_SWIFT_NAME(init(name:uinteger:));
-+ (LPVar *)define:(NSString *)name withUnsignedInt:(unsigned int)defaultValue
-NS_SWIFT_NAME(init(name:uinteger:));
-+ (LPVar *)define:(NSString *)name withUnsignedInteger:(NSUInteger)defaultValue
-NS_SWIFT_NAME(init(name:uinteger:));
-+ (LPVar *)define:(NSString *)name withUnsignedLong:(unsigned long)defaultValue
-NS_SWIFT_NAME(init(name:uinteger:));
-+ (LPVar *)define:(NSString *)name withUnsignedLongLong:(unsigned long long)defaultValue
-NS_SWIFT_NAME(init(name:uinteger:));
-+ (LPVar *)define:(NSString *)name withUnsignedShort:(unsigned short)defaultValue
-NS_SWIFT_NAME(init(name:uinteger:));
-+ (LPVar *)define:(NSString *)name withFile:(nullable NSString *)defaultFilename
-NS_SWIFT_NAME(init(name:file:));
-+ (LPVar *)define:(NSString *)name withDictionary:(nullable NSDictionary *)defaultValue
-NS_SWIFT_NAME(init(name:dictionary:));
-+ (LPVar *)define:(NSString *)name withArray:(nullable NSArray *)defaultValue
-NS_SWIFT_NAME(init(name:array:));
-+ (LPVar *)define:(NSString *)name withColor:(nullable UIColor *)defaultValue
-NS_SWIFT_NAME(init(name:color:));
++ (LPVar *)define:(NSString *)name;
++ (LPVar *)define:(NSString *)name withInt:(int)defaultValue;
++ (LPVar *)define:(NSString *)name withFloat:(float)defaultValue;
++ (LPVar *)define:(NSString *)name withDouble:(double)defaultValue;
++ (LPVar *)define:(NSString *)name withCGFloat:(CGFloat)cgFloatValue;
++ (LPVar *)define:(NSString *)name withShort:(short)defaultValue;
++ (LPVar *)define:(NSString *)name withChar:(char)defaultValue;
++ (LPVar *)define:(NSString *)name withBool:(BOOL)defaultValue;
++ (LPVar *)define:(NSString *)name withString:(NSString *)defaultValue;
++ (LPVar *)define:(NSString *)name withNumber:(NSNumber *)defaultValue;
++ (LPVar *)define:(NSString *)name withInteger:(NSInteger)defaultValue;
++ (LPVar *)define:(NSString *)name withLong:(long)defaultValue;
++ (LPVar *)define:(NSString *)name withLongLong:(long long)defaultValue;
++ (LPVar *)define:(NSString *)name withUnsignedChar:(unsigned char)defaultValue;
++ (LPVar *)define:(NSString *)name withUnsignedInt:(unsigned int)defaultValue;
++ (LPVar *)define:(NSString *)name withUnsignedInteger:(NSUInteger)defaultValue;
++ (LPVar *)define:(NSString *)name withUnsignedLong:(unsigned long)defaultValue;
++ (LPVar *)define:(NSString *)name withUnsignedLongLong:(unsigned long long)defaultValue;
++ (LPVar *)define:(NSString *)name withUnsignedShort:(unsigned short)defaultValue;
++ (LPVar *)define:(NSString *)name withFile:(NSString *)defaultFilename;
++ (LPVar *)define:(NSString *)name withDictionary:(NSDictionary *)defaultValue;
++ (LPVar *)define:(NSString *)name withArray:(NSArray *)defaultValue;
++ (LPVar *)define:(NSString *)name withColor:(UIColor *)defaultValue;
 /**@}*/
 
 /**
@@ -115,12 +86,12 @@ NS_SWIFT_NAME(init(name:color:));
 /**
  * Returns the components of the variable's name.
  */
-- (NSArray<NSString *> *)nameComponents;
+- (NSArray *)nameComponents;
 
 /**
  * Returns the default value of a variable.
  */
-- (nullable id)defaultValue;
+- (id)defaultValue;
 
 /**
  * Returns the kind of the variable.
@@ -146,22 +117,22 @@ NS_SWIFT_NAME(init(name:color:));
  * Sets the delegate of the variable in order to use
  * {@link LPVarDelegate::fileIsReady:} and {@link LPVarDelegate::valueDidChange:}
  */
-- (void)setDelegate:(nullable id <LPVarDelegate>)delegate;
+- (void)setDelegate:(id <LPVarDelegate>)delegate;
 
 /**
  * @{
  * Accessess the value(s) of the variable
  */
-- (id)objectForKey:(nullable NSString *)key;
+- (id)objectForKey:(NSString *)key;
 - (id)objectAtIndex:(NSUInteger )index;
-- (id)objectForKeyPath:(nullable id)firstComponent, ... NS_REQUIRES_NIL_TERMINATION;
-- (id)objectForKeyPathComponents:(nullable NSArray<NSString *> *)pathComponents;
+- (id)objectForKeyPath:(id)firstComponent, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)objectForKeyPathComponents:(NSArray *)pathComponents;
 - (NSUInteger)count;
 
-- (nullable NSNumber *)numberValue;
-- (nullable NSString *)stringValue;
-- (nullable NSString *)fileValue;
-- (nullable UIImage *)imageValue;
+- (NSNumber *)numberValue;
+- (NSString *)stringValue;
+- (NSString *)fileValue;
+- (UIImage *)imageValue;
 - (int)intValue;
 - (double)doubleValue;
 - (CGFloat)cgFloatValue;
@@ -178,8 +149,6 @@ NS_SWIFT_NAME(init(name:color:));
 - (NSUInteger)unsignedIntegerValue;
 - (unsigned long)unsignedLongValue;
 - (unsigned long long)unsignedLongLongValue;
-- (nullable UIColor *)colorValue;
+- (UIColor *)colorValue;
 /**@}*/
 @end
-
-NS_ASSUME_NONNULL_END

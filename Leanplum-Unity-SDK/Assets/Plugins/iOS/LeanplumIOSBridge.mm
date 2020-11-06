@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2014 Leanplum. All rights reserved.
+//  Copyright (c) 2020 Leanplum. All rights reserved.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -21,50 +21,9 @@
 #import <Foundation/Foundation.h>
 #import <Leanplum/Leanplum.h>
 #import <Leanplum/LPPushNotificationsManager.h>
+#import "LeanplumUnityHelper.h"
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
-
-namespace lp 
-{
-    static char *copy_string(const char *str)
-    {
-        if (str == NULL) 
-        {
-            return NULL;
-        }
-        char *res = (char *) malloc(strlen(str) + 1);
-        strcpy(res, str);
-        return res;
-    }
-
-    static NSString *to_nsstring(const char *str)
-    {
-        if (str != NULL) {
-            return [NSString stringWithUTF8String:str];
-        } else {
-            return [NSString stringWithUTF8String:""];
-        }
-    }
-
-    static char *to_string(NSString *str)
-    {
-        return copy_string([str UTF8String]);
-    }
-
-    static char *to_json_string(id obj)
-    {
-        if (!obj) {
-            return NULL;
-        }
-
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:obj
-                                                           options:NSUTF8StringEncoding
-                                                             error:nil];
-        NSString *jsonString = [[NSString alloc] initWithData:jsonData
-                                                     encoding:NSUTF8StringEncoding];
-        return copy_string([jsonString UTF8String]);
-    }
-}
 
 typedef void (*LeanplumRequestAuthorization)
 (id, SEL, unsigned long long, void (^)(BOOL, NSError *__nullable));

@@ -5,11 +5,11 @@
 //  Created by Mayank Sanganeria on 2/6/20.
 //
 
-#import "LPMessageTemplateProtocol.h"
+#import "LPBaseMessageTemplate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LPOpenUrlMessageTemplate : NSObject <LPMessageTemplateProtocol>
+@interface LPOpenUrlMessageTemplate : LPBaseMessageTemplate
 
 @end
 

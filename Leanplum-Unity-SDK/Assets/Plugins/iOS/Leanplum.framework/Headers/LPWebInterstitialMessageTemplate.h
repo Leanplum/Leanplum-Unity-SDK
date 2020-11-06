@@ -1,16 +1,16 @@
 //
-//  LPWebInterstitialMessageTemplate.h
+//  LPInterstitialMessageTemplate.h
 //  LeanplumSDK-iOS
 //
-//  Created by Milos Jakovljevic on 06/04/2020.
+//  Created by Mayank Sanganeria on 2/6/20.
 //  Copyright © 2020 Leanplum. All rights reserved.
 //
 
-#import "LPMessageTemplateProtocol.h"
+#import "LPBaseHtmlMessageTemplate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LPWebInterstitialMessageTemplate : NSObject <LPMessageTemplateProtocol>
+@interface LPWebInterstitialMessageTemplate : LPBaseHtmlMessageTemplate
 
 @end
 

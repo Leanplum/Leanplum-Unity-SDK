@@ -7,28 +7,24 @@
 
 #import "LeanplumInternal.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface LPVar ()
 
-- (instancetype)initWithName:(NSString *)name
-              withComponents:(NSArray *)components
-            withDefaultValue:(NSObject *)defaultValue
-                    withKind:(NSString *)kind;
+- (instancetype)initWithName:(NSString *)name withComponents:(NSArray *)components
+            withDefaultValue:(NSObject *)defaultValue withKind:(NSString *)kind;
 
 @property (readonly) BOOL isInternal;
 @property (readonly, strong) NSString *name;
 @property (readonly, strong) NSArray *nameComponents;
-@property (readonly, strong, nullable) NSString *stringValue;
-@property (readonly, strong, nullable) NSNumber *numberValue;
+@property (readonly, strong) NSString *stringValue;
+@property (readonly, strong) NSNumber *numberValue;
 @property (readonly) BOOL hadStarted;
-@property (readonly, strong, nullable) id value;
-@property (readonly, strong, nullable) id defaultValue;
+@property (readonly, strong) id value;
+@property (readonly, strong) id defaultValue;
 @property (readonly, strong) NSString *kind;
 @property (readonly, strong) NSMutableArray *fileReadyBlocks;
 @property (readonly, strong) NSMutableArray *valueChangedBlocks;
 @property (readonly) BOOL fileIsPending;
-@property (nonatomic, unsafe_unretained, nullable) id <LPVarDelegate> delegate;
+@property (nonatomic, unsafe_unretained) id <LPVarDelegate> delegate;
 @property (readonly) BOOL hasChanged;
 
 - (void) update;
@@ -40,5 +36,3 @@ NS_ASSUME_NONNULL_BEGIN
 +(void)setPrintedCallbackWarning:(BOOL)newPrintedCallbackWarning;
 
 @end
-
-NS_ASSUME_NONNULL_END
