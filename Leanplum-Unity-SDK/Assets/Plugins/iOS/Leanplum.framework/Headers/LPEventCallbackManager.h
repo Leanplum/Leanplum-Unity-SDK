@@ -25,12 +25,14 @@
 #import <Foundation/Foundation.h>
 #import "LPNetworkProtocol.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface LPEventCallbackManager : NSObject
 
 /**
  * Returns dictionary that maps event index to event callback object.
- * Since requests are batched there can be a case where other LeanplumRequest
- * can take future LeanplumRequest events. We need to ensure all callbacks are
+ * Since requests are batched there can be a case where other LPRequest
+ * can take future LPRequest events. We need to ensure all callbacks are
  * called from any instance.
  */
 + (NSMutableDictionary *)eventCallbackMap;
@@ -62,3 +64,5 @@
 + (void)invokeErrorCallbacksWithError:(NSError *)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

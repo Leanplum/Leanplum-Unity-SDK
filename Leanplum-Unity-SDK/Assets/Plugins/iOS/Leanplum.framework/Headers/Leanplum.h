@@ -30,27 +30,19 @@
 #import "LPVar.h"
 #import "LPMessageArchiveData.h"
 #import "LPEnumConstants.h"
-
 #import "Leanplum_WebSocket.h"
 #import "LPNetworkOperation.h"
 #import "LPUtils.h"
 #import "LPResponse.h"
 #import "Leanplum_SocketIO.h"
 #import "LeanplumSocket.h"
-#import "LPRequesting.h"
-//#import "LPActionManager.h"
 #import "LeanplumCompatibility.h"
 #import "LPUIAlert.h"
-//#import "LPRequest.h"
 #import "LPSwizzle.h"
-//#import "LeanplumInternal.h"
 #import "LPEventDataManager.h"
 #import "LPEventCallbackManager.h"
 #import "LPAppIconManager.h"
 #import "Leanplum_AsyncSocket.h"
-#import "LPUIEditorWrapper.h"
-//#import "LPVar-Internal.h"
-//#import "LPRegisterDevice.h"
 #import "LPRevenueManager.h"
 #import "LPContextualValues.h"
 #import "LPFeatureFlagManager.h"
@@ -62,25 +54,23 @@
 #import "LPVarCache.h"
 #import "LPDatabase.h"
 #import "NSString+MD5Addition.h"
-//#import "Leanplum_Reachability.h"
-//#import "LPAPIConfig.h"
-//#import "LPActionContext-Internal.h"
-//#import "LPInternalState.h"
 #import "FileMD5Hash.h"
 #import "LPJSON.h"
 #import "LPNetworkProtocol.h"
-//#import "LPRequestFactory.h"
-//#import "LPRequestSender.h"
 #import "LPExceptionHandler.h"
-//#import "LPFileTransferManager.h"
 #import "LPMessageTemplates.h"
 #import "LPFeatureFlags.h"
 #import "UIDevice+IdentifierAddition.h"
-//#import "LeanplumRequest.h"
 #import "NSTimer+Blocks.h"
 #import "LPEventCallback.h"
 #import "LPNetworkEngine.h"
 #import "LPAES.h"
+#import "LPLogManager.h"
+
+// Prevent circular reference
+@class LPDeferrableAction;
+
+NS_ASSUME_NONNULL_BEGIN
 
 #define _LP_DEFINE_HELPER(name,val,type) LPVar* name; \
 static void __attribute__((constructor)) initialize_##name() { \
@@ -142,27 +132,6 @@ name = [LPVar define:[@#name stringByReplacingOccurrencesOfString:@"_" withStrin
 }
 /**@}*/
 
-/**
- * Use this code in development mode (or in production), to use the advertising ID.
- * It's useful in development mode so that we remember your device even if you reinstall your app.
- * Since it's a MACRO, this won't get compiled into your app in production, and will be safe
- * to submit to Apple.
- */
-#define LEANPLUM_USE_ADVERTISING_ID \
-    _Pragma("clang diagnostic push") \
-    _Pragma("clang diagnostic ignored \"-Warc-performSelector-leaks\"") \
-    id LeanplumIdentifierManager = [NSClassFromString(@"ASIdentifierManager") \
-                            performSelector:NSSelectorFromString(@"sharedManager")]; \
-    if (floor(NSFoundationVersionNumber) <= 1299 /* NSFoundationVersionNumber_iOS_9_x_Max */ || \
-        [LeanplumIdentifierManager performSelector: \
-          NSSelectorFromString(@"isAdvertisingTrackingEnabled")]) { \
-        /* < iOS10 || isAdvertisingTrackingEnabled */ \
-        [Leanplum setDeviceId:[[LeanplumIdentifierManager performSelector: \
-                                NSSelectorFromString(@"advertisingIdentifier")] \
-                               performSelector:NSSelectorFromString(@"UUIDString")]]; \
-    } \
-    _Pragma("clang diagnostic pop")
-
 @class LPActionContext;
 @class SKPaymentTransaction;
 @class NSExtensionContext;
@@ -173,7 +142,6 @@ name = [LPVar define:[@#name stringByReplacingOccurrencesOfString:@"_" withStrin
  * @{
  */
 typedef void (^LeanplumStartBlock)(BOOL success);
-typedef void (^LeanplumInterfaceChangedBlock)(void);
 typedef void (^LeanplumSetLocationBlock)(BOOL success);
 // Returns whether the action was handled.
 typedef BOOL (^LeanplumActionBlock)(LPActionContext* context);
@@ -189,14 +157,26 @@ typedef void (^LeanplumPushSetupBlock)(void);
  * This is a bit-field. To choose both kinds, use
  * kLeanplumActionKindMessage | kLeanplumActionKindAction
  */
-typedef enum {
+typedef NS_OPTIONS(NSUInteger, LeanplumActionKind) {
     kLeanplumActionKindMessage = 0b1,
     kLeanplumActionKindAction = 0b10,
-} LeanplumActionKind;
+} NS_SWIFT_NAME(Leanplum.ActionKind);
 
 #define LP_PURCHASE_EVENT @"Purchase"
 
+/**
+ * Leanplum Environment value for development, used in Leanplum-Info.plist
+ */
+extern NSString *const kEnvDevelopment;
+
+/**
+ * Leanplum Environment value for production, used in Leanplum-Info.plist
+ */
+extern NSString *const kEnvProduction;
+
 @interface Leanplum : NSObject
+
+- (instancetype)init NS_UNAVAILABLE;
 
 /**
  * Optional. Sets the API server. The API path is of the form http[s]://hostname/servletName
@@ -204,7 +184,8 @@ typedef enum {
  * @param servletName The name of the API servlet, such as api
  * @param ssl Whether to use SSL
  */
-+ (void)setApiHostName:(NSString *)hostName withServletName:(NSString *)servletName usingSsl:(BOOL)ssl;
++ (void)setApiHostName:(NSString *)hostName withServletName:(NSString *)servletName usingSsl:(BOOL)ssl
+NS_SWIFT_NAME(setApiHostName(_:servletName:ssl:));
 
 /**
  * Optional. Adjusts the network timeouts.
@@ -243,6 +224,11 @@ typedef enum {
 + (void)setVerboseLoggingInDevelopmentMode:(BOOL)enabled;
 
 /**
+* Sets log level through the Leanplum SDK
+*/
++ (void)setLogLevel:(LPLogLevel)level;
+
+/**
  * Sets a custom event name for in-app purchase tracking. Default: Purchase.
  */
 + (void)setInAppPurchaseEventName:(NSString *)event;
@@ -254,7 +240,8 @@ typedef enum {
  * @param appId Your app ID.
  * @param accessKey Your development key.
  */
-+ (void)setAppId:(NSString *)appId withDevelopmentKey:(NSString *)accessKey;
++ (void)setAppId:(NSString *)appId withDevelopmentKey:(NSString *)accessKey
+NS_SWIFT_NAME(setAppId(_:developmentKey:));
 
 /**
  * Must call either this or {@link Leanplum::setAppId:withDevelopmentKey:}
@@ -262,29 +249,21 @@ typedef enum {
  * @param appId Your app ID.
  * @param accessKey Your production key.
  */
-+ (void)setAppId:(NSString *)appId withProductionKey:(NSString *)accessKey;
++ (void)setAppId:(NSString *)appId withProductionKey:(NSString *)accessKey
+NS_SWIFT_NAME(setAppId(_:productionKey:));
 /**@}*/
+
+/**
+ * Sets the corresponding key based on the environment. Call only if initialising using plist.
+ * @param env "development" or "production" - kEnvDevelopment or kEnvProduction
+ */
++ (void)setAppEnvironment:(NSString *)env;
 
 /**
  * Apps running as extensions need to call this before start.
  * @param context The current extensionContext. You can get this from UIViewController.
  */
 + (void)setExtensionContext:(NSExtensionContext *)context;
-
-/**
- * @{
- * Call this before start to allow your interfaces to change on the fly.
- * Needed in development mode to enable the interface editor, as well as in production to allow
- * changes to be applied.
- */
-+ (void)allowInterfaceEditing __attribute__((deprecated("Use LeanplumUIEditor pod instead.")));
-
-/**
- * Check if interface editing is enabled.
- */
-+ (BOOL)interfaceEditingEnabled __attribute__((deprecated("Use LeanplumUIEditor pod instead.")));
-
-/**@}*/
 
 /**
  * Sets a custom device ID. For example, you may want to pass the advertising ID to do attribution.
@@ -301,14 +280,6 @@ typedef enum {
 + (void)setAppVersion:(NSString *)appVersion;
 
 /**
- * @{
- * Syncs resources between Leanplum and the current app.
- * You should only call this once, and before {@link start}.
- * Deprecated. Use {@link syncResourcesAsync:} instead.
- */
-+ (void)syncResources __attribute__((deprecated));
-
-/**
  * Syncs resources between Leanplum and the current app.
  * You should only call this once, and before {@link start}.
  * @param async Whether the call should be asynchronous. Resource syncing can take 1-2 seconds to
@@ -320,21 +291,6 @@ typedef enum {
 /**
  * Syncs resources between Leanplum and the current app.
  * You should only call this once, and before {@link start}.
- * Deprecated. Use {@link syncResourcePaths:excluding:async} instead.
- * @param async Whether the call should be asynchronous. Resource syncing can take 1-2 seconds to
- *     index the app's resources. If async is set, resources may not be available immediately
- *     when the app starts.
- * @param patternsToIncludeOrNil Limit paths to only those matching at least one pattern in this
- *     list. Supply nil to indicate no inclusion patterns. Paths are relative to the app's bundle.
- * @param patternsToExcludeOrNil Exclude paths matching at least one of these patterns.
- *     Supply nil to indicate no exclusion patterns.
- */
-+ (void)syncResourcePaths:(NSArray *)patternsToIncludeOrNil
-                excluding:(NSArray *)patternsToExcludeOrNil __attribute__((deprecated));
-
-/**
- * Syncs resources between Leanplum and the current app.
- * You should only call this once, and before {@link start}.
  * @param async Whether the call should be asynchronous. Resource syncing can take 1-2 seconds to
  *     index the app's resources. If async is set, resources may not be available immediately
  *     when the app starts.
@@ -346,8 +302,8 @@ typedef enum {
  *     index the app's resources. If async is set, resources may not be available immediately
  *     when the app starts.
  */
-+ (void)syncResourcePaths:(NSArray *)patternsToIncludeOrNil
-                excluding:(NSArray *)patternsToExcludeOrNil
++ (void)syncResourcePaths:(nullable NSArray<NSString *> *)patternsToIncludeOrNil
+                excluding:(nullable NSArray<NSString *> *)patternsToExcludeOrNil
                     async:(BOOL)async;
 /**@}*/
 
@@ -358,13 +314,28 @@ typedef enum {
  * of the variables used in your app.
  */
 + (void)start;
-+ (void)startWithResponseHandler:(LeanplumStartBlock)response;
-+ (void)startWithUserAttributes:(NSDictionary *)attributes;
-+ (void)startWithUserId:(NSString *)userId;
-+ (void)startWithUserId:(NSString *)userId responseHandler:(LeanplumStartBlock)response;
-+ (void)startWithUserId:(NSString *)userId userAttributes:(NSDictionary *)attributes;
-+ (void)startWithUserId:(NSString *)userId userAttributes:(NSDictionary *)attributes
-        responseHandler:(LeanplumStartBlock)startResponse;
+
++ (void)startWithResponseHandler:(LeanplumStartBlock)response
+NS_SWIFT_NAME(start(completion:));
+
++ (void)startWithUserAttributes:(NSDictionary<NSString *, id> *)attributes
+NS_SWIFT_NAME(start(attributes:));
+
++ (void)startWithUserId:(NSString *)userId
+NS_SWIFT_NAME(start(userId:));
+
++ (void)startWithUserId:(NSString *)userId
+        responseHandler:(nullable LeanplumStartBlock)response
+NS_SWIFT_NAME(start(userId:completion:));
+
++ (void)startWithUserId:(NSString *)userId
+         userAttributes:(NSDictionary<NSString *, id> *)attributes
+NS_SWIFT_UNAVAILABLE("Use start(userId:attributes:completion:");
+
++ (void)startWithUserId:(nullable NSString *)userId
+         userAttributes:(nullable NSDictionary<NSString *, id> *)attributes
+        responseHandler:(nullable LeanplumStartBlock)startResponse
+NS_SWIFT_NAME(start(userId:attributes:completion:));
 /**@}*/
 
 /**
@@ -393,13 +364,6 @@ typedef enum {
  * that can update in realtime.
  */
 + (void)onVariablesChanged:(LeanplumVariablesChangedBlock)block;
-
-/**
- * Block to call when the interface receive new values from the server.
- * This will be called on start, and also later on if the user is in an experiment
- * that can update in realtime.
- */
-+ (void)onInterfaceChanged:(LeanplumInterfaceChangedBlock)block;
 
 /**
  * Block to call when no more file downloads are pending (either when
@@ -431,15 +395,46 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
  * @{
  * Defines new action and message types to be performed at points set up on the Leanplum dashboard.
  */
-+ (void)defineAction:(NSString *)name ofKind:(LeanplumActionKind)kind withArguments:(NSArray *)args;
-+ (void)defineAction:(NSString *)name ofKind:(LeanplumActionKind)kind withArguments:(NSArray *)args
-         withOptions:(NSDictionary *)options;
-+ (void)defineAction:(NSString *)name ofKind:(LeanplumActionKind)kind withArguments:(NSArray *)args
-       withResponder:(LeanplumActionBlock)responder;
-+ (void)defineAction:(NSString *)name ofKind:(LeanplumActionKind)kind withArguments:(NSArray *)args
++ (void)defineAction:(NSString *)name
+              ofKind:(LeanplumActionKind)kind
+       withArguments:(NSArray *)args
+NS_SWIFT_NAME(defineAction(name:kind:args:));
+
++ (void)defineAction:(NSString *)name
+              ofKind:(LeanplumActionKind)kind
+       withArguments:(NSArray *)args
          withOptions:(NSDictionary *)options
-       withResponder:(LeanplumActionBlock)responder;
+NS_SWIFT_NAME(defineAction(name:kind:args:options:));
+
++ (void)defineAction:(NSString *)name
+              ofKind:(LeanplumActionKind)kind
+       withArguments:(NSArray *)args
+       withResponder:(nullable LeanplumActionBlock)responder
+NS_SWIFT_NAME(defineAction(name:kind:args:completion:));
+
++ (void)defineAction:(NSString *)name
+              ofKind:(LeanplumActionKind)kind
+       withArguments:(NSArray *)args
+         withOptions:(NSDictionary *)options
+       withResponder:(nullable LeanplumActionBlock)responder
+NS_SWIFT_NAME(defineAction(name:kind:args:options:completion:));
 /**@}*/
+
+/**
+ * Defer message display from specified view controllers.
+ * Defers all actions on those controllers unless specific action names are provided using deferMessagesWithActionNames
+ * @see deferMessagesWithActionNames:
+ * @param controllers The view controller classes not to display messages on
+ */
++ (void)deferMessagesForViewControllers:(NSArray<Class> *)controllers
+NS_SWIFT_NAME(deferMessagesForViewControllers(_:));
+
+/**
+ * Defer only specific actions
+ * @param actionNames The names of the actions to defer
+ */
++ (void)deferMessagesWithActionNames:(NSArray<NSString *> *)actionNames
+NS_SWIFT_NAME(deferMessagesWithActionNames(_:));
 
 /**
  * Block to call when an action is received, such as to show a message to the user.
@@ -486,7 +481,7 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 + (void)handleActionWithIdentifier:(NSString *)identifier
               forLocalNotification:(UILocalNotification *)notification
-                 completionHandler:(void (^)())completionHandler;
+                 completionHandler:(void (^)(LeanplumUIBackgroundFetchResult))completionHandler;
 #pragma clang diagnostic pop
 
 /**
@@ -496,7 +491,7 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 + (void)handleActionWithIdentifier:(NSString *)identifier
              forRemoteNotification:(NSDictionary *)notification
-                 completionHandler:(void (^)())completionHandler;
+                 completionHandler:(void (^)(LeanplumUIBackgroundFetchResult))completionHandler;
 #pragma clang diagnostic pop
 
 /*
@@ -514,12 +509,10 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
  */
 + (void)addStartResponseResponder:(id)responder withSelector:(SEL)selector;
 + (void)addVariablesChangedResponder:(id)responder withSelector:(SEL)selector;
-+ (void)addInterfaceChangedResponder:(id)responder withSelector:(SEL)selector;
 + (void)addVariablesChangedAndNoDownloadsPendingResponder:(id)responder withSelector:(SEL)selector;
 + (void)addResponder:(id)responder withSelector:(SEL)selector forActionNamed:(NSString *)actionName;
 + (void)removeStartResponseResponder:(id)responder withSelector:(SEL)selector;
 + (void)removeVariablesChangedResponder:(id)responder withSelector:(SEL)selector;
-+ (void)removeInterfaceChangedResponder:(id)responder withSelector:(SEL)selector;
 + (void)removeVariablesChangedAndNoDownloadsPendingResponder:(id)responder withSelector:(SEL)selector;
 + (void)removeResponder:(id)responder withSelector:(SEL)selector forActionNamed:(NSString *)actionName;
 /**@}*/
@@ -536,19 +529,22 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
 /**
  * Updates a user ID after session start.
  */
-+ (void)setUserId:(NSString *)userId;
++ (void)setUserId:(NSString *)userId
+NS_SWIFT_NAME(setUserId(_:));
 
 /**
  * Updates a user ID after session start with a dictionary of user attributes.
  */
-+ (void)setUserId:(NSString *)userId withUserAttributes:(NSDictionary *)attributes;
++ (void)setUserId:(NSString *)userId withUserAttributes:(NSDictionary *)attributes
+NS_SWIFT_NAME(setUserId(_:attributes:));
 
 /**
  * Sets the traffic source info for the current user.
  * Keys in info must be one of: publisherId, publisherName, publisherSubPublisher,
  * publisherSubSite, publisherSubCampaign, publisherSubAdGroup, publisherSubAd.
  */
-+ (void)setTrafficSourceInfo:(NSDictionary *)info;
++ (void)setTrafficSourceInfo:(NSDictionary *)info
+NS_SWIFT_NAME(setTrafficSource(info:));
 
 /**
  * @{
@@ -557,7 +553,8 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
  * A state is a section of your app that the user is currently in.
  * @param state The name of the state.
  */
-+ (void)advanceTo:(NSString *)state;
++ (void)advanceTo:(nullable NSString *)state
+NS_SWIFT_NAME(advance(state:));
 
 /**
  * Advances to a particular state in your application. The string can be
@@ -567,7 +564,9 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
  * @param info Anything else you want to log with the state. For example, if the state
  * is watchVideo, info could be the video ID.
  */
-+ (void)advanceTo:(NSString *)state withInfo:(NSString *)info;
++ (void)advanceTo:(nullable NSString *)state
+         withInfo:(nullable NSString *)info
+NS_SWIFT_NAME(advance(state:info:));
 
 /**
  * Advances to a particular state in your application. The string can be
@@ -578,7 +577,9 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
  * @param state The name of the state.
  * @param params A dictionary with custom parameters.
  */
-+ (void)advanceTo:(NSString *)state withParameters:(NSDictionary *)params;
++ (void)advanceTo:(nullable NSString *)state
+   withParameters:(nullable NSDictionary<NSString *, id> *)params
+NS_SWIFT_NAME(advance(state:params:));
 
 /**
  * Advances to a particular state in your application. The string can be
@@ -591,7 +592,10 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
  * is watchVideo, info could be the video ID.
  * @param params A dictionary with custom parameters.
  */
-+ (void)advanceTo:(NSString *)state withInfo:(NSString *)info andParameters:(NSDictionary *)params;
++ (void)advanceTo:(nullable NSString *)state
+         withInfo:(nullable NSString *)info
+    andParameters:(nullable NSDictionary<NSString *, id> *)params
+NS_SWIFT_NAME(advance(state:info:params:));
 
 /**
  * Pauses the current state.
@@ -610,7 +614,8 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
  * You should not use this in conjunction with advanceTo as the user can only be in
  * 1 state at a time. This method requires LeanplumUIEditor module.
  */
-+ (void)trackAllAppScreens;
++ (void)trackAllAppScreens
+NS_SWIFT_NAME(trackAppScreens());
 
 /**
  * LPTrackScreenMode enum.
@@ -619,9 +624,9 @@ typedef void (^LeanplumMessageDisplayedCallbackBlock)(LPMessageArchiveData *mess
  * the end of the state.
  */
 typedef NS_ENUM(NSUInteger, LPTrackScreenMode) {
-    LPTrackScreenModeDefault = 0,
-    LPTrackScreenModeStripViewController
-};
+    LPTrackScreenModeDefault NS_SWIFT_NAME(defaultMode) = 0,
+    LPTrackScreenModeStripViewController NS_SWIFT_NAME(stripMode)
+} NS_SWIFT_NAME(Leanplum.TrackScreenMode);
 
 /**
  * Automatically tracks all of the screens in the app as states.
@@ -629,14 +634,19 @@ typedef NS_ENUM(NSUInteger, LPTrackScreenMode) {
  * 1 state at a time. This method requires LeanplumUIEditor module.
  * @param trackScreenMode Choose mode for display. Default is the view controller type name.
  */
-+ (void)trackAllAppScreensWithMode:(LPTrackScreenMode)trackScreenMode;
++ (void)trackAllAppScreensWithMode:(LPTrackScreenMode)trackScreenMode
+NS_SWIFT_NAME(trackAppScreens(mode:));
 
 /**
  * Manually track purchase event with currency code in your application. It is advised to use
  * trackInAppPurchases to automatically track IAPs.
  */
-+ (void)trackPurchase:(NSString *)event withValue:(double)value
-      andCurrencyCode:(NSString *)currencyCode andParameters:(NSDictionary *)params;
++ (void)trackPurchase:(NSString *)event
+            withValue:(double)value
+      andCurrencyCode:(nullable NSString *)currencyCode
+        andParameters:(nullable NSDictionary<NSString *, id> *)params
+NS_SWIFT_NAME(track(event:value:currencyCode:params:));
+
 
 /**
  * Automatically tracks InApp purchase and does server side receipt validation.
@@ -646,7 +656,8 @@ typedef NS_ENUM(NSUInteger, LPTrackScreenMode) {
 /**
  * Manually tracks InApp purchase and does server side receipt validation.
  */
-+ (void)trackInAppPurchase:(SKPaymentTransaction *)transaction;
++ (void)trackInAppPurchase:(SKPaymentTransaction *)transaction
+NS_SWIFT_NAME(track(transaction:));
 /**@}*/
 
 /**
@@ -656,17 +667,39 @@ typedef NS_ENUM(NSUInteger, LPTrackScreenMode) {
  * To track a purchase, use LP_PURCHASE_EVENT.
  */
 + (void)track:(NSString *)event;
-+ (void)track:(NSString *)event withValue:(double)value;
-+ (void)track:(NSString *)event withInfo:(NSString *)info;
-+ (void)track:(NSString *)event withValue:(double)value andInfo:(NSString *)info;
+
++ (void)track:(NSString *)event
+    withValue:(double)value
+NS_SWIFT_NAME(track(_:value:));
+
++ (void)track:(NSString *)event
+     withInfo:(nullable NSString *)info
+NS_SWIFT_NAME(track(_:info:));
+
++ (void)track:(NSString *)event
+    withValue:(double)value
+      andInfo:(nullable NSString *)info
+NS_SWIFT_NAME(track(_:value:info:));
 
 // See above for the explanation of params.
-+ (void)track:(NSString *)event withParameters:(NSDictionary *)params;
-+ (void)track:(NSString *)event withValue:(double)value andParameters:(NSDictionary *)params;
-+ (void)track:(NSString *)event withValue:(double)value andInfo:(NSString *)info andParameters:(NSDictionary *)params;
++ (void)track:(NSString *)event withParameters:(nullable NSDictionary<NSString *, id> *)params
+NS_SWIFT_NAME(track(_:params:));
+
++ (void)track:(NSString *)event
+    withValue:(double)value
+andParameters:(nullable NSDictionary<NSString *, id> *)params
+NS_SWIFT_NAME(track(_:value:params:));
+
++ (void)track:(NSString *)event
+    withValue:(double)value
+      andInfo:(nullable NSString *)info
+andParameters:(nullable NSDictionary<NSString *, id> *)params
+NS_SWIFT_NAME(track(_:value:info:params:));
 /**@}*/
 
-+ (void)trackGeofence:(LPGeofenceEventType)event withInfo:(NSString *)info;
++ (void)trackGeofence:(LPGeofenceEventType)event
+             withInfo:(nullable NSString *)info
+NS_SWIFT_NAME(track(_:info:));
 
 /**
  * @{
@@ -686,27 +719,28 @@ typedef NS_ENUM(NSUInteger, LPTrackScreenMode) {
 /**
  * Gets a list of content assignments for the current user.
  */
-+ (NSDictionary *)variantDebugInfo;
++ (NSDictionary<NSString *, id> *)variantDebugInfo;
 
 
 /**
  * Gets a list of variants that are currently active for this user.
  * Each variant is a dictionary containing an id.
  */
-+ (NSArray *)variants;
++ (NSArray<NSDictionary<NSString *, id> *> *)variants;
 
 /**
  * Returns metadata for all active in-app messages.
  * Recommended only for debugging purposes and advanced use cases.
  */
-+ (NSDictionary *)messageMetadata;
++ (NSDictionary<NSString *, id> *)messageMetadata;
 
 /**
  * Forces content to update from the server. If variables have changed, the
  * appropriate callbacks will fire. Use sparingly as if the app is updated,
  * you'll have to deal with potentially inconsistent state or user experience.
  */
-+ (void)forceContentUpdate;
++ (void)forceContentUpdate
+NS_SWIFT_UNAVAILABLE("use forceContentUpdate(completion:)");
 
 /**
  * Forces content to update from the server. If variables have changed, the
@@ -715,7 +749,7 @@ typedef NS_ENUM(NSUInteger, LPTrackScreenMode) {
  * The provided callback will always fire regardless
  * of whether the variables have changed.
  */
-+ (void)forceContentUpdate:(LeanplumVariablesChangedBlock)block;
++ (void)forceContentUpdate:(nullable LeanplumVariablesChangedBlock)block;
 
 /**
  * This should be your first statement in a unit test. This prevents
@@ -739,7 +773,7 @@ typedef NS_ENUM(NSUInteger, LPTrackScreenMode) {
 /**
  * Get the push setup block.
  */
-+ (LeanplumPushSetupBlock)pushSetupBlock;
++ (nullable LeanplumPushSetupBlock)pushSetupBlock;
 
 /**
  * Returns YES if the app existed on the device more than a day previous to a version built with
@@ -748,16 +782,21 @@ typedef NS_ENUM(NSUInteger, LPTrackScreenMode) {
 + (BOOL)isPreLeanplumInstall;
 
 /**
+ * Returns the app version used by Leanplum.
+ */
++ (nullable NSString *)appVersion;
+
+/**
  * Returns the deviceId in the current Leanplum session. This should only be called after
  * [Leanplum start].
  */
-+ (NSString *)deviceId;
++ (nullable NSString *)deviceId;
 
 /**
  * Returns the userId in the current Leanplum session. This should only be called after
  * [Leanplum start].
  */
-+ (NSString *)userId;
++ (nullable NSString *)userId;
 
 /**
  * Returns an instance to the singleton LPInbox object.
@@ -765,26 +804,21 @@ typedef NS_ENUM(NSUInteger, LPTrackScreenMode) {
 + (LPInbox *)inbox;
 
 /**
- * Returns an instance to the singleton LPNewsfeed object.
- * Deprecated. Use {@link inbox} instead.
- */
-+ (LPNewsfeed *)newsfeed __attribute__((deprecated("Use inbox instead.")));
-
-/**
  * Types of location accuracy. Higher value implies better accuracy.
  */
-typedef enum {
-    LPLocationAccuracyIP = 0,
-    LPLocationAccuracyCELL = 1,
-    LPLocationAccuracyGPS = 2
-} LPLocationAccuracyType;
+typedef NS_ENUM(NSUInteger, LPLocationAccuracyType) {
+    LPLocationAccuracyIP NS_SWIFT_NAME(ip) = 0,
+    LPLocationAccuracyCELL NS_SWIFT_NAME(cell) = 1,
+    LPLocationAccuracyGPS NS_SWIFT_NAME(gps) = 2
+} NS_SWIFT_NAME(Leanplum.LocationAccuracyType);
 
 /**
  * Set location manually. Calls setDeviceLocationWithLatitude:longitude:type: with cell type.
  * Best if used in after calling setDeviceLocationWithLatitude:.
  */
 + (void)setDeviceLocationWithLatitude:(double)latitude
-                            longitude:(double)longitude;
+                            longitude:(double)longitude
+NS_SWIFT_NAME(setDeviceLocation(latitude:longitude:));
 
 /**
  * Set location manually. Best if used in after calling setDeviceLocationWithLatitude:.
@@ -792,7 +826,8 @@ typedef enum {
  */
 + (void)setDeviceLocationWithLatitude:(double)latitude
                             longitude:(double)longitude
-                                 type:(LPLocationAccuracyType)type;
+                                 type:(LPLocationAccuracyType)type
+NS_SWIFT_NAME(setDeviceLocation(latitude:longitude:type:));
 
 /**
  * Set location manually. Best if used in after calling setDeviceLocationWithLatitude:.
@@ -801,10 +836,11 @@ typedef enum {
  */
 + (void)setDeviceLocationWithLatitude:(double)latitude
                             longitude:(double)longitude
-                                 city:(NSString *)city
-                               region:(NSString *)region
-                              country:(NSString *)country
-                                 type:(LPLocationAccuracyType)type;
+                                 city:(nullable NSString *)city
+                               region:(nullable NSString *)region
+                              country:(nullable NSString *)country
+                                 type:(LPLocationAccuracyType)type
+NS_SWIFT_NAME(setDeviceLocation(latitude:longitude:city:region:country:type:));
 
 /**
  * Disables collecting location automatically. Will do nothing if Leanplum-Location is not used.
@@ -812,3 +848,5 @@ typedef enum {
 + (void)disableLocationCollection;
 
 @end
+
+NS_ASSUME_NONNULL_END

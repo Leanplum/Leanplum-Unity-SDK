@@ -7,28 +7,28 @@
 
 #import "LeanplumInternal.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class LPContextualValues;
 
 @interface LPActionContext ()
 
 + (LPActionContext *)actionContextWithName:(NSString *)name
-                                      args:(NSDictionary *)args
-                                 messageId:(NSString *)messageId;
+                                      args:(nullable NSDictionary *)args
+                                 messageId:(nullable NSString *)messageId;
 
 + (LPActionContext *)actionContextWithName:(NSString *)name
-                                      args:(NSDictionary *)args
-                                 messageId:(NSString *)messageId
-                         originalMessageId:(NSString *)originalMessageId
-                                  priority:(NSNumber *)priority;
+                                      args:(nullable NSDictionary *)args
+                                 messageId:(nullable NSString *)messageId
+                         originalMessageId:(nullable NSString *)originalMessageId
+                                  priority:(nullable NSNumber *)priority;
 
 @property (readonly, strong) NSString *name;
-@property (readonly, strong) NSString *messageId;
 @property (readonly, strong) NSString *originalMessageId;
 @property (readonly, strong) NSNumber *priority;
-@property (readonly, strong) NSDictionary *args;
-@property (readonly, strong) LPActionContext *parentContext;
+@property (readonly, strong, nullable) LPActionContext *parentContext;
 @property (readonly) int contentVersion;
-@property (readonly, strong) NSString *key;
+@property (readonly, strong, nullable) NSString *key;
 @property (assign) BOOL preventRealtimeUpdating;
 @property (nonatomic, assign) BOOL isRooted;
 @property (nonatomic, assign) BOOL isPreview;
@@ -40,3 +40,5 @@
 + (void)sortByPriority:(NSMutableArray *)actionContexts;
 
 @end
+
+NS_ASSUME_NONNULL_END
