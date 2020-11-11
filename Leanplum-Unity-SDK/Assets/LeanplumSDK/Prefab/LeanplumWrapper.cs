@@ -78,20 +78,6 @@ public class LeanplumWrapper : MonoBehaviour
         Leanplum.Inbox.ForceContentUpdate += forceContentUpdate;
 
         Leanplum.Start();
-        
-        var args = new ActionArgs()
-	        .With(Constants.Args.TITLE, "message title")
-	        .With(Constants.Args.MESSAGE, "confirm message")
-	        .With(Constants.Args.ACCEPT_TEXT, "yes")
-	        .With(Constants.Args.CANCEL_TEXT, "no")
-	        .WithAction<string>(Constants.Args.ACCEPT_ACTION, null)
-	        .WithAction<string>(Constants.Args.CANCEL_ACTION, null);
-
-        Leanplum.DefineAction("Confirm", Constants.ActionKind.MESSAGE | Constants.ActionKind.ACTION, args,null, context =>
-        {
-	        Debug.Log("Recieved ActionContext: " + context);
-        });
-
     }
 
     void inboxChanged()
@@ -102,7 +88,6 @@ public class LeanplumWrapper : MonoBehaviour
     void forceContentUpdate(bool success)
     {
         Debug.Log("Inbox forceContentUpdate delegate called: " + success);
-        Leanplum.Track("");
     }
 
 }
