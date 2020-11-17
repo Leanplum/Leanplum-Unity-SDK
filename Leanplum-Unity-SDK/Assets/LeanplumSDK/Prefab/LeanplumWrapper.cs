@@ -20,7 +20,11 @@
 using LeanplumSDK;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class LeanplumWrapper : MonoBehaviour
 {
@@ -29,7 +33,17 @@ public class LeanplumWrapper : MonoBehaviour
     public string DevelopmentKey;
     public string AppVersion;
 
-	void Awake()
+
+    // TODO: Define basic defitions for Alert and Confirm using DisplayDialog
+    // TODO: See if definition for HTML is needed
+    // TODO: Enable includeDefaults: true in Dev Mode
+    // TODO: Add maybePerformActions for Start and Track
+    // TODO: Add models for Message Config and WhenTriggers
+    // TODO: Add Open URL +
+    // TODO: For others add open button to message +
+
+
+    void Awake()
 	{
 		if (Application.isEditor)
 		{
@@ -47,8 +61,10 @@ public class LeanplumWrapper : MonoBehaviour
 			LeanplumFactory.SDK = new LeanplumNative();
             #endif
         }
+
+
     }
-    
+
     void Start()
     {
         DontDestroyOnLoad(this.gameObject);
@@ -77,7 +93,16 @@ public class LeanplumWrapper : MonoBehaviour
         Leanplum.Inbox.InboxChanged += inboxChanged;
         Leanplum.Inbox.ForceContentUpdate += forceContentUpdate;
 
+        DefineCustomConfirm();
+        DefineCustomOpenURL();
+        DefineGenericDefinition();
+
         Leanplum.Start();
+
+        Leanplum.Started += (succes) =>
+        {
+            Leanplum.Track("priority");
+        };
     }
 
     void inboxChanged()
@@ -90,4 +115,77 @@ public class LeanplumWrapper : MonoBehaviour
         Debug.Log("Inbox forceContentUpdate delegate called: " + success);
     }
 
+    void ShowMessage()
+    {
+        Leanplum.ShowMessage("6359747062202368");
+    }
+
+    void DefineCustomConfirm()
+    {
+        ActionArgs actionArgs = new ActionArgs();
+        actionArgs.With<string>("Message", "Confirm message");
+        actionArgs.With<string>("Accept text", "Accept");
+        actionArgs.With<string>("Cancel text", "Cancel");
+
+
+        actionArgs.With<int>("Test", 200);
+
+        actionArgs.WithAction<object>("Accept action", null)
+            .WithAction<object>("Cancel action", null);
+
+        ActionContext.ActionResponder responder = new ActionContext.ActionResponder((context) =>
+        {
+            Debug.Log(context);
+            Debug.Log(context.GetStringNamed("Message"));
+            Debug.Log(context.GetNumberNamed<int>("Test"));
+
+            if (EditorUtility.DisplayDialog("Confirm",
+            context.GetStringNamed("Message"), context.GetStringNamed("Accept text"), context.GetStringNamed("Cancel text")))
+            {
+                Debug.Log("YES");
+                context.RunTrackedActionNamed("Accept action");
+            }
+            else
+            {
+                Debug.Log("NO");
+                context.RunActionNamed("Cancel action");
+            }
+        });
+
+        Leanplum.DefineAction("Confirm", Constants.ActionKind.MESSAGE, actionArgs, null, responder);
+    }
+
+    void DefineCustomOpenURL()
+    {
+        ActionArgs actionArgs = new ActionArgs();
+        actionArgs.With<string>("URL", "https://www.example.com");
+
+        ActionContext.ActionResponder responder = new ActionContext.ActionResponder((context) =>
+        {
+            string url = context.GetStringNamed("URL");
+
+            Application.OpenURL(url);
+        });
+
+        Leanplum.DefineAction("Open URL", Constants.ActionKind.ACTION, actionArgs, null, responder);
+    }
+
+    void DefineGenericDefinition()
+    {
+        ActionArgs args = new ActionArgs()
+            .With<IDictionary<string, object>>("messageConfig", null)
+            .With<IDictionary<string, object>>("messageConfig.vars", null);
+
+        ActionContext.ActionResponder responder = new ActionContext.ActionResponder((context) =>
+        {
+            var messageConfig = context.GetObjectNamed<Dictionary<string, object>>("messageConfig");
+            var messageVars = context.GetObjectNamed<Dictionary<string, object>>("messageConfig.vars");
+            StringBuilder builder = new StringBuilder();
+            LeanplumNative.BuildString("message", messageConfig, builder, 0);
+
+            EditorUtility.DisplayDialog(context.Name, builder.ToString(), null);
+        });
+
+        Leanplum.DefineAction("Generic", Constants.ActionKind.MESSAGE, args, null, responder);
+    }
 }

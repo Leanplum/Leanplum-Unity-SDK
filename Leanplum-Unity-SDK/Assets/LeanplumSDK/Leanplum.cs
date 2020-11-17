@@ -412,6 +412,11 @@ namespace LeanplumSDK
             LeanplumFactory.SDK.DefineAction(name, kind, args, options, responder);
         }
 
+        public static void ShowMessage(string id)
+        { 
+            LeanplumFactory.SDK.ShowMessage(id);
+        }
+
         /// <summary>
         ///     Logs in-app purchase data from Google Play.
         /// </summary>

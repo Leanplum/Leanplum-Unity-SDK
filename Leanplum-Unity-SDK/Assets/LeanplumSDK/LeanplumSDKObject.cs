@@ -356,6 +356,7 @@ namespace LeanplumSDK
         public abstract void DefineAction(string name, Constants.ActionKind kind, ActionArgs args,
             IDictionary<string, object> options, ActionContext.ActionResponder responder);
 
+        public abstract void ShowMessage(string id);
         #endregion
 
         public virtual void NativeCallback(string message) {}
