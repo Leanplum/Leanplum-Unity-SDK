@@ -81,23 +81,23 @@ namespace LeanplumSDK
             }
             else if (t == typeof(double))
             {
-                return (T) (object) nativeHandle.CallStatic<int>("getDoubleNamed", Name, name);
+                return (T) (object) nativeHandle.CallStatic<double>("getDoubleNamed", Name, name);
             }
             else if (t == typeof(float))
             {
-                return (T) (object) nativeHandle.CallStatic<int>("getFloatNamed", Name, name);
+                return (T) (object) nativeHandle.CallStatic<float>("getFloatNamed", Name, name);
             }
             else if (t == typeof(long))
             {
-                return (T) (object) nativeHandle.CallStatic<int>("getLongNamed", Name, name);
+                return (T) (object) nativeHandle.CallStatic<long>("getLongNamed", Name, name);
             }
             else if (t == typeof(short))
             {
-                return (T) (object) nativeHandle.CallStatic<int>("getShortNamed", Name, name);
+                return (T) (object) nativeHandle.CallStatic<short>("getShortNamed", Name, name);
             }
             else if (t == typeof(byte))
             {
-                return (T) (object) nativeHandle.CallStatic<int>("getByteNamed", Name, name);
+                return (T) (object) nativeHandle.CallStatic<byte>("getByteNamed", Name, name);
             }
             return default(T);
         }
