@@ -24,24 +24,31 @@
 
 #import <Foundation/Foundation.h>
 #import "Leanplum.h"
-#import "LPRequesting.h"
 #import "LPNetworkFactory.h"
 
 NS_ASSUME_NONNULL_BEGIN
-@interface LPRequest : NSObject <LPRequesting>
+typedef NS_ENUM(NSUInteger, LPRequestType) {
+    Default = 0,
+    Immediate
+} NS_SWIFT_NAME(Leanplum.RequestType);
 
-@property (nonatomic, strong) NSString *apiMethod;
-@property (nonatomic, strong, nullable) NSDictionary *params;
+@interface LPRequest : NSObject
+
 @property (atomic) BOOL sent;
 @property (nonatomic, copy, nullable) LPNetworkResponseBlock responseBlock;
 @property (nonatomic, copy, nullable) LPNetworkErrorBlock errorBlock;
 @property (nonatomic, strong) NSString *requestId;
+@property (nonatomic, assign) LPRequestType requestType;
+@property (nonatomic, strong, nullable) NSDictionary *datas;
 
 + (LPRequest *)get:(NSString *)apiMethod params:(nullable NSDictionary *)params;
 + (LPRequest *)post:(NSString *)apiMethod params:(nullable NSDictionary *)params;
 
+- (LPRequest *)andRequestType:(LPRequestType)type;
 - (void)onResponse:(nullable LPNetworkResponseBlock)response;
 - (void)onError:(nullable LPNetworkErrorBlock)error;
+
+- (NSMutableDictionary *)createArgsDictionary;
 
 @end
 NS_ASSUME_NONNULL_END

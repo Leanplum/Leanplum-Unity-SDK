@@ -36,20 +36,25 @@ NS_ASSUME_NONNULL_BEGIN
 @class LeanplumSocket;
 @class LPRegisterDevice;
 
+/**
+ * Keys for the plist file name
+ */
+extern NSString *const kAppKeysFileName;
+extern NSString *const kAppKeysFileType;
+
+/**
+ * Keys for the strings in the plist file.
+ */
+extern NSString *const kAppIdKey;
+extern NSString *const kDevKey;
+extern NSString *const kProdKey;
+extern NSString *const kEnvKey;
+
 @interface Leanplum ()
 
 typedef void (^LeanplumStartIssuedBlock)(void);
 typedef void (^LeanplumEventsChangedBlock)(void);
 typedef void (^LeanplumHandledBlock)(BOOL success);
-
-typedef NS_ENUM(NSUInteger, LPLogType) {
-    LPError,
-    LPWarning,
-    LPInfo,
-    LPVerbose,
-    LPInternal,
-    LPDebug
-} NS_SWIFT_NAME(Leanplum.LogType);
 
 + (void)throwError:(NSString *)reason;
 
@@ -57,6 +62,9 @@ typedef NS_ENUM(NSUInteger, LPLogType) {
 
 + (void)pause;
 + (void)resume;
+
++ (BOOL)setAppUsingPlist:(NSDictionary *)appKeysDictionary forEnvironment:(NSString *)env;
++ (NSDictionary *) getDefaultAppKeysPlist;
 
 + (void)track:(nullable NSString *)event
     withValue:(double)value
@@ -95,8 +103,6 @@ NS_SWIFT_NAME(track(event:value:info:args:params:));
 
 + (void)onStartIssued:(LeanplumStartIssuedBlock)block;
 + (void)synchronizeDefaults;
-
-void LPLog(LPLogType type, NSString* format, ...);
 
 @end
 

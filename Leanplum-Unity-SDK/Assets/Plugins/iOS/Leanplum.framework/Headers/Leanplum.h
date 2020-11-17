@@ -36,7 +36,6 @@
 #import "LPResponse.h"
 #import "Leanplum_SocketIO.h"
 #import "LeanplumSocket.h"
-#import "LPRequesting.h"
 #import "LeanplumCompatibility.h"
 #import "LPUIAlert.h"
 #import "LPSwizzle.h"
@@ -66,6 +65,10 @@
 #import "LPEventCallback.h"
 #import "LPNetworkEngine.h"
 #import "LPAES.h"
+#import "LPLogManager.h"
+
+// Prevent circular reference
+@class LPDeferrableAction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -129,27 +132,6 @@ name = [LPVar define:[@#name stringByReplacingOccurrencesOfString:@"_" withStrin
 }
 /**@}*/
 
-/**
- * Use this code in development mode (or in production), to use the advertising ID.
- * It's useful in development mode so that we remember your device even if you reinstall your app.
- * Since it's a MACRO, this won't get compiled into your app in production, and will be safe
- * to submit to Apple.
- */
-#define LEANPLUM_USE_ADVERTISING_ID \
-    _Pragma("clang diagnostic push") \
-    _Pragma("clang diagnostic ignored \"-Warc-performSelector-leaks\"") \
-    id LeanplumIdentifierManager = [NSClassFromString(@"ASIdentifierManager") \
-                            performSelector:NSSelectorFromString(@"sharedManager")]; \
-    if (floor(NSFoundationVersionNumber) <= 1299 /* NSFoundationVersionNumber_iOS_9_x_Max */ || \
-        [LeanplumIdentifierManager performSelector: \
-          NSSelectorFromString(@"isAdvertisingTrackingEnabled")]) { \
-        /* < iOS10 || isAdvertisingTrackingEnabled */ \
-        [Leanplum setDeviceId:[[LeanplumIdentifierManager performSelector: \
-                                NSSelectorFromString(@"advertisingIdentifier")] \
-                               performSelector:NSSelectorFromString(@"UUIDString")]]; \
-    } \
-    _Pragma("clang diagnostic pop")
-
 @class LPActionContext;
 @class SKPaymentTransaction;
 @class NSExtensionContext;
@@ -181,6 +163,16 @@ typedef NS_OPTIONS(NSUInteger, LeanplumActionKind) {
 } NS_SWIFT_NAME(Leanplum.ActionKind);
 
 #define LP_PURCHASE_EVENT @"Purchase"
+
+/**
+ * Leanplum Environment value for development, used in Leanplum-Info.plist
+ */
+extern NSString *const kEnvDevelopment;
+
+/**
+ * Leanplum Environment value for production, used in Leanplum-Info.plist
+ */
+extern NSString *const kEnvProduction;
 
 @interface Leanplum : NSObject
 
@@ -232,6 +224,11 @@ NS_SWIFT_NAME(setApiHostName(_:servletName:ssl:));
 + (void)setVerboseLoggingInDevelopmentMode:(BOOL)enabled;
 
 /**
+* Sets log level through the Leanplum SDK
+*/
++ (void)setLogLevel:(LPLogLevel)level;
+
+/**
  * Sets a custom event name for in-app purchase tracking. Default: Purchase.
  */
 + (void)setInAppPurchaseEventName:(NSString *)event;
@@ -255,6 +252,12 @@ NS_SWIFT_NAME(setAppId(_:developmentKey:));
 + (void)setAppId:(NSString *)appId withProductionKey:(NSString *)accessKey
 NS_SWIFT_NAME(setAppId(_:productionKey:));
 /**@}*/
+
+/**
+ * Sets the corresponding key based on the environment. Call only if initialising using plist.
+ * @param env "development" or "production" - kEnvDevelopment or kEnvProduction
+ */
++ (void)setAppEnvironment:(NSString *)env;
 
 /**
  * Apps running as extensions need to call this before start.
@@ -418,6 +421,22 @@ NS_SWIFT_NAME(defineAction(name:kind:args:options:completion:));
 /**@}*/
 
 /**
+ * Defer message display from specified view controllers.
+ * Defers all actions on those controllers unless specific action names are provided using deferMessagesWithActionNames
+ * @see deferMessagesWithActionNames:
+ * @param controllers The view controller classes not to display messages on
+ */
++ (void)deferMessagesForViewControllers:(NSArray<Class> *)controllers
+NS_SWIFT_NAME(deferMessagesForViewControllers(_:));
+
+/**
+ * Defer only specific actions
+ * @param actionNames The names of the actions to defer
+ */
++ (void)deferMessagesWithActionNames:(NSArray<NSString *> *)actionNames
+NS_SWIFT_NAME(deferMessagesWithActionNames(_:));
+
+/**
  * Block to call when an action is received, such as to show a message to the user.
  */
 + (void)onAction:(NSString *)actionName invoke:(LeanplumActionBlock)block;
@@ -462,7 +481,7 @@ NS_SWIFT_NAME(defineAction(name:kind:args:options:completion:));
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 + (void)handleActionWithIdentifier:(NSString *)identifier
               forLocalNotification:(UILocalNotification *)notification
-                 completionHandler:(void (^)())completionHandler;
+                 completionHandler:(void (^)(LeanplumUIBackgroundFetchResult))completionHandler;
 #pragma clang diagnostic pop
 
 /**
@@ -472,7 +491,7 @@ NS_SWIFT_NAME(defineAction(name:kind:args:options:completion:));
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 + (void)handleActionWithIdentifier:(NSString *)identifier
              forRemoteNotification:(NSDictionary *)notification
-                 completionHandler:(void (^)())completionHandler;
+                 completionHandler:(void (^)(LeanplumUIBackgroundFetchResult))completionHandler;
 #pragma clang diagnostic pop
 
 /*
@@ -761,6 +780,11 @@ NS_SWIFT_UNAVAILABLE("use forceContentUpdate(completion:)");
  * Leanplum was installed.
  */
 + (BOOL)isPreLeanplumInstall;
+
+/**
+ * Returns the app version used by Leanplum.
+ */
++ (nullable NSString *)appVersion;
 
 /**
  * Returns the deviceId in the current Leanplum session. This should only be called after

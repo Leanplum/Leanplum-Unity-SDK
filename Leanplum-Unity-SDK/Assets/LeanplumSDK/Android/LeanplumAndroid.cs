@@ -63,7 +63,7 @@ namespace LeanplumSDK
         public override event Leanplum.StartHandler Started;
 
         private Dictionary<int, Action> ForceContentUpdateCallbackDictionary = new Dictionary<int, Action>();
-        private Dictionary<string, Action> ActionRespondersDictionary = new Dictionary<string, Action>();
+        private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
 
         static private int DictionaryKey = 0;
         private string gameObjectName;
@@ -303,7 +303,7 @@ namespace LeanplumSDK
             NativeSDK.CallStatic("start", userId, Json.Serialize(attributes));
         }
 
-        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action responder)
+        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
             if (name == null)
             {
@@ -311,7 +311,7 @@ namespace LeanplumSDK
             }
             if (responder != null)
             {
-                ActionRespondersDictionary.Add("ActionResponder:" + name, responder);
+                ActionRespondersDictionary.Add(name, responder);
             }
 
             string argString = args == null ? null : args.ToJSON();
@@ -441,15 +441,22 @@ namespace LeanplumSDK
 
         public override void NativeCallback(string message)
         {
-            if (message.StartsWith("VariablesChanged:"))
+            const string VARIABLES_CHANGED = "VariablesChanged:";
+            const string VARIABLES_CHANGED_NO_DOWNLOAD_PENDING = "VariablesChangedAndNoDownloadsPending:";
+            const string STARTED = "Started:";
+            const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
+            const string FORCE_CONTENT_UPDATE_WITH_CALLBACK = "ForceContentUpdateWithCallback:";
+            const string ACTION_RESPONDER = "ActionResponder:";
+
+            if (message.StartsWith(VARIABLES_CHANGED))
             {
                 VariablesChanged?.Invoke();
             }
-            else if (message.StartsWith("VariablesChangedAndNoDownloadsPending:"))
+            else if (message.StartsWith(VARIABLES_CHANGED_NO_DOWNLOAD_PENDING))
             {
                 VariablesChangedAndNoDownloadsPending?.Invoke();
             }
-            else if (message.StartsWith("Started:"))
+            else if (message.StartsWith(STARTED))
             {
                 if (Started != null)
                 {
@@ -457,15 +464,15 @@ namespace LeanplumSDK
                     Started(success);
                 }
             }
-            else if (message.StartsWith("VariableValueChanged:"))
+            else if (message.StartsWith(VARIABLE_VALUE_CHANGED))
             {
                 // Drop the beginning of the message to get the name of the variable
                 // Then dispatch to the correct variable
                 LeanplumAndroid.VariableValueChanged(message.Substring(21));
             }
-            else if (message.StartsWith("ForceContentUpdateWithCallback:"))
+            else if (message.StartsWith(FORCE_CONTENT_UPDATE_WITH_CALLBACK))
             {
-                int key = Convert.ToInt32(message.Substring(31));
+                int key = Convert.ToInt32(message.Substring(FORCE_CONTENT_UPDATE_WITH_CALLBACK.Length));
                 Action callback;
                 if (ForceContentUpdateCallbackDictionary.TryGetValue(key, out callback))
                 {
@@ -473,12 +480,15 @@ namespace LeanplumSDK
                     ForceContentUpdateCallbackDictionary.Remove(key);
                 }
             }
-            else if (message.StartsWith("ActionResponder:"))
+            else if (message.StartsWith(ACTION_RESPONDER))
             {
-                Action callback;
-                if (ActionRespondersDictionary.TryGetValue(message, out callback))
+                var actionName = message.Substring(ACTION_RESPONDER.Length);
+
+                ActionContext.ActionResponder callback;
+                if (ActionRespondersDictionary.TryGetValue(actionName, out callback))
                 {
-                    callback();
+                    var context = new ActionContextAndroid(actionName);
+                    callback(context);
                 }
             }
 

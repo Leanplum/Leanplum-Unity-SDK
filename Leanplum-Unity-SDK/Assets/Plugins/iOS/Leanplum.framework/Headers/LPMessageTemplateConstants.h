@@ -80,10 +80,12 @@
 #define LPMT_ICON_FILE_PREFIX @"__iOSAppIcon-"
 #define LPMT_ICON_PRIMARY_NAME @"PrimaryIcon"
 
+#define LPMT_APP_STORE_SCHEMA @"itms-apps"
+
 #define LPMT_DEFAULT_CENTER_POPUP_WIDTH 300
 #define LPMT_DEFAULT_CENTER_POPUP_HEIGHT 250
 
 #define LIGHT_GRAY (246.0/255.0)
 
-#define LOG_LP_MESSAGE_EXCEPTION NSLog(@"Leanplum: Error in message template %@: %@\n%@", \
+#define LOG_LP_MESSAGE_EXCEPTION LPLog(LPError, @"Error in message template %@: %@\n%@", \
 context.actionName, exception, [exception callStackSymbols])

@@ -288,6 +288,7 @@ public class UnityBridge {
     Leanplum.defineAction(name, kind, actionArgs, new ActionCallback() {
       @Override
       public boolean onResponse(ActionContext context) {
+        UnityActionContextBridge.actionContexts.put(name, context);
         makeCallbackToUnity("ActionResponder:" + name);
         return true;
       }

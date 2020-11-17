@@ -611,7 +611,7 @@ namespace LeanplumSDK
             req.SendIfConnected();
         }
 
-        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, Action responder)
+        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
 
         }
