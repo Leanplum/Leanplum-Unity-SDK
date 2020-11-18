@@ -114,16 +114,10 @@ namespace LeanplumSDK
             if (action != null)
             {
                 var actionName = action["__name__"];
-                if (actionName != null)
+                if (!string.IsNullOrEmpty(actionName?.ToString()))
                 {
                     Dictionary<string, object> actions = action.ToDictionary(kv => kv.Key.ToString(),
                                                          kv => kv.Value);
-
-                    //var actions = new Dictionary<string, object>();
-                    //foreach (var key in action.Keys)
-                    //{
-                    //    actions.Add(key.ToString(), action[key]);
-                    //}
 
                     NativeActionContext actionContext = new NativeActionContext(null, actionName.ToString(), actions);
                     LeanplumActionManager.TriggerAction(actionContext, actions);
