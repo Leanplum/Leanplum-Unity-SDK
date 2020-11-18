@@ -230,6 +230,21 @@ namespace LeanplumSDK
             Constants.isNoop = testModeEnabled;
         }
 
+        private static bool _includeDefaults;
+
+        /// <summary>
+        ///     Sets whether the API should return default ("defaults in code") values
+        ///     or only the overridden ones.
+        ///     Used only in Development mode. Always false in production.
+        /// </summary>
+        /// <param name="includeDefaults"> The value for includeDefaults param. </param>
+        public override void SetIncludeDefaultsInDevelopmentMode(bool includeDefaults)
+        {
+            _includeDefaults = includeDefaults;
+        }
+
+        public override bool GetIncludeDefaults() => _includeDefaults;
+
         /// <summary>
         ///     Sets whether realtime updates to the client are enabled in development mode.
         ///     This uses websockets which can have high CPU impact. Default: true.
@@ -505,7 +520,14 @@ namespace LeanplumSDK
 
             // Setup parameters.
             var parameters = new Dictionary<string, string>();
-            parameters[Constants.Params.INCLUDE_DEFAULTS] = false.ToString();
+            if (IsDeveloperModeEnabled())
+            {
+                parameters[Constants.Params.INCLUDE_DEFAULTS] = _includeDefaults.ToString();
+            }
+            else
+            {
+                parameters[Constants.Params.INCLUDE_DEFAULTS] = false.ToString();
+            }
             parameters[Constants.Params.VERSION_NAME] = CompatibilityLayer.VersionName ?? "";
             parameters[Constants.Params.DEVICE_NAME] = CompatibilityLayer.GetDeviceName();
             parameters[Constants.Params.DEVICE_MODEL] = CompatibilityLayer.GetDeviceModel();

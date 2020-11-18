@@ -407,6 +407,15 @@ namespace LeanplumSDK
         internal static void CheckVarsUpdate(Action callback)
         {
             IDictionary<string, string> updateVarsParams = new Dictionary<string, string>();
+
+            if (Leanplum.IsDeveloperModeEnabled)
+            {
+                updateVarsParams[Constants.Params.INCLUDE_DEFAULTS] = Leanplum.IncludeDefaults.ToString();
+            }
+            else
+            {
+                updateVarsParams[Constants.Params.INCLUDE_DEFAULTS] = false.ToString();
+            }
             updateVarsParams[Constants.Params.INCLUDE_DEFAULTS] = false.ToString();
 
             LeanplumRequest updateVarsReq = LeanplumRequest.Post(Constants.Methods.GET_VARS, updateVarsParams);

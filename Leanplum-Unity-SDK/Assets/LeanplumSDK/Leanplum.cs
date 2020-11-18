@@ -81,6 +81,18 @@ namespace LeanplumSDK
             }
         }
 
+
+        /// <summary>
+        ///     Gets the includeDefaults param value.
+        /// </summary>
+        public static bool IncludeDefaults
+        {
+            get
+            {
+                return LeanplumFactory.SDK.GetIncludeDefaults();
+            }
+        }
+
         /// <summary>
         ///     Optional. Sets the API server. The API path is of the form
         ///     http[s]://hostname/servletName
@@ -171,6 +183,17 @@ namespace LeanplumSDK
         public static void SetTestMode(bool testModeEnabled)
         {
             LeanplumFactory.SDK.SetTestMode(testModeEnabled);
+        }
+
+        /// <summary>
+        ///     Sets whether the API should return default ("defaults in code") values
+        ///     or only the overridden ones.
+        ///     Used only in Development mode. Always false in production.
+        /// </summary>
+        /// <param name="includeDefaults"> The value for includeDefaults param. </param>
+        public static void SetIncludeDefaultsInDevelopmentMode(bool includeDefaults)
+        {
+            LeanplumFactory.SDK.SetIncludeDefaultsInDevelopmentMode(includeDefaults);
         }
 
         /// <summary>
