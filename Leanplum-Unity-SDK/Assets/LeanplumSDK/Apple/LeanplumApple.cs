@@ -201,6 +201,14 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        ///     Gets the includeDefaults param value.
+        /// </summary>
+        public override bool GetIncludeDefaults()
+        {
+            return false;
+        }
+
+        /// <summary>
         ///     Optional. Sets the API server. The API path is of the form
         ///     http[s]://hostname/servletName
         /// </summary>
@@ -221,7 +229,7 @@ namespace LeanplumSDK
         /// <param name="port"> The port to connect to. </param>
         public override void SetSocketConnectionSettings(string hostName, int port)
         {
-            // Not supported by IOS SDK
+            // Not supported by iOS SDK
         }
 
         /// <summary>
@@ -302,6 +310,17 @@ namespace LeanplumSDK
         public override void SetTestMode(bool testModeEnabled)
         {
             _setTestModeEnabled(testModeEnabled);
+        }
+
+        /// <summary>
+        ///     Sets whether the API should return default ("defaults in code") values
+        ///     or only the overridden ones.
+        ///     Used only in Development mode. Always false in production.
+        /// </summary>
+        /// <param name="includeDefaults"> The value for includeDefaults param. </param>
+        public override void SetIncludeDefaultsInDevelopmentMode(bool includeDefaults)
+        {
+            // Not supported by iOS SDK.
         }
 
         /// <summary>
@@ -414,6 +433,11 @@ namespace LeanplumSDK
             string optionString = options == null ? null : Json.Serialize(options);
 
             _defineAction(name, (int) kind, argString, optionString);
+        }
+
+        public override void ShowMessage(string id)
+        {
+            // Not supported by iOS SDK.
         }
 
         /// <summary>

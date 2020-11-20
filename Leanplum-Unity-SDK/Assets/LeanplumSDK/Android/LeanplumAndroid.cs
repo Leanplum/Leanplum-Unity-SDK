@@ -74,7 +74,7 @@ namespace LeanplumSDK
             nativeSdk = new AndroidJavaClass("com.leanplum.UnityBridge");
         }
 
-        #region Accessors and Mutators
+#region Accessors and Mutators
         /// <summary>
         ///     Gets a value indicating whether Leanplum has finished starting.
         /// </summary>
@@ -102,6 +102,14 @@ namespace LeanplumSDK
         public override bool IsDeveloperModeEnabled()
         {
             return NativeSDK.CallStatic<bool>("isDeveloperModeEnabled");
+        }
+
+        /// <summary>
+        ///     Gets the includeDefaults param value.
+        /// </summary>
+        public override bool GetIncludeDefaults()
+        {
+            return false;
         }
 
         /// <summary>
@@ -204,6 +212,17 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        ///     Sets whether the API should return default ("defaults in code") values
+        ///     or only the overridden ones.
+        ///     Used only in Development mode. Always false in production.
+        /// </summary>
+        /// <param name="includeDefaults"> The value for includeDefaults param. </param>
+        public override void SetIncludeDefaultsInDevelopmentMode(bool includeDefaults)
+        {
+            // The Android SDK does not support this.
+        }
+
+        /// <summary>
         ///     Sets whether realtime updates to the client are enabled in development mode.
         ///     This uses websockets which can have high CPU impact. Default: true.
         /// </summary>
@@ -282,9 +301,9 @@ namespace LeanplumSDK
         {
             NativeSDK.CallStatic("disableLocationCollection");
         }
-        #endregion
+#endregion
 
-        #region API Calls
+#region API Calls
 
         /// <summary>
         ///     Call this when your application starts.
@@ -319,6 +338,11 @@ namespace LeanplumSDK
             int kindInt = (int)kind;
 
             NativeSDK.CallStatic("defineAction", name, kindInt, argString, optionString);
+        }
+
+        public override void ShowMessage(string id)
+        {
+            // The Android SDK does not support this.
         }
 
         /// <summary>
@@ -437,7 +461,7 @@ namespace LeanplumSDK
             NativeSDK.CallStatic("forceContentUpdateWithCallback", key);
         }
 
-        #endregion
+#endregion
 
         public override void NativeCallback(string message)
         {
@@ -498,7 +522,7 @@ namespace LeanplumSDK
             }
         }
 
-        #region Dealing with Variables
+#region Dealing with Variables
 
         protected static IDictionary<string, Var> AndroidVarCache = new Dictionary<string, Var>();
 
@@ -609,7 +633,7 @@ namespace LeanplumSDK
             }
         }
 
-        #endregion
+#endregion
 
     }
 }
