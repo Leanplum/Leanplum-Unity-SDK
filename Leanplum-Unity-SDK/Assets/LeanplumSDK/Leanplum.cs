@@ -115,6 +115,11 @@ namespace LeanplumSDK
             LeanplumFactory.SDK.SetNetworkTimeout(seconds, downloadSeconds);
         }
 
+        public static void SetEventsUploadInterval(EventsUploadInterval uploadInterval)
+        {
+            LeanplumFactory.SDK.SetEventsUploadInterval(uploadInterval);
+        }
+
         /// <summary>
         ///     Must call either this or SetAppIdForProductionMode
         ///     before issuing any calls to the API, including start.

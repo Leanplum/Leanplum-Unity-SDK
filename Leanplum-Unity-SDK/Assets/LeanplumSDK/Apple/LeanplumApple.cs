@@ -161,7 +161,7 @@ namespace LeanplumSDK
 
         static private int DictionaryKey = 0;
 
-        #region Accessors and Mutators
+#region Accessors and Mutators
 
         public override void RegisterForIOSRemoteNotifications()
         {
@@ -232,6 +232,11 @@ namespace LeanplumSDK
         public override void SetNetworkTimeout(int seconds, int downloadSeconds)
         {
             _setNetworkTimeout(seconds, downloadSeconds);
+        }
+
+        public override void SetEventsUploadInterval(EventsUploadInterval uploadInterval)
+        {
+            
         }
 
         /// <summary>
@@ -381,9 +386,9 @@ namespace LeanplumSDK
         {
           _disableLocationCollection();
         }
-        #endregion
+#endregion
 
-        #region API Calls
+#region API Calls
 
         /// <summary>
         ///     Call this when your application starts.
@@ -544,7 +549,7 @@ namespace LeanplumSDK
             _forceContentUpdateWithCallback(key);
         }
 
-        #endregion
+#endregion
 
         public override void NativeCallback(string message)
         {
@@ -605,7 +610,7 @@ namespace LeanplumSDK
             }
         }
 
-        #region Dealing with Variables
+#region Dealing with Variables
 
         [DllImport ("__Internal")]
         internal static extern void _defineVariable(string name, string kind, string jsonValue);
@@ -777,7 +782,7 @@ namespace LeanplumSDK
             }
         }
 
-        #endregion
+#endregion
     }
 }
 

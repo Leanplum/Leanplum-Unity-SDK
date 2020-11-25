@@ -74,7 +74,7 @@ namespace LeanplumSDK
             nativeSdk = new AndroidJavaClass("com.leanplum.UnityBridge");
         }
 
-        #region Accessors and Mutators
+#region Accessors and Mutators
         /// <summary>
         ///     Gets a value indicating whether Leanplum has finished starting.
         /// </summary>
@@ -136,6 +136,11 @@ namespace LeanplumSDK
         public override void SetNetworkTimeout(int seconds, int downloadSeconds)
         {
             NativeSDK.CallStatic("setNetworkTimeout", seconds, downloadSeconds);
+        }
+
+        public override void SetEventsUploadInterval(EventsUploadInterval uploadInterval)
+        {
+            NativeSDK.CallStatic("setEventsUploadInterval", (int)uploadInterval);
         }
 
         /// <summary>
@@ -282,9 +287,9 @@ namespace LeanplumSDK
         {
             NativeSDK.CallStatic("disableLocationCollection");
         }
-        #endregion
+#endregion
 
-        #region API Calls
+#region API Calls
 
         /// <summary>
         ///     Call this when your application starts.
@@ -437,7 +442,7 @@ namespace LeanplumSDK
             NativeSDK.CallStatic("forceContentUpdateWithCallback", key);
         }
 
-        #endregion
+#endregion
 
         public override void NativeCallback(string message)
         {
@@ -498,7 +503,7 @@ namespace LeanplumSDK
             }
         }
 
-        #region Dealing with Variables
+#region Dealing with Variables
 
         protected static IDictionary<string, Var> AndroidVarCache = new Dictionary<string, Var>();
 
@@ -609,7 +614,7 @@ namespace LeanplumSDK
             }
         }
 
-        #endregion
+#endregion
 
     }
 }

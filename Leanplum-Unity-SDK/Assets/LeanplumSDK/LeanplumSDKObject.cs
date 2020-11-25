@@ -82,6 +82,8 @@ namespace LeanplumSDK
         /// <param name="downloadSeconds"> Timeout in seconds for downloads. </param>
         public abstract void SetNetworkTimeout (int seconds, int downloadSeconds);
 
+        public abstract void SetEventsUploadInterval(EventsUploadInterval uploadInterval);
+
         /// <summary>
         ///     Must call either this or SetAppIdForProductionMode
         ///     before issuing any calls to the API, including start.
