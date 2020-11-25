@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2014, Leanplum, Inc.
+// Copyright 2020, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -23,8 +23,6 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.UI;
 
 public class LeanplumWrapper : MonoBehaviour
 {
@@ -33,14 +31,9 @@ public class LeanplumWrapper : MonoBehaviour
     public string DevelopmentKey;
     public string AppVersion;
 
-
     // TODO: Define basic defitions for Alert and Confirm using DisplayDialog
-    // TODO: See if definition for HTML is needed
-    // TODO: Enable includeDefaults: true in Dev Mode
-    // TODO: Add maybePerformActions for Start and Track
     // TODO: Add models for Message Config and WhenTriggers
-    // TODO: Add Open URL +
-    // TODO: For others add open button to message +
+    // TODO: Add code example how to get a file
 
 
     void Awake()
@@ -79,7 +72,7 @@ public class LeanplumWrapper : MonoBehaviour
         {
             Debug.LogError("Please make sure to enter your AppID, Production Key, and " +
                            "Development Key in the Leanplum GameObject inspector before starting.");
-        }
+        }   
 
         if (Debug.isDebugBuild)
         {
@@ -93,13 +86,15 @@ public class LeanplumWrapper : MonoBehaviour
         Leanplum.Inbox.InboxChanged += inboxChanged;
         Leanplum.Inbox.ForceContentUpdate += forceContentUpdate;
 
+#if UNITY_EDITOR
         DefineCustomConfirm();
         DefineCustomOpenURL();
         DefineGenericDefinition();
+#endif
 
         Leanplum.Start();
 
-        Leanplum.Started += (succes) =>
+        Leanplum.Started += (success) =>
         {
             Leanplum.Track("priority");
         };
@@ -120,6 +115,7 @@ public class LeanplumWrapper : MonoBehaviour
         Leanplum.ShowMessage("6359747062202368");
     }
 
+#if UNITY_EDITOR
     void DefineCustomConfirm()
     {
         ActionArgs actionArgs = new ActionArgs();
@@ -163,8 +159,10 @@ public class LeanplumWrapper : MonoBehaviour
         ActionContext.ActionResponder responder = new ActionContext.ActionResponder((context) =>
         {
             string url = context.GetStringNamed("URL");
-
-            Application.OpenURL(url);
+            if (!string.IsNullOrEmpty(url))
+            {
+                Application.OpenURL(url);
+            }
         });
 
         Leanplum.DefineAction("Open URL", Constants.ActionKind.ACTION, actionArgs, null, responder);
@@ -181,11 +179,55 @@ public class LeanplumWrapper : MonoBehaviour
             var messageConfig = context.GetObjectNamed<Dictionary<string, object>>("messageConfig");
             var messageVars = context.GetObjectNamed<Dictionary<string, object>>("messageConfig.vars");
             StringBuilder builder = new StringBuilder();
-            LeanplumNative.BuildString("message", messageConfig, builder, 0);
+            NativeActionContext nativeContext = context as NativeActionContext;
+            if (nativeContext != null && !string.IsNullOrEmpty(nativeContext.Id))
+            {
+                builder.AppendLine($"Message Id: {nativeContext.Id}");
+            }
+            BuildString("message",
+                messageConfig, builder, 0);
 
             EditorUtility.DisplayDialog(context.Name, builder.ToString(), null);
         });
 
         Leanplum.DefineAction("Generic", Constants.ActionKind.MESSAGE, args, null, responder);
     }
+
+    static void BuildString(string key, object var, StringBuilder builder, int level)
+    {
+        if (var == null)
+        {
+            return;
+        }
+
+        if (var is IDictionary)
+        {
+            builder.AppendLine($"{new string(' ', level * 4)}{key}:");
+            var varDict = var as IDictionary<string, object>;
+            foreach (string keyDict in varDict.Keys)
+            {
+                BuildString(keyDict, varDict[keyDict], builder, ++level);
+                level--;
+            }
+        }
+        else if (var is IList)
+        {
+            builder.AppendLine($"{new string(' ', level * 4)}{key}:");
+            var varList = var as IList<object>;
+            for (int i = 0; i < varList.Count; i++)
+            {
+                BuildString($"[{i}]", varList[i], builder, ++level);
+                level--;
+            }
+        }
+        else
+        {
+            if (var is string)
+            {
+                var = $"\"{var}\"";
+            }
+            builder.AppendLine($"{new string(' ', level * 4)}{key}: {var}");
+        }
+    }
+#endif
 }

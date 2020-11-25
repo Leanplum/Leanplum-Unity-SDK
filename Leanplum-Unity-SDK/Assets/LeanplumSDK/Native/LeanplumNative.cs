@@ -1,5 +1,5 @@
 //
-// Copyright 2013, Leanplum, Inc.
+// Copyright 2020, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -665,43 +665,6 @@ namespace LeanplumSDK
             else
             {
                 CompatibilityLayer.LogError($"Message not found. Message Id: {id}");
-            }
-        }
-
-        public static void BuildString(string key, object var, StringBuilder builder, int level)
-        {
-            if (var == null)
-            {
-                return;
-            }
-
-            if (var is IDictionary)
-            {
-                builder.AppendLine($"{new String(' ', level * 4)}{key}:");
-                var varDict = var as IDictionary<string, object>;
-                foreach (string keyDict in varDict.Keys)
-                {
-                    BuildString(keyDict, varDict[keyDict], builder, ++level);
-                    level--;
-                }
-            }
-            else if (var is IList)
-            {
-                builder.AppendLine($"{new String(' ', level * 4)}{key}:");
-                var varList = var as IList<object>;
-                for (int i = 0; i < varList.Count; i++)
-                {
-                    BuildString($"[{i}]", varList[i], builder, ++level);
-                    level--;
-                }
-            }
-            else
-            {
-                if (var is string)
-                {
-                    var = $"\"{var}\"";
-                }
-                builder.AppendLine($"{key}{var} : {new String(' ', level * 4)}");
             }
         }
 
