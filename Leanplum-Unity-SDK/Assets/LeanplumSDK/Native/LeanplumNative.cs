@@ -160,6 +160,12 @@ namespace LeanplumSDK
             Constants.NETWORK_TIMEOUT_SECONDS_FOR_DOWNLOADS = downloadSeconds;
         }
 
+        /// <summary>
+        ///     Sets the time interval between uploading events to server.
+        ///     Default is <see cref="EventsUploadInterval.AtMost15Minutes"/>.
+        ///     Not supported on Unity.
+        /// </summary>
+        /// <param name="uploadInterval"> The time between uploads. </param>
         public override void SetEventsUploadInterval(EventsUploadInterval uploadInterval)
         {
 

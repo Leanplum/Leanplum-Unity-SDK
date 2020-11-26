@@ -1,14 +1,24 @@
 ﻿namespace LeanplumSDK
 {
+    /// <summary>
+    ///     Represents time interval to periodically upload events to server.
+    ///     Possible values are 5, 10, or 15 minutes.
+    /// </summary>
     public enum EventsUploadInterval
     {
-        // 5 minutes interval
+        /// <summary>
+        ///     5 minutes interval
+        /// </summary>
         AtMost5Minutes = 5,
 
-        // 10 minutes interval
+        /// <summary>
+        ///     10 minutes interval
+        /// </summary>
         AtMost10Minutes = 10,
 
-        // 15 minutes interval
-        AtMost15Minutes = 15,
+        /// <summary>
+        ///     15 minutes interval
+        /// </summary>
+        AtMost15Minutes = 15
     }
 }

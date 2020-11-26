@@ -82,6 +82,11 @@ namespace LeanplumSDK
         /// <param name="downloadSeconds"> Timeout in seconds for downloads. </param>
         public abstract void SetNetworkTimeout (int seconds, int downloadSeconds);
 
+        /// <summary>
+        ///     Sets the time interval between uploading events to server.
+        ///     Default is <see cref="EventsUploadInterval.AtMost15Minutes"/>.
+        /// </summary>
+        /// <param name="uploadInterval"> The time between uploads. </param>
         public abstract void SetEventsUploadInterval(EventsUploadInterval uploadInterval);
 
         /// <summary>

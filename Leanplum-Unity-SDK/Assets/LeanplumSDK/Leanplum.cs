@@ -115,6 +115,11 @@ namespace LeanplumSDK
             LeanplumFactory.SDK.SetNetworkTimeout(seconds, downloadSeconds);
         }
 
+        /// <summary>
+        ///     Sets the time interval between uploading events to server.
+        ///     Default is <see cref="EventsUploadInterval.AtMost15Minutes"/>.
+        /// </summary>
+        /// <param name="uploadInterval"> The time between uploads. </param>
         public static void SetEventsUploadInterval(EventsUploadInterval uploadInterval)
         {
             LeanplumFactory.SDK.SetEventsUploadInterval(uploadInterval);
