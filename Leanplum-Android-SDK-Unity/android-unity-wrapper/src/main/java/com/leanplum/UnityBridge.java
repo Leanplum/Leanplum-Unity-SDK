@@ -102,6 +102,20 @@ public class UnityBridge {
     Leanplum.setNetworkTimeout(seconds, downloadSeconds);
   }
 
+  public static void setEventsUploadInterval(int uploadInterval) {
+    EventsUploadInterval interval = null;
+    for (EventsUploadInterval i : EventsUploadInterval.values()) {
+      if (i.getMinutes() == uploadInterval) {
+        interval = i;
+        break;
+      }
+    }
+    
+    if (interval != null) {
+      Leanplum.setEventsUploadInterval(interval);
+    }
+  }
+
   public static void setAppIdForDevelopmentMode(String appId, String accessKey) {
     isDeveloper = true;
     Leanplum.setAppIdForDevelopmentMode(appId, accessKey);

@@ -139,6 +139,16 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        ///     Sets the time interval between uploading events to server.
+        ///     Default is <see cref="EventsUploadInterval.AtMost15Minutes"/>.
+        /// </summary>
+        /// <param name="uploadInterval"> The time between uploads. </param>
+        public override void SetEventsUploadInterval(EventsUploadInterval uploadInterval)
+        {
+            NativeSDK.CallStatic("setEventsUploadInterval", (int)uploadInterval);
+        }
+
+        /// <summary>
         ///     Must call either this or SetAppIdForProductionMode
         ///     before issuing any calls to the API, including start.
         /// </summary>

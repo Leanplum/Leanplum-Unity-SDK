@@ -234,6 +234,11 @@ namespace LeanplumSDK
             _setNetworkTimeout(seconds, downloadSeconds);
         }
 
+        public override void SetEventsUploadInterval(EventsUploadInterval uploadInterval)
+        {
+            
+        }
+
         /// <summary>
         ///     Must call either this or SetAppIdForProductionMode
         ///     before issuing any calls to the API, including start.
