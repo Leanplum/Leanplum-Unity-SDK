@@ -625,7 +625,7 @@ namespace LeanplumSDK
                 OnStarted(true);
                 CompatibilityLayer.Init();
 
-                LeanplumActionManager.MaybePerformActions(new string[] { "start", "resume" });
+                LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
             };
             req.Error += delegate
             {
@@ -635,23 +635,34 @@ namespace LeanplumSDK
                 OnStarted(false);
                 CompatibilityLayer.Init();
 
-                LeanplumActionManager.MaybePerformActions(new string[] { "start", "resume" });
+                LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
             };
             req.SendIfConnected();
         }
 
         public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                CompatibilityLayer.LogError($"Empty name parameter.");
+                return;
+            }
+            if (args == null)
+            {
+                CompatibilityLayer.LogError($"Args cannot be null.");
+                return;
+            }
+
             var ad = new ActionDefinition();
             ad.Name = name;
             ad.Kind = kind;
             ad.Args = args;
-            //ad.Responder += new ActionContext.ActionResponder((context) =>
-            //{
-            //    context.TrackMessageEvent("View", 0, null, null);
-            //});
-            ad.Responder += responder;
             ad.Options = options;
+            if (responder != null)
+            {
+                ad.Responder += responder;
+            }
+
             VarCache.RegisterActionDefinition(ad);
         }
 
@@ -776,7 +787,7 @@ namespace LeanplumSDK
             }
             LeanplumRequest.Post(Constants.Methods.TRACK, requestParams).Send();
 
-            LeanplumActionManager.MaybePerformActions(new string[] { "event" }, eventName);
+            LeanplumActionManager.MaybePerformActions(ActionTrigger.Event, eventName);
         }
 
         /// <summary>
@@ -830,6 +841,8 @@ namespace LeanplumSDK
                 requestParams[Constants.Params.PARAMS] = Json.Serialize(parameters);
             }
             LeanplumRequest.Post(Constants.Methods.ADVANCE, requestParams).Send();
+
+            LeanplumActionManager.MaybePerformActions(ActionTrigger.State, state);
         }
 
         /// <summary>

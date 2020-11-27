@@ -10,35 +10,37 @@ namespace LeanplumSDK
         {
         }
 
-        internal static void MaybePerformActions(string[] whenConditions, string eventName = null)
+        internal static void MaybePerformActions(ActionTrigger actionTrigger, string eventName = null)
         {
-            var condition = VarCache.Messages.Select<KeyValuePair<string, object>, WhenCondition>(WhenCondition.FromKV)
+            var condition = VarCache.Messages.Select<KeyValuePair<string, object>, WhenTrigger>(WhenTrigger.FromKV)
                 .OrderBy(w => w.Priority)
-                .FirstOrDefault(w => w.WhenTriggers.Any(x => whenConditions.Contains(x.Subject) && x.Noun == eventName));
+                .FirstOrDefault(w => w.Conditions.Any(x => actionTrigger.Value.Contains(x.Subject) && x.Noun == eventName));
 
             if (condition != null)
             {
-                var msg = VarCache.Messages[condition.Id] as IDictionary<string, object>;
+                var msg = Util.GetValueOrDefault(VarCache.Messages, condition.Id) as IDictionary<string, object>;
                 TriggerAction(condition.Id, msg);
             }
         }
 
         internal static void TriggerAction(string id, IDictionary<string, object> message)
         {
-            string actionName = message["action"].ToString();
-            IDictionary<string, object> vars = (IDictionary<string, object>)message["vars"];
-            var actionContext = new NativeActionContext(id, actionName, vars);
-
-            TriggerAction(actionContext, message);
+            string actionName = Util.GetValueOrDefault(message, Constants.Args.ACTION) as string;
+            IDictionary<string, object> vars = Util.GetValueOrDefault(message, Constants.Args.VARS) as IDictionary<string, object>;
+            if (!string.IsNullOrEmpty(actionName) && vars != null)
+            {
+                NativeActionContext actionContext = new NativeActionContext(id, actionName, vars);
+                TriggerAction(actionContext, message);
+            }
         }
 
         internal static void TriggerAction(NativeActionContext context, IDictionary<string, object> messageConfig)
         {
             ActionDefinition actionDefinition;
 
-            if (!VarCache.unityActionDefinitions.TryGetValue(context.Name, out actionDefinition))
+            if (!VarCache.actionDefinitions.TryGetValue(context.Name, out actionDefinition))
             {
-                if (VarCache.unityActionDefinitions.TryGetValue("Generic", out actionDefinition))
+                if (VarCache.actionDefinitions.TryGetValue("Generic", out actionDefinition))
                 {
                     IDictionary<string, object> args = new Dictionary<string, object>();
                     args.Add("messageConfig", messageConfig);
@@ -57,7 +59,7 @@ namespace LeanplumSDK
             }
         }
 
-        internal class WhenCondition
+        internal class WhenTrigger
         {
 
             //"whenTriggers": {
@@ -87,22 +89,23 @@ namespace LeanplumSDK
 
             public int Priority { get; set; }
             public string Id { get; set; }
-            public List<Condition> WhenTriggers { get; set; }
+            public List<Condition> Conditions { get; set; }
 
-            public WhenCondition()
+            public WhenTrigger()
             {
-                WhenTriggers = new List<Condition>();
+                Conditions = new List<Condition>();
             }
 
-            public static Func<KeyValuePair<string, object>, WhenCondition> FromKV
+            public static Func<KeyValuePair<string, object>, WhenTrigger> FromKV
                 => (x) =>
                 {
-                    WhenCondition whenCon = new WhenCondition();
+                    WhenTrigger whenCon = new WhenTrigger();
                     whenCon.Id = x.Key;
                     var message = x.Value as IDictionary<string, object>;
                     if (message != null)
                     {
-                        whenCon.Priority = int.Parse(message["priority"].ToString());
+                        string priority = Util.GetValueOrDefault(message, "priority", "1000") as string;
+                        whenCon.Priority = int.Parse(priority);
                         var whenTriggers = Util.GetValueOrDefault(message, "whenTriggers") as IDictionary<string, object>;
                         if (whenTriggers != null)
                         {
@@ -114,7 +117,7 @@ namespace LeanplumSDK
                                     var childDict = child as IDictionary<string, object>;
                                     childDict.TryGetValue("subject", out object subject);
                                     childDict.TryGetValue("noun", out object noun);
-                                    whenCon.WhenTriggers.Add(new Condition()
+                                    whenCon.Conditions.Add(new Condition()
                                     {
                                         Subject = subject?.ToString(),
                                         Noun = noun?.ToString(),
@@ -128,10 +131,23 @@ namespace LeanplumSDK
 
         }
 
-        public class Condition
+        internal class Condition
         {
             public string Subject { get; set; }
             public string Noun { get; set; }
         }
+    }
+
+    internal struct ActionTrigger
+    {
+        private ActionTrigger(string[] value) { Value = value; }
+
+        internal string[] Value { get; set; }
+
+        public static ActionTrigger StartOrResume { get { return new ActionTrigger(new string[] { "start", "resume" }); } }
+        public static ActionTrigger Resume { get { return new ActionTrigger(new string[] { "resume" }); } }
+        public static ActionTrigger Event { get { return new ActionTrigger(new string[] { "event" }); } }
+        public static ActionTrigger State { get { return new ActionTrigger(new string[] { "state" }); } }
+        public static ActionTrigger UserAttribute { get { return new ActionTrigger(new string[] { "userAttribute" }); } }
     }
 }

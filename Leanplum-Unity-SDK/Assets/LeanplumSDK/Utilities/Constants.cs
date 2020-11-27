@@ -105,6 +105,7 @@ namespace LeanplumSDK
             internal const string URL = "url";
             internal const string VARIANTS = "variants";
             internal const string VARS = "vars";
+            internal const string MESSAGES = "messages";
             internal const string SYNC_INBOX = "syncNewsfeed";
             internal const string INBOX_MESSAGES = "newsfeedMessages";
             internal const string MESSAGE_DATA = "messageData";
@@ -133,6 +134,9 @@ namespace LeanplumSDK
 
         public class Args
         {
+            public const string ACTION = "action";
+            public const string VARS = "vars";
+            public const string MESSAGE_ID = "messageId";
             public const string URL = "URL";
             public const string TITLE = "Title";
             public const string MESSAGE = "Message";
