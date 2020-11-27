@@ -45,47 +45,27 @@ namespace LeanplumSDK
         {
             var value = Traverse(name);
 
-            if (value != null)
+            if (value != null && Util.IsNumber(value))
             {
                 Type t = typeof(T);
-
-                Type[] argTypes = { typeof(string), t.MakeByRefType() };
-                var tryParse = t.GetMethod("TryParse", argTypes);
-                if (tryParse != null)
+                try
                 {
-                    object[] parameters = new object[] { value.ToString(), null };
-                    object result = tryParse.Invoke(null, parameters);
-                    bool blResult = (bool)result;
-                    if (blResult)
+                    Type[] argTypes = { typeof(string), t.MakeByRefType() };
+                    var tryParse = t.GetMethod("TryParse", argTypes);
+                    if (tryParse != null)
                     {
-                        return (T)parameters[1];
+                        object[] parameters = new object[] { value.ToString(), null };
+                        object result = tryParse.Invoke(null, parameters);
+                        bool blResult = (bool)result;
+                        if (blResult)
+                        {
+                            return (T)parameters[1];
+                        }
                     }
                 }
-
-
-                if (t == typeof(int))
+                catch (Exception ex)
                 {
-                    return (T)(object)int.Parse(value.ToString());
-                }
-                else if (t == typeof(double))
-                {
-                    return (T)(object)value;
-                }
-                else if (t == typeof(float))
-                {
-                    
-                }
-                else if (t == typeof(long))
-                {
-                    
-                }
-                else if (t == typeof(short))
-                {
-                    
-                }
-                else if (t == typeof(byte))
-                {
-                    
+                    LeanplumNative.CompatibilityLayer.LogError($"Failed to parse number: {value}, with name: {name}. Exception: {ex.Message}");
                 }
             }
 
@@ -142,7 +122,7 @@ namespace LeanplumSDK
             {
                 var args = new Dictionary<string, string>
                 {
-                    { "messageId", id }
+                    { Constants.Args.MESSAGE_ID, id }
                 };
                 (LeanplumFactory.SDK as LeanplumNative).Track(eventName, value, info, param, args);
             }

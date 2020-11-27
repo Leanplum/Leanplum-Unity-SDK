@@ -35,7 +35,7 @@ namespace LeanplumSDK
         private static readonly IDictionary<string, object> valuesFromClient = new Dictionary<string, object>();
         private static readonly IDictionary<string, string> defaultKinds = new Dictionary<string, string>();
 
-        public static IDictionary<string, ActionDefinition> unityActionDefinitions = new Dictionary<string, ActionDefinition>();
+        public static IDictionary<string, ActionDefinition> actionDefinitions = new Dictionary<string, ActionDefinition>();
         private static IDictionary<string, object> messages = new Dictionary<string, object>();
 
         private static IDictionary<string, object> diffs = new Dictionary<string, object>();
@@ -79,15 +79,8 @@ namespace LeanplumSDK
 
         public static void RegisterActionDefinition(ActionDefinition actionDefinition)
         {
-            //Dictionary<string, object> definitionDictionary = new Dictionary<string, object>();
-            //definitionDictionary.Add("name", actionDefinition.Name);
-            //definitionDictionary.Add("options", actionDefinition.Options);
-            //definitionDictionary.Add("kind", actionDefinition.Kind);
-            //definitionDictionary.Add("args", actionDefinition.Args.ToDictionary());
-
             actionDefinition.Vars = actionDefinition.Args.ToDictionary();
-            
-            unityActionDefinitions[actionDefinition.Name] = actionDefinition;
+            actionDefinitions[actionDefinition.Name] = actionDefinition;
         }
 
         internal static object Traverse(object collection, object key, bool autoInsert)
@@ -373,7 +366,7 @@ namespace LeanplumSDK
 
         internal static void MergeMessages(IDictionary<string, object> messages)
         {
-            if (unityActionDefinitions.Count > 0)
+            if (actionDefinitions.Count > 0)
             {
                 for (int i = 0; i < messages.Count; i++)
                 {
@@ -381,16 +374,16 @@ namespace LeanplumSDK
                     var values = message.Value as Dictionary<string, object>;
                     if (values != null)
                     {
-                        var name = Util.GetValueOrDefault(values, "action") as string;
-                        if (!string.IsNullOrEmpty(name) && unityActionDefinitions.Keys.Contains(name))
+                        var name = Util.GetValueOrDefault(values, Constants.Args.ACTION) as string;
+                        if (!string.IsNullOrEmpty(name) && actionDefinitions.Keys.Contains(name))
                         {
-                            var messageConfig = Util.GetValueOrDefault(values, "vars") as Dictionary<string, object>;
+                            var messageConfig = Util.GetValueOrDefault(values, Constants.Args.VARS) as Dictionary<string, object>;
                             if (messageConfig != null)
                             {
-                                var mergedVars = MergeHelper(unityActionDefinitions[name].Vars, messageConfig);
+                                var mergedVars = MergeHelper(actionDefinitions[name].Vars, messageConfig);
                                 var mergedVarsDict = mergedVars as Dictionary<object, object>;
                                 var newVars = mergedVarsDict.ToDictionary(item => item.Key.ToString(), item => item.Value);
-                                values["vars"] = newVars;
+                                values[Constants.Args.VARS] = newVars;
                                 messages[message.Key] = values;
                             }
                         }
@@ -423,7 +416,7 @@ namespace LeanplumSDK
             {
                 var getVariablesResponse = Util.GetLastResponse(varsUpdate) as IDictionary<string, object>;
                 var newVarValues = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARS) as IDictionary<string, object>;
-                var newMessages = Util.GetValueOrDefault(getVariablesResponse, "messages") as IDictionary<string, object>;
+                var newMessages = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.MESSAGES) as IDictionary<string, object>;
                 var newVarFileAttributes = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object>;
                 var newVariants = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARIANTS) as List<object> ?? new List<object>();
 				
