@@ -127,5 +127,29 @@ namespace LeanplumSDK
                 (LeanplumFactory.SDK as LeanplumNative).Track(eventName, value, info, param, args);
             }
         }
+
+        public static string GetFileURL(string fileName)
+        {
+            //"fileAttributes": {
+            //    "myImage.jpg": {
+            //        "": {
+            //            "size": 89447,
+            //            "hash": null,
+            //            "servingUrl": "http://lh3.googleusercontent.com/aBc345dE...",
+            //            "url": "/resource/aBc345dE..."
+            //        }
+            //    },
+            IDictionary<string, object> file = Util.GetValueOrDefault(VarCache.FileAttributes, fileName) as IDictionary<string, object>;
+            if (file != null)
+            {
+                IDictionary<string, object> fileAttributes = Util.GetValueOrDefault(file, string.Empty) as IDictionary<string, object>;
+                if (fileAttributes != null)
+                {
+                    return Util.GetValueOrDefault(fileAttributes, "servingUrl") as string;
+                }
+            }
+
+            return null;
+        }
     }
 }
