@@ -666,6 +666,15 @@ namespace LeanplumSDK
             VarCache.RegisterActionDefinition(ad);
         }
 
+        /// <summary>
+        ///     Whether In-app Messages and Actions should be triggered and executed.
+        /// </summary>
+        /// <param name="value"> Perform Actions value. </param>
+        public static void ShouldPerformActions(bool value)
+        {
+            LeanplumActionManager.ShouldPerformActions = value;
+        }
+
         public override void ShowMessage(string id)
         {
             var messageConfig = Util.GetValueOrDefault(VarCache.Messages, id) as IDictionary<string, object>;

@@ -6,12 +6,17 @@ namespace LeanplumSDK
 {
     public class LeanplumActionManager
     {
+        internal static bool ShouldPerformActions { get; set; }
+
         internal LeanplumActionManager()
         {
         }
 
         internal static void MaybePerformActions(ActionTrigger actionTrigger, string eventName = null)
         {
+            if (!ShouldPerformActions)
+                return;
+
             var condition = VarCache.Messages.Select<KeyValuePair<string, object>, WhenTrigger>(WhenTrigger.FromKV)
                 .OrderBy(w => w.Priority)
                 .FirstOrDefault(w => w.Conditions.Any(x => actionTrigger.Value.Contains(x.Subject) && x.Noun == eventName));
@@ -25,6 +30,9 @@ namespace LeanplumSDK
 
         internal static void TriggerAction(string id, IDictionary<string, object> message)
         {
+            if (!ShouldPerformActions)
+                return;
+
             string actionName = Util.GetValueOrDefault(message, Constants.Args.ACTION) as string;
             IDictionary<string, object> vars = Util.GetValueOrDefault(message, Constants.Args.VARS) as IDictionary<string, object>;
             if (!string.IsNullOrEmpty(actionName) && vars != null)
@@ -36,15 +44,18 @@ namespace LeanplumSDK
 
         internal static void TriggerAction(NativeActionContext context, IDictionary<string, object> messageConfig)
         {
+            if (!ShouldPerformActions)
+                return;
+
             ActionDefinition actionDefinition;
 
             if (!VarCache.actionDefinitions.TryGetValue(context.Name, out actionDefinition))
             {
-                if (VarCache.actionDefinitions.TryGetValue("Generic", out actionDefinition))
+                if (VarCache.actionDefinitions.TryGetValue(EditorMessageTemplates.GENERIC_DEFINITION_NAME, out actionDefinition))
                 {
                     IDictionary<string, object> args = new Dictionary<string, object>();
                     args.Add("messageConfig", messageConfig);
-                    var genericActionContext = new NativeActionContext(context.Id, "Generic", args);
+                    var genericActionContext = new NativeActionContext(context.Id, EditorMessageTemplates.GENERIC_DEFINITION_NAME, args);
                     context = genericActionContext;
                 }
             }
@@ -104,8 +115,8 @@ namespace LeanplumSDK
                     var message = x.Value as IDictionary<string, object>;
                     if (message != null)
                     {
-                        string priority = Util.GetValueOrDefault(message, "priority", "1000") as string;
-                        whenCon.Priority = int.Parse(priority);
+                        object priority = Util.GetValueOrDefault(message, "priority", "1000");
+                        whenCon.Priority = int.Parse(priority.ToString());
                         var whenTriggers = Util.GetValueOrDefault(message, "whenTriggers") as IDictionary<string, object>;
                         if (whenTriggers != null)
                         {
