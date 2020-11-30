@@ -265,7 +265,7 @@ namespace LeanplumSDK
             string fileAttributesCipher =
                 LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.FILE_ATTRIBUTES_KEY, "{}");
 
-            string messagesCipher = LeanplumNative.CompatibilityLayer.GetSavedString("__leanplum_messages", "{}");
+            string messagesCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.MESSAGES_KEY, "{}");
 
             string userIdCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.USERID_KEY);
             if (!String.IsNullOrEmpty(userIdCipher))
@@ -298,7 +298,7 @@ namespace LeanplumSDK
             string fileAttributeCipher = Json.Serialize(fileAttributes);
 
             string messagesCipher = Json.Serialize(Messages);
-            LeanplumNative.CompatibilityLayer.StoreSavedString("__leanplum_messages",
+            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.MESSAGES_KEY,
     AESCrypt.Encrypt(messagesCipher, LeanplumRequest.Token));
 
             LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.VARIABLES_KEY,
