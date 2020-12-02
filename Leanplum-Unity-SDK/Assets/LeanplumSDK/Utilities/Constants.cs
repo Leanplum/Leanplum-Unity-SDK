@@ -65,6 +65,7 @@ namespace LeanplumSDK
             internal const string START_KEY = "__leanplum_unsynced_start";
             internal const string ITEM_KEY = "__leanplum_unsynced_{0}";
             internal const string VARIABLES_KEY = "__leanplum_variables";
+            internal const string MESSAGES_KEY = "__leanplum_messages";
             internal const string FILE_ATTRIBUTES_KEY = "__leanplum_file_attributes";
             internal const string TOKEN_KEY = "__leanplum_token";
             internal const string USERID_KEY = "___leanplum_userid";
@@ -105,6 +106,7 @@ namespace LeanplumSDK
             internal const string URL = "url";
             internal const string VARIANTS = "variants";
             internal const string VARS = "vars";
+            internal const string MESSAGES = "messages";
             internal const string SYNC_INBOX = "syncNewsfeed";
             internal const string INBOX_MESSAGES = "newsfeedMessages";
             internal const string MESSAGE_DATA = "messageData";
@@ -133,6 +135,9 @@ namespace LeanplumSDK
 
         public class Args
         {
+            public const string ACTION = "action";
+            public const string VARS = "vars";
+            public const string MESSAGE_ID = "messageId";
             public const string URL = "URL";
             public const string TITLE = "Title";
             public const string MESSAGE = "Message";

@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2014, Leanplum, Inc.
+// Copyright 2020, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -18,8 +18,6 @@
 //  specific language governing permissions and limitations
 //  under the License.
 using LeanplumSDK;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class LeanplumWrapper : MonoBehaviour
@@ -29,7 +27,7 @@ public class LeanplumWrapper : MonoBehaviour
     public string DevelopmentKey;
     public string AppVersion;
 
-	void Awake()
+    void Awake()
 	{
 		if (Application.isEditor)
 		{
@@ -48,7 +46,7 @@ public class LeanplumWrapper : MonoBehaviour
             #endif
         }
     }
-    
+
     void Start()
     {
         DontDestroyOnLoad(this.gameObject);
@@ -63,7 +61,7 @@ public class LeanplumWrapper : MonoBehaviour
         {
             Debug.LogError("Please make sure to enter your AppID, Production Key, and " +
                            "Development Key in the Leanplum GameObject inspector before starting.");
-        }
+        }   
 
         if (Debug.isDebugBuild)
         {
@@ -77,6 +75,13 @@ public class LeanplumWrapper : MonoBehaviour
         Leanplum.Inbox.InboxChanged += inboxChanged;
         Leanplum.Inbox.ForceContentUpdate += forceContentUpdate;
 
+#if UNITY_EDITOR
+        EditorMessageTemplates.DefineConfirm();
+        EditorMessageTemplates.DefineOpenURL();
+        EditorMessageTemplates.DefineGenericDefinition();
+        LeanplumNative.ShouldPerformActions(true);
+#endif
+
         Leanplum.Start();
     }
 
@@ -89,5 +94,4 @@ public class LeanplumWrapper : MonoBehaviour
     {
         Debug.Log("Inbox forceContentUpdate delegate called: " + success);
     }
-
 }

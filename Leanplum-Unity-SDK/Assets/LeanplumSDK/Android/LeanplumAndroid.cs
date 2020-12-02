@@ -105,6 +105,14 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        ///     Gets the includeDefaults param value.
+        /// </summary>
+        public override bool GetIncludeDefaults()
+        {
+            return false;
+        }
+
+        /// <summary>
         ///     Optional. Sets the API server.
         ///     The API path is of the form http[s]://hostname/servletName
         /// </summary>
@@ -211,6 +219,17 @@ namespace LeanplumSDK
         public override void SetTestMode(bool testModeEnabled)
         {
             NativeSDK.CallStatic("setTestModeEnabled", testModeEnabled);
+        }
+
+        /// <summary>
+        ///     Sets whether the API should return default ("defaults in code") values
+        ///     or only the overridden ones.
+        ///     Used only in Development mode. Always false in production.
+        /// </summary>
+        /// <param name="includeDefaults"> The value for includeDefaults param. </param>
+        public override void SetIncludeDefaultsInDevelopmentMode(bool includeDefaults)
+        {
+            // The Android SDK does not support this.
         }
 
         /// <summary>
@@ -329,6 +348,11 @@ namespace LeanplumSDK
             int kindInt = (int)kind;
 
             NativeSDK.CallStatic("defineAction", name, kindInt, argString, optionString);
+        }
+
+        public override void ShowMessage(string id)
+        {
+            // The Android SDK does not support this.
         }
 
         /// <summary>

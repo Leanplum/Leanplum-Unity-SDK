@@ -1,5 +1,5 @@
 //
-// Copyright 2013, Leanplum, Inc.
+// Copyright 2020, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -21,6 +21,7 @@ using LeanplumSDK.MiniJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace LeanplumSDK
@@ -72,17 +73,17 @@ namespace LeanplumSDK
 
         private static string LocationAccuracyTypeToString(LPLocationAccuracyType type)
         {
-	        switch (type)
-	        {
-		        case LPLocationAccuracyType.LPLocationAccuracyIP:
-			        return "IP";
-		        case LPLocationAccuracyType.LPLocationAccuracyGPS:
-			        return "GPS";
-		        case LPLocationAccuracyType.LPLocationAccuracyCELL:
-			        return "CELL";
-		        default:
-			        throw new NotImplementedException(string.Format("LPLocationAccuracyType {0} is not implemented yet", type));
-	        }
+            switch (type)
+            {
+                case LPLocationAccuracyType.LPLocationAccuracyIP:
+                    return "IP";
+                case LPLocationAccuracyType.LPLocationAccuracyGPS:
+                    return "GPS";
+                case LPLocationAccuracyType.LPLocationAccuracyCELL:
+                    return "CELL";
+                default:
+                    throw new NotImplementedException(string.Format("LPLocationAccuracyType {0} is not implemented yet", type));
+            }
         }
         #endregion
 
@@ -240,6 +241,21 @@ namespace LeanplumSDK
             Constants.isNoop = testModeEnabled;
         }
 
+        private static bool _includeDefaults;
+
+        /// <summary>
+        ///     Sets whether the API should return default ("defaults in code") values
+        ///     or only the overridden ones.
+        ///     Used only in Development mode. Always false in production.
+        /// </summary>
+        /// <param name="includeDefaults"> The value for includeDefaults param. </param>
+        public override void SetIncludeDefaultsInDevelopmentMode(bool includeDefaults)
+        {
+            _includeDefaults = includeDefaults;
+        }
+
+        public override bool GetIncludeDefaults() => _includeDefaults;
+
         /// <summary>
         ///     Sets whether realtime updates to the client are enabled in development mode.
         ///     This uses websockets which can have high CPU impact. Default: true.
@@ -277,9 +293,9 @@ namespace LeanplumSDK
         /// <param name="longitude"> Device location longitude. </param>
         public override void SetDeviceLocation(double latitude, double longitude)
         {
-	        var parameters = new Dictionary<string, string>();
-	        parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
-	        LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
+            var parameters = new Dictionary<string, string>();
+            parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
+            LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
         }
 
         /// <summary>
@@ -289,12 +305,12 @@ namespace LeanplumSDK
         /// <param name="latitude"> Device location latitude. </param>
         /// <param name="longitude"> Device location longitude. </param>
         /// <param name="type"> Location accuracy type. </param>
-        public override void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type) 
+        public override void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type)
         {
-	        var parameters = new Dictionary<string, string>();
-	        parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
-	        parameters[Constants.Keys.LOCATION_ACCURACY_TYPE] = LocationAccuracyTypeToString(type);
-	        LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
+            var parameters = new Dictionary<string, string>();
+            parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
+            parameters[Constants.Keys.LOCATION_ACCURACY_TYPE] = LocationAccuracyTypeToString(type);
+            LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
         }
 
         /// <summary>
@@ -309,20 +325,21 @@ namespace LeanplumSDK
         /// <param name="type"> Location accuracy type. </param>
         public override void SetDeviceLocation(double latitude, double longitude, string city, string region, string country, LPLocationAccuracyType type)
         {
-	        var parameters = new Dictionary<string, string>();
-	        parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
-	        parameters[Constants.Keys.LOCATION_ACCURACY_TYPE] = LocationAccuracyTypeToString(type);
-	        parameters[Constants.Keys.COUNTRY] = city;
-	        parameters[Constants.Keys.REGION] = region;
-	        parameters[Constants.Keys.CITY] = country;
-	        LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
+            var parameters = new Dictionary<string, string>();
+            parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
+            parameters[Constants.Keys.LOCATION_ACCURACY_TYPE] = LocationAccuracyTypeToString(type);
+            parameters[Constants.Keys.COUNTRY] = city;
+            parameters[Constants.Keys.REGION] = region;
+            parameters[Constants.Keys.CITY] = country;
+            LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
         }
 
         /// <summary>
         ///    Disables collecting location automatically. Will do nothing if Leanplum-Location is 
         ///    not used. Not supported on Native.
         /// </summary>
-        public override void DisableLocationCollection() {
+        public override void DisableLocationCollection()
+        {
             // Not implemented.
         }
         #endregion
@@ -514,7 +531,14 @@ namespace LeanplumSDK
 
             // Setup parameters.
             var parameters = new Dictionary<string, string>();
-            parameters[Constants.Params.INCLUDE_DEFAULTS] = false.ToString();
+            if (IsDeveloperModeEnabled())
+            {
+                parameters[Constants.Params.INCLUDE_DEFAULTS] = _includeDefaults.ToString();
+            }
+            else
+            {
+                parameters[Constants.Params.INCLUDE_DEFAULTS] = false.ToString();
+            }
             parameters[Constants.Params.VERSION_NAME] = CompatibilityLayer.VersionName ?? "";
             parameters[Constants.Params.DEVICE_NAME] = CompatibilityLayer.GetDeviceName();
             parameters[Constants.Params.DEVICE_MODEL] = CompatibilityLayer.GetDeviceModel();
@@ -546,16 +570,17 @@ namespace LeanplumSDK
 
             // Issue start API call.
             LeanplumRequest req = LeanplumRequest.Post(Constants.Methods.START, parameters);
-            req.Response += delegate(object responsesObject)
+            req.Response += delegate (object responsesObject)
             {
                 IDictionary<string, object> response = Util.GetLastResponse(responsesObject) as IDictionary<string, object>;
+                IDictionary<string, object> messages = Util.GetValueOrDefault(response, "messages") as IDictionary<string, object> ?? new Dictionary<string, object>();
                 IDictionary<string, object> values = Util.GetValueOrDefault(response, Constants.Keys.VARS) as IDictionary<string, object> ?? new Dictionary<string, object>();
                 IDictionary<string, object> fileAttributes = Util.GetValueOrDefault(response, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object> ?? new Dictionary<string, object>();
                 List<object> variants = Util.GetValueOrDefault(response, Constants.Keys.VARIANTS) as List<object> ?? new List<object>();
 
-                bool isRegistered = (bool) Util.GetValueOrDefault(response, Constants.Keys.IS_REGISTERED, false);
-                bool syncInbox = (bool) Util.GetValueOrDefault(response, Constants.Keys.SYNC_INBOX, false);
-                
+                bool isRegistered = (bool)Util.GetValueOrDefault(response, Constants.Keys.IS_REGISTERED, false);
+                bool syncInbox = (bool)Util.GetValueOrDefault(response, Constants.Keys.SYNC_INBOX, false);
+
                 LeanplumRequest.Token = Util.GetValueOrDefault(response, Constants.Keys.TOKEN) as
                     string ?? "";
 
@@ -605,11 +630,13 @@ namespace LeanplumSDK
                     }
                 }
 
-                VarCache.ApplyVariableDiffs(values, fileAttributes, variants);
+                VarCache.ApplyVariableDiffs(values, messages, fileAttributes, variants);
                 _hasStarted = true;
                 startSuccessful = true;
                 OnStarted(true);
                 CompatibilityLayer.Init();
+
+                LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
             };
             req.Error += delegate
             {
@@ -618,13 +645,58 @@ namespace LeanplumSDK
                 startSuccessful = false;
                 OnStarted(false);
                 CompatibilityLayer.Init();
+
+                LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
             };
             req.SendIfConnected();
         }
 
         public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                CompatibilityLayer.LogError($"Empty name parameter.");
+                return;
+            }
+            if (args == null)
+            {
+                CompatibilityLayer.LogError($"Args cannot be null.");
+                return;
+            }
 
+            var ad = new ActionDefinition();
+            ad.Name = name;
+            ad.Kind = kind;
+            ad.Args = args;
+            ad.Options = options;
+            if (responder != null)
+            {
+                ad.Responder += responder;
+            }
+
+            VarCache.RegisterActionDefinition(ad);
+        }
+
+        /// <summary>
+        ///     Whether In-app Messages and Actions should be triggered and executed.
+        /// </summary>
+        /// <param name="value"> Perform Actions value. </param>
+        public static void ShouldPerformActions(bool value)
+        {
+            LeanplumActionManager.ShouldPerformActions = value;
+        }
+
+        public override void ShowMessage(string id)
+        {
+            var messageConfig = Util.GetValueOrDefault(VarCache.Messages, id) as IDictionary<string, object>;
+            if (messageConfig != null)
+            {
+                LeanplumActionManager.TriggerAction(id, messageConfig);
+            }
+            else
+            {
+                CompatibilityLayer.LogError($"Message not found. Message Id: {id}");
+            }
         }
 
         [Obsolete("TrackGooglePlayPurchase is obsolete. Please use TrackPurchase.")]
@@ -720,7 +792,7 @@ namespace LeanplumSDK
             requestParams[Constants.Params.VALUE] = value.ToString();
             if (info != null)
             {
-                requestParams [Constants.Params.INFO] = info;
+                requestParams[Constants.Params.INFO] = info;
             }
             if (parameters != null)
             {
@@ -734,6 +806,8 @@ namespace LeanplumSDK
                 }
             }
             LeanplumRequest.Post(Constants.Methods.TRACK, requestParams).Send();
+
+            LeanplumActionManager.MaybePerformActions(ActionTrigger.Event, eventName);
         }
 
         /// <summary>
@@ -787,6 +861,8 @@ namespace LeanplumSDK
                 requestParams[Constants.Params.PARAMS] = Json.Serialize(parameters);
             }
             LeanplumRequest.Post(Constants.Methods.ADVANCE, requestParams).Send();
+
+            LeanplumActionManager.MaybePerformActions(ActionTrigger.State, state);
         }
 
         /// <summary>
@@ -903,7 +979,7 @@ namespace LeanplumSDK
         /// </summary>
         public override void ForceContentUpdate()
         {
-            ForceContentUpdate (null);
+            ForceContentUpdate(null);
         }
 
         /// <summary>
@@ -916,7 +992,7 @@ namespace LeanplumSDK
         ///
         public override void ForceContentUpdate(Action callback)
         {
-            VarCache.CheckVarsUpdate (callback);
+            VarCache.CheckVarsUpdate(callback);
         }
 
         #endregion
@@ -1079,7 +1155,7 @@ namespace LeanplumSDK
 
         private static NativeVar<U> DefineHelper<U>(string name, string kind, U defaultValue)
         {
-            NativeVar<U> existing = (NativeVar<U>) VarCache.GetVariable<U>(name);
+            NativeVar<U> existing = (NativeVar<U>)VarCache.GetVariable<U>(name);
             if (existing != null)
             {
                 existing.ClearValueChangedCallbacks();
@@ -1106,18 +1182,18 @@ namespace LeanplumSDK
             if (container is IDictionary)
             {
                 copied = new Dictionary<object, object>();
-                foreach (object key in ((IDictionary) container).Keys)
+                foreach (object key in ((IDictionary)container).Keys)
                 {
-                    ((IDictionary) copied)
-                        .Add(key, DeepCopyContainer(((IDictionary) container)[key]));
+                    ((IDictionary)copied)
+                        .Add(key, DeepCopyContainer(((IDictionary)container)[key]));
                 }
             }
             else if (container is IList)
             {
                 copied = new List<object>();
-                foreach (object value in (IList) container)
+                foreach (object value in (IList)container)
                 {
-                    ((IList) copied).Add(DeepCopyContainer(value));
+                    ((IList)copied).Add(DeepCopyContainer(value));
                 }
             }
             else

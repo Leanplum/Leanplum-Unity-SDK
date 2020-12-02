@@ -81,6 +81,18 @@ namespace LeanplumSDK
             }
         }
 
+
+        /// <summary>
+        ///     Gets the includeDefaults param value.
+        /// </summary>
+        public static bool IncludeDefaults
+        {
+            get
+            {
+                return LeanplumFactory.SDK.GetIncludeDefaults();
+            }
+        }
+
         /// <summary>
         ///     Optional. Sets the API server. The API path is of the form
         ///     http[s]://hostname/servletName
@@ -181,6 +193,17 @@ namespace LeanplumSDK
         public static void SetTestMode(bool testModeEnabled)
         {
             LeanplumFactory.SDK.SetTestMode(testModeEnabled);
+        }
+
+        /// <summary>
+        ///     Sets whether the API should return default ("defaults in code") values
+        ///     or only the overridden ones.
+        ///     Used only in Development mode. Always false in production.
+        /// </summary>
+        /// <param name="includeDefaults"> The value for includeDefaults param. </param>
+        public static void SetIncludeDefaultsInDevelopmentMode(bool includeDefaults)
+        {
+            LeanplumFactory.SDK.SetIncludeDefaultsInDevelopmentMode(includeDefaults);
         }
 
         /// <summary>
@@ -420,6 +443,16 @@ namespace LeanplumSDK
         public static void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
             LeanplumFactory.SDK.DefineAction(name, kind, args, options, responder);
+        }
+
+        /// <summary>
+        ///     Manually Trigger an In-App Message. Supported in Unity only.
+        ///     The user must be eligible for the message and the message must be present on the device (requires a Start call).
+        /// </summary>
+        /// <param name="id"> The message Id. </param>
+        public static void ShowMessage(string id)
+        { 
+            LeanplumFactory.SDK.ShowMessage(id);
         }
 
         /// <summary>

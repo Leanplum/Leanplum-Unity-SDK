@@ -57,6 +57,12 @@ namespace LeanplumSDK
         /// <value><c>true</c> if developer mode; otherwise, <c>false</c>.</value>
         public abstract bool IsDeveloperModeEnabled ();
 
+
+        /// <summary>
+        ///     Gets the includeDefaults param value.
+        /// </summary>
+        public abstract bool GetIncludeDefaults();
+
         /// <summary>
         ///     Optional. Sets the API server. The API path is of the form
         ///     http[s]://hostname/servletName
@@ -128,6 +134,14 @@ namespace LeanplumSDK
         ///     will prevent Leanplum from communicating with the server.
         /// </summary>
         public abstract void SetTestMode (bool testModeEnabled);
+
+        /// <summary>
+        ///     Sets whether the API should return default ("defaults in code") values
+        ///     or only the overridden ones.
+        ///     Used only in Development mode. Always false in production.
+        /// </summary>
+        /// <param name="includeDefaults"> The value for includeDefaults param. </param>
+        public abstract void SetIncludeDefaultsInDevelopmentMode(bool includeDefaults);
 
         /// <summary>
         ///     Sets whether realtime updates to the client are enabled in development mode.
@@ -363,6 +377,12 @@ namespace LeanplumSDK
         public abstract void DefineAction(string name, Constants.ActionKind kind, ActionArgs args,
             IDictionary<string, object> options, ActionContext.ActionResponder responder);
 
+        /// <summary>
+        ///     Manually Trigger an In-App Message. Supported in Unity only.
+        ///     The user must be eligible for the message and the message must be present on the device (requires a Start call).
+        /// </summary>
+        /// <param name="id"> The message Id. </param>
+        public abstract void ShowMessage(string id);
         #endregion
 
         public virtual void NativeCallback(string message) {}
@@ -438,6 +458,7 @@ namespace LeanplumSDK
         public abstract Var<AssetBundle> DefineAssetBundle(string name,
             bool realtimeUpdating = true, string iosBundleName = "", string androidBundleName = "",
             string standaloneBundleName = "");
+
         #endregion
     }
 }

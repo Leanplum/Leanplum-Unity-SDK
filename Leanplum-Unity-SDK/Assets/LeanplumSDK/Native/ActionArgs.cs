@@ -25,6 +25,11 @@ namespace LeanplumSDK
             }
         }
 
+        public abstract object Value
+        {
+            get;
+        }
+
         public abstract Dictionary<string, object> ToDictionary();
     }
 
@@ -39,6 +44,8 @@ namespace LeanplumSDK
                 return defaultValue;
             }
         }
+
+        public override object Value => defaultValue;
 
         private static ActionArg<T> ArgumentNamed(string name, T defaultValue, string kind)
         {
@@ -113,6 +120,34 @@ namespace LeanplumSDK
             args.Add(ActionArg<T>.ActionArgumentNamed(name, defaultValue));
             return this;
         }
+
+        public Dictionary<string, object> ToDictionary()
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            foreach (var arg in args)
+            {
+                var parts = arg.Name.Split('.');
+                if (parts.Length > 1)
+                {
+                    if (!dict.ContainsKey(parts[0]))
+                    {
+                        dict[parts[0]] = new Dictionary<string, object>();
+                    }
+                    var component = dict[parts[0]] as Dictionary<string, object>;
+                    if (component != null)
+                    {
+                        component[parts[1]] = arg.Value;
+                    }
+                }
+                else
+                {
+                    dict[arg.Name] = arg.Value;
+                }
+            }
+
+            return dict;
+        }
+
 
         public string ToJSON()
         {

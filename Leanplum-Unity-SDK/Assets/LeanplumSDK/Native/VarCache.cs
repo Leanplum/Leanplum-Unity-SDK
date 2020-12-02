@@ -22,6 +22,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace LeanplumSDK
 {
@@ -33,6 +34,10 @@ namespace LeanplumSDK
         private static readonly IDictionary<string, Var> vars = new Dictionary<string, Var>();
         private static readonly IDictionary<string, object> valuesFromClient = new Dictionary<string, object>();
         private static readonly IDictionary<string, string> defaultKinds = new Dictionary<string, string>();
+
+        public static IDictionary<string, ActionDefinition> actionDefinitions = new Dictionary<string, ActionDefinition>();
+        private static IDictionary<string, object> messages = new Dictionary<string, object>();
+
         private static IDictionary<string, object> diffs = new Dictionary<string, object>();
         private static IDictionary<string, object> devModeValuesFromServer;
         private static IDictionary<string, object> fileAttributes = new Dictionary<string, object>();
@@ -57,6 +62,11 @@ namespace LeanplumSDK
             get { return variants; }
             private set { variants = value; }
         }
+        public static IDictionary<string, object> Messages
+        {
+            get { return messages; }
+            private set { messages = value; }
+        }
         public static int downloadsPending;
 
         public delegate void updateEventHandler();
@@ -67,7 +77,13 @@ namespace LeanplumSDK
             devModeValuesFromServer = value;
         }
 
-        private static object Traverse(object collection, object key, bool autoInsert)
+        public static void RegisterActionDefinition(ActionDefinition actionDefinition)
+        {
+            actionDefinition.Vars = actionDefinition.Args.ToDictionary();
+            actionDefinitions[actionDefinition.Name] = actionDefinition;
+        }
+
+        internal static object Traverse(object collection, object key, bool autoInsert)
         {
             if (collection == null)
             {
@@ -249,6 +265,8 @@ namespace LeanplumSDK
             string fileAttributesCipher =
                 LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.FILE_ATTRIBUTES_KEY, "{}");
 
+            string messagesCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.MESSAGES_KEY, "{}");
+
             string userIdCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.USERID_KEY);
             if (!String.IsNullOrEmpty(userIdCipher))
             {
@@ -259,6 +277,7 @@ namespace LeanplumSDK
                 Json.Deserialize(variablesCipher == "{}" ? variablesCipher :
                                    AESCrypt.Decrypt(variablesCipher, LeanplumRequest.Token))
                                  as IDictionary<string, object>,
+                Json.Deserialize(messagesCipher == "{}" ? messagesCipher : AESCrypt.Decrypt(messagesCipher, LeanplumRequest.Token)) as IDictionary<string, object>,
                 Json.Deserialize(fileAttributesCipher == "{}" ? fileAttributesCipher :
                                     AESCrypt.Decrypt(fileAttributesCipher, LeanplumRequest.Token))
                                  as IDictionary<string, object>);
@@ -277,6 +296,11 @@ namespace LeanplumSDK
 
             string variablesCipher = Json.Serialize(diffs);
             string fileAttributeCipher = Json.Serialize(fileAttributes);
+
+            string messagesCipher = Json.Serialize(Messages);
+            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.MESSAGES_KEY,
+    AESCrypt.Encrypt(messagesCipher, LeanplumRequest.Token));
+
             LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.VARIABLES_KEY,
                 AESCrypt.Encrypt(variablesCipher, LeanplumRequest.Token));
             LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.FILE_ATTRIBUTES_KEY,
@@ -291,6 +315,7 @@ namespace LeanplumSDK
         }
 
         public static void ApplyVariableDiffs(IDictionary<string, object> diffs,
+                                              IDictionary<string, object> messages,
                                               IDictionary<string, object> fileAttributes = null,
                                               List<object> variants = null)
         {
@@ -301,6 +326,12 @@ namespace LeanplumSDK
                     FileAttributes[attribute.Key] = attribute.Value;
                 }
             }
+            if (messages != null)
+            {
+                MergeMessages(messages);
+                Messages = messages;
+            }
+
             if (diffs != null)
             {
                 Diffs = diffs;
@@ -333,6 +364,34 @@ namespace LeanplumSDK
             }
         }
 
+        internal static void MergeMessages(IDictionary<string, object> messages)
+        {
+            if (actionDefinitions.Count > 0)
+            {
+                for (int i = 0; i < messages.Count; i++)
+                {
+                    var message = messages.ElementAt(i);
+                    var values = message.Value as Dictionary<string, object>;
+                    if (values != null)
+                    {
+                        var name = Util.GetValueOrDefault(values, Constants.Args.ACTION) as string;
+                        if (!string.IsNullOrEmpty(name) && actionDefinitions.Keys.Contains(name))
+                        {
+                            var messageConfig = Util.GetValueOrDefault(values, Constants.Args.VARS) as Dictionary<string, object>;
+                            if (messageConfig != null)
+                            {
+                                var mergedVars = MergeHelper(actionDefinitions[name].Vars, messageConfig);
+                                var mergedVarsDict = mergedVars as Dictionary<object, object>;
+                                var newVars = mergedVarsDict.ToDictionary(item => item.Key.ToString(), item => item.Value);
+                                values[Constants.Args.VARS] = newVars;
+                                messages[message.Key] = values;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         internal static void CheckVarsUpdate()
         {
             CheckVarsUpdate (null);
@@ -341,6 +400,15 @@ namespace LeanplumSDK
         internal static void CheckVarsUpdate(Action callback)
         {
             IDictionary<string, string> updateVarsParams = new Dictionary<string, string>();
+
+            if (Leanplum.IsDeveloperModeEnabled)
+            {
+                updateVarsParams[Constants.Params.INCLUDE_DEFAULTS] = Leanplum.IncludeDefaults.ToString();
+            }
+            else
+            {
+                updateVarsParams[Constants.Params.INCLUDE_DEFAULTS] = false.ToString();
+            }
             updateVarsParams[Constants.Params.INCLUDE_DEFAULTS] = false.ToString();
 
             LeanplumRequest updateVarsReq = LeanplumRequest.Post(Constants.Methods.GET_VARS, updateVarsParams);
@@ -348,10 +416,11 @@ namespace LeanplumSDK
             {
                 var getVariablesResponse = Util.GetLastResponse(varsUpdate) as IDictionary<string, object>;
                 var newVarValues = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARS) as IDictionary<string, object>;
+                var newMessages = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.MESSAGES) as IDictionary<string, object>;
                 var newVarFileAttributes = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object>;
                 var newVariants = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARIANTS) as List<object> ?? new List<object>();
 				
-                ApplyVariableDiffs(newVarValues, newVarFileAttributes, newVariants);
+                ApplyVariableDiffs(newVarValues, newMessages, newVarFileAttributes, newVariants);
 
                 if (callback != null)
                 {

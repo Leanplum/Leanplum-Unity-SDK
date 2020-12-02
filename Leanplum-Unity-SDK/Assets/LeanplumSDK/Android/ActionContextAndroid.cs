@@ -14,7 +14,6 @@ namespace LeanplumSDK
         internal ActionContextAndroid(string id)
         {
             Name = id;
-            // no need to attach thread, it was already attached in LeanplumAndroid.
             nativeHandle = new AndroidJavaClass("com.leanplum.UnityActionContextBridge");
         }
 

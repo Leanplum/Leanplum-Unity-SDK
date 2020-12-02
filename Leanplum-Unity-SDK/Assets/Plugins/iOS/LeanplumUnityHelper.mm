@@ -22,7 +22,7 @@
 
 namespace lp 
 {
-    static char *copy_string(const char *str)
+    char *copy_string(const char *str)
     {
         if (str == NULL) 
         {
@@ -33,7 +33,7 @@ namespace lp
         return res;
     }
 
-    static NSString *to_nsstring(const char *str)
+    NSString *to_nsstring(const char *str)
     {
         if (str != NULL) {
             return [NSString stringWithUTF8String:str];
@@ -42,12 +42,12 @@ namespace lp
         }
     }
 
-    static char *to_string(NSString *str)
+    char *to_string(NSString *str)
     {
         return copy_string([str UTF8String]);
     }
 
-    static char *to_json_string(id obj)
+    char *to_json_string(id obj)
     {
         if (!obj) {
             return NULL;
