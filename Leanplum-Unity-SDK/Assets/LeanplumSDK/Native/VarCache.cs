@@ -392,6 +392,18 @@ namespace LeanplumSDK
             }
         }
 
+        internal static IDictionary<string, object> MergeMessage(IDictionary<string, object> messageConfig)
+        {
+            string actionName = Util.GetValueOrDefault(messageConfig, Constants.Args.ACTION_NAME)?.ToString();
+            if (!string.IsNullOrWhiteSpace(actionName) && actionDefinitions.ContainsKey(actionName))
+            {
+                var defaultArgs = actionDefinitions[actionName].Vars;
+                var actionArgs = MergeHelper(defaultArgs, new Dictionary<string, object>(messageConfig)) as IDictionary<object, object>;
+                return actionArgs.ToDictionary(item => item.Key.ToString(), item => item.Value);
+            }
+            return messageConfig;
+        }
+
         internal static void CheckVarsUpdate()
         {
             CheckVarsUpdate (null);

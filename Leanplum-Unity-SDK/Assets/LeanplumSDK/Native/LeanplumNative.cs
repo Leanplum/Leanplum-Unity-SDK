@@ -611,7 +611,8 @@ namespace LeanplumSDK
                             // Set a flag so that the next time VarCache.CheckVarsUpdate() is
                             // called the variables are updated.
                             VarCache.VarsNeedUpdate = true;
-                        });
+                        },
+                        LeanplumActionManager.TriggerPreview);
                     }
 #endif
                     // Register device.
