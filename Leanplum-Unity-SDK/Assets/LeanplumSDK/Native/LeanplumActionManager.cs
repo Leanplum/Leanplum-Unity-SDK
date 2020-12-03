@@ -28,6 +28,23 @@ namespace LeanplumSDK
             }
         }
 
+        internal static void TriggerPreview(IDictionary<string, object> packetData)
+        {
+            var actionData = Util.GetValueOrDefault(packetData, Constants.Args.ACTION) as IDictionary<string, object>;
+            if (actionData != null)
+            {
+                string actionName = Util.GetValueOrDefault(actionData, Constants.Args.ACTION_NAME)?.ToString();
+                string messageId = Util.GetValueOrDefault(packetData, Constants.Args.MESSAGE_ID)?.ToString();
+                LeanplumNative.CompatibilityLayer.Log($"Preview of {actionName} Message with Id: {messageId}");
+                if (!string.IsNullOrWhiteSpace(actionName))
+                {
+                    var newVars = VarCache.MergeMessage(actionData);
+                    NativeActionContext ac = new NativeActionContext(messageId, actionName, newVars);
+                    TriggerAction(ac, newVars);
+                }
+            }
+        }
+
         internal static void TriggerAction(string id, IDictionary<string, object> message)
         {
             if (!ShouldPerformActions)

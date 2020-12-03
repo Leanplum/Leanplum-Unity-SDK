@@ -113,11 +113,12 @@ namespace LeanplumSDK
             internal const string MESSAGE_IS_READ = "isRead";
             internal const string DELIVERY_TIMESTAMP = "deliveryTimestamp";
             internal const string EXPIRATION_TIMESTAMP = "expirationTimestamp";
-            internal const string TITLE = @"Title";
-            internal const string SUBTITLE = @"Subtitle";
-            internal const string IMAGE = @"Image";
-            internal const string DATA = @"Data";
-            internal const string ID = @"id";
+            internal const string TITLE = "Title";
+            internal const string SUBTITLE = "Subtitle";
+            internal const string IMAGE = "Image";
+            internal const string DATA = "Data";
+            internal const string ID = "id";
+            internal const string ARGS = "args";
         }
 
         public class Kinds
@@ -136,6 +137,7 @@ namespace LeanplumSDK
         public class Args
         {
             public const string ACTION = "action";
+            public const string ACTION_NAME = "__name__";
             public const string VARS = "vars";
             public const string MESSAGE_ID = "messageId";
             public const string URL = "URL";
