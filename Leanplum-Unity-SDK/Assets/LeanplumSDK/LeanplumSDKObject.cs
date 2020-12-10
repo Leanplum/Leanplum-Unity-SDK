@@ -382,7 +382,7 @@ namespace LeanplumSDK
         ///     The user must be eligible for the message and the message must be present on the device (requires a Start call).
         /// </summary>
         /// <param name="id"> The message Id. </param>
-        public abstract void ShowMessage(string id);
+        public abstract bool ShowMessage(string id);
         #endregion
 
         public virtual void NativeCallback(string message) {}
