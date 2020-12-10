@@ -1,5 +1,5 @@
 #if !UNITY_WEBGL
-// Copyright 2013, Leanplum, Inc.
+// Copyright 2020, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -20,7 +20,6 @@
 using LeanplumSDK.MiniJSON;
 using LeanplumSDK.SocketIOClient;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Timers;
 
@@ -37,10 +36,12 @@ namespace LeanplumSDK
         private bool connected;
         private bool connecting;
         private Action onUpdateVars;
+        private Action<IDictionary<string, object>> onActionTrigger;
 
-        public LeanplumSocket(Action onUpdate)
+        public LeanplumSocket(Action onUpdate, Action<IDictionary<string, object>> onAction)
         {
             onUpdateVars = onUpdate;
+            onActionTrigger = onAction;
             socketIOClient = new Client("https://" + Constants.SOCKET_HOST + ":" + Constants.SOCKET_PORT);
             socketIOClient.Opened += OnSocketOpened;
             socketIOClient.Message += OnSocketMessage;
@@ -122,13 +123,24 @@ namespace LeanplumSDK
                 else if (eventName == "registerDevice")
                 {
                     IDictionary<string, object> packetData = (IDictionary<string, object>)
-                        ((IList<object>) messageReceived["args"])[0];
+                        ((IList<object>) messageReceived[Constants.Keys.ARGS])[0];
                     string email = (string) packetData["email"];
                     LeanplumUnityHelper.QueueOnMainThread(() =>
                     {
                         LeanplumNative.OnHasStartedAndRegisteredAsDeveloper();
                         LeanplumNative.CompatibilityLayer.Log(
                             "Your device is registered to " + email + ".");
+                    });
+                }
+                else if (eventName == "trigger")
+                {
+                    IDictionary<string, object> packetData = (IDictionary<string, object>)
+                            ((IList<object>)messageReceived[Constants.Keys.ARGS])[0];
+
+                    // Trigger Preview
+                    LeanplumUnityHelper.QueueOnMainThread(() =>
+                    {
+                        onActionTrigger(packetData);
                     });
                 }
             }

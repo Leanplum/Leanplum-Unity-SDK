@@ -93,7 +93,7 @@ namespace LeanplumSDK
             IDictionary<object, object> action = Traverse(name) as IDictionary<object, object>;
             if (action != null)
             {
-                var actionName = action["__name__"];
+                var actionName = action[Constants.Args.ACTION_NAME];
                 if (!string.IsNullOrEmpty(actionName?.ToString()))
                 {
                     Dictionary<string, object> actions = action.ToDictionary(kv => kv.Key.ToString(),

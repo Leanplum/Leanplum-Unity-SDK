@@ -1,5 +1,5 @@
 //
-// Copyright 2014, Leanplum, Inc.
+// Copyright 2020, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -17,14 +17,13 @@
 //  KIND, either express or implied.  See the License for the
 //  specific language governing permissions and limitations
 //  under the License.
-#if UNITY_PRO_LICENSE && !UNITY_WEBGL
+#if !UNITY_WEBGL
 #define LEANPLUM_USE_SOCKETS
 #endif
 
 using System;
 using System.IO;
 using System.Net;
-using LeanplumSDK;
 
 namespace LeanplumSDK
 {
