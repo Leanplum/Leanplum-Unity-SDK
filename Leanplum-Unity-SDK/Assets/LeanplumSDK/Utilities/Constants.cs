@@ -138,6 +138,8 @@ namespace LeanplumSDK
         {
             public const string ACTION = "action";
             public const string ACTION_NAME = "__name__";
+            public const string CHAIN_TO_EXISTING = "Chain to Existing Message";
+            public const string CHAIN_MESSAGE = "Chained message";
             public const string VARS = "vars";
             public const string MESSAGE_ID = "messageId";
             public const string URL = "URL";
