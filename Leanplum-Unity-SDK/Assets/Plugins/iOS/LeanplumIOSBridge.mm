@@ -106,6 +106,14 @@ extern "C"
         [Leanplum setNetworkTimeoutSeconds:seconds forDownloads:downloadSeconds];
     }
 
+    void _setEventsUploadInterval(int uploadInterval)
+    {
+        LPEventsUploadInterval interval = (LPEventsUploadInterval)uploadInterval;
+        if (interval == AT_MOST_5_MINUTES || interval == AT_MOST_10_MINUTES || interval == AT_MOST_15_MINUTES) {
+            [Leanplum setEventsUploadInterval:interval];
+        }
+    }
+
     void _setAppVersion(const char *version)
     {
         [Leanplum setAppVersion:lp::to_nsstring(version)];

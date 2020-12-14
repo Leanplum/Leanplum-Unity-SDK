@@ -72,6 +72,9 @@ namespace LeanplumSDK
         [DllImport ("__Internal")]
         internal static extern void _setNetworkTimeout(int seconds, int downloadSeconds);
 
+        [DllImport("__Internal")]
+        internal static extern void _setEventsUploadInterval(int uploadInterval);
+
         [DllImport ("__Internal")]
         internal static extern void _setAppVersion(string version);
 
@@ -242,9 +245,14 @@ namespace LeanplumSDK
             _setNetworkTimeout(seconds, downloadSeconds);
         }
 
+        /// <summary>
+        ///     Sets the time interval between uploading events to server.
+        ///     Default is <see cref="EventsUploadInterval.AtMost15Minutes"/>.
+        /// </summary>
+        /// <param name="uploadInterval"> The time between uploads. </param>
         public override void SetEventsUploadInterval(EventsUploadInterval uploadInterval)
         {
-            
+            _setEventsUploadInterval((int)uploadInterval);
         }
 
         /// <summary>
