@@ -136,6 +136,8 @@ namespace LeanplumSDK
 
         public class Args
         {
+            public const string CONFIRM_NAME = "Confirm";
+            public const string GENERIC_DEFINITION_NAME = "GenericMessageAction";
             public const string ACTION = "action";
             public const string ACTION_NAME = "__name__";
             public const string CHAIN_TO_EXISTING = "Chain to Existing Message";

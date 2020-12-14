@@ -443,6 +443,7 @@ namespace LeanplumSDK
         public override bool ShowMessage(string id)
         {
             // Not supported by iOS SDK.
+            return false;
         }
 
         /// <summary>

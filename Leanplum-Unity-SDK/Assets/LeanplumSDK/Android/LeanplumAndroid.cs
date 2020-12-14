@@ -353,6 +353,7 @@ namespace LeanplumSDK
         public override bool ShowMessage(string id)
         {
             // The Android SDK does not support this.
+            return false;
         }
 
         /// <summary>

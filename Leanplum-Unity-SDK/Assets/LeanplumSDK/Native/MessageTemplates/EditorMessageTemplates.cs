@@ -10,9 +10,6 @@ namespace LeanplumSDK
 {
     public class EditorMessageTemplates
     {
-        public const string CONFIRM_NAME = "Confirm";
-        public const string GENERIC_DEFINITION_NAME = "GenericMessageAction";
-
         private EditorMessageTemplates()
         {
         }
@@ -29,7 +26,7 @@ namespace LeanplumSDK
 
             ActionContext.ActionResponder responder = new ActionContext.ActionResponder((context) =>
             {
-                if (EditorUtility.DisplayDialog(CONFIRM_NAME,
+                if (EditorUtility.DisplayDialog(Constants.Args.CONFIRM_NAME,
                 context.GetStringNamed(Constants.Args.MESSAGE),
                 context.GetStringNamed(Constants.Args.ACCEPT_TEXT),
                 context.GetStringNamed(Constants.Args.CANCEL_TEXT)))
@@ -42,7 +39,7 @@ namespace LeanplumSDK
                 }
             });
 
-            Leanplum.DefineAction(CONFIRM_NAME, Constants.ActionKind.MESSAGE, actionArgs, null, responder);
+            Leanplum.DefineAction(Constants.Args.CONFIRM_NAME, Constants.ActionKind.MESSAGE, actionArgs, null, responder);
         }
 
         public static void DefineOpenURL()
@@ -84,7 +81,7 @@ namespace LeanplumSDK
                 EditorUtility.DisplayDialog(context.Name, builder.ToString(), null);
             });
 
-            Leanplum.DefineAction(GENERIC_DEFINITION_NAME, Constants.ActionKind.MESSAGE, args, null, responder);
+            Leanplum.DefineAction(Constants.Args.GENERIC_DEFINITION_NAME, Constants.ActionKind.MESSAGE, args, null, responder);
         }
 
         static void BuildString(string key, object var, StringBuilder builder, int level)
