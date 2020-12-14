@@ -291,14 +291,20 @@ namespace LeanplumSDK.MiniJSON {
             object ParseNumber() {
                 string number = NextWord;
 
-                if (number.IndexOf('.') == -1) {
+                if (number.IndexOf('.') == -1 && number.IndexOf("E-") == -1 && number.IndexOf("e-") == -1) {
                     long parsedInt;
-                    Int64.TryParse(number, out parsedInt);
+                    Int64.TryParse(number, NumberStyles.Any, CultureInfo.InvariantCulture, out parsedInt);
+                    if (parsedInt == 0)
+                    {
+                        ulong parsedUInt;
+                        UInt64.TryParse(number, NumberStyles.Any, CultureInfo.InvariantCulture, out parsedUInt);
+                        return parsedUInt;
+                    }
                     return parsedInt;
                 }
 
                 double parsedDouble;
-                Double.TryParse(number, out parsedDouble);
+                Double.TryParse(number, NumberStyles.Any, CultureInfo.InvariantCulture, out parsedDouble);
                 return parsedDouble;
             }
 
