@@ -440,9 +440,10 @@ namespace LeanplumSDK
             _defineAction(name, (int) kind, argString, optionString);
         }
 
-        public override void ShowMessage(string id)
+        public override bool ShowMessage(string id)
         {
             // Not supported by iOS SDK.
+            return false;
         }
 
         /// <summary>

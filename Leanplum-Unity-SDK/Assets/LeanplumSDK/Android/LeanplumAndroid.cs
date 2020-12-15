@@ -350,9 +350,10 @@ namespace LeanplumSDK
             NativeSDK.CallStatic("defineAction", name, kindInt, argString, optionString);
         }
 
-        public override void ShowMessage(string id)
+        public override bool ShowMessage(string id)
         {
             // The Android SDK does not support this.
+            return false;
         }
 
         /// <summary>

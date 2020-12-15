@@ -450,9 +450,9 @@ namespace LeanplumSDK
         ///     The user must be eligible for the message and the message must be present on the device (requires a Start call).
         /// </summary>
         /// <param name="id"> The message Id. </param>
-        public static void ShowMessage(string id)
+        public static bool ShowMessage(string id)
         { 
-            LeanplumFactory.SDK.ShowMessage(id);
+            return LeanplumFactory.SDK.ShowMessage(id);
         }
 
         /// <summary>

@@ -68,11 +68,11 @@ namespace LeanplumSDK
 
             if (!VarCache.actionDefinitions.TryGetValue(context.Name, out actionDefinition))
             {
-                if (VarCache.actionDefinitions.TryGetValue(EditorMessageTemplates.GENERIC_DEFINITION_NAME, out actionDefinition))
+                if (VarCache.actionDefinitions.TryGetValue(Constants.Args.GENERIC_DEFINITION_NAME, out actionDefinition))
                 {
                     IDictionary<string, object> args = new Dictionary<string, object>();
                     args.Add("messageConfig", messageConfig);
-                    var genericActionContext = new NativeActionContext(context.Id, EditorMessageTemplates.GENERIC_DEFINITION_NAME, args);
+                    var genericActionContext = new NativeActionContext(context.Id, Constants.Args.GENERIC_DEFINITION_NAME, args);
                     context = genericActionContext;
                 }
             }

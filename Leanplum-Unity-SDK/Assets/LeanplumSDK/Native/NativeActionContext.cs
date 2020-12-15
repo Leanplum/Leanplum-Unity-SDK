@@ -99,8 +99,23 @@ namespace LeanplumSDK
                     Dictionary<string, object> actions = action.ToDictionary(kv => kv.Key.ToString(),
                                                          kv => kv.Value);
 
-                    NativeActionContext actionContext = new NativeActionContext(null, actionName.ToString(), actions);
-                    LeanplumActionManager.TriggerAction(actionContext, actions);
+                    if (actionName.Equals(Constants.Args.CHAIN_TO_EXISTING) && actions.ContainsKey(Constants.Args.CHAIN_MESSAGE))
+                    {
+                        string messageId = actions[Constants.Args.CHAIN_MESSAGE]?.ToString();
+                        if (!Leanplum.ShowMessage(messageId))
+                        {
+                            // Try to fetch the chained message if not on the device
+                            Leanplum.ForceContentUpdate(() =>
+                            {
+                                Leanplum.ShowMessage(messageId);
+                            });
+                        }
+                    }
+                    else
+                    {
+                        NativeActionContext actionContext = new NativeActionContext(null, actionName.ToString(), actions);
+                        LeanplumActionManager.TriggerAction(actionContext, actions);
+                    }
                 }
             }
         }

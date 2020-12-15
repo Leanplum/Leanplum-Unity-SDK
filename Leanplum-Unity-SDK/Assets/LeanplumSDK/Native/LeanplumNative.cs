@@ -687,17 +687,16 @@ namespace LeanplumSDK
             LeanplumActionManager.ShouldPerformActions = value;
         }
 
-        public override void ShowMessage(string id)
+        public override bool ShowMessage(string id)
         {
             var messageConfig = Util.GetValueOrDefault(VarCache.Messages, id) as IDictionary<string, object>;
             if (messageConfig != null)
             {
                 LeanplumActionManager.TriggerAction(id, messageConfig);
+                return true;
             }
-            else
-            {
-                CompatibilityLayer.LogError($"Message not found. Message Id: {id}");
-            }
+            CompatibilityLayer.LogError($"Message not found. Message Id: {id}");
+            return false;
         }
 
         [Obsolete("TrackGooglePlayPurchase is obsolete. Please use TrackPurchase.")]
