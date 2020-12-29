@@ -652,6 +652,11 @@ namespace LeanplumSDK
             req.SendIfConnected();
         }
 
+        public override void ForceSyncVariables(Leanplum.SyncVariablesCompleted completedHandler)
+        {
+            VarCache.ForceSendVariables(completedHandler);
+        }
+
         public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
             if (string.IsNullOrWhiteSpace(name))

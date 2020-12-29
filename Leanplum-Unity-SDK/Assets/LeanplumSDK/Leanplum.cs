@@ -36,6 +36,7 @@ namespace LeanplumSDK
     public static class Leanplum
     {
         public delegate void StartHandler(bool success);
+        public delegate void SyncVariablesCompleted(bool success);
         public delegate void VariableChangedHandler();
         public delegate void VariablesChangedAndNoDownloadsPendingHandler();
 
@@ -428,6 +429,17 @@ namespace LeanplumSDK
             StartHandler startResponseAction)
         {
             LeanplumFactory.SDK.Start(userId, attributes, startResponseAction);
+        }
+
+        /// <summary>
+        ///     Syncs the variables defined from code without Dashboard interaction.
+        ///     Requires Development mode.
+        ///     Not available on Android and iOS.
+        /// </summary>
+        /// <param name="completedHandler"> Handler to be called when request is completed. Returns true if sync was successful. </param>
+        public static void ForceSyncVariables(SyncVariablesCompleted completedHandler)
+        {
+            LeanplumFactory.SDK.ForceSyncVariables(completedHandler);
         }
 
         public static void DefineAction(string name, Constants.ActionKind kind, ActionArgs args)
