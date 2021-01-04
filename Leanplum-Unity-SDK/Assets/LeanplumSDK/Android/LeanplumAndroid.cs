@@ -332,6 +332,11 @@ namespace LeanplumSDK
             NativeSDK.CallStatic("start", userId, Json.Serialize(attributes));
         }
 
+        public override void ForceSyncVariables(Leanplum.SyncVariablesCompleted completedHandler)
+        {
+            // The Android SDK does not support this.
+        }
+
         public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
             if (name == null)

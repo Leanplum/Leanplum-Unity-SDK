@@ -454,13 +454,30 @@ namespace LeanplumSDK
         {
             if (devModeValuesFromServer != null && valuesFromClient != devModeValuesFromServer)
             {
-                var parameters = new Dictionary<string, string>();
-                parameters[Constants.Params.VARIABLES] = Json.Serialize(valuesFromClient);
-                parameters[Constants.Params.KINDS] = Json.Serialize(defaultKinds);
-                LeanplumUnityHelper.QueueOnMainThread(() => LeanplumRequest.Post(Constants.Methods.SET_VARS, parameters).SendNow());
+                ForceSendVariables(null);
                 return true;
             }
             return false;
+        }
+
+        internal static void ForceSendVariables(Leanplum.SyncVariablesCompleted completedHandler)
+        {
+            var parameters = new Dictionary<string, string>();
+            parameters[Constants.Params.VARIABLES] = Json.Serialize(valuesFromClient);
+            parameters[Constants.Params.KINDS] = Json.Serialize(defaultKinds);
+            LeanplumUnityHelper.QueueOnMainThread(() => {
+                LeanplumRequest setVarsReq = LeanplumRequest.Post(Constants.Methods.SET_VARS, parameters);
+                setVarsReq.Response += delegate (object response)
+                {
+                    completedHandler?.Invoke(true);
+                };
+                setVarsReq.Error += delegate (Exception ex)
+                {
+                    LeanplumNative.CompatibilityLayer.LogError("Leanplum Error: ForceSyncVariables", ex);
+                    completedHandler?.Invoke(false);
+                };
+                setVarsReq.SendNow();
+            });
         }
 
         public static string KindFromValue(object defaultValue)

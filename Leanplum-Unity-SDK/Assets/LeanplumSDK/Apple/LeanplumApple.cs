@@ -431,6 +431,11 @@ namespace LeanplumSDK
             _start(Constants.SDK_VERSION, userId, attributesString);
         }
 
+        public override void ForceSyncVariables(Leanplum.SyncVariablesCompleted completedHandler)
+        {
+            // Not supported by iOS SDK.
+        }
+
         public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
             if (name == null)

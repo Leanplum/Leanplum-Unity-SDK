@@ -388,6 +388,14 @@ namespace LeanplumSDK
         public virtual void NativeCallback(string message) {}
 
         #region Dealing with Variables
+        /// <summary>
+        ///     Syncs the variables defined from code without Dashboard interaction.
+        ///     Requires Development mode.
+        ///     Not available on Android and iOS.
+        /// </summary>
+        /// <param name="completedHandler"> Handler to be called when request is completed. Returns true if sync was successful. </param>
+        public abstract void ForceSyncVariables(Leanplum.SyncVariablesCompleted completedHandler);
+
         public virtual Var<int> Define(string name, int defaultValue)
         {
             return Define<int> (name, defaultValue);
