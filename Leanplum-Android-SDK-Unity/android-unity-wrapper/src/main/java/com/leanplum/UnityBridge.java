@@ -389,6 +389,20 @@ public class UnityBridge {
     return gson.toJson(Leanplum.getInbox().messagesIds());
   }
 
+  public static void downloadMessages() {
+    Leanplum.getInbox().downloadMessages();
+  }
+
+  public static void downloadMessagesWithCallback() {
+    Leanplum.getInbox().downloadMessages(new InboxSyncedCallback() {
+      @Override
+      public void onForceContentUpdate(boolean success) {
+        int result = success ? 1 : 0;
+        makeCallbackToUnity("InboxDownloadMessages:" + result);
+      }
+    });
+  }
+
   public static String inboxMessages() {
     String pattern = "yyyy-MM-dd'T'HH:mm:ssZZZZZ";
     SimpleDateFormat formatter = new SimpleDateFormat(pattern);
