@@ -13,6 +13,8 @@ namespace LeanplumSDK
         public override event OnInboxChanged InboxChanged;
         public override event OnForceContentUpdate ForceContentUpdate;
 
+        public event OnForceContentUpdate OneTimeUpdate;
+
         private AndroidJavaClass nativeSdk = null;
 
         internal LeanplumInboxAndroid(AndroidJavaClass native)
@@ -63,6 +65,18 @@ namespace LeanplumSDK
                 }).ToList();
             }
         }
+
+        public override void DownloadMessages()
+        {
+            nativeSdk.CallStatic("downloadMessages");
+        }
+
+        public override void DownloadMessages(OnForceContentUpdate completedHandler)
+        {
+            OneTimeUpdate = completedHandler;
+            nativeSdk.CallStatic("downloadMessagesWithCallback");
+        }
+
         public override void Read(string messageId)
         {
             if (messageId != null)
@@ -128,6 +142,12 @@ namespace LeanplumSDK
             {
                 bool success = message.EndsWith("1");
                 ForceContentUpdate?.Invoke(success);
+            }
+            else if (message.StartsWith("InboxDownloadMessages:"))
+            {
+                bool success = message.EndsWith("1");
+                OneTimeUpdate?.Invoke(success);
+                OneTimeUpdate = null;
             }
         }
 

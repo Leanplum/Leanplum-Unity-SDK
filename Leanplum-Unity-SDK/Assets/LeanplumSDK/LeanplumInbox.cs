@@ -155,6 +155,9 @@ namespace LeanplumSDK
             });
         }
 
+        public abstract void DownloadMessages();
+        public abstract void DownloadMessages(OnForceContentUpdate completedHandler);
+
         /// <summary>
         /// Read the inbox message, marking it as read and invoking its open action.
         /// </summary>

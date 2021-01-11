@@ -14,6 +14,8 @@ namespace LeanplumSDK
         public override event OnInboxChanged InboxChanged;
         public override event OnForceContentUpdate ForceContentUpdate;
 
+        public event OnForceContentUpdate OneTimeUpdate;
+
         [DllImport("__Internal")]
         internal static extern int _inbox_count();
 
@@ -37,6 +39,12 @@ namespace LeanplumSDK
 
         [DllImport("__Internal")]
         internal static extern int _inbox_disableImagePrefetching();
+
+        [DllImport("__Internal")]
+        internal static extern void _inbox_downloadMessages();
+
+        [DllImport("__Internal")]
+        internal static extern void _inbox_downloadMessagesWithCallback();
 
         internal LeanplumInboxApple()
         {
@@ -85,6 +93,17 @@ namespace LeanplumSDK
                     return msg.IsRead == false;
                 }).ToList();
             }
+        }
+
+        public override void DownloadMessages()
+        {
+            _inbox_downloadMessages();
+        }
+
+        public override void DownloadMessages(OnForceContentUpdate completedHandler)
+        {
+            OneTimeUpdate = completedHandler;
+            _inbox_downloadMessagesWithCallback();
         }
 
         public override void Read(string messageId)
@@ -152,6 +171,12 @@ namespace LeanplumSDK
             {
                 bool success = message.EndsWith("1");
                 ForceContentUpdate?.Invoke(success);
+            }
+            else if (message.StartsWith("InboxDownloadMessages:"))
+            {
+                bool success = message.EndsWith("1");
+                OneTimeUpdate?.Invoke(success);
+                OneTimeUpdate = null;
             }
         }
     }

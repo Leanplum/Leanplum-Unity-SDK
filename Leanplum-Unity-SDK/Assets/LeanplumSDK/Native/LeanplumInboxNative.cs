@@ -163,7 +163,13 @@ namespace LeanplumSDK
             // ignored
         }
 
-        internal void DownloadMessages()
+
+        public override void DownloadMessages()
+        {
+            DownloadMessages(null);
+        }
+
+        public override void DownloadMessages(OnForceContentUpdate completedHandler)
         {
             LeanplumRequest request = LeanplumRequest.Post(Constants.Methods.GET_INBOX_MESSAGES, null);
             request.Response += delegate (object data)
@@ -248,17 +254,18 @@ namespace LeanplumSDK
                         }
                     }
                     UpdateMessages(inboxMessages);
+                    TriggerInboxSyncedWithStatus(true, completedHandler);
                 }
                 catch (Exception exception)
                 {
                     Debug.Log("exception getting messages: " + exception.Message);
-                    ForceContentUpdate?.Invoke(false);
+                    TriggerInboxSyncedWithStatus(false, completedHandler);
                 }
             };
 
             request.Error += delegate
             {
-                ForceContentUpdate?.Invoke(false);
+                TriggerInboxSyncedWithStatus(false, completedHandler);
             };
 
             request.SendIfConnected();
@@ -367,6 +374,18 @@ namespace LeanplumSDK
                 inboxMessage = inboxMessage.FindAll(msg => msg.IsActive() == true).ToList();
 
                 UpdateMessages(inboxMessage);
+            }
+        }
+
+        private void TriggerInboxSyncedWithStatus(bool status, OnForceContentUpdate completedHandler)
+        {
+            if (completedHandler != null)
+            {
+                completedHandler.Invoke(status);
+            }
+            else
+            {
+                ForceContentUpdate?.Invoke(status);
             }
         }
     }

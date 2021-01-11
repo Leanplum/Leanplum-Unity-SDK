@@ -507,6 +507,20 @@ extern "C"
         return lp::to_json_string([Leanplum inbox].messagesIds);
     }
 
+    void _inbox_downloadMessages()
+    {
+        [[Leanplum inbox] downloadMessages];
+    }
+
+    void _inbox_downloadMessagesWithCallback()
+    {
+        [[Leanplum inbox] downloadMessages:^(BOOL success) {
+            int res = [@(success) intValue];
+            UnitySendMessage(__LPgameObject, "NativeCallback",
+                                 [[NSString stringWithFormat:@"InboxDownloadMessages:%d", res] UTF8String]);
+        }];
+    }
+
     const char *_inbox_messages()
     {
         NSMutableArray<NSDictionary *> *messageData = [NSMutableArray new];
