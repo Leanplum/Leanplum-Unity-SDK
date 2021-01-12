@@ -156,6 +156,17 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        /// Forces downloading of inbox messages from the server. After messages are downloaded the appropriate callbacks will fire.
+        /// </summary>
+        public abstract void DownloadMessages();
+
+        /// <summary>
+        /// Forces downloading of inbox messages from the server. After messages are downloaded the appropriate callbacks will fire.
+        /// </summary>
+        /// <param name="completedHandler">The callback to invoke when messages are downloaded.</param>
+        public abstract void DownloadMessages(OnForceContentUpdate completedHandler);
+
+        /// <summary>
         /// Read the inbox message, marking it as read and invoking its open action.
         /// </summary>
         /// <param name="messageId">ID of the message to read.</param>

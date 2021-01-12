@@ -36,7 +36,7 @@ task copyAAR(type: Copy) {
     duplicatesStrategy = DuplicatesStrategy.WARN
 
     from('build/outputs/aar')
-    into('../../LeanplumSample/Assets/Plugins/Android')
+    into('../../Leanplum-Unity-SDK/Assets/Plugins/Android')
     def name = project.name + '-release.aar'
     include(name)
     rename(name, 'com.leanplum.unity-wrapper-' + LP_VERSION +'.aar')
