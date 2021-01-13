@@ -22,7 +22,7 @@ namespace LeanplumSDK
 
         public object Traverse(string name)
         {
-            if (!name.Contains("."))
+            if (!name.Contains('.'))
             {
                 return Util.GetValueOrDefault(vars, name);
             }
@@ -50,6 +50,7 @@ namespace LeanplumSDK
                 Type t = typeof(T);
                 try
                 {
+                    // Use the type TryParse method, i.e. int.TryParse, decimal.TryParse
                     Type[] argTypes = { typeof(string), t.MakeByRefType() };
                     var tryParse = t.GetMethod("TryParse", argTypes);
                     if (tryParse != null)
@@ -135,6 +136,8 @@ namespace LeanplumSDK
         {
             if (LeanplumFactory.SDK is LeanplumNative)
             {
+                // The action name comes as "{Name} action" and should be tracked as "{Name}"
+                eventName = eventName?.Replace(" action", "");
                 var args = new Dictionary<string, string>
                 {
                     { Constants.Args.MESSAGE_ID, id }
@@ -145,15 +148,17 @@ namespace LeanplumSDK
 
         public static string GetFileURL(string fileName)
         {
-            //"fileAttributes": {
-            //    "myImage.jpg": {
-            //        "": {
-            //            "size": 89447,
-            //            "hash": null,
-            //            "servingUrl": "http://lh3.googleusercontent.com/aBc345dE...",
-            //            "url": "/resource/aBc345dE..."
-            //        }
-            //    },
+            /*
+               "fileAttributes": {
+                  "myImage.jpg": {
+                      "": {
+                          "size": 89447,
+                          "hash": null,
+                          "servingUrl": "http://lh3.googleusercontent.com/aBc345dE...",
+                          "url": "/resource/aBc345dE..."
+                      }
+                  },
+            */
             IDictionary<string, object> file = Util.GetValueOrDefault(VarCache.FileAttributes, fileName) as IDictionary<string, object>;
             if (file != null)
             {

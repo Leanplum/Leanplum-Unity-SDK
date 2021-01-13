@@ -68,10 +68,11 @@ namespace LeanplumSDK
 
             if (!VarCache.actionDefinitions.TryGetValue(context.Name, out actionDefinition))
             {
+                // If no matching action definition is found, use the Generic one if such is registered 
                 if (VarCache.actionDefinitions.TryGetValue(Constants.Args.GENERIC_DEFINITION_NAME, out actionDefinition))
                 {
                     IDictionary<string, object> args = new Dictionary<string, object>();
-                    args.Add("messageConfig", messageConfig);
+                    args.Add(Constants.Args.GENERIC_DEFINITION_CONFIG, messageConfig);
                     var genericActionContext = new NativeActionContext(context.Id, Constants.Args.GENERIC_DEFINITION_NAME, args);
                     context = genericActionContext;
                 }
@@ -81,7 +82,8 @@ namespace LeanplumSDK
             {
                 if (!string.IsNullOrEmpty(context.Id))
                 {
-                    context.TrackMessageEvent("View", 0, null, null);
+                    // The View event is tracked using the messageId only, without an event name
+                    context.TrackMessageEvent(null, 0, null, null);
                 }
                 actionDefinition.Responder?.Invoke(context);
             }
@@ -89,42 +91,45 @@ namespace LeanplumSDK
 
         internal class WhenTrigger
         {
+            /*
+              "whenTriggers": {
+                            "children": [
+                                {
+                                    "subject": "start",
+                                    "objects": [],
+                                    "verb": "",
+                                    "secondaryVerb": "="
+                                }
+                            ],
+                            "verb": "OR"
+                        },
+            */
 
-            //"whenTriggers": {
-            //                "children": [
-            //                    {
-            //                        "subject": "start",
-            //                        "objects": [],
-            //                        "verb": "",
-            //                        "secondaryVerb": "="
-            //                    }
-            //                ],
-            //                "verb": "OR"
-            //            },
+            /*
+              "whenTriggers": {
+                            "children": [
+                                {
+                                    "subject": "event",
+                                    "objects": [],
+                                    "verb": "triggers",
+                                    "noun": "myEvent",
+                                    "secondaryVerb": "="
+                                }
+                            ],
+                            "verb": "OR"
+                        },
+            */
 
-            //"whenTriggers": {
-            //                "children": [
-            //                    {
-            //                        "subject": "event",
-            //                        "objects": [],
-            //                        "verb": "triggers",
-            //                        "noun": "myEvent",
-            //                        "secondaryVerb": "="
-            //                    }
-            //                ],
-            //                "verb": "OR"
-            //            },
+            internal int Priority { get; set; }
+            internal string Id { get; set; }
+            internal List<Condition> Conditions { get; set; }
 
-            public int Priority { get; set; }
-            public string Id { get; set; }
-            public List<Condition> Conditions { get; set; }
-
-            public WhenTrigger()
+            private WhenTrigger()
             {
                 Conditions = new List<Condition>();
             }
 
-            public static Func<KeyValuePair<string, object>, WhenTrigger> FromKV
+            internal static Func<KeyValuePair<string, object>, WhenTrigger> FromKV
                 => (x) =>
                 {
                     WhenTrigger whenCon = new WhenTrigger();
@@ -161,8 +166,8 @@ namespace LeanplumSDK
 
         internal class Condition
         {
-            public string Subject { get; set; }
-            public string Noun { get; set; }
+            internal string Subject { get; set; }
+            internal string Noun { get; set; }
         }
     }
 
@@ -172,10 +177,10 @@ namespace LeanplumSDK
 
         internal string[] Value { get; set; }
 
-        public static ActionTrigger StartOrResume { get { return new ActionTrigger(new string[] { "start", "resume" }); } }
-        public static ActionTrigger Resume { get { return new ActionTrigger(new string[] { "resume" }); } }
-        public static ActionTrigger Event { get { return new ActionTrigger(new string[] { "event" }); } }
-        public static ActionTrigger State { get { return new ActionTrigger(new string[] { "state" }); } }
-        public static ActionTrigger UserAttribute { get { return new ActionTrigger(new string[] { "userAttribute" }); } }
+        internal static ActionTrigger StartOrResume { get { return new ActionTrigger(new string[] { "start", "resume" }); } }
+        internal static ActionTrigger Resume { get { return new ActionTrigger(new string[] { "resume" }); } }
+        internal static ActionTrigger Event { get { return new ActionTrigger(new string[] { "event" }); } }
+        internal static ActionTrigger State { get { return new ActionTrigger(new string[] { "state" }); } }
+        internal static ActionTrigger UserAttribute { get { return new ActionTrigger(new string[] { "userAttribute" }); } }
     }
 }

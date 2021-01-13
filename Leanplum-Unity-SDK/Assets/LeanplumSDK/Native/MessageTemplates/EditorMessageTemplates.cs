@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
@@ -61,14 +60,15 @@ namespace LeanplumSDK
 
         public static void DefineGenericDefinition()
         {
+            string configVars = $"{Constants.Args.GENERIC_DEFINITION_CONFIG}.vars";
             ActionArgs args = new ActionArgs()
-                .With<IDictionary<string, object>>("messageConfig", null)
-                .With<IDictionary<string, object>>("messageConfig.vars", null);
+                .With<IDictionary<string, object>>(Constants.Args.GENERIC_DEFINITION_CONFIG, null)
+                .With<IDictionary<string, object>>(configVars, null);
 
             ActionContext.ActionResponder responder = new ActionContext.ActionResponder((context) =>
             {
-                var messageConfig = context.GetObjectNamed<Dictionary<string, object>>("messageConfig");
-                var messageVars = context.GetObjectNamed<Dictionary<string, object>>("messageConfig.vars");
+                var messageConfig = context.GetObjectNamed<Dictionary<string, object>>(Constants.Args.GENERIC_DEFINITION_CONFIG);
+                var messageVars = context.GetObjectNamed<Dictionary<string, object>>(configVars);
                 StringBuilder builder = new StringBuilder();
                 NativeActionContext nativeContext = context as NativeActionContext;
                 if (nativeContext != null && !string.IsNullOrEmpty(nativeContext.Id))
