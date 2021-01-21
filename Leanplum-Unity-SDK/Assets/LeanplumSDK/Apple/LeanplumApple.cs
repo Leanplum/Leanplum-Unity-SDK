@@ -632,12 +632,14 @@ namespace LeanplumSDK
             }
             else if (message.StartsWith(ACTION_RESPONDER))
             {
-                var actionName = message.Substring(ACTION_RESPONDER.Length);
+                string key = message.Substring(ACTION_RESPONDER.Length);
+                // {actionName:messageId}
+                string actionName = key.Split(':')[0];
                 
                 ActionContext.ActionResponder callback;
                 if (ActionRespondersDictionary.TryGetValue(actionName, out callback))
                 {
-                    var context = new ActionContextApple(actionName);
+                    var context = new ActionContextApple(key);
                     callback(context);
                 }
             }

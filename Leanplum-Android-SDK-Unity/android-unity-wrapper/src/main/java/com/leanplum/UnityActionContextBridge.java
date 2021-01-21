@@ -52,12 +52,12 @@ public class UnityActionContextBridge {
         return null;
     }
 
-    public static Boolean getBooleanNamed(String contextId, String name) {
+    public static boolean getBooleanNamed(String contextId, String name) {
         ActionContext context = actionContexts.get(contextId);
         if (context != null) {
             return context.booleanNamed(name);
         }
-        return null;
+        return false;
     }
 
     public static int getIntNamed(String contextId, String name) {

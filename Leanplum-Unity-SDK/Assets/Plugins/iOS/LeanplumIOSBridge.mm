@@ -22,6 +22,7 @@
 #import <Leanplum/Leanplum.h>
 #import <Leanplum/LPPushNotificationsManager.h>
 #import "LeanplumUnityHelper.h"
+#import "LeanplumActionContextBridge.h"
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
 
@@ -395,15 +396,19 @@ extern "C"
                 [arguments addObject:[LPActionArg argNamed:argName withArray:defaultValue]];
             }
         }
-        
+
         [Leanplum defineAction:actionName
                         ofKind:actionKind
                  withArguments:arguments
                    withOptions:optionsDictionary
                  withResponder:^BOOL(LPActionContext *context) {
                      // Propagate back event to unity layer
-                     UnitySendMessage(__LPgameObject, "NativeCallback",
-                                      [[NSString stringWithFormat:@"ActionResponder:%@", actionName] UTF8String]);
+                        if (actionName != nil && context != nil) {
+                            NSString *key = [NSString stringWithFormat:@"%@:%@",actionName,context.messageId];
+                            [LeanplumActionContextBridge sharedActionContexts][key] = context;
+                            UnitySendMessage(__LPgameObject, "NativeCallback",
+                                             [[NSString stringWithFormat:@"ActionResponder:%@", key] UTF8String]);
+                        }
 
                      return YES;
                  }];
