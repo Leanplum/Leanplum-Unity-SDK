@@ -1,3 +1,4 @@
+#if UNITY_ANDROID
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -108,3 +109,4 @@ namespace LeanplumSDK
         }
     }
 }
+#endif

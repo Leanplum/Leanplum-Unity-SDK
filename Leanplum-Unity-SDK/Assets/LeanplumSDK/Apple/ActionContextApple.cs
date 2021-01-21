@@ -1,3 +1,4 @@
+#if UNITY_IPHONE
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -158,3 +159,4 @@ namespace LeanplumSDK.Apple
         }
     }
 }
+#endif
