@@ -20,9 +20,20 @@
 
 #import <Foundation/Foundation.h>
 #import <Leanplum/Leanplum.h>
+#import "LeanplumActionContextBridge.h"
 #import "LeanplumUnityHelper.h"
 
-static NSDictionary<NSString *, LPActionContext *> *actionContexts = [[NSDictionary alloc] init];
+static NSMutableDictionary<NSString *, LPActionContext *> *actionContexts;
+
+@implementation LeanplumActionContextBridge
+
++ (NSMutableDictionary<NSString *, LPActionContext *> *) sharedActionContexts
+{
+    if (actionContexts == nil) actionContexts = [[NSMutableDictionary alloc] init];
+    return actionContexts;
+}
+
+@end
 
 extern "C"
 {

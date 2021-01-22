@@ -62,9 +62,9 @@ namespace LeanplumSDK.Apple
         
         public override string Name { get; }
 
-        internal ActionContextApple(string name)
+        internal ActionContextApple(string key)
         {
-            Name = name;
+            Name = key;
         }
 
         public override void TrackMessageEvent(string eventName, double value, string info, IDictionary<string, object> param)
