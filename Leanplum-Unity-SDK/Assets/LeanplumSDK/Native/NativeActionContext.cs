@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -75,7 +76,68 @@ namespace LeanplumSDK
 
         public override T GetObjectNamed<T>(string name)
         {
-            return (T)Traverse(name);
+            var value = Traverse(name);
+            Type resultType = typeof(T);
+
+            // Handles Lists, Arrays and Dictionaries of primitives
+            // Casts the collection and elements to the requested Type and elements type
+            // Collections come with elements of type object
+            // Example of supported structures: int[], List<string>, Dictionary<string, double>
+            // Does not support complex structures: Dictionary<string, List<double>>, List<List<int>>
+            try
+            {
+                if (value is IList && typeof(IList).IsAssignableFrom(resultType))
+                {
+                    Type elementType;
+                    var valuesList = (value as IList);
+                    IList newList;
+
+                    // Arrays i.e string[], int[]
+                    if (resultType.IsArray && !resultType.IsGenericType)
+                    {
+                        elementType = resultType.GetElementType();
+                        newList = Array.CreateInstance(elementType, valuesList.Count);
+                        for (int i = 0; i < valuesList.Count; i++)
+                        {
+                            var newEl = Convert.ChangeType(valuesList[i], elementType);
+                            newList[i] = newEl;
+                        }
+                    }
+                    else
+                    {
+                        // Generic Lists i.e List<string>
+                        elementType = resultType.GetGenericArguments().Single();
+                        newList = (IList)Activator.CreateInstance(resultType);
+                        foreach (var el in valuesList)
+                        {
+                            var newEl = Convert.ChangeType(el, elementType);
+                            newList.Add(newEl);
+                        }
+                    }
+                    return (T)newList;
+                }
+                else if (value is IDictionary && typeof(IDictionary).IsAssignableFrom(resultType))
+                {
+                    Type keyType = typeof(T).GetGenericArguments()[0];
+                    Type elementType = typeof(T).GetGenericArguments()[1];
+
+                    var valuesDictionary = (value as IDictionary);
+                    IDictionary newDict = (IDictionary)Activator.CreateInstance(resultType);
+                    foreach (var el in valuesDictionary.Keys)
+                    {
+                        var newKey = Convert.ChangeType(el, keyType);
+                        var newEl = Convert.ChangeType(valuesDictionary[el], elementType);
+                        newDict.Add(newKey, newEl);
+                    }
+                    return (T)newDict;
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log($"Error casting value for name: {name}. Exception: {ex.Message}");
+            }
+
+            return (T)value;
         }
 
         public override string GetStringNamed(string name)
