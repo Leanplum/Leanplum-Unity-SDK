@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -75,7 +76,19 @@ namespace LeanplumSDK
 
         public override T GetObjectNamed<T>(string name)
         {
-            return (T)Traverse(name);
+            var value = Traverse(name);
+
+            try
+            {
+                // Collections come with elements of type object
+                return Util.ConvertCollectionToType<T>(value);
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log($"Error casting value for name: {name}. Exception: {ex.Message}");
+            }
+
+            return (T)value;
         }
 
         public override string GetStringNamed(string name)

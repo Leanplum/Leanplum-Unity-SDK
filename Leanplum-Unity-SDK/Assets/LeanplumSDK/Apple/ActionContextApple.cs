@@ -102,21 +102,19 @@ namespace LeanplumSDK.Apple
         public override T GetObjectNamed<T>(string name)
         {
             Type t = typeof(T);
-            if (t == typeof(IDictionary))
+            string json = null;
+            if (typeof(IDictionary).IsAssignableFrom(t))
             {
-                var json = get_dictionary_named(Name, name);
-                if (json != null)
-                {
-                    return (T) Json.Deserialize(json);
-                }
+                json = get_dictionary_named(Name, name);
             }
-            else if (t == typeof(IList))
+            else if (typeof(IList).IsAssignableFrom(t))
             {
-                var json = get_array_named(Name, name);
-                if (json != null)
-                {
-                    return (T) Json.Deserialize(json);
-                }
+                json = get_array_named(Name, name);
+            }
+            if (json != null)
+            {
+                var value = Json.Deserialize(json);
+                return Util.ConvertCollectionToType<T>(value);
             }
 
             return default(T);
