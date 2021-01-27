@@ -258,6 +258,67 @@ namespace LeanplumSDK
             }
         }
 
+        /// <summary>
+        /// Handles Lists, Arrays and Dictionaries of primitives
+        /// Casts the collection and elements to the requested Type and elements type
+        /// Example of supported structures: int[], List<string>, Dictionary<string, double>
+        /// Does not support complex structures: Dictionary<string, List<double>>, List<List<int>>
+        /// </summary>
+        /// <typeparam name="T">The type to convert to</typeparam>
+        /// <param name="collection">The collection to cast</param>
+        /// <returns></returns>
+        internal static T ConvertCollectionToType<T>(object collection)
+        {
+            Type resultType = typeof(T);
+            if (collection is IList && typeof(IList).IsAssignableFrom(resultType))
+            {
+                Type elementType;
+                var valuesList = (collection as IList);
+                IList newList;
+
+                // Arrays i.e string[], int[]
+                if (resultType.IsArray && !resultType.IsGenericType)
+                {
+                    elementType = resultType.GetElementType();
+                    newList = Array.CreateInstance(elementType, valuesList.Count);
+                    for (int i = 0; i < valuesList.Count; i++)
+                    {
+                        var newEl = Convert.ChangeType(valuesList[i], elementType);
+                        newList[i] = newEl;
+                    }
+                }
+                else
+                {
+                    // Generic Lists i.e List<string>
+                    elementType = resultType.GetGenericArguments()[0];
+                    newList = (IList)Activator.CreateInstance(resultType);
+                    foreach (var el in valuesList)
+                    {
+                        var newEl = Convert.ChangeType(el, elementType);
+                        newList.Add(newEl);
+                    }
+                }
+                return (T)newList;
+            }
+            else if (collection is IDictionary && typeof(IDictionary).IsAssignableFrom(resultType))
+            {
+                Type keyType = typeof(T).GetGenericArguments()[0];
+                Type elementType = typeof(T).GetGenericArguments()[1];
+
+                var valuesDictionary = (collection as IDictionary);
+                IDictionary newDict = (IDictionary)Activator.CreateInstance(resultType);
+                foreach (var el in valuesDictionary.Keys)
+                {
+                    var newKey = Convert.ChangeType(el, keyType);
+                    var newEl = Convert.ChangeType(valuesDictionary[el], elementType);
+                    newDict.Add(newKey, newEl);
+                }
+                return (T)newDict;
+            }
+
+            return (T)collection;
+        }
+
         internal static bool IsNumber(object value)
         {
             return value is sbyte

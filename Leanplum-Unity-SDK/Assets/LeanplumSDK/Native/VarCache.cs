@@ -173,7 +173,7 @@ namespace LeanplumSDK
             // Merge arrays.
             if (vars is IList)
             {
-                IDictionary diffMap = diff is IDictionary ? diff as IDictionary: null;
+                IDictionary diffMap = diff is IDictionary ? diff as IDictionary : null;
                 IEnumerable diffKeys = diffMap != null ? diffMap.Keys : diff as IEnumerable;
                 IList varsList = vars is IList ? vars as IList : null;
 
@@ -182,16 +182,32 @@ namespace LeanplumSDK
                 {
                     merged.Add(MergeHelper(lpVariable, null));
                 }
-                foreach (object varSubscript in diffKeys)
+
+                // Merge values from server
+                //
+                // Array values from server come as Dictionary
+                // Example:
+                // string[] items = new string[] { "Item 1", "Item 2"};
+                // args.With<string[]>("Items", items); // Action Context arg value 
+                // "vars": {
+                //      "Items": {
+                //                  "[1]": "Item 222", // Modified value from server
+                //                  "[0]": "Item 111"  // Modified value from server
+                //              }
+                //  }
+                if (diffMap != null)
                 {
-                    var strSubscript = (string) varSubscript;
-                    int subscript = Convert.ToInt32(strSubscript.Substring(1, strSubscript.Length - 1 - 1));
-                    object lpVariable = diffMap.Contains(varSubscript) ? diffMap[varSubscript] : null;
-                    while (subscript >= merged.Count)
+                    foreach (object varSubscript in diffKeys)
                     {
-                        merged.Add(null);
+                        var strSubscript = (string)varSubscript;
+                        int subscript = Convert.ToInt32(strSubscript.Substring(1, strSubscript.Length - 1 - 1));
+                        object lpVariable = diffMap.Contains(varSubscript) ? diffMap[varSubscript] : null;
+                        while (subscript >= merged.Count)
+                        {
+                            merged.Add(null);
+                        }
+                        merged[subscript] = MergeHelper(merged[subscript], lpVariable);
                     }
-                    merged[subscript] = MergeHelper(merged[subscript], lpVariable);
                 }
                 return merged;
             }

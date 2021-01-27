@@ -52,22 +52,11 @@ namespace LeanplumSDK
 
         public override T GetObjectNamed<T>(string name)
         {
-            Type t = typeof(T);
-            if (t == typeof(IDictionary))
+            var json = nativeHandle.CallStatic<string>("getObjectNamed", Name, name);
+            if (json != null)
             {
-                var json = nativeHandle.CallStatic<string>("getObjectNamed", Name, name);
-                if (json != null)
-                {
-                    return (T) Json.Deserialize(json);
-                }
-            }
-            else if (t == typeof(IList))
-            {
-                var json = nativeHandle.CallStatic<string>("getObjectNamed", Name, name);
-                if (json != null)
-                {
-                    return (T) Json.Deserialize(json);
-                }
+                var value = Json.Deserialize(json);
+                return Util.ConvertCollectionToType<T>(value);
             }
 
             return default(T);
