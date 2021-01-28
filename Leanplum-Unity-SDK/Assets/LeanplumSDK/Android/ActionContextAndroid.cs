@@ -62,6 +62,12 @@ namespace LeanplumSDK
             return default(T);
         }
 
+        public override Color GetColorNamed(string name)
+        {
+            int intColor = GetNumberNamed<int>(name);
+            return Util.IntToColor(intColor);
+        }
+
         public override T GetNumberNamed<T>(string name)
         {
             Type t = typeof(T);

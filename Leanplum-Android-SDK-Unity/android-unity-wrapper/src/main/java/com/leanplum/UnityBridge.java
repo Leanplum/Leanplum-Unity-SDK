@@ -271,7 +271,7 @@ public class UnityBridge {
         String argKind = (String) dict.get("kind");
         Object defaultValue = dict.get("defaultValue");
 
-        if (argName == null || argKind == null || defaultValue == null) {
+        if (argName == null || argKind == null || (defaultValue == null && !argKind.equals("action"))) {
           continue;
         }
 
@@ -290,8 +290,14 @@ public class UnityBridge {
         } else if (argKind.equals("action")) {
           if (defaultValue instanceof String) {
             actionArgs.withAction(argName, (String) defaultValue);
+          } else if (defaultValue == null) {
+            actionArgs.withAction(argName, null);
           }
         } else if (argKind.equals("color")) {
+          // defaultValue can come as a double with E7 notation
+          if (defaultValue instanceof Double) {
+            defaultValue = ((Double) defaultValue).intValue();
+          }
           if (defaultValue instanceof Integer) {
             actionArgs.withColor(argName, (int) defaultValue);
           }
