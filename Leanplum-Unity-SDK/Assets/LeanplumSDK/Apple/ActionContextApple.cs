@@ -37,6 +37,9 @@ namespace LeanplumSDK.Apple
         internal static extern bool get_bool_named(string id, string name);
 
         [DllImport("__Internal")]
+        internal static extern long get_color_named(string id, string name);
+
+        [DllImport("__Internal")]
         internal static extern string get_dictionary_named(string id, string name);
 
         [DllImport("__Internal")]
@@ -118,6 +121,12 @@ namespace LeanplumSDK.Apple
             }
 
             return default(T);
+        }
+
+        public override UnityEngine.Color GetColorNamed(string name)
+        {
+            long color = get_color_named(Name, name);
+            return Util.IntToColor(color);
         }
 
         public override T GetNumberNamed<T>(string name)

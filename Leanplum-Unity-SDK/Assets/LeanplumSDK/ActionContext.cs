@@ -64,6 +64,13 @@ namespace LeanplumSDK
         public abstract T GetObjectNamed<T>(string name);
 
         /// <summary>
+        /// Get UnityEngine Color for name
+        /// </summary>
+        /// <param name="name">name of the color</param>
+        /// <returns>found Color or default Color</returns>
+        public abstract UnityEngine.Color GetColorNamed(string name);
+
+        /// <summary>
         /// Get number for name
         /// </summary>
         /// <param name="name">name of the number</param>

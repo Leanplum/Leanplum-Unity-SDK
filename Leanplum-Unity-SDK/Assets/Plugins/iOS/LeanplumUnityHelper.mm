@@ -60,4 +60,32 @@ namespace lp
                                                      encoding:NSUTF8StringEncoding];
         return copy_string([jsonString UTF8String]);
     }
+
+    long long leanplum_colorToInt(UIColor *value)
+    {
+        if (value == nil) {
+            return 0;
+        }
+        const CGFloat *components = CGColorGetComponents(value.CGColor);
+        if (CGColorGetNumberOfComponents(value.CGColor) < 4) {
+            NSUInteger w = (NSUInteger)(255 * components[0]);
+            NSUInteger a = (NSUInteger)(255 * components[1]);
+            return (a << 24) + (w << 16) + (w << 8) + w;
+        } else {
+            NSUInteger r = (NSUInteger)(255 * components[0]);
+            NSUInteger g = (NSUInteger)(255 * components[1]);
+            NSUInteger b = (NSUInteger)(255 * components[2]);
+            NSUInteger a = (NSUInteger)(255 * components[3]);
+            return (a << 24) + (r << 16) + (g << 8) + b;
+        }
+    }
+
+    UIColor *leanplum_intToColor(long long value)
+    {
+        int b = value & 0xFF;
+        int g = (value >> 8) & 0XFF;
+        int r = (value >> 16) & 0XFF;
+        int a = (value >> 24) & 0XFF;
+        return [UIColor colorWithRed:r / 255.0 green:g / 255.0 blue:b / 255.0   alpha:a / 255.0];
+    }
 }

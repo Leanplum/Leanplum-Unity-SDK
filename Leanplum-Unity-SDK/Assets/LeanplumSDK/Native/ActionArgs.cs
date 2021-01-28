@@ -101,13 +101,15 @@ namespace LeanplumSDK
             return this;
         }
 
-        public ActionArgs WithColor<T>(string name, T defaultValue)
+        public ActionArgs WithColor(string name, UnityEngine.Color defaultValue)
         {
             if (name == null)
             {
                 return this;
             }
-            args.Add(ActionArg<T>.ColorArgumentNamed(name, defaultValue));
+
+            long value = Util.ColorToInt(defaultValue);
+            args.Add(ActionArg<long>.ColorArgumentNamed(name, value));
             return this;
         }
 
