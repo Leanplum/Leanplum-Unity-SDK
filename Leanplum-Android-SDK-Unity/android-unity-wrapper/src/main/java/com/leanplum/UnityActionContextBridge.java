@@ -1,7 +1,10 @@
 package com.leanplum;
 
+import android.graphics.Color;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.leanplum.internal.FileManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -135,6 +138,30 @@ public class UnityActionContextBridge {
             }
         }
         return null;
+    }
+
+    public static int getColorNamed(String contextId, String name) {
+        ActionContext context = actionContexts.get(contextId);
+        if (context != null) {
+            Number n = context.numberNamed(name);
+            if (n != null) {
+                return n.intValue();
+            }
+        }
+        return Color.BLACK;
+    }
+
+    public static String getFileNamed(String contextId, String name) {
+        ActionContext context = actionContexts.get(contextId);
+        String empty = "";
+        if (context != null) {
+            String stringValue = context.stringNamed(name);
+            if (stringValue == null || stringValue.length() == 0) {
+                return empty;
+            }
+            return FileManager.fileValue(stringValue);
+        }
+        return empty;
     }
 
     public static void muteFutureMessagesOfSameKind(String contextId) {

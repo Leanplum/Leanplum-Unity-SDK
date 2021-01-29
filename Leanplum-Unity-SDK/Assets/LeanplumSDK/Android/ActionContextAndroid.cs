@@ -68,6 +68,11 @@ namespace LeanplumSDK
             return Util.IntToColor(intColor);
         }
 
+        public override string GetFile(string name)
+        {
+            return nativeHandle.CallStatic<string>("getFileNamed", Name, name);
+        }
+
         public override T GetNumberNamed<T>(string name)
         {
             Type t = typeof(T);

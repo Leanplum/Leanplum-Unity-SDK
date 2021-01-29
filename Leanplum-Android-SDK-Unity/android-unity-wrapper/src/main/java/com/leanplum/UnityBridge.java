@@ -302,6 +302,9 @@ public class UnityBridge {
             actionArgs.withColor(argName, (int) defaultValue);
           }
         }
+        else if (argKind.equals("file")) {
+            actionArgs.withFile(name, (String) defaultValue);
+        }
       }
     }
 
