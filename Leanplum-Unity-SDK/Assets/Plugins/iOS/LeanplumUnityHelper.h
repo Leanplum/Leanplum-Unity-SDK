@@ -28,4 +28,8 @@ namespace lp
     NSString *to_nsstring(const char *str);
     char *to_string(NSString *str);
     char *to_json_string(id obj);
+
+    // Copied from the iOS SDK otherwise cannot be linked
+    long long leanplum_colorToInt(UIColor *value);
+    UIColor *leanplum_intToColor(long long value);
 }

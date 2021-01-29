@@ -21,6 +21,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using LeanplumSDK.MiniJSON;
+using UnityEngine;
 
 namespace LeanplumSDK
 {
@@ -317,6 +318,24 @@ namespace LeanplumSDK
             }
 
             return (T)collection;
+        }
+
+        internal static long ColorToInt(Color32 color32)
+        {
+            long color = (color32.a & 0xff) << 24 | (color32.r & 0xff) << 16 | (color32.g & 0xff) << 8 | (color32.b & 0xff);
+            return color;
+        }
+
+        internal static Color IntToColor(long colorVal)
+        {
+            Color32 c = new Color32
+            {
+                b = (byte)((colorVal) & 0xFF),
+                g = (byte)((colorVal >> 8) & 0xFF),
+                r = (byte)((colorVal >> 16) & 0xFF),
+                a = (byte)((colorVal >> 24) & 0xFF)
+            };
+            return c;
         }
 
         internal static bool IsNumber(object value)
