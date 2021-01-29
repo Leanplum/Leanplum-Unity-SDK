@@ -404,7 +404,7 @@ extern "C"
             else if ([argKind isEqualToString:LP_KIND_COLOR])
             {
                 long long longVal = [defaultValue longLongValue];
-                [arguments addObject:[LPActionArg argNamed:argName withColor:leanplum_intToColor(longVal)]];
+                [arguments addObject:[LPActionArg argNamed:argName withColor:lp::leanplum_intToColor(longVal)]];
             }
         }
 
