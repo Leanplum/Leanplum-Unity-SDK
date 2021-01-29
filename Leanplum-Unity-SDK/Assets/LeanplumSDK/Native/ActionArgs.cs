@@ -69,6 +69,11 @@ namespace LeanplumSDK
             return ArgumentNamed(name, defaultValue, Constants.Kinds.COLOR);
         }
 
+        public static ActionArg<T> FileArgumentNamed(string name, T defaultValue)
+        {
+            return ArgumentNamed(name, defaultValue, Constants.Kinds.FILE);
+        }
+
         public static ActionArg<T> ActionArgumentNamed(string name, T defaultValue)
         {
             return ArgumentNamed(name, defaultValue, Constants.Kinds.ACTION);
@@ -110,6 +115,16 @@ namespace LeanplumSDK
 
             long value = Util.ColorToInt(defaultValue);
             args.Add(ActionArg<long>.ColorArgumentNamed(name, value));
+            return this;
+        }
+
+        public ActionArgs WithFile(string name)
+        {
+            if (name == null)
+            {
+                return this;
+            }
+            args.Add(ActionArg<string>.FileArgumentNamed(name, string.Empty));
             return this;
         }
 

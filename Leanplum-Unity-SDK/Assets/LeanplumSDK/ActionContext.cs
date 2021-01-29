@@ -71,6 +71,14 @@ namespace LeanplumSDK
         public abstract UnityEngine.Color GetColorNamed(string name);
 
         /// <summary>
+        /// Get file path for name.
+        /// Returns URL on Unity. Returns file path on iOS and Android.
+        /// </summary>
+        /// <param name="name">name of the file argument</param>
+        /// <returns></returns>
+        public abstract string GetFile(string name);
+
+        /// <summary>
         /// Get number for name
         /// </summary>
         /// <param name="name">name of the number</param>

@@ -105,6 +105,11 @@ namespace LeanplumSDK
             return new UnityEngine.Color();
         }
 
+        public override string GetFile(string name)
+        {
+            return GetFileURL(name);
+        }
+
         public override string GetStringNamed(string name)
         {
             var value = Traverse(name);

@@ -350,6 +350,7 @@ extern "C"
         static NSString *LP_KIND_ARRAY = @"list";
         static NSString *LP_KIND_ACTION = @"action";
         static NSString *LP_KIND_COLOR = @"color";
+        static NSString *LP_KIND_FILE = @"file";
         
         for (NSDictionary* arg in argsArray)
         {
@@ -405,6 +406,10 @@ extern "C"
             {
                 long long longVal = [defaultValue longLongValue];
                 [arguments addObject:[LPActionArg argNamed:argName withColor:lp::leanplum_intToColor(longVal)]];
+            }
+            else if ([argKind isEqualToString:LP_KIND_FILE])
+            {
+                [arguments addObject:[LPActionArg argNamed:argName withFile:defaultValue]];
             }
         }
 

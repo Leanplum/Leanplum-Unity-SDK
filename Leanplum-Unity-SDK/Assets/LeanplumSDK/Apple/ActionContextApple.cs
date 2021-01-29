@@ -40,6 +40,9 @@ namespace LeanplumSDK.Apple
         internal static extern long get_color_named(string id, string name);
 
         [DllImport("__Internal")]
+        internal static extern string get_file_named(string id, string name);
+
+        [DllImport("__Internal")]
         internal static extern string get_dictionary_named(string id, string name);
 
         [DllImport("__Internal")]
@@ -127,6 +130,11 @@ namespace LeanplumSDK.Apple
         {
             long color = get_color_named(Name, name);
             return Util.IntToColor(color);
+        }
+
+        public override string GetFile(string name)
+        {
+            return get_file_named(Name, name);
         }
 
         public override T GetNumberNamed<T>(string name)

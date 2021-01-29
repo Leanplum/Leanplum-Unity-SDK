@@ -100,6 +100,12 @@ long get_color_named(const char *contextId, const char *name)
     return intVal;
 }
 
+char * get_file_named(const char *contextId, const char *name)
+{
+    LPActionContext *context = [actionContexts objectForKey:lp::to_nsstring(contextId)];
+    return lp::to_string([context fileNamed:lp::to_nsstring(name)]);
+}
+
 char *get_dictionary_named(const char *contextId, const char *name)
 {
     LPActionContext *context = [actionContexts objectForKey:lp::to_nsstring(contextId)];
