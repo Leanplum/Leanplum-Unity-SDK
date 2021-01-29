@@ -303,7 +303,7 @@ public class UnityBridge {
           }
         }
         else if (argKind.equals("file")) {
-            actionArgs.withFile(name, (String) defaultValue);
+            actionArgs.withFile(argName, (String) defaultValue);
         }
       }
     }
