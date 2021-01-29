@@ -80,8 +80,11 @@ namespace LeanplumSDK
 
             try
             {
-                // Collections come with elements of type object
-                return Util.ConvertCollectionToType<T>(value);
+                if (value is IDictionary || value is IList)
+                {
+                    // Collections come with elements of type object
+                    return Util.ConvertCollectionToType<T>(value);
+                }
             }
             catch (Exception ex)
             {
@@ -89,6 +92,22 @@ namespace LeanplumSDK
             }
 
             return (T)value;
+        }
+
+        public override UnityEngine.Color GetColorNamed(string name)
+        {
+            var value = Traverse(name);
+            if (value is long && value != null)
+            {
+                var colorVal = (long)value;
+                return Util.IntToColor(colorVal);
+            }
+            return new UnityEngine.Color();
+        }
+
+        public override string GetFile(string name)
+        {
+            return GetFileURL(name);
         }
 
         public override string GetStringNamed(string name)

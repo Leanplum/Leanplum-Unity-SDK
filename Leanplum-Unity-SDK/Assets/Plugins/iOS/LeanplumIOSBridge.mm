@@ -350,6 +350,7 @@ extern "C"
         static NSString *LP_KIND_ARRAY = @"list";
         static NSString *LP_KIND_ACTION = @"action";
         static NSString *LP_KIND_COLOR = @"color";
+        static NSString *LP_KIND_FILE = @"file";
         
         for (NSDictionary* arg in argsArray)
         {
@@ -357,14 +358,20 @@ extern "C"
             NSString* argKind = arg[@"kind"];
             id defaultValue = arg[@"defaultValue"];
             
-            if (argName == nil || argKind == nil || defaultValue == nil)
+            if (argName == nil || argKind == nil || (defaultValue == nil && ![argKind isEqualToString:LP_KIND_ACTION]))
             {
                 continue;
             }
             
-            if ([argKind isEqualToString:LP_KIND_ACTION] && [defaultValue isKindOfClass:[NSString class]])
+            if ([argKind isEqualToString:LP_KIND_ACTION])
             {
+                // Allow registering an Action with null default value
+                // as it is done in the iOS SDK
                 NSString* actionValue = (NSString*) defaultValue;
+                if ([actionValue isKindOfClass:[NSNull class]])
+                {
+                    actionValue = nil;
+                }
                 [arguments addObject:[LPActionArg argNamed:argName withAction:actionValue]];
             }
             else if ([argKind isEqualToString:LP_KIND_INT] && [defaultValue isKindOfClass:[NSNumber class]])
@@ -394,6 +401,15 @@ extern "C"
             else if ([argKind isEqualToString:LP_KIND_ARRAY])
             {
                 [arguments addObject:[LPActionArg argNamed:argName withArray:defaultValue]];
+            }
+            else if ([argKind isEqualToString:LP_KIND_COLOR])
+            {
+                long long longVal = [defaultValue longLongValue];
+                [arguments addObject:[LPActionArg argNamed:argName withColor:lp::leanplum_intToColor(longVal)]];
+            }
+            else if ([argKind isEqualToString:LP_KIND_FILE])
+            {
+                [arguments addObject:[LPActionArg argNamed:argName withFile:defaultValue]];
             }
         }
 
