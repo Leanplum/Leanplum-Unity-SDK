@@ -133,7 +133,7 @@ void run_action_named(const char *contextId, const char *actionName)
 void run_tracked_action_named(const char *contextId, const char *actionName)
 {
     LPActionContext *context = [actionContexts objectForKey:lp::to_nsstring(contextId)];
-    [context runActionNamed:lp::to_nsstring(actionName)];
+    [context runTrackedActionNamed:lp::to_nsstring(actionName)];
 }
 
 void track_event(const char *contextId, const char *event, double value, const char *params)
