@@ -1,11 +1,10 @@
-﻿using System;
+﻿#if UNITY_IPHONE
+using System;
 using System.Collections.Generic;
 using LeanplumSDK.MiniJSON;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using System.Linq;
-
-#if UNITY_IPHONE
 
 namespace LeanplumSDK
 {

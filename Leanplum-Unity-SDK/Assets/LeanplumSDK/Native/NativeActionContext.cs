@@ -107,7 +107,12 @@ namespace LeanplumSDK
 
         public override string GetFile(string name)
         {
-            return GetFileURL(name);
+            string fileName = GetStringNamed(name);
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                return GetFileURL(fileName);
+            }
+            return string.Empty;
         }
 
         public override string GetStringNamed(string name)

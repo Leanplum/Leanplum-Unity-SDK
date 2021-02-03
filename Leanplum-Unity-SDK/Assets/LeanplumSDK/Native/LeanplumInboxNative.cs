@@ -379,14 +379,8 @@ namespace LeanplumSDK
 
         private void TriggerInboxSyncedWithStatus(bool status, OnForceContentUpdate completedHandler)
         {
-            if (completedHandler != null)
-            {
-                completedHandler.Invoke(status);
-            }
-            else
-            {
-                ForceContentUpdate?.Invoke(status);
-            }
+            completedHandler?.Invoke(status);
+            ForceContentUpdate?.Invoke(status);
         }
     }
 }
