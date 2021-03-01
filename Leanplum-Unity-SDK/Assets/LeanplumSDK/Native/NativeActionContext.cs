@@ -128,18 +128,30 @@ namespace LeanplumSDK
 
         public override void RunActionNamed(string name)
         {
-            IDictionary<object, object> action = Traverse(name) as IDictionary<object, object>;
-            if (action != null)
+            object actionObject = Traverse(name);
+
+            Dictionary<string, object> actionData = null;
+            if (actionObject != null)
             {
-                var actionName = action[Constants.Args.ACTION_NAME];
+                if (actionObject is IDictionary<object, object>)
+                {
+                    var actionDataObj = actionObject as IDictionary<object, object>;
+                    actionData = actionDataObj.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value);
+                }
+                else if (actionObject is IDictionary<string, object>)
+                {
+                    actionData = actionObject as Dictionary<string, object>;
+                }
+            }
+
+            if (actionData != null)
+            {
+                var actionName = actionData[Constants.Args.ACTION_NAME];
                 if (!string.IsNullOrEmpty(actionName?.ToString()))
                 {
-                    Dictionary<string, object> actions = action.ToDictionary(kv => kv.Key.ToString(),
-                                                         kv => kv.Value);
-
-                    if (actionName.Equals(Constants.Args.CHAIN_TO_EXISTING) && actions.ContainsKey(Constants.Args.CHAIN_MESSAGE))
+                    if (actionName.Equals(Constants.Args.CHAIN_TO_EXISTING) && actionData.ContainsKey(Constants.Args.CHAIN_MESSAGE))
                     {
-                        string messageId = actions[Constants.Args.CHAIN_MESSAGE]?.ToString();
+                        string messageId = actionData[Constants.Args.CHAIN_MESSAGE]?.ToString();
                         if (!Leanplum.ShowMessage(messageId))
                         {
                             // Try to fetch the chained message if not on the device
@@ -151,8 +163,12 @@ namespace LeanplumSDK
                     }
                     else
                     {
-                        NativeActionContext actionContext = new NativeActionContext(null, actionName.ToString(), actions);
-                        LeanplumActionManager.TriggerAction(actionContext, actions);
+                        // The Actions default values are not merged when the message is merged
+                        // Merge now when the action is to be triggered
+                        var mergedActions = VarCache.MergeMessage(actionData);
+
+                        NativeActionContext actionContext = new NativeActionContext(null, actionName.ToString(), mergedActions);
+                        LeanplumActionManager.TriggerAction(actionContext, mergedActions);
                     }
                 }
             }

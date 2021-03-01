@@ -88,15 +88,7 @@ namespace LeanplumSDK
 
                 if (msg != null)
                 {
-                    msg.IsRead = true;
-
-                    var param = new Dictionary<string, string>
-                    {
-                        [Constants.Params.INBOX_MESSAGE_ID] = messageId
-                    };
-
-                    LeanplumRequest request = LeanplumRequest.Post(Constants.Methods.MARK_INBOX_MESSAGE_AS_READ, param);
-                    request.SendIfConnected();
+                    Read(msg);
                 }
             }
         }
@@ -105,7 +97,8 @@ namespace LeanplumSDK
         {
             if (message != null)
             {
-                Read(message.Id);
+                MarkAsRead(message);
+                Open(message);
             }
         }
 
@@ -113,18 +106,30 @@ namespace LeanplumSDK
         {
             if (messageId != null)
             {
-                
-            }
+                var msg = _messages.Find(message => message.Id == messageId);
 
-            InboxChanged?.Invoke();
+                if (msg != null)
+                {
+                    MarkAsRead(msg);
+                }
+            }
         }
 
         internal override void MarkAsRead(Message message)
         {
             if (message != null)
             {
-                MarkAsRead(message.Id);
+                message.IsRead = true;
+
+                var param = new Dictionary<string, string>
+                {
+                    [Constants.Params.INBOX_MESSAGE_ID] = message.Id
+                };
+
+                LeanplumRequest request = LeanplumRequest.Post(Constants.Methods.MARK_INBOX_MESSAGE_AS_READ, param);
+                request.SendIfConnected();
             }
+            InboxChanged?.Invoke();
         }
 
         public override void Remove(string messageId)
@@ -179,7 +184,6 @@ namespace LeanplumSDK
                     var response = Util.GetLastResponse(data) as IDictionary<string, object>;
                     var messages = Util.GetValueOrDefault(response, Constants.Keys.INBOX_MESSAGES) as IDictionary<string, object>;
                     var inboxMessages = new List<Message>();
-
                     if (messages != null)
                     {
                         foreach (var pair in messages)
@@ -269,6 +273,22 @@ namespace LeanplumSDK
             };
 
             request.SendIfConnected();
+        }
+
+        internal void Open(Message message)
+        {
+            var messageVars = message.ActionContext;
+            var openAction = Util.GetValueOrDefault(messageVars, Constants.Args.OPEN_ACTION) as IDictionary<string, object>;
+            if (openAction != null)
+            {
+                // The inbox message id is with format <messageId>##<instance>
+                string id = message.Id.Split(new string[] { "##" }, StringSplitOptions.RemoveEmptyEntries)[0];
+
+                string actionName = Util.GetValueOrDefault(messageVars, Constants.Args.ACTION_NAME, string.Empty)?.ToString();
+
+                var actionContext = new NativeActionContext(id, actionName, messageVars);
+                actionContext.RunTrackedActionNamed(Constants.Args.OPEN_ACTION);
+            }
         }
 
         internal void UpdateMessages(List<Message> messages)

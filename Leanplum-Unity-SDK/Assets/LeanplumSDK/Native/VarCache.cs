@@ -396,6 +396,14 @@ namespace LeanplumSDK
                             var messageConfig = Util.GetValueOrDefault(values, Constants.Args.VARS) as Dictionary<string, object>;
                             if (messageConfig != null)
                             {
+                                // Merges the default argument values defined in the Action Definition with the values coming from the API.
+                                // The API returns only the modified values from the dashboard.
+                                // It does NOT merge Actions which could be part of the Action Definition since
+                                // the Actions are themselves Action Definitions.
+                                // i.e Confirm -> Accept action -> Open URL
+                                // The Confirm Action Definition contains the Accept action ->
+                                // The Accept action itself has an Action Definition with default values.
+                                // The last are not merged here but when the action is triggered.
                                 var mergedVars = MergeHelper(actionDefinitions[name].Vars, messageConfig);
                                 var mergedVarsDict = mergedVars as Dictionary<object, object>;
                                 var newVars = mergedVarsDict.ToDictionary(item => item.Key.ToString(), item => item.Value);
