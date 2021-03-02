@@ -175,6 +175,7 @@ namespace LeanplumSDK
             public const string CLOSE_URL = "Close URL";
             public const string HAS_DISMISS_BUTTON = "Has dismiss button";
             public const string OPEN_URL = "Open URL";
+            public const string OPEN_ACTION = "Open action";
             public const string TRACK_URL = "Track URL";
             public const string ACTION_URL = "Action URL";
             public const string TRACK_ACTION_URL = "Track Action URL";
