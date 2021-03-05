@@ -28,6 +28,34 @@ namespace LeanplumSDK
             }
         }
 
+        internal static void MaybePerformActions(ActionTrigger actionTrigger, string eventName, IDictionary<string, object> parameters)
+        {
+            if (!ShouldPerformActions)
+                return;
+
+            // TODO: change initialization in trigger track/advance etc.
+            var contextualData = new LeanplumContextualData
+            {
+                Params = parameters
+            };
+            Trigger trigger = new Trigger()
+            {
+                ActionTrigger = actionTrigger,
+                EventName = eventName,
+                ContextualData = contextualData
+            };
+
+            var condition = VarCache.Messages.Select(WhenTrigger.FromKV)
+                .OrderBy(w => w.Priority)
+                .FirstOrDefault(w => w.Conditions.Any(x => x.IsMatch(trigger)));
+
+            if (condition != null)
+            {
+                var msg = Util.GetValueOrDefault(VarCache.Messages, condition.Id) as IDictionary<string, object>;
+                TriggerAction(condition.Id, msg);
+            }
+        }
+
         internal static void TriggerPreview(IDictionary<string, object> packetData)
         {
             var actionData = Util.GetValueOrDefault(packetData, Constants.Args.ACTION) as IDictionary<string, object>;
@@ -89,6 +117,7 @@ namespace LeanplumSDK
             }
         }
 
+    }
         internal class WhenTrigger
         {
             /*
@@ -120,15 +149,36 @@ namespace LeanplumSDK
                         },
             */
 
+            /*
+             "whenTriggers": {
+                        "children": [
+                            {
+                                "subject": "state",
+                                "objects": [
+                                    "param",
+                                    "notnull"
+                                ],
+                                "verb": "triggersWithParameter",
+                                "noun": "stateWithParameter",
+                                "secondaryVerb": "="
+                            }
+                        ],
+                        "verb": "OR"
+                    },
+            */
+
             internal int Priority { get; set; }
             internal string Id { get; set; }
-            internal List<Condition> Conditions { get; set; }
+            internal List<ICondition> Conditions { get; set; }
 
             private WhenTrigger()
             {
-                Conditions = new List<Condition>();
+                Conditions = new List<ICondition>();
             }
 
+            // TODO: bool isMatch? // depending on AND / OR between the conditions
+
+            //TODO: Move strings to constants
             internal static Func<KeyValuePair<string, object>, WhenTrigger> FromKV
                 => (x) =>
                 {
@@ -150,11 +200,33 @@ namespace LeanplumSDK
                                     var childDict = child as IDictionary<string, object>;
                                     childDict.TryGetValue("subject", out object subject);
                                     childDict.TryGetValue("noun", out object noun);
-                                    whenCon.Conditions.Add(new Condition()
+                                    childDict.TryGetValue("verb", out object verb);
+
+
+                                    ICondition condition = new Condition()
                                     {
                                         Subject = subject?.ToString(),
                                         Noun = noun?.ToString(),
-                                    });
+                                        Verb = verb?.ToString()
+                                    };
+
+                                    var objects = Util.GetValueOrDefault(childDict, "objects") as IList<object>;
+
+                                    string verbStr = verb?.ToString();
+                                    if (verbStr == TriggersWithParameterCondition.Name)
+                                    {
+                                        condition = new TriggersWithParameterCondition(condition, objects);
+                                    }
+                                    if (verbStr == ChangesToCondition.Name)
+                                    {
+                                        condition = new ChangesToCondition(condition, objects);
+                                    }
+                                    if (verbStr == ChangesFromToCondition.Name)
+                                    {
+                                        condition = new ChangesFromToCondition(condition, objects);
+                                    }
+
+                                    whenCon.Conditions.Add(condition);
                                 }
                             }
                         }
@@ -163,24 +235,4 @@ namespace LeanplumSDK
                 };
 
         }
-
-        internal class Condition
-        {
-            internal string Subject { get; set; }
-            internal string Noun { get; set; }
-        }
-    }
-
-    internal struct ActionTrigger
-    {
-        private ActionTrigger(string[] value) { Value = value; }
-
-        internal string[] Value { get; set; }
-
-        internal static ActionTrigger StartOrResume { get { return new ActionTrigger(new string[] { "start", "resume" }); } }
-        internal static ActionTrigger Resume { get { return new ActionTrigger(new string[] { "resume" }); } }
-        internal static ActionTrigger Event { get { return new ActionTrigger(new string[] { "event" }); } }
-        internal static ActionTrigger State { get { return new ActionTrigger(new string[] { "state" }); } }
-        internal static ActionTrigger UserAttribute { get { return new ActionTrigger(new string[] { "userAttribute" }); } }
-    }
 }
