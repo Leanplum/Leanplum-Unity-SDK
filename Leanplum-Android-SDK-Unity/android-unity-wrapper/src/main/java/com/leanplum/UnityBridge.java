@@ -20,6 +20,10 @@
 package com.leanplum;
 
 import java.lang.reflect.Method;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +38,8 @@ import android.location.Location;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.leanplum.callbacks.ActionCallback;
+import com.leanplum.callbacks.InboxChangedCallback;
+import com.leanplum.callbacks.InboxSyncedCallback;
 import com.leanplum.callbacks.StartCallback;
 import com.leanplum.callbacks.VariableCallback;
 import com.leanplum.callbacks.VariablesChangedCallback;
@@ -97,6 +103,20 @@ public class UnityBridge {
     Leanplum.setNetworkTimeout(seconds, downloadSeconds);
   }
 
+  public static void setEventsUploadInterval(int uploadInterval) {
+    EventsUploadInterval interval = null;
+    for (EventsUploadInterval i : EventsUploadInterval.values()) {
+      if (i.getMinutes() == uploadInterval) {
+        interval = i;
+        break;
+      }
+    }
+    
+    if (interval != null) {
+      Leanplum.setEventsUploadInterval(interval);
+    }
+  }
+
   public static void setAppIdForDevelopmentMode(String appId, String accessKey) {
     isDeveloper = true;
     Leanplum.setAppIdForDevelopmentMode(appId, accessKey);
@@ -108,6 +128,14 @@ public class UnityBridge {
 
   public static void setDeviceId(String deviceId) {
     Leanplum.setDeviceId(deviceId);
+  }
+
+  public static String getDeviceId() {
+    return Leanplum.getDeviceId();
+  }
+
+  public static String getUserId() {
+    return Leanplum.getUserId();
   }
 
   public static void setTestModeEnabled(boolean enabled) {
@@ -150,6 +178,20 @@ public class UnityBridge {
       @Override
       public void onResponse(boolean arg0) {
         makeCallbackToUnity("Started:" + arg0);
+      }
+    });
+
+    Leanplum.getInbox().addChangedHandler(new InboxChangedCallback() {
+      @Override
+      public void inboxChanged() {
+        makeCallbackToUnity("InboxOnChanged");
+      }
+    });
+
+    Leanplum.getInbox().addSyncedHandler(new InboxSyncedCallback() {
+      @Override
+      public void onForceContentUpdate(boolean success) {
+        makeCallbackToUnity("InboxForceContentUpdate:" + (success ? 1 : 0));
       }
     });
 
@@ -220,7 +262,6 @@ public class UnityBridge {
     List<Object> argsArray = gson.fromJson(args,
             new TypeToken<List<Object>>() {
             }.getType());
-    Map<String, Object> optionsDictionary = JsonConverter.fromJson(options);
 
     ActionArgs actionArgs = new ActionArgs();
 
@@ -231,7 +272,7 @@ public class UnityBridge {
         String argKind = (String) dict.get("kind");
         Object defaultValue = dict.get("defaultValue");
 
-        if (argName == null || argKind == null || defaultValue == null) {
+        if (argName == null || argKind == null || (defaultValue == null && !argKind.equals("action"))) {
           continue;
         }
 
@@ -250,11 +291,20 @@ public class UnityBridge {
         } else if (argKind.equals("action")) {
           if (defaultValue instanceof String) {
             actionArgs.withAction(argName, (String) defaultValue);
+          } else if (defaultValue == null) {
+            actionArgs.withAction(argName, null);
           }
         } else if (argKind.equals("color")) {
+          // defaultValue can come as a double with E7 notation
+          if (defaultValue instanceof Double) {
+            defaultValue = ((Double) defaultValue).intValue();
+          }
           if (defaultValue instanceof Integer) {
             actionArgs.withColor(argName, (int) defaultValue);
           }
+        }
+        else if (argKind.equals("file")) {
+            actionArgs.withFile(argName, (String) defaultValue);
         }
       }
     }
@@ -262,6 +312,7 @@ public class UnityBridge {
     Leanplum.defineAction(name, kind, actionArgs, new ActionCallback() {
       @Override
       public boolean onResponse(ActionContext context) {
+<<<<<<< HEAD
         // Action Responses without Actual Data is Useless
         try {
            Map<String, Object> onResponseData = context.getArgs();
@@ -273,6 +324,12 @@ public class UnityBridge {
         catch(Exception ex) {
           Log.e("[LPUnity/onResponse]",  "Action Response Failed with Exception" + ex);
           return false;
+=======
+        if (name != null && context != null) {
+          String key = String.format("%s:%s", name, context.getMessageId());
+          UnityActionContextBridge.actionContexts.put(key, context);
+          makeCallbackToUnity("ActionResponder:" + key);
+>>>>>>> master
         }
         return true;
       }
@@ -345,5 +402,81 @@ public class UnityBridge {
 
   public static void disableLocationCollection() {
     Leanplum.disableLocationCollection();
+  }
+
+  public static int inboxCount() {
+    return Leanplum.getInbox().count();
+  }
+
+  public static int inboxUnreadCount() {
+    return Leanplum.getInbox().unreadCount();
+  }
+
+  public static String inboxMessageIds() {
+    return gson.toJson(Leanplum.getInbox().messagesIds());
+  }
+
+  public static void downloadMessages() {
+    Leanplum.getInbox().downloadMessages();
+  }
+
+  public static void downloadMessagesWithCallback() {
+    Leanplum.getInbox().downloadMessages(new InboxSyncedCallback() {
+      @Override
+      public void onForceContentUpdate(boolean success) {
+        int result = success ? 1 : 0;
+        makeCallbackToUnity("InboxDownloadMessages:" + result);
+      }
+    });
+  }
+
+  public static String inboxMessages() {
+    String pattern = "yyyy-MM-dd'T'HH:mm:ssZZZZZ";
+    SimpleDateFormat formatter = new SimpleDateFormat(pattern);
+
+    ArrayList<Map<String, Object>> messages = new ArrayList<>();
+    for(LeanplumInboxMessage msg : Leanplum.getInbox().allMessages()) {
+      Map<String, Object> message = new HashMap<>();
+      message.put("id", msg.getMessageId());
+      message.put("title", msg.getTitle());
+      message.put("subtitle", msg.getSubtitle());
+      message.put("imageFilePath", msg.getImageFilePath());
+      message.put("imageURL", msg.getImageUrl());
+      if (msg.getDeliveryTimestamp() != null) {
+        message.put("deliveryTimestamp", formatter.format(msg.getDeliveryTimestamp()));
+      }
+      if (msg.getExpirationTimestamp() != null) {
+        message.put("expirationTimestamp", formatter.format(msg.getExpirationTimestamp()));
+      }
+      message.put("isRead", msg.isRead());
+      messages.add(message);
+    }
+    return gson.toJson(messages);
+  }
+
+  public static void inboxRead(String messageId) {
+    LeanplumInboxMessage message = Leanplum.getInbox().messageForId(messageId);
+    if (message != null) {
+      message.read();
+    }
+  }
+
+  public static void inboxMarkAsRead(String messageId) {
+    LeanplumInboxMessage message = Leanplum.getInbox().messageForId(messageId);
+    if (message != null) {
+      // todo: fix to mark message as read
+      message.read();
+    }
+  }
+
+  public static void inboxRemove(String messageId) {
+    LeanplumInboxMessage message = Leanplum.getInbox().messageForId(messageId);
+    if (message != null) {
+      message.remove();
+    }
+  }
+
+  public static void inboxDisableImagePrefetching() {
+    LeanplumInbox.disableImagePrefetching();
   }
 }
