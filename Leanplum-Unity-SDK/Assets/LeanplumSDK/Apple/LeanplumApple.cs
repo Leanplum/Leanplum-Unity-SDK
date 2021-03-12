@@ -639,7 +639,8 @@ namespace LeanplumSDK
                 ActionContext.ActionResponder callback;
                 if (ActionRespondersDictionary.TryGetValue(actionName, out callback))
                 {
-                    var context = new ActionContextApple(key);
+                    string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
+                    var context = new ActionContextApple(key, messageId);
                     callback(context);
                 }
             }

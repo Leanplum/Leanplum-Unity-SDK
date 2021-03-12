@@ -529,7 +529,8 @@ namespace LeanplumSDK
                 ActionContext.ActionResponder callback;
                 if (ActionRespondersDictionary.TryGetValue(actionName, out callback))
                 {
-                    var context = new ActionContextAndroid(key);
+                    string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
+                    var context = new ActionContextAndroid(key, messageId);
                     callback(context);
                 }
             }
