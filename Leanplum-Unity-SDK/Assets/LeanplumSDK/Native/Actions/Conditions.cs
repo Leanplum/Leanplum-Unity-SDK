@@ -57,6 +57,9 @@ namespace LeanplumSDK
 
         public override bool IsMatch(Trigger trigger)
         {
+            if (trigger.ContextualData == null)
+                return false;
+
             bool isMatch = base.IsMatch(trigger);
 
             var val = Util.GetValueOrDefault(trigger.ContextualData.Params, Param);
@@ -90,6 +93,9 @@ namespace LeanplumSDK
 
         public override bool IsMatch(Trigger trigger)
         {
+            if (trigger.ContextualData == null)
+                return false;
+
             bool isMatch = base.IsMatch(trigger);
 
             isMatch = isMatch && Value == trigger.ContextualData.UserAttributeValue;
@@ -121,6 +127,9 @@ namespace LeanplumSDK
 
         public override bool IsMatch(Trigger trigger)
         {
+            if (trigger.ContextualData == null)
+                return false;
+
             bool isMatch = base.IsMatch(trigger);
 
             if (Value == trigger.ContextualData.UserAttributeValue && PreviousValue == trigger.ContextualData.UserAttributePreviousValue)

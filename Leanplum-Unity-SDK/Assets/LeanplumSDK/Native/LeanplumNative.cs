@@ -795,6 +795,13 @@ namespace LeanplumSDK
             IDictionary<string, string> requestParams = new Dictionary<string, string>();
             requestParams[Constants.Params.EVENT] = eventName;
             requestParams[Constants.Params.VALUE] = value.ToString();
+
+            Trigger trigger = new Trigger()
+            {
+                ActionTrigger = ActionTrigger.Event,
+                EventName = eventName
+            };
+
             if (info != null)
             {
                 requestParams[Constants.Params.INFO] = info;
@@ -802,6 +809,11 @@ namespace LeanplumSDK
             if (parameters != null)
             {
                 requestParams[Constants.Params.PARAMS] = Json.Serialize(parameters);
+
+                trigger.ContextualData = new LeanplumContextualData
+                {
+                    Params = parameters
+                };
             }
             if (arguments != null)
             {
@@ -812,7 +824,9 @@ namespace LeanplumSDK
             }
             LeanplumRequest.Post(Constants.Methods.TRACK, requestParams).Send();
 
-            LeanplumActionManager.MaybePerformActions(ActionTrigger.Event, eventName);
+            //LeanplumActionManager.MaybePerformActions(ActionTrigger.Event, eventName);
+            
+            LeanplumActionManager.MaybePerformActions(trigger);
         }
 
         /// <summary>
@@ -857,6 +871,13 @@ namespace LeanplumSDK
 
             IDictionary<string, string> requestParams = new Dictionary<string, string>();
             requestParams[Constants.Params.INFO] = info;
+
+            Trigger trigger = new Trigger()
+            {
+                ActionTrigger = ActionTrigger.State,
+                EventName = state
+            };
+
             if (state != null)
             {
                 requestParams[Constants.Params.STATE] = state;
@@ -864,10 +885,16 @@ namespace LeanplumSDK
             if (parameters != null)
             {
                 requestParams[Constants.Params.PARAMS] = Json.Serialize(parameters);
+
+                trigger.ContextualData = new LeanplumContextualData
+                {
+                    Params = parameters
+                };
             }
             LeanplumRequest.Post(Constants.Methods.ADVANCE, requestParams).Send();
 
-            LeanplumActionManager.MaybePerformActions(ActionTrigger.State, state);
+            //LeanplumActionManager.MaybePerformActions(ActionTrigger.State, state);
+            LeanplumActionManager.MaybePerformActions(trigger);
         }
 
         /// <summary>
@@ -893,6 +920,22 @@ namespace LeanplumSDK
             {
                 ValidateAttributes(value);
                 parameters[Constants.Params.USER_ATTRIBUTES] = Json.Serialize(value);
+
+                foreach (var attributePair in value)
+                {
+                    Trigger trigger = new Trigger()
+                    {
+                        ActionTrigger = ActionTrigger.State,
+                        EventName = attributePair.Key,
+                        ContextualData = new LeanplumContextualData
+                        {
+                            UserAttribute = attributePair.Key,
+                            UserAttributeValue = attributePair.Value?.ToString()
+                        }
+                    };
+
+                    LeanplumActionManager.MaybePerformActions(trigger);
+                }
             }
             if (!String.IsNullOrEmpty(newUserId))
             {

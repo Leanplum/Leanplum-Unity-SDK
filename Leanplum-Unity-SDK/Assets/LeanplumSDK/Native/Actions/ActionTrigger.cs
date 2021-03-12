@@ -35,7 +35,7 @@ namespace LeanplumSDK
             {
                 if (userAttributePreviousValue == null)
                 {
-                    // Read from VarCache
+                    // TODO: Read from VarCache
                     userAttributePreviousValue = string.Empty;
                 }
                 return userAttributePreviousValue;

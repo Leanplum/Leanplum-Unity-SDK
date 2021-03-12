@@ -12,38 +12,15 @@ namespace LeanplumSDK
         {
         }
 
-        internal static void MaybePerformActions(ActionTrigger actionTrigger, string eventName = null)
+        internal static void MaybePerformActions(ActionTrigger actionTrigger)
         {
-            if (!ShouldPerformActions)
-                return;
-
-            var condition = VarCache.Messages.Select<KeyValuePair<string, object>, WhenTrigger>(WhenTrigger.FromKV)
-                .OrderBy(w => w.Priority)
-                .FirstOrDefault(w => w.Conditions.Any(x => actionTrigger.Value.Contains(x.Subject) && x.Noun == eventName));
-
-            if (condition != null)
-            {
-                var msg = Util.GetValueOrDefault(VarCache.Messages, condition.Id) as IDictionary<string, object>;
-                TriggerAction(condition.Id, msg);
-            }
+            MaybePerformActions(new Trigger { ActionTrigger = actionTrigger });
         }
 
-        internal static void MaybePerformActions(ActionTrigger actionTrigger, string eventName, IDictionary<string, object> parameters)
+        internal static void MaybePerformActions(Trigger trigger)
         {
             if (!ShouldPerformActions)
                 return;
-
-            // TODO: change initialization in trigger track/advance etc.
-            var contextualData = new LeanplumContextualData
-            {
-                Params = parameters
-            };
-            Trigger trigger = new Trigger()
-            {
-                ActionTrigger = actionTrigger,
-                EventName = eventName,
-                ContextualData = contextualData
-            };
 
             var condition = VarCache.Messages.Select(WhenTrigger.FromKV)
                 .OrderBy(w => w.Priority)
@@ -177,6 +154,10 @@ namespace LeanplumSDK
             }
 
             // TODO: bool isMatch? // depending on AND / OR between the conditions
+            internal bool IsMatch(Trigger trigger)
+            {
+                return Conditions.Any(c => c.IsMatch(trigger));
+            }
 
             //TODO: Move strings to constants
             internal static Func<KeyValuePair<string, object>, WhenTrigger> FromKV
