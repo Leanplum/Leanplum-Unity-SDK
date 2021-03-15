@@ -182,13 +182,13 @@ namespace LeanplumSDK
         /// Mark the inbox message as read without invoking its open action.
         /// </summary>
         /// <param name="messageId">ID of the message to read.</param>
-        internal abstract void MarkAsRead(string messageId);
+        public abstract void MarkAsRead(string messageId);
 
         /// <summary>
         /// Mark the inbox message as read without invoking its open action.
         /// </summary>
         /// <param name="message">LeanplumMessage to mark as read.</param>
-        internal abstract void MarkAsRead(Message message);
+        public abstract void MarkAsRead(Message message);
 
         /// <summary>
         /// Remove the inbox message from the inbox.
