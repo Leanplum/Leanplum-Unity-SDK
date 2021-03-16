@@ -494,11 +494,13 @@ namespace LeanplumSDK
                 {
                     OnVariablesChangedAndNoDownloadsPending();
                 }
-            };
-
-            LeanplumRequest.NoPendingDownloads += delegate
-            {
-                OnVariablesChangedAndNoDownloadsPending();
+                else
+                {
+                    LeanplumRequest.NoPendingDownloads += delegate
+                    {
+                        OnVariablesChangedAndNoDownloadsPending();
+                    };
+                }
             };
 
             string deviceId;
