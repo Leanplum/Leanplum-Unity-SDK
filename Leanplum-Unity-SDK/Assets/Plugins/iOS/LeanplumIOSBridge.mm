@@ -592,8 +592,7 @@ extern "C"
         NSString *msgId = lp::to_nsstring(messageId);
         LPInboxMessage *msg = [[Leanplum inbox] messageForId:msgId];
         if (msg) {
-            // todo: fix to mark message as read
-            [msg read];
+            [msg markAsRead];
         }
     }
 
