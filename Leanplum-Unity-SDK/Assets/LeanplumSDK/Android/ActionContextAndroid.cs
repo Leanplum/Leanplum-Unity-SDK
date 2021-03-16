@@ -10,10 +10,12 @@ namespace LeanplumSDK
     public class ActionContextAndroid : ActionContext
     {
         private AndroidJavaClass nativeHandle = null;
+        public override string Id { get; }
         public override string Name { get; }
 
-        internal ActionContextAndroid(string key)
+        internal ActionContextAndroid(string key, string messageId)
         {
+            Id = messageId;
             Name = key;
             nativeHandle = new AndroidJavaClass("com.leanplum.UnityActionContextBridge");
         }
