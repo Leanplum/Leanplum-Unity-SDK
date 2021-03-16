@@ -428,52 +428,6 @@ namespace LeanplumSDK
             return messageConfig;
         }
 
-        internal static void CheckVarsUpdate()
-        {
-            CheckVarsUpdate (null);
-        }
-
-        internal static void CheckVarsUpdate(Action callback)
-        {
-            IDictionary<string, string> updateVarsParams = new Dictionary<string, string>();
-
-            if (Leanplum.IsDeveloperModeEnabled)
-            {
-                updateVarsParams[Constants.Params.INCLUDE_DEFAULTS] = Leanplum.IncludeDefaults.ToString();
-            }
-            else
-            {
-                updateVarsParams[Constants.Params.INCLUDE_DEFAULTS] = false.ToString();
-            }
-            updateVarsParams[Constants.Params.INCLUDE_DEFAULTS] = false.ToString();
-
-            LeanplumRequest updateVarsReq = LeanplumRequest.Post(Constants.Methods.GET_VARS, updateVarsParams);
-            updateVarsReq.Response += delegate(object varsUpdate)
-            {
-                var getVariablesResponse = Util.GetLastResponse(varsUpdate) as IDictionary<string, object>;
-                var newVarValues = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARS) as IDictionary<string, object>;
-                var newMessages = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.MESSAGES) as IDictionary<string, object>;
-                var newVarFileAttributes = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object>;
-                var newVariants = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARIANTS) as List<object> ?? new List<object>();
-				
-                ApplyVariableDiffs(newVarValues, newMessages, newVarFileAttributes, newVariants);
-
-                if (callback != null)
-                {
-                    callback();
-                }
-            };
-            updateVarsReq.Error += delegate
-            {
-                if (callback != null)
-                {
-                    callback();
-                }
-            };
-            updateVarsReq.SendNow();
-            VarsNeedUpdate = false;
-        }
-
         internal static bool SendVariablesIfChanged()
         {
             if (devModeValuesFromServer != null && valuesFromClient != devModeValuesFromServer)

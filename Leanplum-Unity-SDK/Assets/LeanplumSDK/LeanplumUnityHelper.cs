@@ -117,7 +117,7 @@ namespace LeanplumSDK
             // This is called by Unity on every frame.
             if (VarCache.VarsNeedUpdate && developerModeEnabled && Leanplum.HasStarted)
             {
-                VarCache.CheckVarsUpdate();
+                Leanplum.ForceContentUpdate();
             }
 
             // Run deferred actions.
