@@ -798,9 +798,8 @@ namespace LeanplumSDK
             requestParams[Constants.Params.EVENT] = eventName;
             requestParams[Constants.Params.VALUE] = value.ToString();
 
-            Trigger trigger = new Trigger()
+            Trigger trigger = new Trigger(ActionTrigger.Event)
             {
-                ActionTrigger = ActionTrigger.Event,
                 EventName = eventName
             };
 
@@ -871,9 +870,8 @@ namespace LeanplumSDK
             IDictionary<string, string> requestParams = new Dictionary<string, string>();
             requestParams[Constants.Params.INFO] = info;
 
-            Trigger trigger = new Trigger()
+            Trigger trigger = new Trigger(ActionTrigger.State)
             {
-                ActionTrigger = ActionTrigger.State,
                 EventName = state
             };
 
@@ -919,9 +917,8 @@ namespace LeanplumSDK
 
                 foreach (var attributePair in value)
                 {
-                    Trigger trigger = new Trigger()
+                    Trigger trigger = new Trigger(ActionTrigger.UserAttribute)
                     {
-                        ActionTrigger = ActionTrigger.State,
                         EventName = attributePair.Key,
                         UserAttributeValue = attributePair.Value?.ToString()
                     };

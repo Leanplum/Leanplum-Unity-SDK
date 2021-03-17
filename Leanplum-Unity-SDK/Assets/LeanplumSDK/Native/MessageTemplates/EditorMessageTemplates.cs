@@ -67,7 +67,10 @@ namespace LeanplumSDK
 
             ActionContext.ActionResponder responder = new ActionContext.ActionResponder((context) =>
             {
-                var messageConfig = context.GetObjectNamed<Dictionary<string, object>>(Constants.Args.GENERIC_DEFINITION_CONFIG);
+                // It is better to get Object since the dictionary contains nested dictionaries and direct cast is not possible
+                // Using GetObjectNamed<Dictionary<string, object>> will still work but will log an error and then cast explicitly (T)value
+                var messageConfigObj = context.GetObjectNamed<object>(Constants.Args.GENERIC_DEFINITION_CONFIG);
+                var messageConfig = messageConfigObj as Dictionary<string, object>;
                 var messageVars = context.GetObjectNamed<Dictionary<string, object>>(configVars);
                 StringBuilder builder = new StringBuilder();
                 NativeActionContext nativeContext = context as NativeActionContext;

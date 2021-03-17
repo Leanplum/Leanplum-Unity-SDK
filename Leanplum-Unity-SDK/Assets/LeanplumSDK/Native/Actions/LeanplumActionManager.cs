@@ -14,12 +14,17 @@ namespace LeanplumSDK
 
         internal static void MaybePerformActions(ActionTrigger actionTrigger)
         {
-            MaybePerformActions(new Trigger { ActionTrigger = actionTrigger });
+            MaybePerformActions(new Trigger(actionTrigger));
         }
 
         internal static void MaybePerformActions(Trigger trigger)
         {
             if (!ShouldPerformActions)
+                return;
+
+            bool isStartOrResume = trigger.ActionTrigger.Equals(ActionTrigger.StartOrResume) || trigger.ActionTrigger.Equals(ActionTrigger.Resume);
+            if (trigger == null ||
+                (string.IsNullOrWhiteSpace(trigger.EventName) && !isStartOrResume))
                 return;
 
             var condition = VarCache.Messages.Select(WhenTrigger.FromKV)

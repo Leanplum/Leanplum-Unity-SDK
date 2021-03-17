@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace LeanplumSDK
 {
@@ -13,10 +14,20 @@ namespace LeanplumSDK
         internal static ActionTrigger Event { get { return new ActionTrigger(new string[] { "event" }); } }
         internal static ActionTrigger State { get { return new ActionTrigger(new string[] { "state" }); } }
         internal static ActionTrigger UserAttribute { get { return new ActionTrigger(new string[] { "userAttribute" }); } }
+
+        internal bool Equals(ActionTrigger at)
+        {
+            return Value.SequenceEqual(at.Value);
+        }
     }
 
     internal class Trigger
     {
+        internal Trigger(ActionTrigger actionTrigger)
+        {
+            ActionTrigger = actionTrigger;
+        }
+
         public ActionTrigger ActionTrigger { get; set; }
         public string EventName { get; set; }
         public IDictionary<string, object> Params { get; set; }

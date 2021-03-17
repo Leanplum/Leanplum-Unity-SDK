@@ -4,6 +4,8 @@ using System.Linq;
 namespace LeanplumSDK
 {
     // TODO: Verify conditions matching
+
+    // TODO: Values Matching is case insensitive
     internal class Condition : ICondition
     {
         // Handles triggers and changes
@@ -64,9 +66,9 @@ namespace LeanplumSDK
             bool isMatch = base.IsMatch(trigger);
 
             var val = Util.GetValueOrDefault(trigger.Params, Param);
-            if (val != null)
+            if (val != null && Value != null)
             {
-                isMatch = isMatch && val.ToString().Equals(Value);
+                isMatch = isMatch && val.ToString().ToLowerInvariant().Equals(Value.ToLowerInvariant());
             }
             else
             {
@@ -110,9 +112,6 @@ namespace LeanplumSDK
         internal string Value { get; set; }
 
         internal string PreviousValue { get; set; }
-
-        internal ChangesFromToCondition()
-        { }
 
         internal ChangesFromToCondition(ICondition condition, IList<object> objects) : base(condition)
         {
