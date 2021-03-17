@@ -19,15 +19,8 @@ namespace LeanplumSDK
     {
         public ActionTrigger ActionTrigger { get; set; }
         public string EventName { get; set; }
-        public LeanplumContextualData ContextualData { get; set; }
-    }
-
-    internal class LeanplumContextualData
-    {
-        public string UserAttribute { get; set; }
+        public IDictionary<string, object> Params { get; set; }
         public string UserAttributeValue { get; set; }
-
-
         private string userAttributePreviousValue;
         public string UserAttributePreviousValue
         {
@@ -46,8 +39,5 @@ namespace LeanplumSDK
                 userAttributePreviousValue = value;
             }
         }
-
-
-        public IDictionary<string, object> Params { get; set; }
     }
 }

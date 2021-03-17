@@ -6,6 +6,7 @@ namespace LeanplumSDK
     // TODO: Verify conditions matching
     internal class Condition : ICondition
     {
+        // Handles triggers and changes
         public string Subject { get; set; }
         public string Noun { get; set; }
         public string Verb { get; set; }
@@ -57,12 +58,12 @@ namespace LeanplumSDK
 
         public override bool IsMatch(Trigger trigger)
         {
-            if (trigger.ContextualData == null)
+            if (trigger.Params == null)
                 return false;
 
             bool isMatch = base.IsMatch(trigger);
 
-            var val = Util.GetValueOrDefault(trigger.ContextualData.Params, Param);
+            var val = Util.GetValueOrDefault(trigger.Params, Param);
             if (val != null)
             {
                 isMatch = isMatch && val.ToString().Equals(Value);
@@ -93,12 +94,9 @@ namespace LeanplumSDK
 
         public override bool IsMatch(Trigger trigger)
         {
-            if (trigger.ContextualData == null)
-                return false;
-
             bool isMatch = base.IsMatch(trigger);
 
-            isMatch = isMatch && Value == trigger.ContextualData.UserAttributeValue;
+            isMatch = isMatch && Value == trigger.UserAttributeValue;
 
             return isMatch;
         }
@@ -127,12 +125,9 @@ namespace LeanplumSDK
 
         public override bool IsMatch(Trigger trigger)
         {
-            if (trigger.ContextualData == null)
-                return false;
-
             bool isMatch = base.IsMatch(trigger);
 
-            if (Value == trigger.ContextualData.UserAttributeValue && PreviousValue == trigger.ContextualData.UserAttributePreviousValue)
+            if (Value == trigger.UserAttributeValue && PreviousValue == trigger.UserAttributePreviousValue)
             {
                 isMatch = isMatch && true;
             }
