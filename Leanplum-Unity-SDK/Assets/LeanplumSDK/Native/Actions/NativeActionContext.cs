@@ -19,7 +19,7 @@ namespace LeanplumSDK
         }
 
         public override string Name => name;
-        public string Id => id;
+        public override string Id => id;
 
         public object Traverse(string name)
         {

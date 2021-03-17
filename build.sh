@@ -10,6 +10,8 @@ set -o errexit
 
 PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
 
+REMOVE_SIMULATOR_ARCH=false
+
 #######################################
 # Gets the latest version of specified repo
 # Globals:
@@ -53,6 +55,15 @@ download_ios_sdk() {
   unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/"
   rm -rf "/tmp/Leanplum-${version}.zip"
   mv "/tmp/Leanplum.framework" "/tmp/Leanplum-${version}.framework"
+
+
+  if [ "$REMOVE_SIMULATOR_ARCH" = true ] ; then
+    echo "Removing x86_64 & i386 architecture from iOS library"
+    cd "/tmp/Leanplum-${version}.framework"
+    lipo -remove x86_64 Leanplum -o Leanplum
+    lipo -remove i386 Leanplum -o Leanplum
+    cd -
+  fi
 
   echo "Finished downloading iOS SDK."
 }
@@ -128,6 +139,7 @@ build() {
       echo "$PATH_TO_UNITY_ROOT exist"
   else 
       PATH_TO_UNITY_ROOT=$(get_unity_from_hub)
+      echo "Getting Unity from Unity HUB"
   fi
 
   PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
@@ -169,6 +181,10 @@ main() {
       ;;
       --stacktrace)
       set -o xtrace
+      shift
+      ;;
+      --no-simulator)
+      REMOVE_SIMULATOR_ARCH=true
       shift
       ;;
     esac

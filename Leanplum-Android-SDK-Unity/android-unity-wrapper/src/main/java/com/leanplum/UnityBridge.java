@@ -449,8 +449,7 @@ public class UnityBridge {
   public static void inboxMarkAsRead(String messageId) {
     LeanplumInboxMessage message = Leanplum.getInbox().messageForId(messageId);
     if (message != null) {
-      // todo: fix to mark message as read
-      message.read();
+      message.markAsRead();
     }
   }
 
