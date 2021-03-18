@@ -36,7 +36,7 @@ namespace LeanplumSDK
 					#if UNITY_EDITOR
 					_sdk = new LeanplumNative();
 					#elif UNITY_IPHONE
-					_sdk = new LeanplumIOS();
+					_sdk = new LeanplumApple();
 					#elif UNITY_ANDROID
 					_sdk = new LeanplumAndroid();
 					#else

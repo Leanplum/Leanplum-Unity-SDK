@@ -69,6 +69,11 @@ NS_SWIFT_NAME(LeanplumInbox.Message)
 @property (strong, nonatomic, readonly, nullable) NSDictionary *data;
 
 /**
+ * Returns the action data of the inbox message.
+ */
+@property (strong, nonatomic, readonly, nullable) NSString *actionData;
+
+/**
  * Returns the delivery timestamp of the inbox message.
  */
 @property (strong, nonatomic, readonly, nullable) NSDate *deliveryTimestamp;
