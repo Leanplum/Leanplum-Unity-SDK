@@ -312,7 +312,7 @@ public class UnityBridge {
     Leanplum.defineAction(name, kind, actionArgs, new ActionCallback() {
       @Override
       public boolean onResponse(ActionContext context) {
-<<<<<<< HEAD
+
         // Action Responses without Actual Data is Useless
         try {
            Map<String, Object> onResponseData = context.getArgs();
@@ -324,12 +324,12 @@ public class UnityBridge {
         catch(Exception ex) {
           Log.e("[LPUnity/onResponse]",  "Action Response Failed with Exception" + ex);
           return false;
-=======
+
         if (name != null && context != null) {
           String key = String.format("%s:%s", name, context.getMessageId());
           UnityActionContextBridge.actionContexts.put(key, context);
           makeCallbackToUnity("ActionResponder:" + key);
->>>>>>> master
+
         }
         return true;
       }
