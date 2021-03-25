@@ -38,6 +38,10 @@ namespace LeanplumSDK
         public static IDictionary<string, ActionDefinition> actionDefinitions = new Dictionary<string, ActionDefinition>();
         private static IDictionary<string, object> messages = new Dictionary<string, object>();
 
+        private static readonly object attributesLock = new object();
+        private static Queue<IDictionary<string, object>> changedUserAttributes = new Queue<IDictionary<string, object>>();
+        private static IDictionary<string, object> userAttributes;
+
         private static IDictionary<string, object> diffs = new Dictionary<string, object>();
         private static IDictionary<string, object> devModeValuesFromServer;
         private static IDictionary<string, object> fileAttributes = new Dictionary<string, object>();
@@ -67,6 +71,38 @@ namespace LeanplumSDK
             get { return messages; }
             private set { messages = value; }
         }
+        internal static Queue<IDictionary<string, object>> ChangedUserAttributes
+        {
+            get { return changedUserAttributes; }
+            private set { changedUserAttributes = value; }
+        }
+        public static IDictionary<string, object> UserAttributes
+        {
+            get
+            {
+                lock (attributesLock)
+                {
+                    if (userAttributes == null)
+                    {
+                        string token = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.TOKEN_KEY);
+                        if (token != null)
+                        {
+                            string userAttributesCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.USER_ATTRIBUTES_KEY, "{}");
+
+                            var attributes = Json.Deserialize(userAttributesCipher == "{}" ? userAttributesCipher : AESCrypt.Decrypt(userAttributesCipher, token)) as IDictionary<string, object>;
+                            if (attributes != null)
+                                userAttributes = attributes;
+                        }
+
+                        if (userAttributes == null)
+                            userAttributes = new Dictionary<string, object>();
+                    }
+
+                    return userAttributes;
+                }
+            }
+        }
+
         public static int downloadsPending;
 
         public delegate void updateEventHandler();
@@ -491,6 +527,53 @@ namespace LeanplumSDK
                 return null;
             }
             return kind;
+        }
+
+        internal static void UpdateUserAttributes()
+        {
+            lock (attributesLock)
+            {
+                bool madeChanges = false;
+                foreach (var attributes in ChangedUserAttributes)
+                {
+                    var existingAttributes = UserAttributes;
+                    if (existingAttributes == null)
+                    {
+                        existingAttributes = new Dictionary<string, object>();
+                    }
+                    foreach (string attributeName in attributes.Keys)
+                    {
+                        object existingValue = Util.GetValueOrDefault(existingAttributes, attributeName);
+                        object value = attributes[attributeName];
+                        if ((existingValue == null && value != null) ||
+                            (existingValue != null && !existingValue.Equals(value)))
+                        {
+                            existingAttributes[attributeName] = value;
+                            Trigger trigger = new Trigger(ActionTrigger.UserAttribute)
+                            {
+                                EventName = attributeName,
+                                UserAttributeValue = value,
+                                UserAttributePreviousValue = existingValue
+                            };
+                            LeanplumActionManager.MaybePerformActions(trigger);
+
+                            madeChanges = true;
+                        }
+                    }
+                }
+                changedUserAttributes.Clear();
+                if (madeChanges)
+                {
+                    SaveUserAttributes();
+                }
+            }
+        }
+
+        private static void SaveUserAttributes()
+        {
+            string userAttributesCipher = AESCrypt.Encrypt(Json.Serialize(UserAttributes), LeanplumRequest.Token);
+            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.USER_ATTRIBUTES_KEY, userAttributesCipher);
+            LeanplumNative.CompatibilityLayer.FlushSavedSettings();
         }
     }
 }
