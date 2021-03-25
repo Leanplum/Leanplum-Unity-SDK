@@ -30,25 +30,9 @@ namespace LeanplumSDK
 
         public ActionTrigger ActionTrigger { get; set; }
         public string EventName { get; set; }
+        // Contextual Data
         public IDictionary<string, object> Params { get; set; }
-        public string UserAttributeValue { get; set; }
-        private string userAttributePreviousValue;
-        public string UserAttributePreviousValue
-        {
-            get
-            {
-                if (userAttributePreviousValue == null)
-                {
-                    // TODO: Read from VarCache
-                    userAttributePreviousValue = string.Empty;
-                }
-                return userAttributePreviousValue;
-            }
-
-            set
-            {
-                userAttributePreviousValue = value;
-            }
-        }
+        public object UserAttributeValue { get; set; }
+        public object UserAttributePreviousValue { get; set; }
     }
 }

@@ -86,6 +86,10 @@ namespace LeanplumSDK
 
         internal string Value { get; set; }
 
+        protected ChangesToCondition(ICondition condition) : base(condition)
+        {
+        }
+
         internal ChangesToCondition(ICondition condition, IList<object> objects) : base(condition)
         {
             if (objects != null && objects.Count == Operands)
@@ -98,18 +102,28 @@ namespace LeanplumSDK
         {
             bool isMatch = base.IsMatch(trigger);
 
-            isMatch = isMatch && Value == trigger.UserAttributeValue;
+            if (!isMatch)
+                return false;
 
-            return isMatch;
+            if (Value == null && trigger.UserAttributeValue == null)
+            {
+                return true;
+            }
+            else if (Value != null && trigger.UserAttributeValue != null && Value.ToLowerInvariant().Equals(
+                      trigger.UserAttributeValue.ToString().ToLowerInvariant()))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 
-    internal class ChangesFromToCondition : Condition
+    // TODO: Fix comparison
+    internal class ChangesFromToCondition : ChangesToCondition
     {
-        internal static readonly string Name = "changesFromTo";
-        internal static readonly int Operands = 2;
-
-        internal string Value { get; set; }
+        internal static new readonly string Name = "changesFromTo";
+        internal static new readonly int Operands = 2;
 
         internal string PreviousValue { get; set; }
 
@@ -126,16 +140,20 @@ namespace LeanplumSDK
         {
             bool isMatch = base.IsMatch(trigger);
 
-            if (Value == trigger.UserAttributeValue && PreviousValue == trigger.UserAttributePreviousValue)
+            if (!isMatch)
+                return false;
+
+            if (PreviousValue == null && trigger.UserAttributePreviousValue == null)
             {
-                isMatch = isMatch && true;
+                return true;
             }
-            else
+            else if (PreviousValue != null && trigger.UserAttributePreviousValue != null && PreviousValue.ToLowerInvariant().Equals(
+                      trigger.UserAttributePreviousValue.ToString().ToLowerInvariant()))
             {
-                isMatch = false;
+                return true;
             }
 
-            return isMatch;
+            return false;
         }
     }
 }
