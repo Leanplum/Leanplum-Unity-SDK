@@ -66,6 +66,7 @@ namespace LeanplumSDK
             internal const string ITEM_KEY = "__leanplum_unsynced_{0}";
             internal const string VARIABLES_KEY = "__leanplum_variables";
             internal const string MESSAGES_KEY = "__leanplum_messages";
+            internal const string USER_ATTRIBUTES_KEY = "__leanplum_user_attributes";
             internal const string FILE_ATTRIBUTES_KEY = "__leanplum_file_attributes";
             internal const string TOKEN_KEY = "__leanplum_token";
             internal const string USERID_KEY = "___leanplum_userid";

@@ -915,16 +915,11 @@ namespace LeanplumSDK
                 ValidateAttributes(value);
                 parameters[Constants.Params.USER_ATTRIBUTES] = Json.Serialize(value);
 
-                foreach (var attributePair in value)
+                Leanplum.Started += (success) =>
                 {
-                    Trigger trigger = new Trigger(ActionTrigger.UserAttribute)
-                    {
-                        EventName = attributePair.Key,
-                        UserAttributeValue = attributePair.Value?.ToString()
-                    };
-
-                    LeanplumActionManager.MaybePerformActions(trigger);
-                }
+                    VarCache.ChangedUserAttributes.Enqueue(value);
+                    VarCache.UpdateUserAttributes();
+                };
             }
             if (!String.IsNullOrEmpty(newUserId))
             {
