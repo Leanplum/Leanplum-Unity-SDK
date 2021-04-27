@@ -83,20 +83,7 @@ namespace LeanplumSDK
                 lock (attributesLock)
                 {
                     if (userAttributes == null)
-                    {
-                        string token = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.TOKEN_KEY);
-                        if (token != null)
-                        {
-                            string userAttributesCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.USER_ATTRIBUTES_KEY, "{}");
-
-                            var attributes = Json.Deserialize(userAttributesCipher == "{}" ? userAttributesCipher : AESCrypt.Decrypt(userAttributesCipher, token)) as IDictionary<string, object>;
-                            if (attributes != null)
-                                userAttributes = attributes;
-                        }
-
-                        if (userAttributes == null)
-                            userAttributes = new Dictionary<string, object>();
-                    }
+                         userAttributes = new Dictionary<string, object>();
 
                     return userAttributes;
                 }
@@ -333,6 +320,8 @@ namespace LeanplumSDK
                 Json.Deserialize(fileAttributesCipher == "{}" ? fileAttributesCipher :
                                     AESCrypt.Decrypt(fileAttributesCipher, LeanplumRequest.Token))
                                  as IDictionary<string, object>);
+
+            LoadUserAttributes(token);
         }
 
         public static void SaveDiffs()
@@ -567,6 +556,21 @@ namespace LeanplumSDK
                     SaveUserAttributes();
                 }
             }
+        }
+
+        private static void LoadUserAttributes(string token)
+        {
+            if (token != null)
+            {
+                string userAttributesCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.USER_ATTRIBUTES_KEY, "{}");
+
+                var attributes = Json.Deserialize(userAttributesCipher == "{}" ? userAttributesCipher : AESCrypt.Decrypt(userAttributesCipher, token)) as IDictionary<string, object>;
+                if (attributes != null)
+                    userAttributes = attributes;
+            }
+
+            if (userAttributes == null)
+                userAttributes = new Dictionary<string, object>();
         }
 
         private static void SaveUserAttributes()
