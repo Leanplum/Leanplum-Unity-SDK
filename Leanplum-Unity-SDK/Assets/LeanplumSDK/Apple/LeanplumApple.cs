@@ -117,6 +117,9 @@ namespace LeanplumSDK
         [DllImport ("__Internal")]
         internal static extern void _defineAction(string name, int kind, string argsJSON, string optionsJSON);
 
+        [DllImport("__Internal")]
+        internal static extern void _onAction(string name);
+
         [DllImport ("__Internal")]
         internal static extern void _forceContentUpdateWithCallback(int key);
 
@@ -161,6 +164,7 @@ namespace LeanplumSDK
 
         private Dictionary<int, Action> ForceContentUpdateCallbackDictionary = new Dictionary<int, Action>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
+        private Dictionary<string, List<ActionContext.ActionResponder>> OnActionRespondersDictionary = new Dictionary<string, List<ActionContext.ActionResponder>>();
 
         static private int DictionaryKey = 0;
 
@@ -597,6 +601,7 @@ namespace LeanplumSDK
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_CALLBACK = "ForceContentUpdateWithCallback:";
             const string ACTION_RESPONDER = "ActionResponder:";
+            const string ON_ACTION = "OnAction:";
 
             if (message.StartsWith(VARIABLES_CHANGED))
             {
@@ -633,15 +638,29 @@ namespace LeanplumSDK
             else if (message.StartsWith(ACTION_RESPONDER))
             {
                 string key = message.Substring(ACTION_RESPONDER.Length);
-                // {actionName:messageId}
-                string actionName = key.Split(':')[0];
-                
+                string actionName = GetActionNameFromMessageKey(key);
+
                 ActionContext.ActionResponder callback;
                 if (ActionRespondersDictionary.TryGetValue(actionName, out callback))
                 {
-                    string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
+                    string messageId = GetMessageIdFromMessageKey(key, actionName);
                     var context = new ActionContextApple(key, messageId);
                     callback(context);
+                }
+            }
+            else if (message.StartsWith(ON_ACTION))
+            {
+                string key = message.Substring(ON_ACTION.Length);
+                string actionName = GetActionNameFromMessageKey(key);
+
+                if (OnActionRespondersDictionary.TryGetValue(actionName, out List<ActionContext.ActionResponder> callbacks))
+                {
+                    string messageId = GetMessageIdFromMessageKey(key, actionName);
+                    var context = new ActionContextApple(key, messageId);
+                    foreach (var callback in callbacks)
+                    {
+                        callback(context);
+                    }
                 }
             }
 
@@ -649,6 +668,18 @@ namespace LeanplumSDK
             {
                 Inbox.NativeCallback(message);
             }
+        }
+
+        private string GetActionNameFromMessageKey(string key)
+        {
+            // {actionName:messageId}
+            return key.Split(':')[0];
+        }
+
+        private string GetMessageIdFromMessageKey(string key, string actionName)
+        {
+            string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
+            return messageId;
         }
 
         #region Dealing with Variables
@@ -821,6 +852,22 @@ namespace LeanplumSDK
             {
                 variable.OnValueChanged();
             }
+        }
+
+        public override void OnAction(string actionName, ActionContext.ActionResponder handler)
+        {
+            if (string.IsNullOrEmpty(actionName) || handler == null)
+            {
+                return;
+            }
+
+            if (!OnActionRespondersDictionary.ContainsKey(actionName))
+            {
+                OnActionRespondersDictionary[actionName] = new List<ActionContext.ActionResponder>();
+            }
+
+            OnActionRespondersDictionary[actionName].Add(handler);
+            _onAction(actionName);
         }
 
         #endregion
