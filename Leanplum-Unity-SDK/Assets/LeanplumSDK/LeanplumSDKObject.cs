@@ -387,6 +387,8 @@ namespace LeanplumSDK
 
         public virtual void NativeCallback(string message) {}
 
+        public abstract void OnAction(string actionName, ActionContext.ActionResponder handler);
+
         #region Dealing with Variables
         /// <summary>
         ///     Syncs the variables defined from code without Dashboard interaction.
