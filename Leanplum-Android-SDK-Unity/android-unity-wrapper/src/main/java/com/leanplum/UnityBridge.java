@@ -311,14 +311,29 @@ public class UnityBridge {
     Leanplum.defineAction(name, kind, actionArgs, new ActionCallback() {
       @Override
       public boolean onResponse(ActionContext context) {
-        if (name != null && context != null) {
-          String key = String.format("%s:%s", name, context.getMessageId());
-          UnityActionContextBridge.actionContexts.put(key, context);
-          makeCallbackToUnity("ActionResponder:" + key);
-        }
+        sendMessageActionContext("ActionResponder", name, context);
         return true;
       }
     });
+  }
+
+  public static void onAction(final String name) {
+    Leanplum.onAction(name, new ActionCallback() {
+      @Override
+      public boolean onResponse(ActionContext context) {
+        sendMessageActionContext("OnAction", name, context);
+        return true;
+      }
+    });
+  }
+
+  private static void sendMessageActionContext(String message, String name, ActionContext context){
+    if (name != null && context != null) {
+      String key = String.format("%s:%s", name, context.getMessageId());
+      UnityActionContextBridge.actionContexts.put(key, context);
+      String callbackMessage = String.format("%s:%s", message, key);
+      makeCallbackToUnity(callbackMessage);
+    }
   }
 
   public static void defineVar(String name, String kind, String jsonValue) {

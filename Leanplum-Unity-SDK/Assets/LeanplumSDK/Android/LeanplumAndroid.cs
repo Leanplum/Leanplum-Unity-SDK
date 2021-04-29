@@ -64,6 +64,7 @@ namespace LeanplumSDK
 
         private Dictionary<int, Action> ForceContentUpdateCallbackDictionary = new Dictionary<int, Action>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
+        private Dictionary<string, List<ActionContext.ActionResponder>> OnActionRespondersDictionary = new Dictionary<string, List<ActionContext.ActionResponder>>();
 
         static private int DictionaryKey = 0;
         private string gameObjectName;
@@ -487,6 +488,7 @@ namespace LeanplumSDK
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_CALLBACK = "ForceContentUpdateWithCallback:";
             const string ACTION_RESPONDER = "ActionResponder:";
+            const string ON_ACTION = "OnAction:";
 
             if (message.StartsWith(VARIABLES_CHANGED))
             {
@@ -532,6 +534,21 @@ namespace LeanplumSDK
                     string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
                     var context = new ActionContextAndroid(key, messageId);
                     callback(context);
+                }
+            }
+            else if (message.StartsWith(ON_ACTION))
+            {
+                string key = message.Substring(ON_ACTION.Length);
+                string actionName = GetActionNameFromMessageKey(key);
+
+                if (OnActionRespondersDictionary.TryGetValue(actionName, out List<ActionContext.ActionResponder> callbacks))
+                {
+                    string messageId = GetMessageIdFromMessageKey(key, actionName);
+                    var context = new ActionContextAndroid(key, messageId);
+                    foreach (var callback in callbacks)
+                    {
+                        callback(context);
+                    }
                 }
             }
 
@@ -650,6 +667,34 @@ namespace LeanplumSDK
             {
                 variable.OnValueChanged();
             }
+        }
+
+        public override void OnAction(string actionName, ActionContext.ActionResponder handler)
+        {
+            if (string.IsNullOrEmpty(actionName) || handler == null)
+            {
+                return;
+            }
+
+            if (!OnActionRespondersDictionary.ContainsKey(actionName))
+            {
+                OnActionRespondersDictionary[actionName] = new List<ActionContext.ActionResponder>();
+            }
+
+            OnActionRespondersDictionary[actionName].Add(handler);
+            NativeSDK.CallStatic("onAction", actionName);
+        }
+
+        private string GetActionNameFromMessageKey(string key)
+        {
+            // {actionName:messageId}
+            return key.Split(':')[0];
+        }
+
+        private string GetMessageIdFromMessageKey(string key, string actionName)
+        {
+            string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
+            return messageId;
         }
 
         #endregion
