@@ -730,6 +730,11 @@ namespace LeanplumSDK
             return LeanplumFactory.SDK.Variants();
         }
 
+        public static IDictionary<string, object> Vars()
+        {
+            return LeanplumFactory.SDK.Vars();
+        }
+
         /// <summary>
         ///     Returns metadata for all active in-app messages.
         ///     Recommended only for debugging purposes and advanced use cases.
