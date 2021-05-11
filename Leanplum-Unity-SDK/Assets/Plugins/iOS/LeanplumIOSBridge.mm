@@ -40,6 +40,7 @@ __attribute__ ((__constructor__)) static void initialize_bridge(void)
 
 static char *__LPgameObject;
 static NSMutableArray *__LPVariablesCache = [NSMutableArray array];
+const char *__NativeCallbackMethod = "NativeCallback";
 
 // Variable Delegate class
 @interface LPUnityVarDelegate : NSObject <LPVarDelegate>
@@ -51,7 +52,7 @@ static NSMutableArray *__LPVariablesCache = [NSMutableArray array];
  */
 - (void)valueDidChange:(LPVar *)var
 {
-    UnitySendMessage(__LPgameObject, "NativeCallback",
+    UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
                      [[NSString stringWithFormat:@"VariableValueChanged:%@", var.name] UTF8String]);
 }
 
@@ -202,7 +203,7 @@ extern "C"
     void _forceContentUpdateWithCallback(int key)
     {
         [Leanplum forceContentUpdate:^() {
-            UnitySendMessage(__LPgameObject, "NativeCallback",
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
                              [[NSString stringWithFormat:@"ForceContentUpdateWithCallback:%d", key] UTF8String]);
         }];
     }
@@ -228,22 +229,22 @@ extern "C"
     void LeanplumSetupCallbackBlocks()
     {
         [Leanplum onVariablesChanged:^{
-            UnitySendMessage(__LPgameObject, "NativeCallback", "VariablesChanged:");
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod, "VariablesChanged:");
         }];
 
         [Leanplum onVariablesChangedAndNoDownloadsPending:^{
-            UnitySendMessage(__LPgameObject, "NativeCallback",
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
                              "VariablesChangedAndNoDownloadsPending:");
         }];
 
         [[Leanplum inbox] onChanged:^{
-            UnitySendMessage(__LPgameObject, "NativeCallback",
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
                              [@"InboxOnChanged" UTF8String]);
         }];
 
         [[Leanplum inbox] onForceContentUpdate:^(BOOL success) {
             int res = [@(success) intValue];
-            UnitySendMessage(__LPgameObject, "NativeCallback",
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
                                  [[NSString stringWithFormat:@"InboxForceContentUpdate:%d", res] UTF8String]);
         }];
     }
@@ -261,7 +262,7 @@ extern "C"
         [Leanplum startWithUserId:userIdString userAttributes:dictionary
                   responseHandler:^(BOOL success) {
                       int res = [@(success) intValue];
-                      UnitySendMessage(__LPgameObject, "NativeCallback",
+                      UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
                                        [[NSString stringWithFormat:@"Started:%d", res] UTF8String]);
                   }];
         LeanplumSetupCallbackBlocks();
@@ -322,6 +323,16 @@ extern "C"
                 [var setDelegate:[[LPUnityVarDelegate alloc] init]];
                 return;
             }
+        }
+    }
+
+    void sendMessageActionContext(NSString *messageName, NSString *actionName, LPActionContext *context)
+    {
+        if (actionName != nil && context != nil) {
+            NSString *key = [NSString stringWithFormat:@"%@:%@", actionName, context.messageId];
+            [LeanplumActionContextBridge sharedActionContexts][key] = context;
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
+                            [[NSString stringWithFormat:@"%@:%@", messageName, key] UTF8String]);
         }
     }
 
@@ -424,15 +435,18 @@ extern "C"
                    withOptions:optionsDictionary
                  withResponder:^BOOL(LPActionContext *context) {
                      // Propagate back event to unity layer
-                        if (actionName != nil && context != nil) {
-                            NSString *key = [NSString stringWithFormat:@"%@:%@",actionName,context.messageId];
-                            [LeanplumActionContextBridge sharedActionContexts][key] = context;
-                            UnitySendMessage(__LPgameObject, "NativeCallback",
-                                             [[NSString stringWithFormat:@"ActionResponder:%@", key] UTF8String]);
-                        }
-
+                     sendMessageActionContext(@"ActionResponder", actionName, context);
                      return YES;
                  }];
+    }
+
+    void _onAction(const char *name)
+    {
+        NSString *actionName = lp::to_nsstring(name);
+        [Leanplum onAction:actionName invoke:^BOOL(LPActionContext *context) {
+            sendMessageActionContext(@"OnAction", actionName, context);
+            return YES;
+        }];
     }
 
     // Leanplum Content
@@ -542,7 +556,7 @@ extern "C"
     {
         [[Leanplum inbox] downloadMessages:^(BOOL success) {
             int res = [@(success) intValue];
-            UnitySendMessage(__LPgameObject, "NativeCallback",
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
                                  [[NSString stringWithFormat:@"InboxDownloadMessages:%d", res] UTF8String]);
         }];
     }

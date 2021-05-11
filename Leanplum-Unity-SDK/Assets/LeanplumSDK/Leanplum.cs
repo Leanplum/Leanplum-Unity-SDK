@@ -766,6 +766,11 @@ namespace LeanplumSDK
         {
             LeanplumFactory.SDK.ForceContentUpdate(callback);
         }
+
+        public static void OnAction(string actionName, ActionContext.ActionResponder handler)
+        {
+            LeanplumFactory.SDK.OnAction(actionName, handler);
+        }
         #endregion
     }
 }

@@ -686,6 +686,11 @@ namespace LeanplumSDK
             VarCache.RegisterActionDefinition(ad);
         }
 
+        public override void OnAction(string actionName, ActionContext.ActionResponder handler)
+        {
+            // Not Implemented
+        }
+
         /// <summary>
         ///     Whether In-app Messages and Actions should be triggered and executed.
         /// </summary>
