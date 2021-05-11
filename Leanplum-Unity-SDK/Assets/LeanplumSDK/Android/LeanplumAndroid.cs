@@ -442,6 +442,12 @@ namespace LeanplumSDK
             return (List<object>)Json.Deserialize(jsonString);
         }
 
+        public override IDictionary<string, object> Vars()
+        {
+            string jsonString = NativeSDK.CallStatic<string>("vars");
+            return (Dictionary<string, object>)Json.Deserialize(jsonString);
+        }
+
         /// <summary>
         ///     Returns metadata for all active in-app messages.
         ///     Recommended only for debugging purposes and advanced use cases.

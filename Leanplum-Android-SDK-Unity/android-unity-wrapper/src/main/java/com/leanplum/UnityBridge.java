@@ -43,6 +43,7 @@ import com.leanplum.callbacks.StartCallback;
 import com.leanplum.callbacks.VariableCallback;
 import com.leanplum.callbacks.VariablesChangedCallback;
 import com.leanplum.internal.Util;
+import com.leanplum.internal.VarCache;
 import com.leanplum.json.JsonConverter;
 import com.unity3d.player.UnityPlayer;
 
@@ -234,6 +235,10 @@ public class UnityBridge {
 
   public static String variants() {
     return gson.toJson(Leanplum.variants());
+  }
+
+  public static String vars() {
+    return gson.toJson(VarCache.getDiffs());
   }
 
   public static String messageMetadata() {

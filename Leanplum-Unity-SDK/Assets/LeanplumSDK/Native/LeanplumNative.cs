@@ -21,6 +21,7 @@ using LeanplumSDK.MiniJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -967,6 +968,13 @@ namespace LeanplumSDK
         public override List<object> Variants()
         {
             return VarCache.Variants;
+        }
+
+        public override IDictionary<string, object> Vars()
+        {
+            // Return a copy
+            IDictionary<string, object> varsDict = Json.Deserialize(Json.Serialize(VarCache.Diffs)) as IDictionary<string, object>;
+            return varsDict;
         }
 
         /// <summary>
