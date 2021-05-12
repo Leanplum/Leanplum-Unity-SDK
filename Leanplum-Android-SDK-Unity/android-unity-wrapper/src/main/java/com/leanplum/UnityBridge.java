@@ -43,6 +43,7 @@ import com.leanplum.callbacks.StartCallback;
 import com.leanplum.callbacks.VariableCallback;
 import com.leanplum.callbacks.VariablesChangedCallback;
 import com.leanplum.internal.Util;
+import com.leanplum.internal.VarCache;
 import com.leanplum.json.JsonConverter;
 import com.unity3d.player.UnityPlayer;
 
@@ -236,6 +237,10 @@ public class UnityBridge {
     return gson.toJson(Leanplum.variants());
   }
 
+  public static String vars() {
+    return gson.toJson(VarCache.getDiffs());
+  }
+
   public static String messageMetadata() {
     return gson.toJson(Leanplum.messageMetadata());
   }
@@ -335,6 +340,7 @@ public class UnityBridge {
       makeCallbackToUnity(callbackMessage);
     }
   }
+
 
   public static void defineVar(String name, String kind, String jsonValue) {
     if (kind.equals("integer")) {
@@ -464,8 +470,7 @@ public class UnityBridge {
   public static void inboxMarkAsRead(String messageId) {
     LeanplumInboxMessage message = Leanplum.getInbox().messageForId(messageId);
     if (message != null) {
-      // todo: fix to mark message as read
-      message.read();
+      message.markAsRead();
     }
   }
 

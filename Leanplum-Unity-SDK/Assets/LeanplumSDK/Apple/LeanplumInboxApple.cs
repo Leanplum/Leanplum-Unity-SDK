@@ -121,7 +121,7 @@ namespace LeanplumSDK
             }
         }
 
-        internal override void MarkAsRead(string messageId)
+        public override void MarkAsRead(string messageId)
         {
             if (messageId != null)
             {
@@ -131,7 +131,7 @@ namespace LeanplumSDK
             InboxChanged?.Invoke();
         }
 
-        internal override void MarkAsRead(Message message)
+        public override void MarkAsRead(Message message)
         {
             if (message != null)
             {

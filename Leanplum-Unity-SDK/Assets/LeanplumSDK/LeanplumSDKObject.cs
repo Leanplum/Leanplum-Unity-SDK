@@ -351,6 +351,8 @@ namespace LeanplumSDK
         /// </summary>
         public abstract List<object> Variants ();
 
+        public abstract IDictionary<string, object> Vars ();
+
         /// <summary>
         ///     Returns metadata for all active in-app messages.
         ///     Recommended only for debugging purposes and advanced use cases.
@@ -386,6 +388,8 @@ namespace LeanplumSDK
         #endregion
 
         public virtual void NativeCallback(string message) {}
+
+        public abstract void OnAction(string actionName, ActionContext.ActionResponder handler);
 
         #region Dealing with Variables
         /// <summary>

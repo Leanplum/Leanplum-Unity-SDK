@@ -21,6 +21,7 @@ using LeanplumSDK.MiniJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -494,11 +495,13 @@ namespace LeanplumSDK
                 {
                     OnVariablesChangedAndNoDownloadsPending();
                 }
-            };
-
-            LeanplumRequest.NoPendingDownloads += delegate
-            {
-                OnVariablesChangedAndNoDownloadsPending();
+                else
+                {
+                    LeanplumRequest.NoPendingDownloads += delegate
+                    {
+                        OnVariablesChangedAndNoDownloadsPending();
+                    };
+                }
             };
 
             string deviceId;
@@ -681,6 +684,11 @@ namespace LeanplumSDK
             }
 
             VarCache.RegisterActionDefinition(ad);
+        }
+
+        public override void OnAction(string actionName, ActionContext.ActionResponder handler)
+        {
+            // Not Implemented
         }
 
         /// <summary>
@@ -967,6 +975,13 @@ namespace LeanplumSDK
             return VarCache.Variants;
         }
 
+        public override IDictionary<string, object> Vars()
+        {
+            // Return a copy
+            IDictionary<string, object> varsDict = Json.Deserialize(Json.Serialize(VarCache.Diffs)) as IDictionary<string, object>;
+            return varsDict;
+        }
+
         /// <summary>
         ///     Return message metadata.
         ///     Used only for debugging purposes and advanced use cases.
@@ -997,7 +1012,54 @@ namespace LeanplumSDK
         ///
         public override void ForceContentUpdate(Action callback)
         {
-            VarCache.CheckVarsUpdate(callback);
+            IDictionary<string, string> updateVarsParams = new Dictionary<string, string>();
+
+            if (Leanplum.IsDeveloperModeEnabled)
+            {
+                updateVarsParams[Constants.Params.INCLUDE_DEFAULTS] = Leanplum.IncludeDefaults.ToString();
+            }
+            else
+            {
+                updateVarsParams[Constants.Params.INCLUDE_DEFAULTS] = false.ToString();
+            }
+            // The Inbox is loaded on Start
+            updateVarsParams[Constants.Keys.INBOX_MESSAGES] = Json.Serialize(Inbox.MessageIds);
+
+            LeanplumRequest updateVarsReq = LeanplumRequest.Post(Constants.Methods.GET_VARS, updateVarsParams);
+            updateVarsReq.Response += delegate (object varsUpdate)
+            {
+                var getVariablesResponse = Util.GetLastResponse(varsUpdate) as IDictionary<string, object>;
+                var newVarValues = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARS) as IDictionary<string, object>;
+                var newMessages = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.MESSAGES) as IDictionary<string, object>;
+                var newVarFileAttributes = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object>;
+                var newVariants = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARIANTS) as List<object> ?? new List<object>();
+                bool syncInbox = (bool)Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.SYNC_INBOX, false);
+
+                VarCache.ApplyVariableDiffs(newVarValues, newMessages, newVarFileAttributes, newVariants);
+
+                // Download inbox messages
+                if (syncInbox)
+                {
+                    if (Inbox is LeanplumInboxNative nativeInbox)
+                    {
+                        nativeInbox.DownloadMessages();
+                    }
+                }
+
+                if (callback != null)
+                {
+                    callback();
+                }
+            };
+            updateVarsReq.Error += delegate
+            {
+                if (callback != null)
+                {
+                    callback();
+                }
+            };
+            updateVarsReq.SendNow();
+            VarCache.VarsNeedUpdate = false;
         }
 
         #endregion

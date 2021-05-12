@@ -67,10 +67,12 @@ namespace LeanplumSDK.Apple
         internal static extern void mute_future_messages_of_same_kind(string id);
         
         public override string Name { get; }
+        public override string Id { get; }
 
-        internal ActionContextApple(string key)
+        internal ActionContextApple(string key, string messageId)
         {
             Name = key;
+            Id = messageId;
         }
 
         public override void TrackMessageEvent(string eventName, double value, string info, IDictionary<string, object> param)
