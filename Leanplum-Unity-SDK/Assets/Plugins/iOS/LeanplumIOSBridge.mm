@@ -184,6 +184,11 @@ extern "C"
         return lp::to_json_string([Leanplum variants]);
     }
 
+    const char * _vars()
+    {
+        return lp::to_json_string([[LPVarCache sharedCache] diffs]);
+    }
+
     const char * _messageMetadata()
     {
         return lp::to_json_string([Leanplum messageMetadata]);

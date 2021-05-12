@@ -108,6 +108,9 @@ namespace LeanplumSDK
         [DllImport ("__Internal")]
         internal static extern string _variants();
 
+        [DllImport("__Internal")]
+        internal static extern string _vars();
+
         [DllImport ("__Internal")]
         internal static extern string _messageMetadata();
 
@@ -551,6 +554,12 @@ namespace LeanplumSDK
         public override List<object> Variants()
         {
             return (List<object>)Json.Deserialize(_variants());
+        }
+
+        public override IDictionary<string, object> Vars()
+        {
+            string jsonString = _vars();
+            return (Dictionary<string, object>)Json.Deserialize(jsonString);
         }
 
         /// <summary>
