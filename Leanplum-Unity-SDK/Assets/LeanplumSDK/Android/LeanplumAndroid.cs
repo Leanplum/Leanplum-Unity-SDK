@@ -443,6 +443,12 @@ namespace LeanplumSDK
             return (List<object>)Json.Deserialize(jsonString);
         }
 
+        public override IDictionary<string, object> Vars()
+        {
+            string jsonString = NativeSDK.CallStatic<string>("vars");
+            return (Dictionary<string, object>)Json.Deserialize(jsonString);
+        }
+
         /// <summary>
         ///     Returns metadata for all active in-app messages.
         ///     Recommended only for debugging purposes and advanced use cases.
@@ -531,7 +537,8 @@ namespace LeanplumSDK
                 ActionContext.ActionResponder callback;
                 if (ActionRespondersDictionary.TryGetValue(actionName, out callback))
                 {
-                    var context = new ActionContextAndroid(key);
+                    string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
+                    var context = new ActionContextAndroid(key, messageId);
                     callback(context);
                 }
             }

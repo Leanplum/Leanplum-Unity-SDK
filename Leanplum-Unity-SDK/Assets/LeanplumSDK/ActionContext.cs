@@ -7,6 +7,11 @@ namespace LeanplumSDK
         public delegate void ActionResponder(ActionContext context);
 
         /// <summary>
+        /// Id of the action
+        /// </summary>
+        public abstract string Id { get; }
+
+        /// <summary>
         /// Name of the action
         /// </summary>
         public abstract string Name { get; }
