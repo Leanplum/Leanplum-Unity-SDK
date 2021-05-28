@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,6 +43,10 @@ import com.leanplum.callbacks.InboxSyncedCallback;
 import com.leanplum.callbacks.StartCallback;
 import com.leanplum.callbacks.VariableCallback;
 import com.leanplum.callbacks.VariablesChangedCallback;
+import com.leanplum.internal.ActionManager;
+import com.leanplum.internal.CollectionUtil;
+import com.leanplum.internal.Constants;
+import com.leanplum.internal.LeanplumInternal;
 import com.leanplum.internal.Util;
 import com.leanplum.internal.VarCache;
 import com.leanplum.json.JsonConverter;
@@ -330,6 +335,64 @@ public class UnityBridge {
         return true;
       }
     });
+  }
+
+  public static String createActionContextForId(final String actionId) {
+    Map<String, Object> messages = VarCache.messages();
+    if (messages == null) return null;
+
+    Map<String, Object> messageConfig = CollectionUtil.uncheckedCast(messages.get(actionId));
+    if (messageConfig == null) return null;
+
+    String actionName = (String) messageConfig.get("action");
+    if (actionName == null) return null;
+
+    Map<String, Object> vars = CollectionUtil.uncheckedCast(messageConfig.get(Constants
+            .Keys.VARS));
+    ActionContext context = new ActionContext(
+            actionName,
+            vars,
+            null,
+            actionId,
+            Constants.Messaging.DEFAULT_PRIORITY);
+
+    String key = String.format("%s:%s", actionName, context.getMessageId());
+    UnityActionContextBridge.actionContexts.put(key, context);
+
+    return key;
+  }
+
+  public static boolean triggerAction(final String actionId) {
+    ActionContext context = UnityActionContextBridge.actionContexts.get(actionId);
+    if (context == null) {
+      Set<String> keys = UnityActionContextBridge.actionContexts.keySet();
+      for (String key:keys) {
+        if (key.contains(actionId)) {
+          context = UnityActionContextBridge.actionContexts.get(key);
+          break;
+        }
+      }
+      if (context == null) {
+        String key = createActionContextForId(actionId);
+        context = UnityActionContextBridge.actionContexts.get(key);
+      }
+    }
+
+    if (context != null) {
+      final ActionContext actionContext = context;
+      LeanplumInternal.triggerAction(actionContext, new VariablesChangedCallback() {
+        @Override
+        public void variablesChanged() {
+          try {
+            Leanplum.triggerMessageDisplayed(actionContext);
+          } catch (Throwable t) {
+          }
+        }
+      });
+      return true;
+    }
+
+    return false;
   }
 
   private static void sendMessageActionContext(String message, String name, ActionContext context){
