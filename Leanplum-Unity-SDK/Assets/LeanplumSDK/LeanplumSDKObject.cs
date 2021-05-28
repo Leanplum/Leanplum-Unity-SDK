@@ -391,6 +391,10 @@ namespace LeanplumSDK
 
         public abstract void OnAction(string actionName, ActionContext.ActionResponder handler);
 
+        public abstract ActionContext CreateActionContextForId(string actionId);
+
+        public abstract bool TriggerActionForId(string actionId);
+
         #region Dealing with Variables
         /// <summary>
         ///     Syncs the variables defined from code without Dashboard interaction.
