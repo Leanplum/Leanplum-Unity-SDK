@@ -464,7 +464,7 @@ extern "C"
             // Action not found
             return NULL;
         }
-        NSString *key = [NSString stringWithFormat:@"%@:%@", context.actionName,    context.messageId];
+        NSString *key = [NSString stringWithFormat:@"%@:%@", context.actionName, context.messageId];
         [LeanplumActionContextBridge sharedActionContexts][key] = context;
         return lp::to_string(key);
     }
@@ -472,7 +472,7 @@ extern "C"
     bool _triggerAction(const char *actionId)
     {
         NSString *key = lp::to_nsstring(actionId);
-        LPActionContext *context = [LeanplumActionContextBridge     sharedActionContexts][key];
+        LPActionContext *context = [LeanplumActionContextBridge sharedActionContexts][key];
     
         if (!context)
         {
@@ -489,7 +489,7 @@ extern "C"
                   const char * newKey = _createActionContextForId(actionId);
                   if (newKey)
                   {
-                      context = [LeanplumActionContextBridge  sharedActionContexts][lp::to_nsstring(newKey)];
+                      context = [LeanplumActionContextBridge sharedActionContexts][lp::to_nsstring(newKey)];
                   }
               }
         }
