@@ -352,7 +352,7 @@ public class UnityBridge {
     ActionContext context = new ActionContext(
             actionName,
             vars,
-            null,
+            actionId,
             actionId,
             Constants.Messaging.DEFAULT_PRIORITY);
 

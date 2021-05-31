@@ -691,6 +691,24 @@ namespace LeanplumSDK
             NativeSDK.CallStatic("onAction", actionName);
         }
 
+        public override ActionContext CreateActionContextForId(string actionId)
+        {
+            if (!string.IsNullOrEmpty(actionId))
+            {
+                string key = NativeSDK.CallStatic<string>("createActionContextForId", actionId);
+                string actionName = GetActionNameFromMessageKey(key);
+                string messageId = GetMessageIdFromMessageKey(key, actionName);
+                var context = new ActionContextAndroid(key, messageId);
+                return context;
+            }
+            return null;
+        }
+
+        public override bool TriggerActionForId(string actionId)
+        {
+            return NativeSDK.CallStatic<bool>("triggerAction", actionId);
+        }
+
         private string GetActionNameFromMessageKey(string key)
         {
             // {actionName:messageId}
