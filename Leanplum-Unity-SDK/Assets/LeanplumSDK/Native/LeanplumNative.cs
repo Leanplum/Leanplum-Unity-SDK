@@ -1010,7 +1010,7 @@ namespace LeanplumSDK
         /// </summary>
         public override Dictionary<string, object> MessageMetadata()
         {
-            return new Dictionary<string, object>();
+            return VarCache.Messages as Dictionary<string, object>;
         }
 
         /// <summary>
