@@ -70,6 +70,8 @@ namespace LeanplumSDK
             internal const string TOKEN_KEY = "__leanplum_token";
             internal const string USERID_KEY = "___leanplum_userid";
             internal const string APP_INBOX_MESSAGES_KEY = "___leanplum_app_inbox_messages";
+            internal const string VARIABLES_SIGN_KEY = "__leanplum_variables_json";
+            internal const string VARIABLES_JSON_KEY = "__leanplum_variables_signature";
         }
 
         internal class Files
@@ -119,6 +121,7 @@ namespace LeanplumSDK
             internal const string DATA = "Data";
             internal const string ID = "id";
             internal const string ARGS = "args";
+            internal const string VARS_SIGNATURE = "varsSignature";
         }
 
         public class Kinds

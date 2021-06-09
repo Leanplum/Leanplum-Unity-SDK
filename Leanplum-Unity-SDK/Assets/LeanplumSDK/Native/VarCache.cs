@@ -42,6 +42,8 @@ namespace LeanplumSDK
         private static IDictionary<string, object> devModeValuesFromServer;
         private static IDictionary<string, object> fileAttributes = new Dictionary<string, object>();
         private static List<object> variants = new List<object>();
+        private static string varsJson;
+        private static string varsSignature;
         private static object merged;
 
         public static bool HasReceivedDiffs { get; private set; }
@@ -61,6 +63,18 @@ namespace LeanplumSDK
         {
             get { return variants; }
             private set { variants = value; }
+        }
+        public static LeanplumSecuredVars SecuredVars
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(varsJson) || string.IsNullOrEmpty(varsSignature))
+                {
+                    return null;
+                }
+
+                return new LeanplumSecuredVars(varsJson, varsSignature);
+            }
         }
         public static IDictionary<string, object> Messages
         {
@@ -289,6 +303,11 @@ namespace LeanplumSDK
                 LeanplumRequest.UserId = AESCrypt.Decrypt(userIdCipher, LeanplumRequest.Token);
             }
 
+            string varsJsonCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.VARIABLES_JSON_KEY, null);
+            string varsSignatureCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.VARIABLES_SIGN_KEY, null);
+            string varsJson = varsJsonCipher != null ? AESCrypt.Decrypt(varsJsonCipher, LeanplumRequest.Token) : null;
+            string varsSignature = varsSignatureCipher != null ? AESCrypt.Decrypt(varsSignatureCipher, LeanplumRequest.Token) : null;
+
             ApplyVariableDiffs(
                 Json.Deserialize(variablesCipher == "{}" ? variablesCipher :
                                    AESCrypt.Decrypt(variablesCipher, LeanplumRequest.Token))
@@ -296,7 +315,7 @@ namespace LeanplumSDK
                 Json.Deserialize(messagesCipher == "{}" ? messagesCipher : AESCrypt.Decrypt(messagesCipher, LeanplumRequest.Token)) as IDictionary<string, object>,
                 Json.Deserialize(fileAttributesCipher == "{}" ? fileAttributesCipher :
                                     AESCrypt.Decrypt(fileAttributesCipher, LeanplumRequest.Token))
-                                 as IDictionary<string, object>);
+                                 as IDictionary<string, object>, null, varsJson, varsSignature);
         }
 
         public static void SaveDiffs()
@@ -327,13 +346,19 @@ namespace LeanplumSDK
                                                              AESCrypt.Encrypt(LeanplumRequest.UserId, LeanplumRequest.Token));
             }
             LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.TOKEN_KEY, LeanplumRequest.Token);
+
+            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.VARIABLES_JSON_KEY, AESCrypt.Encrypt(varsJson, LeanplumRequest.Token));
+            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.VARIABLES_SIGN_KEY, AESCrypt.Encrypt(varsSignature, LeanplumRequest.Token));
+
             LeanplumNative.CompatibilityLayer.FlushSavedSettings();
         }
 
         public static void ApplyVariableDiffs(IDictionary<string, object> diffs,
                                               IDictionary<string, object> messages,
                                               IDictionary<string, object> fileAttributes = null,
-                                              List<object> variants = null)
+                                              List<object> variants = null,
+                                              string varsJson = null,
+                                              string varsSignature = null)
         {
             if (fileAttributes != null)
             {
@@ -362,6 +387,9 @@ namespace LeanplumSDK
             {
                 lpVariable.Update();
             }
+
+            VarCache.varsJson = varsJson ?? string.Empty;
+            VarCache.varsSignature = varsSignature ?? string.Empty;
 
             if (!IsSilent)
             {

@@ -584,6 +584,10 @@ namespace LeanplumSDK
                 bool isRegistered = (bool)Util.GetValueOrDefault(response, Constants.Keys.IS_REGISTERED, false);
                 bool syncInbox = (bool)Util.GetValueOrDefault(response, Constants.Keys.SYNC_INBOX, false);
 
+                string varsJson = Json.Serialize(values);
+                var signature = Util.GetValueOrDefault(response, Constants.Keys.VARS_SIGNATURE);
+                string varsSignature = signature != null ? signature.ToString() : null;
+
                 LeanplumRequest.Token = Util.GetValueOrDefault(response, Constants.Keys.TOKEN) as
                     string ?? "";
 
@@ -634,7 +638,7 @@ namespace LeanplumSDK
                     }
                 }
 
-                VarCache.ApplyVariableDiffs(values, messages, fileAttributes, variants);
+                VarCache.ApplyVariableDiffs(values, messages, fileAttributes, variants, varsJson, varsSignature);
                 _hasStarted = true;
                 startSuccessful = true;
                 OnStarted(true);
@@ -982,6 +986,11 @@ namespace LeanplumSDK
             return varsDict;
         }
 
+        public override LeanplumSecuredVars SecuredVars()
+        {
+            return VarCache.SecuredVars;
+        }
+
         /// <summary>
         ///     Return message metadata.
         ///     Used only for debugging purposes and advanced use cases.
@@ -1035,7 +1044,11 @@ namespace LeanplumSDK
                 var newVariants = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARIANTS) as List<object> ?? new List<object>();
                 bool syncInbox = (bool)Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.SYNC_INBOX, false);
 
-                VarCache.ApplyVariableDiffs(newVarValues, newMessages, newVarFileAttributes, newVariants);
+                string varsJson = Json.Serialize(newVarValues);
+                var signature = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARS_SIGNATURE);
+                string varsSignature = signature != null ? signature.ToString() : null;
+
+                VarCache.ApplyVariableDiffs(newVarValues, newMessages, newVarFileAttributes, newVariants, varsJson, varsSignature);
 
                 // Download inbox messages
                 if (syncInbox)

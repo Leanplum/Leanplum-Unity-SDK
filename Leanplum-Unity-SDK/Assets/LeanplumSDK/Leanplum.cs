@@ -736,6 +736,20 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        /// Returns the last received signed variables.
+        /// If signature was not provided from server the
+        /// result of this method will be null.
+        /// </summary>
+        /// <returns> Returns <see cref="LeanplumSecuredVars"/> instance containing
+        /// variable's JSON and signature.
+        /// If signature was not downloaded from server, returns null.
+        /// </returns>
+        public static LeanplumSecuredVars SecuredVars()
+        {
+            return LeanplumFactory.SDK.SecuredVars();
+        }
+
+        /// <summary>
         ///     Returns metadata for all active in-app messages.
         ///     Recommended only for debugging purposes and advanced use cases.
         /// </summary>
