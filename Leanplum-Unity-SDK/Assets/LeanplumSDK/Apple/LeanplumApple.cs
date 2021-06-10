@@ -560,6 +560,21 @@ namespace LeanplumSDK
             return (List<object>)Json.Deserialize(_variants());
         }
 
+        /// <summary>
+        /// Returns the last received signed variables.
+        /// If signature was not provided from server the
+        /// result of this method will be null.
+        /// </summary>
+        /// <returns> Returns <see cref="LeanplumSecuredVars"/> instance containing
+        /// variable's JSON and signature.
+        /// If signature was not downloaded from server, returns null.
+        /// </returns>
+        public override LeanplumSecuredVars SecuredVars()
+        {
+            // TODO: implement when iOS SDK is ready
+            return null;
+        }
+
         public override IDictionary<string, object> Vars()
         {
             string jsonString = _vars();

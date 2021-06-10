@@ -1,19 +1,28 @@
 ﻿namespace LeanplumSDK
 {
+    /// <summary>
+    /// Represents Variables in JSON format, cryptographically signed from Leanplum server.
+    /// </summary>
     public class LeanplumSecuredVars
     {
-        private string json;
-        private string signature;
-        
-        public string varsJson
+        private readonly string json;
+        private readonly string signature;
+
+        /// <summary>
+        /// The JSON representation of the variables as received from Leanplum server.
+        /// </summary>
+        public string VarsJson
         {
             get
             {
                 return json;
             }
         }
-        
-        public string varsSignature
+
+        /// <summary>
+        /// Get the cryptographic signature of the variables.
+        /// </summary>
+        public string VarsSignature
         {
             get
             {
