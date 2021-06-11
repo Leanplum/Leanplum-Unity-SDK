@@ -736,6 +736,20 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        /// Returns the last received signed variables.
+        /// If signature was not provided from server the
+        /// result of this method will be null.
+        /// </summary>
+        /// <returns> Returns <see cref="LeanplumSecuredVars"/> instance containing
+        /// variable's JSON and signature.
+        /// If signature was not downloaded from server, returns null.
+        /// </returns>
+        public static LeanplumSecuredVars SecuredVars()
+        {
+            return LeanplumFactory.SDK.SecuredVars();
+        }
+
+        /// <summary>
         ///     Returns metadata for all active in-app messages.
         ///     Recommended only for debugging purposes and advanced use cases.
         /// </summary>
@@ -770,6 +784,16 @@ namespace LeanplumSDK
         public static void OnAction(string actionName, ActionContext.ActionResponder handler)
         {
             LeanplumFactory.SDK.OnAction(actionName, handler);
+        }
+
+        public static ActionContext CreateActionContextForId(string actionId)
+        {
+            return LeanplumFactory.SDK.CreateActionContextForId(actionId);
+        }
+
+        public static bool TriggerActionForId(string actionId)
+        {
+            return LeanplumFactory.SDK.TriggerActionForId(actionId);
         }
         #endregion
     }

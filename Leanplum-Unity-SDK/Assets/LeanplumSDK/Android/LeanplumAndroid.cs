@@ -443,6 +443,21 @@ namespace LeanplumSDK
             return (List<object>)Json.Deserialize(jsonString);
         }
 
+        /// <summary>
+        /// Returns the last received signed variables.
+        /// If signature was not provided from server the
+        /// result of this method will be null.
+        /// </summary>
+        /// <returns> Returns <see cref="LeanplumSecuredVars"/> instance containing
+        /// variable's JSON and signature.
+        /// If signature was not downloaded from server, returns null.
+        /// </returns>
+        public override LeanplumSecuredVars SecuredVars()
+        {
+            // TODO: implement when Android SDK is ready
+            return null;
+        }
+
         public override IDictionary<string, object> Vars()
         {
             string jsonString = NativeSDK.CallStatic<string>("vars");
@@ -689,6 +704,24 @@ namespace LeanplumSDK
 
             OnActionRespondersDictionary[actionName].Add(handler);
             NativeSDK.CallStatic("onAction", actionName);
+        }
+
+        public override ActionContext CreateActionContextForId(string actionId)
+        {
+            if (!string.IsNullOrEmpty(actionId))
+            {
+                string key = NativeSDK.CallStatic<string>("createActionContextForId", actionId);
+                string actionName = GetActionNameFromMessageKey(key);
+                string messageId = GetMessageIdFromMessageKey(key, actionName);
+                var context = new ActionContextAndroid(key, messageId);
+                return context;
+            }
+            return null;
+        }
+
+        public override bool TriggerActionForId(string actionId)
+        {
+            return NativeSDK.CallStatic<bool>("triggerAction", actionId);
         }
 
         private string GetActionNameFromMessageKey(string key)

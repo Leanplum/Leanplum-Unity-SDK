@@ -62,12 +62,12 @@ namespace LeanplumSDK
         {
             string configVars = $"{Constants.Args.GENERIC_DEFINITION_CONFIG}.vars";
             ActionArgs args = new ActionArgs()
-                .With<IDictionary<string, object>>(Constants.Args.GENERIC_DEFINITION_CONFIG, null)
-                .With<IDictionary<string, object>>(configVars, null);
+                .With<object>(Constants.Args.GENERIC_DEFINITION_CONFIG, null)
+                .With<Dictionary<string, object>>(configVars, null);
 
             ActionContext.ActionResponder responder = new ActionContext.ActionResponder((context) =>
             {
-                var messageConfig = context.GetObjectNamed<Dictionary<string, object>>(Constants.Args.GENERIC_DEFINITION_CONFIG);
+                var messageConfig = context.GetObjectNamed<object>(Constants.Args.GENERIC_DEFINITION_CONFIG);
                 var messageVars = context.GetObjectNamed<Dictionary<string, object>>(configVars);
                 StringBuilder builder = new StringBuilder();
                 NativeActionContext nativeContext = context as NativeActionContext;

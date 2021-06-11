@@ -82,7 +82,8 @@ namespace LeanplumSDK.MiniJSON {
         /// <returns>An List&lt;object&gt;, a Dictionary&lt;string, object&gt;, a double, an integer,a string, null, true, or false</returns>
         public static object Deserialize(string json) {
             // save the string for debug information
-            if (json == null) {
+            if (string.IsNullOrEmpty(json))
+            {
                 return null;
             }
 

@@ -584,6 +584,10 @@ namespace LeanplumSDK
                 bool isRegistered = (bool)Util.GetValueOrDefault(response, Constants.Keys.IS_REGISTERED, false);
                 bool syncInbox = (bool)Util.GetValueOrDefault(response, Constants.Keys.SYNC_INBOX, false);
 
+                string varsJson = Json.Serialize(values);
+                var signature = Util.GetValueOrDefault(response, Constants.Keys.VARS_SIGNATURE);
+                string varsSignature = signature != null ? signature.ToString() : null;
+
                 LeanplumRequest.Token = Util.GetValueOrDefault(response, Constants.Keys.TOKEN) as
                     string ?? "";
 
@@ -634,7 +638,7 @@ namespace LeanplumSDK
                     }
                 }
 
-                VarCache.ApplyVariableDiffs(values, messages, fileAttributes, variants);
+                VarCache.ApplyVariableDiffs(values, messages, fileAttributes, variants, varsJson, varsSignature);
                 _hasStarted = true;
                 startSuccessful = true;
                 OnStarted(true);
@@ -698,6 +702,27 @@ namespace LeanplumSDK
         public static void ShouldPerformActions(bool value)
         {
             LeanplumActionManager.ShouldPerformActions = value;
+        }
+
+        public override bool TriggerActionForId(string actionId)
+        {
+            return ShowMessage(actionId);
+        }
+
+        public override ActionContext CreateActionContextForId(string actionId)
+        {
+            var messageConfig = Util.GetValueOrDefault(VarCache.Messages, actionId) as IDictionary<string, object>;
+            if (messageConfig != null)
+            {
+                string actionName = Util.GetValueOrDefault(messageConfig, Constants.Args.ACTION) as string;
+                IDictionary<string, object> vars = Util.GetValueOrDefault(messageConfig, Constants.Args.VARS) as IDictionary<string, object>;
+                if (!string.IsNullOrEmpty(actionName) && vars != null)
+                {
+                    NativeActionContext actionContext = new NativeActionContext(actionId, actionName, vars);
+                    return actionContext;
+                }
+            }
+            return null;
         }
 
         public override bool ShowMessage(string id)
@@ -982,6 +1007,11 @@ namespace LeanplumSDK
             return varsDict;
         }
 
+        public override LeanplumSecuredVars SecuredVars()
+        {
+            return VarCache.SecuredVars;
+        }
+
         /// <summary>
         ///     Return message metadata.
         ///     Used only for debugging purposes and advanced use cases.
@@ -989,7 +1019,7 @@ namespace LeanplumSDK
         /// </summary>
         public override Dictionary<string, object> MessageMetadata()
         {
-            return new Dictionary<string, object>();
+            return VarCache.Messages as Dictionary<string, object>;
         }
 
         /// <summary>
@@ -1035,7 +1065,11 @@ namespace LeanplumSDK
                 var newVariants = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARIANTS) as List<object> ?? new List<object>();
                 bool syncInbox = (bool)Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.SYNC_INBOX, false);
 
-                VarCache.ApplyVariableDiffs(newVarValues, newMessages, newVarFileAttributes, newVariants);
+                string varsJson = Json.Serialize(newVarValues);
+                var signature = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARS_SIGNATURE);
+                string varsSignature = signature != null ? signature.ToString() : null;
+
+                VarCache.ApplyVariableDiffs(newVarValues, newMessages, newVarFileAttributes, newVariants, varsJson, varsSignature);
 
                 // Download inbox messages
                 if (syncInbox)
