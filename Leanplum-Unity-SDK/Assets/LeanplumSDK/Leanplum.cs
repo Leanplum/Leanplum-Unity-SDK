@@ -771,6 +771,16 @@ namespace LeanplumSDK
         {
             LeanplumFactory.SDK.OnAction(actionName, handler);
         }
+
+        public static ActionContext CreateActionContextForId(string actionId)
+        {
+            return LeanplumFactory.SDK.CreateActionContextForId(actionId);
+        }
+
+        public static bool TriggerActionForId(string actionId)
+        {
+            return LeanplumFactory.SDK.TriggerActionForId(actionId);
+        }
         #endregion
     }
 }

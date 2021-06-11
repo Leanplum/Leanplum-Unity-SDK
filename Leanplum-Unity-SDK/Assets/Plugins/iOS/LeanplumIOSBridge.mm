@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import <Leanplum/Leanplum.h>
+#import <Leanplum/LPInternalState.h>
 #import <Leanplum/LPPushNotificationsManager.h>
 #import "LeanplumUnityHelper.h"
 #import "LeanplumActionContextBridge.h"
@@ -30,7 +31,11 @@ typedef void (*LeanplumRequestAuthorization)
 (id, SEL, unsigned long long, void (^)(BOOL, NSError *__nullable));
 
 @interface Leanplum()
+typedef void (^LeanplumHandledBlock)(BOOL success);
 + (void)setClient:(NSString *)client withVersion:(NSString *)version;
++ (LPActionContext *)createActionContextForMessageId:(NSString *)messageId;
++ (void)triggerAction:(LPActionContext *)context
+         handledBlock:(nullable LeanplumHandledBlock)handledBlock;
 @end
 
 __attribute__ ((__constructor__)) static void initialize_bridge(void)
@@ -447,6 +452,56 @@ extern "C"
             sendMessageActionContext(@"OnAction", actionName, context);
             return YES;
         }];
+    }
+
+    const char * _createActionContextForId(const char *actionId)
+    {
+        NSString *mId = lp::to_nsstring(actionId);
+        LPActionContext *context = [Leanplum createActionContextForMessageId:mId];
+    
+        if (!context.actionName)
+        {
+            // Action not found
+            return NULL;
+        }
+        NSString *key = [NSString stringWithFormat:@"%@:%@", context.actionName, context.messageId];
+        [LeanplumActionContextBridge sharedActionContexts][key] = context;
+        return lp::to_string(key);
+    }
+
+    bool _triggerAction(const char *actionId)
+    {
+        NSString *key = lp::to_nsstring(actionId);
+        LPActionContext *context = [LeanplumActionContextBridge sharedActionContexts][key];
+    
+        if (!context)
+        {
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF CONTAINS[cd] %@", key];
+            NSArray *keys = [[LeanplumActionContextBridge sharedActionContexts] allKeys];
+            NSUInteger index = [keys indexOfObjectPassingTest:
+                         ^(id obj, NSUInteger idx, BOOL *stop) {
+                           return [predicate evaluateWithObject:obj];
+                         }];
+
+              if (index != NSNotFound) {
+                  context = [LeanplumActionContextBridge sharedActionContexts][keys[index]];
+              } else {
+                  const char * newKey = _createActionContextForId(actionId);
+                  if (newKey)
+                  {
+                      context = [LeanplumActionContextBridge sharedActionContexts][lp::to_nsstring(newKey)];
+                  }
+              }
+        }
+    
+        if (context) {
+            [Leanplum triggerAction:context handledBlock:^(BOOL success) {
+                [[LPInternalState sharedState].actionManager
+                 recordMessageImpression:[context messageId]];
+            }];
+            return YES;
+        }
+        return NO;
     }
 
     // Leanplum Content

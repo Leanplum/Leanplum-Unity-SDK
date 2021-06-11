@@ -700,6 +700,27 @@ namespace LeanplumSDK
             LeanplumActionManager.ShouldPerformActions = value;
         }
 
+        public override bool TriggerActionForId(string actionId)
+        {
+            return ShowMessage(actionId);
+        }
+
+        public override ActionContext CreateActionContextForId(string actionId)
+        {
+            var messageConfig = Util.GetValueOrDefault(VarCache.Messages, actionId) as IDictionary<string, object>;
+            if (messageConfig != null)
+            {
+                string actionName = Util.GetValueOrDefault(messageConfig, Constants.Args.ACTION) as string;
+                IDictionary<string, object> vars = Util.GetValueOrDefault(messageConfig, Constants.Args.VARS) as IDictionary<string, object>;
+                if (!string.IsNullOrEmpty(actionName) && vars != null)
+                {
+                    NativeActionContext actionContext = new NativeActionContext(actionId, actionName, vars);
+                    return actionContext;
+                }
+            }
+            return null;
+        }
+
         public override bool ShowMessage(string id)
         {
             var messageConfig = Util.GetValueOrDefault(VarCache.Messages, id) as IDictionary<string, object>;
@@ -989,7 +1010,7 @@ namespace LeanplumSDK
         /// </summary>
         public override Dictionary<string, object> MessageMetadata()
         {
-            return new Dictionary<string, object>();
+            return VarCache.Messages as Dictionary<string, object>;
         }
 
         /// <summary>

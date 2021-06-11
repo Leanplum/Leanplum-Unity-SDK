@@ -123,6 +123,12 @@ namespace LeanplumSDK
         [DllImport("__Internal")]
         internal static extern void _onAction(string name);
 
+        [DllImport("__Internal")]
+        internal static extern string _createActionContextForId(string actionId);
+
+        [DllImport("__Internal")]
+        internal static extern bool _triggerAction(string actionId);
+
         [DllImport ("__Internal")]
         internal static extern void _forceContentUpdateWithCallback(int key);
 
@@ -877,6 +883,24 @@ namespace LeanplumSDK
 
             OnActionRespondersDictionary[actionName].Add(handler);
             _onAction(actionName);
+        }
+
+        public override ActionContext CreateActionContextForId(string actionId)
+        {
+            if (!string.IsNullOrEmpty(actionId))
+            {
+                string key = _createActionContextForId(actionId);
+                string actionName = GetActionNameFromMessageKey(key);
+                string messageId = GetMessageIdFromMessageKey(key, actionName);
+                var context = new ActionContextApple(key, messageId);
+                return context;
+            }
+            return null;
+        }
+
+        public override bool TriggerActionForId(string actionId)
+        {
+            return _triggerAction(actionId);
         }
 
         #endregion
