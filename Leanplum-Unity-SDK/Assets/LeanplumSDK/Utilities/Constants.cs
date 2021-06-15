@@ -122,6 +122,8 @@ namespace LeanplumSDK
             internal const string ID = "id";
             internal const string ARGS = "args";
             internal const string VARS_SIGNATURE = "varsSignature";
+            public const string SECURED_VARS_SIGNATURE_KEY = "signature";
+            public const string SECURED_VARS_JSON_KEY = "json";
         }
 
         public class Kinds

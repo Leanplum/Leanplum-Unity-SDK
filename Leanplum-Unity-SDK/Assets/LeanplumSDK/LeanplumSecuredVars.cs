@@ -47,8 +47,8 @@ namespace LeanplumSDK
         {
             if (varsDict != null)
             {
-                string json = Util.GetValueOrDefault(varsDict, "json")?.ToString();
-                string signature = Util.GetValueOrDefault(varsDict, "signature")?.ToString();
+                string json = Util.GetValueOrDefault(varsDict, Constants.Keys.SECURED_VARS_JSON_KEY)?.ToString();
+                string signature = Util.GetValueOrDefault(varsDict, Constants.Keys.SECURED_VARS_SIGNATURE_KEY)?.ToString();
                 if (!string.IsNullOrEmpty(json) && !string.IsNullOrEmpty(signature))
                 {
                     LeanplumSecuredVars leanplumSecuredVars = new(json, signature);
