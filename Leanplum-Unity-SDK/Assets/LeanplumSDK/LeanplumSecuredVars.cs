@@ -1,4 +1,6 @@
-﻿namespace LeanplumSDK
+﻿using System.Collections.Generic;
+
+namespace LeanplumSDK
 {
     /// <summary>
     /// Represents Variables in JSON format, cryptographically signed from Leanplum server.
@@ -39,6 +41,21 @@
         {
             this.json = json;
             this.signature = signature;
+        }
+
+        public static LeanplumSecuredVars FromDictionary(Dictionary<string, object> varsDict)
+        {
+            if (varsDict != null)
+            {
+                string json = Util.GetValueOrDefault(varsDict, "json")?.ToString();
+                string signature = Util.GetValueOrDefault(varsDict, "signature")?.ToString();
+                if (!string.IsNullOrEmpty(json) && !string.IsNullOrEmpty(signature))
+                {
+                    LeanplumSecuredVars leanplumSecuredVars = new(json, signature);
+                    return leanplumSecuredVars;
+                }
+            }
+            return null;
         }
     }
 }

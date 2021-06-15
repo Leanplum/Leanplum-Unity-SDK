@@ -109,6 +109,9 @@ namespace LeanplumSDK
         internal static extern string _variants();
 
         [DllImport("__Internal")]
+        internal static extern string _securedVars();
+
+        [DllImport("__Internal")]
         internal static extern string _vars();
 
         [DllImport ("__Internal")]
@@ -577,7 +580,12 @@ namespace LeanplumSDK
         /// </returns>
         public override LeanplumSecuredVars SecuredVars()
         {
-            // TODO: implement when iOS SDK is ready
+            string jsonString = _securedVars();
+            if (!string.IsNullOrEmpty(jsonString))
+            {
+                var varsDict = (Dictionary<string, object>)Json.Deserialize(jsonString);
+                return LeanplumSecuredVars.FromDictionary(varsDict);
+            }
             return null;
         }
 
