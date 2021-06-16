@@ -648,7 +648,7 @@ namespace LeanplumSDK
             };
             req.Error += delegate
             {
-                VarCache.ApplyVariableDiffs(null, null);
+                VarCache.LoadDiffs();
                 _hasStarted = true;
                 startSuccessful = false;
                 OnStarted(false);
