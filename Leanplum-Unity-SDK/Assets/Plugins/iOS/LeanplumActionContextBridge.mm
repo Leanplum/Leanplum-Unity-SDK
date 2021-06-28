@@ -24,14 +24,11 @@
 #import "LeanplumUnityHelper.h"
 #import "LeanplumIOSBridge.h"
 
-
 @interface LPActionContext()
 
-@property (nonatomic, strong) LPActionContext *parentContext;
 @property(strong, nonatomic) LeanplumActionBlock actionNamedResponder;
 
 @end
-
 
 static NSMutableDictionary<NSString *, LPActionContext *> *actionContexts;
 
@@ -41,6 +38,13 @@ static NSMutableDictionary<NSString *, LPActionContext *> *actionContexts;
 {
     if (actionContexts == nil) actionContexts = [[NSMutableDictionary alloc] init];
     return actionContexts;
+}
+
++ (NSString *) addActionContext:(LPActionContext *) context
+{
+    NSString *key = [NSString stringWithFormat:@"%@:%@", [context actionName], [context messageId]];
+    [LeanplumActionContextBridge sharedActionContexts][key] = context;
+    return key;
 }
 
 @end
@@ -139,8 +143,11 @@ void set_action_named_responder(const char *contextId)
     LPActionContext *actionContext = [actionContexts objectForKey:lp::to_nsstring(contextId)];
     if (actionContext) {
         [actionContext setActionNamedResponder:^BOOL(LPActionContext * _Nonnull context) {
+            NSString *actionNamedContextkey = [LeanplumActionContextBridge addActionContext:context];
+            
             LPActionContext *parent = [context parentContext];
-            NSString *key = [NSString stringWithFormat:@"%@:%@|%@:%@", [parent actionName], [parent messageId], [context actionName], [context messageId]];
+            // parentActionName:parentMessageId|actionNamedActionName:actionNamedMessageId
+            NSString *key = [NSString stringWithFormat:@"%@:%@|%@", [parent actionName], [parent messageId], actionNamedContextkey];
             
             [LeanplumIOSBridge sendMessageToUnity:@"OnRunActionNamed" withKey:key];
             return NO;

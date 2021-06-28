@@ -635,15 +635,6 @@ namespace LeanplumSDK
             const string ON_ACTION_RESPONDER = "OnAction:";
             const string RUN_ACTION_NAMED_RESPONDER = "OnRunActionNamed:";
 
-
-            string keysStr = string.Empty;
-            if (ActionContextsDictionary.Count > 0)
-            {
-                List<string> keyList = new List<string>(ActionContextsDictionary.Keys);
-                keysStr = string.Join(", ", keyList);
-            }
-            Debug.Log($"ActionContexts Keys: {keysStr}");
-
             if (message.StartsWith(VARIABLES_CHANGED))
             {
                 VariablesChanged?.Invoke();

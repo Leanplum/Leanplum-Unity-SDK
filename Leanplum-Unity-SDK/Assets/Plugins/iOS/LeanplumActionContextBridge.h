@@ -25,5 +25,6 @@
 
 @interface LeanplumActionContextBridge : NSObject
 + (NSMutableDictionary<NSString *, LPActionContext *> *) sharedActionContexts;
++ (NSString *) addActionContext:(LPActionContext *) context;
 @end
 #endif

@@ -25,7 +25,6 @@
 #import <Leanplum/LPPushNotificationsManager.h>
 #import "LeanplumUnityHelper.h"
 #import "LeanplumActionContextBridge.h"
-
 #import "LeanplumIOSBridge.h"
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
@@ -347,8 +346,7 @@ extern "C"
     void sendMessageActionContext(NSString *messageName, NSString *actionName, LPActionContext *context)
     {
         if (actionName != nil && context != nil) {
-            NSString *key = [NSString stringWithFormat:@"%@:%@", actionName, context.messageId];
-            [LeanplumActionContextBridge sharedActionContexts][key] = context;
+            NSString *key = [LeanplumActionContextBridge addActionContext:context];
             UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
                             [[NSString stringWithFormat:@"%@:%@", messageName, key] UTF8String]);
         }
@@ -460,7 +458,12 @@ extern "C"
 
     void _onAction(const char *name)
     {
+        // Initialize default templates to prevent defineAction:actionResponder to override
+        // the onAction that will be registered
+        [LPMessageTemplatesClass sharedTemplates];
+        
         NSString *actionName = lp::to_nsstring(name);
+        // Register the onAction responder
         [Leanplum onAction:actionName invoke:^BOOL(LPActionContext *context) {
             sendMessageActionContext(@"OnAction", actionName, context);
             return YES;
@@ -477,8 +480,7 @@ extern "C"
             // Action not found
             return NULL;
         }
-        NSString *key = [NSString stringWithFormat:@"%@:%@", context.actionName, context.messageId];
-        [LeanplumActionContextBridge sharedActionContexts][key] = context;
+        NSString *key = [LeanplumActionContextBridge addActionContext:context];
         return lp::to_string(key);
     }
 
