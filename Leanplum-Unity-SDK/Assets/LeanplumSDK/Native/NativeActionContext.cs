@@ -128,12 +128,12 @@ namespace LeanplumSDK
 
         internal override void TriggerActionNamedResponder(ActionContext context)
         {
-            //throw new NotImplementedException();
+            // Not Implemented
         }
 
         public override void SetActionNamedResponder(ActionResponder handler)
         {
-            //throw new NotImplementedException();
+            // Not Implemented
         }
 
         public override void RunActionNamed(string name)
