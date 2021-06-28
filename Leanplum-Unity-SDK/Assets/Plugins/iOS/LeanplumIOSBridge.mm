@@ -20,10 +20,13 @@
 
 #import <Foundation/Foundation.h>
 #import <Leanplum/Leanplum.h>
+#import <Leanplum/LPActionContext.h>
 #import <Leanplum/LPInternalState.h>
 #import <Leanplum/LPPushNotificationsManager.h>
 #import "LeanplumUnityHelper.h"
 #import "LeanplumActionContextBridge.h"
+
+#import "LeanplumIOSBridge.h"
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
 
@@ -63,6 +66,16 @@ const char *__NativeCallbackMethod = "NativeCallback";
 
 @end
 // Variable Delegate class END
+
+@implementation LeanplumIOSBridge
+
++ (void) sendMessageToUnity:(NSString *) messageName withKey: (NSString *)key
+{
+    UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
+                     [[NSString stringWithFormat:@"%@:%@", messageName, key] UTF8String]);
+}
+
+@end
 
 extern "C"
 {

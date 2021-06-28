@@ -126,6 +126,16 @@ namespace LeanplumSDK
             throw new NotImplementedException();
         }
 
+        internal override void TriggerActionNamedResponder(ActionContext context)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public override void SetActionNamedResponder(ActionResponder handler)
+        {
+            //throw new NotImplementedException();
+        }
+
         public override void RunActionNamed(string name)
         {
             object actionObject = Traverse(name);

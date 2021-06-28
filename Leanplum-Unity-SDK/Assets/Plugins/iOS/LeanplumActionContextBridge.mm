@@ -19,9 +19,19 @@
 //  under the License.
 
 #import <Foundation/Foundation.h>
-#import <Leanplum/Leanplum.h>
+#import <Leanplum/LPActionContext.h>
 #import "LeanplumActionContextBridge.h"
 #import "LeanplumUnityHelper.h"
+#import "LeanplumIOSBridge.h"
+
+
+@interface LPActionContext()
+
+@property (nonatomic, strong) LPActionContext *parentContext;
+@property(strong, nonatomic) LeanplumActionBlock actionNamedResponder;
+
+@end
+
 
 static NSMutableDictionary<NSString *, LPActionContext *> *actionContexts;
 
@@ -122,6 +132,20 @@ char *get_html_with_template_named(const char *contextId, const char *name)
 {
     LPActionContext *context = [actionContexts objectForKey:lp::to_nsstring(contextId)];
     return lp::to_string([[context htmlWithTemplateNamed:lp::to_nsstring(name)] absoluteString]);
+}
+
+void set_action_named_responder(const char *contextId)
+{
+    LPActionContext *actionContext = [actionContexts objectForKey:lp::to_nsstring(contextId)];
+    if (actionContext) {
+        [actionContext setActionNamedResponder:^BOOL(LPActionContext * _Nonnull context) {
+            LPActionContext *parent = [context parentContext];
+            NSString *key = [NSString stringWithFormat:@"%@:%@|%@:%@", [parent actionName], [parent messageId], [context actionName], [context messageId]];
+            
+            [LeanplumIOSBridge sendMessageToUnity:@"OnRunActionNamed" withKey:key];
+            return NO;
+        }];
+    }
 }
 
 void run_action_named(const char *contextId, const char *actionName)
