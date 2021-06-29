@@ -700,7 +700,6 @@ namespace LeanplumSDK
                     {
                         callback(context);
                     }
-
                 }
             }
             else if (message.StartsWith(RUN_ACTION_NAMED_RESPONDER))

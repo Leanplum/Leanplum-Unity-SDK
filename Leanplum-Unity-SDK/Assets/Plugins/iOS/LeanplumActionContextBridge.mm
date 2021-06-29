@@ -24,12 +24,6 @@
 #import "LeanplumUnityHelper.h"
 #import "LeanplumIOSBridge.h"
 
-@interface LPActionContext()
-
-@property(strong, nonatomic) LeanplumActionBlock actionNamedResponder;
-
-@end
-
 static NSMutableDictionary<NSString *, LPActionContext *> *actionContexts;
 
 @implementation LeanplumActionContextBridge
