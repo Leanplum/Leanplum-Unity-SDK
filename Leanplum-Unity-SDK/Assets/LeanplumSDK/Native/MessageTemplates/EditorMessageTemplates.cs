@@ -95,10 +95,13 @@ namespace LeanplumSDK
             {
                 builder.AppendLine($"{IndentString(level)}{key}:");
                 var varDict = var as IDictionary<string, object>;
-                foreach (string keyDict in varDict.Keys)
+                if (varDict != null)
                 {
-                    BuildString(keyDict, varDict[keyDict], builder, ++level);
-                    level--;
+                    foreach (string keyDict in varDict.Keys)
+                    {
+                        BuildString(keyDict, varDict[keyDict], builder, ++level);
+                        level--;
+                    }
                 }
             }
             else if (var is IList)

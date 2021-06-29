@@ -6,6 +6,8 @@ namespace LeanplumSDK
 {
     public class LeanplumActionManager
     {
+        private static IDictionary<string, List<ActionContext.ActionResponder>> onActionResponders = new Dictionary<string, List<ActionContext.ActionResponder>>();
+
         internal static bool ShouldPerformActions { get; set; }
 
         internal LeanplumActionManager()
@@ -66,6 +68,9 @@ namespace LeanplumSDK
 
             ActionDefinition actionDefinition;
 
+            string originalActionName = context.Name;
+            NativeActionContext originalContext = context;
+
             if (!VarCache.actionDefinitions.TryGetValue(context.Name, out actionDefinition))
             {
                 // If no matching action definition is found, use the Generic one if such is registered 
@@ -87,6 +92,27 @@ namespace LeanplumSDK
                 }
                 actionDefinition.Responder?.Invoke(context);
             }
+
+            if (onActionResponders.ContainsKey(originalActionName))
+            {
+                var responders = onActionResponders[originalActionName];
+                foreach (var responder in responders)
+                {
+                    responder.Invoke(originalContext);
+                }
+            }
+        }
+
+        internal static void RegisterOnActionResponder(string actionName, ActionContext.ActionResponder responder)
+        {
+            if (string.IsNullOrEmpty(actionName) || responder == null)
+                return;
+
+            if (!onActionResponders.ContainsKey(actionName))
+            {
+                onActionResponders[actionName] = new List<ActionContext.ActionResponder>();
+            }
+            onActionResponders[actionName].Add(responder);
         }
 
         internal class WhenTrigger

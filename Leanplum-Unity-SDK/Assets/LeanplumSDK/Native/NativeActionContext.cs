@@ -10,6 +10,7 @@ namespace LeanplumSDK
         private readonly string name;
         private readonly string id;
         private readonly IDictionary<string, object> vars;
+        private ActionResponder runActionResponder;
 
         public NativeActionContext(string id, string name, IDictionary<string, object> vars)
         {
@@ -128,12 +129,15 @@ namespace LeanplumSDK
 
         internal override void TriggerActionNamedResponder(ActionContext context)
         {
-            // Not Implemented
+            if (runActionResponder != null)
+            {
+                runActionResponder.Invoke(context);
+            }
         }
 
         public override void SetActionNamedResponder(ActionResponder handler)
         {
-            // Not Implemented
+            runActionResponder = handler;
         }
 
         public override void RunActionNamed(string name)
@@ -153,6 +157,9 @@ namespace LeanplumSDK
                     actionData = actionObject as Dictionary<string, object>;
                 }
             }
+
+            NativeActionContext runActionContext = new NativeActionContext(Id, name, actionData);
+            TriggerActionNamedResponder(runActionContext);
 
             if (actionData != null)
             {

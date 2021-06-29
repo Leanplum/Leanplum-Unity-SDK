@@ -692,7 +692,7 @@ namespace LeanplumSDK
 
         public override void OnAction(string actionName, ActionContext.ActionResponder handler)
         {
-            // Not Implemented
+            LeanplumActionManager.RegisterOnActionResponder(actionName, handler);
         }
 
         /// <summary>
