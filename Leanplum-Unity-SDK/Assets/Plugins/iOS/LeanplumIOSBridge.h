@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2020 Leanplum. All rights reserved.
+//  Copyright (c) 2021 Leanplum. All rights reserved.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -18,13 +18,13 @@
 //  specific language governing permissions and limitations
 //  under the License.
 
-#ifndef LeanplumActionContextBridge_h
-#define LeanplumActionContextBridge_h
+#ifndef LeanplumIOSBridge_h
+#define LeanplumIOSBridge_h
 
 #pragma once
 
-@interface LeanplumActionContextBridge : NSObject
-+ (NSMutableDictionary<NSString *, LPActionContext *> *) sharedActionContexts;
-+ (NSString *) addActionContext:(LPActionContext *) context;
+@interface LeanplumIOSBridge : NSObject
++ (void) sendMessageToUnity:(NSString *) messageName withKey: (NSString *)key;
 @end
-#endif
+
+#endif /* LeanplumIOSBridge_h */

@@ -648,7 +648,7 @@ namespace LeanplumSDK
             };
             req.Error += delegate
             {
-                VarCache.ApplyVariableDiffs(null, null);
+                VarCache.LoadDiffs();
                 _hasStarted = true;
                 startSuccessful = false;
                 OnStarted(false);
@@ -692,7 +692,7 @@ namespace LeanplumSDK
 
         public override void OnAction(string actionName, ActionContext.ActionResponder handler)
         {
-            // Not Implemented
+            LeanplumActionManager.RegisterOnActionResponder(actionName, handler);
         }
 
         /// <summary>

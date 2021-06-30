@@ -50,6 +50,7 @@ import com.leanplum.internal.LeanplumInternal;
 import com.leanplum.internal.Util;
 import com.leanplum.internal.VarCache;
 import com.leanplum.json.JsonConverter;
+import com.leanplum.messagetemplates.MessageTemplates;
 import com.unity3d.player.UnityPlayer;
 
 public class UnityBridge {
@@ -60,7 +61,7 @@ public class UnityBridge {
 
   private static final String CLIENT = "unity-nativeandroid";
 
-  private static void makeCallbackToUnity(String message) {
+  static void makeCallbackToUnity(String message) {
     UnityPlayer.UnitySendMessage(unityGameObject, "NativeCallback", message);
   }
 
@@ -332,6 +333,11 @@ public class UnityBridge {
   }
 
   public static void onAction(final String name) {
+    // Initialize default templates to prevent defineAction:actionResponder to override
+    // the onAction that will be registered
+    if (!LeanplumInternal.hasCalledStart() && UnityPlayer.currentActivity != null){
+      MessageTemplates.register(UnityPlayer.currentActivity);
+    }
     Leanplum.onAction(name, new ActionCallback() {
       @Override
       public boolean onResponse(ActionContext context) {

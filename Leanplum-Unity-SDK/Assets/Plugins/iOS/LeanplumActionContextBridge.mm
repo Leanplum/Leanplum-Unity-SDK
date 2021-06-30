@@ -19,9 +19,10 @@
 //  under the License.
 
 #import <Foundation/Foundation.h>
-#import <Leanplum/Leanplum.h>
+#import <Leanplum/LPActionContext.h>
 #import "LeanplumActionContextBridge.h"
 #import "LeanplumUnityHelper.h"
+#import "LeanplumIOSBridge.h"
 
 static NSMutableDictionary<NSString *, LPActionContext *> *actionContexts;
 
@@ -31,6 +32,13 @@ static NSMutableDictionary<NSString *, LPActionContext *> *actionContexts;
 {
     if (actionContexts == nil) actionContexts = [[NSMutableDictionary alloc] init];
     return actionContexts;
+}
+
++ (NSString *) addActionContext:(LPActionContext *) context
+{
+    NSString *key = [NSString stringWithFormat:@"%@:%@", [context actionName], [context messageId]];
+    [LeanplumActionContextBridge sharedActionContexts][key] = context;
+    return key;
 }
 
 @end
@@ -122,6 +130,23 @@ char *get_html_with_template_named(const char *contextId, const char *name)
 {
     LPActionContext *context = [actionContexts objectForKey:lp::to_nsstring(contextId)];
     return lp::to_string([[context htmlWithTemplateNamed:lp::to_nsstring(name)] absoluteString]);
+}
+
+void set_action_named_responder(const char *contextId)
+{
+    LPActionContext *actionContext = [actionContexts objectForKey:lp::to_nsstring(contextId)];
+    if (actionContext) {
+        [actionContext setActionNamedResponder:^BOOL(LPActionContext * _Nonnull context) {
+            NSString *actionNamedContextkey = [LeanplumActionContextBridge addActionContext:context];
+            
+            LPActionContext *parent = [context parentContext];
+            // parentActionName:parentMessageId|actionNamedActionName:actionNamedMessageId
+            NSString *key = [NSString stringWithFormat:@"%@:%@|%@", [parent actionName], [parent messageId], actionNamedContextkey];
+            
+            [LeanplumIOSBridge sendMessageToUnity:@"OnRunActionNamed" withKey:key];
+            return NO;
+        }];
+    }
 }
 
 void run_action_named(const char *contextId, const char *actionName)

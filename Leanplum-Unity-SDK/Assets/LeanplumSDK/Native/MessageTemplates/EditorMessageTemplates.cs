@@ -63,12 +63,13 @@ namespace LeanplumSDK
             string configVars = $"{Constants.Args.GENERIC_DEFINITION_CONFIG}.vars";
             ActionArgs args = new ActionArgs()
                 .With<object>(Constants.Args.GENERIC_DEFINITION_CONFIG, null)
-                .With<Dictionary<string, object>>(configVars, null);
+                .With<object>(configVars, null);
 
             ActionContext.ActionResponder responder = new ActionContext.ActionResponder((context) =>
             {
                 var messageConfig = context.GetObjectNamed<object>(Constants.Args.GENERIC_DEFINITION_CONFIG);
-                var messageVars = context.GetObjectNamed<Dictionary<string, object>>(configVars);
+                var messageVars = context.GetObjectNamed<object>(configVars);
+
                 StringBuilder builder = new StringBuilder();
                 NativeActionContext nativeContext = context as NativeActionContext;
                 if (nativeContext != null && !string.IsNullOrEmpty(nativeContext.Id))
@@ -95,10 +96,13 @@ namespace LeanplumSDK
             {
                 builder.AppendLine($"{IndentString(level)}{key}:");
                 var varDict = var as IDictionary<string, object>;
-                foreach (string keyDict in varDict.Keys)
+                if (varDict != null)
                 {
-                    BuildString(keyDict, varDict[keyDict], builder, ++level);
-                    level--;
+                    foreach (string keyDict in varDict.Keys)
+                    {
+                        BuildString(keyDict, varDict[keyDict], builder, ++level);
+                        level--;
+                    }
                 }
             }
             else if (var is IList)
