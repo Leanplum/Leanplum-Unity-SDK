@@ -174,6 +174,7 @@ namespace LeanplumSDK
         private Dictionary<int, Action> ForceContentUpdateCallbackDictionary = new Dictionary<int, Action>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
         private Dictionary<string, List<ActionContext.ActionResponder>> OnActionRespondersDictionary = new Dictionary<string, List<ActionContext.ActionResponder>>();
+        private Dictionary<string, ActionContext> ActionContextsDictionary = new Dictionary<string, ActionContext>();
 
         static private int DictionaryKey = 0;
 
@@ -630,8 +631,9 @@ namespace LeanplumSDK
             const string STARTED = "Started:";
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_CALLBACK = "ForceContentUpdateWithCallback:";
-            const string ACTION_RESPONDER = "ActionResponder:";
-            const string ON_ACTION = "OnAction:";
+            const string DEFINE_ACTION_RESPONDER = "ActionResponder:";
+            const string ON_ACTION_RESPONDER = "OnAction:";
+            const string RUN_ACTION_NAMED_RESPONDER = "OnRunActionNamed:";
 
             if (message.StartsWith(VARIABLES_CHANGED))
             {
@@ -665,32 +667,59 @@ namespace LeanplumSDK
                     ForceContentUpdateCallbackDictionary.Remove(key);
                 }
             }
-            else if (message.StartsWith(ACTION_RESPONDER))
+            else if (message.StartsWith(DEFINE_ACTION_RESPONDER))
             {
-                string key = message.Substring(ACTION_RESPONDER.Length);
+                string key = message.Substring(DEFINE_ACTION_RESPONDER.Length);
                 string actionName = GetActionNameFromMessageKey(key);
 
                 ActionContext.ActionResponder callback;
                 if (ActionRespondersDictionary.TryGetValue(actionName, out callback))
                 {
-                    string messageId = GetMessageIdFromMessageKey(key, actionName);
+                    string messageId = GetMessageIdFromMessageKey(key);
                     var context = new ActionContextApple(key, messageId);
+                    ActionContextsDictionary[key] = context;
                     callback(context);
                 }
             }
-            else if (message.StartsWith(ON_ACTION))
+            else if (message.StartsWith(ON_ACTION_RESPONDER))
             {
-                string key = message.Substring(ON_ACTION.Length);
+                string key = message.Substring(ON_ACTION_RESPONDER.Length);
                 string actionName = GetActionNameFromMessageKey(key);
 
                 if (OnActionRespondersDictionary.TryGetValue(actionName, out List<ActionContext.ActionResponder> callbacks))
                 {
-                    string messageId = GetMessageIdFromMessageKey(key, actionName);
-                    var context = new ActionContextApple(key, messageId);
+                    if (!ActionContextsDictionary.ContainsKey(key))
+                    {
+                        string messageId = GetMessageIdFromMessageKey(key);
+                        var newContext = new ActionContextApple(key, messageId);
+                        ActionContextsDictionary[key] = newContext;
+                    }
+
+                    ActionContext context = ActionContextsDictionary[key];
                     foreach (var callback in callbacks)
                     {
                         callback(context);
                     }
+                }
+            }
+            else if (message.StartsWith(RUN_ACTION_NAMED_RESPONDER))
+            {
+                char keysSeparator = '|';
+                string data = message.Substring(RUN_ACTION_NAMED_RESPONDER.Length);
+
+                string[] keys = data.Split(new char[] { keysSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                if (keys.Length != 2)
+                {
+                    return;
+                }
+
+                string parentKey = keys[0];
+                string actionKey = keys[1];
+
+                if (ActionContextsDictionary.TryGetValue(parentKey, out ActionContext parentContext))
+                {
+                    var context = new ActionContextApple(actionKey, GetMessageIdFromMessageKey(actionKey));
+                    parentContext.TriggerActionNamedResponder(context);
                 }
             }
 
@@ -706,8 +735,9 @@ namespace LeanplumSDK
             return key.Split(':')[0];
         }
 
-        private string GetMessageIdFromMessageKey(string key, string actionName)
+        private string GetMessageIdFromMessageKey(string key)
         {
+            string actionName = GetActionNameFromMessageKey(key);
             string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
             return messageId;
         }
@@ -905,9 +935,10 @@ namespace LeanplumSDK
             if (!string.IsNullOrEmpty(actionId))
             {
                 string key = _createActionContextForId(actionId);
-                string actionName = GetActionNameFromMessageKey(key);
-                string messageId = GetMessageIdFromMessageKey(key, actionName);
+                string messageId = GetMessageIdFromMessageKey(key);
                 var context = new ActionContextApple(key, messageId);
+                ActionContextsDictionary[key] = context;
+
                 return context;
             }
             return null;

@@ -34,6 +34,14 @@ namespace LeanplumSDK
         public abstract void TrackMessageEvent(string eventName, double value, string info, IDictionary<string, object> param);
 
         /// <summary>
+        /// Sets a responder to be executed when an action is run.
+        /// </summary>
+        /// <param name="handler">the action responder to be invoked</param>
+        public abstract void SetActionNamedResponder(ActionResponder handler);
+
+        internal abstract void TriggerActionNamedResponder(ActionContext context);
+
+        /// <summary>
         /// Runs the action given by the "name" key.
         /// </summary>
         /// <param name="name">action name</param>

@@ -10,6 +10,7 @@ namespace LeanplumSDK
     public class ActionContextAndroid : ActionContext
     {
         private AndroidJavaClass nativeHandle = null;
+        private ActionResponder runActionResponder;
         public override string Id { get; }
         public override string Name { get; }
 
@@ -30,6 +31,20 @@ namespace LeanplumSDK
         {
             var paramJson = param != null ? Json.Serialize(param) : "";
             nativeHandle.CallStatic("trackMessageEvent", Name, eventName, value, info, paramJson);
+        }
+
+        public override void SetActionNamedResponder(ActionResponder handler)
+        {
+            runActionResponder = handler;
+            nativeHandle.CallStatic("setActionNamedHandler", Name);
+        }
+
+        internal override void TriggerActionNamedResponder(ActionContext context)
+        {
+            if (runActionResponder != null)
+            {
+                runActionResponder.Invoke(context);
+            }
         }
 
         public override void RunActionNamed(string name)
