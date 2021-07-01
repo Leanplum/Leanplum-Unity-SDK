@@ -243,6 +243,10 @@ public class UnityBridge {
     return gson.toJson(Leanplum.variants());
   }
 
+  public static String securedVars() {
+    return gson.toJson(Leanplum.securedVars());
+  }
+
   public static String vars() {
     return gson.toJson(VarCache.getDiffs());
   }

@@ -455,7 +455,12 @@ namespace LeanplumSDK
         /// </returns>
         public override LeanplumSecuredVars SecuredVars()
         {
-            // TODO: implement when Android SDK is ready
+            string jsonString = NativeSDK.CallStatic<string>("securedVars");
+            if (!string.IsNullOrEmpty(jsonString))
+            {
+                var varsDict = (Dictionary<string, object>)Json.Deserialize(jsonString);
+                return LeanplumSecuredVars.FromDictionary(varsDict);
+            }
             return null;
         }
 

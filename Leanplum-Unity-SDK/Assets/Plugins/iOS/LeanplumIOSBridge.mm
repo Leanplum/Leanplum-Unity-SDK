@@ -66,14 +66,26 @@ const char *__NativeCallbackMethod = "NativeCallback";
 @end
 // Variable Delegate class END
 
-@implementation LeanplumIOSBridge
+@interface LPSecuredVars (JsonKeys)
+@end
 
+@implementation LPSecuredVars (JsonKeys)
++ (NSString *)securedVarsKey
+{
+    return @"json";
+}
++ (NSString *)securedVarsSignatureKey
+{
+    return @"signature";
+}
+@end
+
+@implementation LeanplumIOSBridge
 + (void) sendMessageToUnity:(NSString *) messageName withKey: (NSString *)key
 {
     UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
                      [[NSString stringWithFormat:@"%@:%@", messageName, key] UTF8String]);
 }
-
 @end
 
 extern "C"
@@ -200,6 +212,19 @@ extern "C"
     const char * _variants()
     {
         return lp::to_json_string([Leanplum variants]);
+    }
+
+    const char * _securedVars()
+    {   
+        LPSecuredVars *securedVars = [Leanplum securedVars];
+        if (securedVars) {
+            NSDictionary *securedVarsDict = @{
+                [LPSecuredVars securedVarsKey]: [securedVars varsJson],
+                [LPSecuredVars securedVarsSignatureKey]: [securedVars varsSignature]
+            };
+            return lp::to_json_string(securedVarsDict);
+        }
+        return NULL;
     }
 
     const char * _vars()
