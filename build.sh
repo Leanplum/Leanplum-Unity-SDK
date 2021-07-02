@@ -10,6 +10,8 @@ set -o errexit
 
 PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
 
+UNITY_EDITOR_VERSION=""
+
 REMOVE_SIMULATOR_ARCH=false
 
 #######################################
@@ -47,6 +49,7 @@ download_ios_sdk() {
 
   # Download from offical git repo.
   local destination="/tmp/Leanplum-${version}.zip"
+
   wget --show-progress -O "$destination" \
     "${repo}/releases/download/${version}/Leanplum.framework.zip"
 
@@ -66,6 +69,37 @@ download_ios_sdk() {
   fi
 
   echo "Finished downloading iOS SDK."
+}
+
+copy_ios_sdk() {
+  local version=$1
+  echo "Copying AppleSDK ${version} (Leanplum-${version}.framework.zip)..."
+  local destination="/tmp/Leanplum-${version}.zip"
+
+  if [ -d "/tmp/Leanplum-${version}.framework" ]; then
+    rm -rf "/tmp/Leanplum-${version}.framework"
+  fi
+
+  cp "Leanplum-${version}.framework.zip" $destination
+
+  echo "Extracting AppleSDK ..."
+  rm -rf "/tmp/Leanplum.framework"
+  unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/Leanplum.framework"
+  rm -rf "/tmp/Leanplum-${version}.zip"
+  # Move dynamic fat framework
+  mv "/tmp/Leanplum.framework/dynamic/Leanplum.framework" "/tmp/Leanplum-${version}.framework"
+  # Clear others
+  rm -rf "/tmp/Leanplum.framework"
+
+  if [ "$REMOVE_SIMULATOR_ARCH" = true ] ; then
+    echo "Removing x86_64 & i386 architecture from iOS library"
+    cd "/tmp/Leanplum-${version}.framework"
+    lipo -remove x86_64 Leanplum -o Leanplum
+    lipo -remove i386 Leanplum -o Leanplum
+    cd -
+  fi
+
+  echo "Finished copying iOS SDK."
 }
 
 #######################################
@@ -99,7 +133,18 @@ replace() {
 get_unity_from_hub() {
   UNITY_HUB="/Applications/Unity Hub.app/Contents/MacOS/Unity Hub"
 
-  echo $("${UNITY_HUB}" -- --headless editors -i | head -1 | awk '{print $NF}')
+  local path=$("${UNITY_HUB}" -- --headless editors -i | head -1 | awk '{print $NF}')
+  if [[ $UNITY_EDITOR_VERSION != "" ]]; then
+    delimiter="/"
+    declare -a array=($(echo $path | tr "$delimiter" " "))
+    local count=${#array[@]}
+    # the version is second to last element
+    array[count-2]=$UNITY_EDITOR_VERSION
+    local arr=${array[@]}
+    local str=${arr// //}
+    path=/$str
+  fi
+  echo ${path}
 }
 
 #######################################
@@ -179,6 +224,14 @@ main() {
       UNITY_VERSION="${i#*=}"
       shift # past argument=value
       ;;
+      --unity-editor-version=*)
+      UNITY_EDITOR_VERSION="${i#*=}"
+      shift # past argument=value
+      ;;
+      --apple-copy)
+      APPLE_COPY=true
+      shift
+      ;;
       --stacktrace)
       set -o xtrace
       shift
@@ -206,7 +259,11 @@ main() {
   export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION"}
   echo "Building unitypackage with version ${UNITY_VERSION_STRING}, using iOS ${APPLE_SDK_VERSION} and Android ${ANDROID_SDK_VERSION}"
 
-  download_ios_sdk $APPLE_SDK_VERSION
+  if [[ $APPLE_COPY == true ]]; then
+      copy_ios_sdk $APPLE_SDK_VERSION
+  else 
+      download_ios_sdk $APPLE_SDK_VERSION
+  fi
 
   replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
   replace "Leanplum-Unity-SDK/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml" "%LP_VERSION%" $ANDROID_SDK_VERSION

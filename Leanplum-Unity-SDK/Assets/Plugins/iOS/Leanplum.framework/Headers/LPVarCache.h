@@ -23,6 +23,7 @@
 //  under the License.
 
 #import <Foundation/Foundation.h>
+#import "LPSecuredVars.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,8 +65,11 @@ NS_SWIFT_NAME(define(name:value:kind:));
 - (void)applyVariableDiffs:(nullable NSDictionary<NSString *, id> *)diffs_
                   messages:(nullable NSDictionary<NSString *, id> *)messages_
                   variants:(nullable NSArray<NSString *> *)variants_
+                 localCaps:(nullable NSArray<NSDictionary *> *)localCaps_
                    regions:(nullable NSDictionary<NSString *, id> *)regions_
-          variantDebugInfo:(nullable NSDictionary<NSString *, id> *)variantDebugInfo_;
+          variantDebugInfo:(nullable NSDictionary<NSString *, id> *)variantDebugInfo_
+                  varsJson:(nullable NSString *)varsJson_
+             varsSignature:(nullable NSString *)varsSignature_;
 - (void)onUpdate:(CacheUpdateBlock)block;
 - (void)setSilent:(BOOL)silent;
 - (BOOL)silent;
@@ -80,6 +84,7 @@ NS_SWIFT_NAME(define(name:value:kind:));
 
 - (void)clearUserContent;
 
+- (NSArray<NSDictionary *> *)getLocalCaps;
 // Handling actions.
 - (nullable NSDictionary<NSString *, id> *)actionDefinitions;
 - (nullable NSDictionary<NSString *, id> *)messages;
@@ -102,6 +107,10 @@ NS_SWIFT_NAME(define(name:value:kind:));
 
 - (nullable NSMutableDictionary<NSString *, id> *)userAttributes;
 - (void)saveUserAttributes;
+
+- (LPSecuredVars *)securedVars;
+
+- (NSUInteger)getActionDefinitionType:(NSString *)actionName;
 
 @end
 

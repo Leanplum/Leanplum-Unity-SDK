@@ -26,7 +26,6 @@
 #import <UserNotifications/UserNotifications.h>
 #import "LPInbox.h"
 #import "LPActionArg.h"
-#import "LPActionContext.h"
 #import "LPVar.h"
 #import "LPMessageArchiveData.h"
 #import "LPEnumConstants.h"
@@ -67,9 +66,6 @@
 #import "LPAES.h"
 #import "LPLogManager.h"
 #import "LPRequestSenderTimer.h"
-
-// Prevent circular reference
-@class LPDeferrableAction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -133,6 +129,8 @@ name = [LPVar define:[@#name stringByReplacingOccurrencesOfString:@"_" withStrin
 }
 /**@}*/
 
+// Prevent circular reference
+@class LPDeferrableAction;
 @class LPActionContext;
 @class SKPaymentTransaction;
 @class NSExtensionContext;
@@ -187,6 +185,14 @@ extern NSString *const kEnvProduction;
  */
 + (void)setApiHostName:(NSString *)hostName withServletName:(NSString *)servletName usingSsl:(BOOL)ssl
 NS_SWIFT_NAME(setApiHostName(_:servletName:ssl:));
+
+/**
+ * Optional. Sets socket hostname and port
+ * @param hostName The name of the socket host
+ * @param port port of the socket
+ */
++ (void)setSocketHostName:(NSString *)hostName withPortNumber:(int)port
+NS_SWIFT_NAME(setSocketHostName(_:port:));
 
 /**
  * Optional. Adjusts the network timeouts.
@@ -854,6 +860,13 @@ NS_SWIFT_NAME(setDeviceLocation(latitude:longitude:city:region:country:type:));
  @param uploadInterval The time between uploads.
  */
 + (void)setEventsUploadInterval:(LPEventsUploadInterval)uploadInterval;
+
+/**
+ Returns the last received signed variables. If signature was not provided from server the result of this method will be nil.
+ * @return @c LPSecuredVars instance containing variable's JSON and signature. If signature wasn't downloaded from server it will return nil.
+ */
++ (nullable LPSecuredVars *)securedVars;
+
 @end
 
 NS_ASSUME_NONNULL_END
