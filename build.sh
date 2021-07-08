@@ -40,11 +40,15 @@ get_latest_version() {
 #######################################
 download_ios_sdk() {
   local version=$1
+  local use_xcframework=$2
   local repo=https://github.com/Leanplum/Leanplum-iOS-SDK
 
   echo "Downloading AppleSDK ${version} ..."
   if [ -d "/tmp/Leanplum-${version}.framework" ]; then
     rm -rf "/tmp/Leanplum-${version}.framework"
+  fi
+  if [ -d "/tmp/Leanplum-${version}.xcframework" ]; then
+    rm -rf "/tmp/Leanplum-${version}.xcframework"
   fi
 
   # Download from offical git repo.
@@ -53,26 +57,64 @@ download_ios_sdk() {
   wget --show-progress -O "$destination" \
     "${repo}/releases/download/${version}/Leanplum.framework.zip"
 
-  echo "Extracting AppleSDK ..."
-  rm -rf "/tmp/Leanplum.framework"
-  unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/"
-  rm -rf "/tmp/Leanplum-${version}.zip"
-  mv "/tmp/Leanplum.framework" "/tmp/Leanplum-${version}.framework"
-
-
-  if [ "$REMOVE_SIMULATOR_ARCH" = true ] ; then
-    echo "Removing x86_64 & i386 architecture from iOS library"
-    cd "/tmp/Leanplum-${version}.framework"
-    lipo -remove x86_64 Leanplum -o Leanplum
-    lipo -remove i386 Leanplum -o Leanplum
-    cd -
-  fi
+  extract_ios_sdk $version $use_xcframework
 
   echo "Finished downloading iOS SDK."
 }
 
+extract_ios_sdk()
+{
+  local version=$1
+  local use_xcframework=$2
+  echo "Extracting AppleSDK ..."
+  rm -rf "/tmp/Leanplum.framework"
+  rm -rf "/tmp/Leanplum.xcframework"
+  unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/Leanplum.framework"
+  rm -rf "/tmp/Leanplum-${version}.zip"
+
+  if [ "$use_xcframework" = true ]; then
+    # Move dynamic xcframework
+    echo "Using dynamic xcframework ..."
+    mv "/tmp/Leanplum.framework/dynamic/Leanplum.xcframework" "/tmp/Leanplum-${version}.xcframework"
+  else
+    # Move dynamic fat framework
+    echo "Using fat framework ..."
+    mv "/tmp/Leanplum.framework/dynamic/Leanplum.framework" "/tmp/Leanplum-${version}.framework"
+  fi
+
+  # Clear others
+  rm -rf "/tmp/Leanplum.framework"
+
+  echo "USE XC ${use_xcframework}"
+
+  if [ "$REMOVE_SIMULATOR_ARCH" = true ] ; then
+    if [ "$use_xcframework" = true ]; then
+      echo "Removing x86_64 & i386 architecture from iOS library"
+      rm -rf "/tmp/Leanplum-${version}.xcframework/ios-x86_64-simulator"
+    else
+      echo "Removing x86_64 & i386 architecture from iOS library"
+      cd "/tmp/Leanplum-${version}.framework"
+      lipo -remove x86_64 Leanplum -o Leanplum
+      lipo -remove i386 Leanplum -o Leanplum
+      cd -
+    fi
+  fi
+}
+
+
+#######################################
+# Copies the iOS SDK from project directory. Name should be in format Leanplum-${version}.framework.zip
+# Globals:
+#   None
+# Arguments:
+#   The version to copy, whether to use xcframework or not.
+# Returns:
+#   None
+#######################################
 copy_ios_sdk() {
   local version=$1
+  local use_xcframework=$2
+
   echo "Copying AppleSDK ${version} (Leanplum-${version}.framework.zip)..."
   local destination="/tmp/Leanplum-${version}.zip"
 
@@ -80,24 +122,13 @@ copy_ios_sdk() {
     rm -rf "/tmp/Leanplum-${version}.framework"
   fi
 
+  if [ -d "/tmp/Leanplum-${version}.xcframework" ]; then
+    rm -rf "/tmp/Leanplum-${version}.xcframework"
+  fi
+
   cp "Leanplum-${version}.framework.zip" $destination
 
-  echo "Extracting AppleSDK ..."
-  rm -rf "/tmp/Leanplum.framework"
-  unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/Leanplum.framework"
-  rm -rf "/tmp/Leanplum-${version}.zip"
-  # Move dynamic fat framework
-  mv "/tmp/Leanplum.framework/dynamic/Leanplum.framework" "/tmp/Leanplum-${version}.framework"
-  # Clear others
-  rm -rf "/tmp/Leanplum.framework"
-
-  if [ "$REMOVE_SIMULATOR_ARCH" = true ] ; then
-    echo "Removing x86_64 & i386 architecture from iOS library"
-    cd "/tmp/Leanplum-${version}.framework"
-    lipo -remove x86_64 Leanplum -o Leanplum
-    lipo -remove i386 Leanplum -o Leanplum
-    cd -
-  fi
+  extract_ios_sdk $version $use_xcframework
 
   echo "Finished copying iOS SDK."
 }
@@ -158,10 +189,18 @@ get_unity_from_hub() {
 #######################################
 build() {
   echo "Preparing dependencies..."
+  local use_xcframework=$1
   # Copy AppleSDK
   rm -rf "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.framework"
-  cp -r "/tmp/Leanplum-$APPLE_SDK_VERSION.framework" \
+  rm -rf "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.xcframework"
+
+  if [ "$use_xcframework" = true ]; then
+    cp -r "/tmp/Leanplum-$APPLE_SDK_VERSION.xcframework" \
+    "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.xcframework"
+  else
+    cp -r "/tmp/Leanplum-$APPLE_SDK_VERSION.framework" \
     "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.framework"
+  fi
 
   # Build Android SDK
   rm -rf "../Leanplum-Unity-SDK/Assets/Plugins/Android"
@@ -210,6 +249,9 @@ build() {
 #   None
 #######################################
 main() {
+  USE_XCFRAMEWORK=false
+  APPLE_COPY=false
+
   for i in "$@"; do
     case $i in
       --apple-sdk-version=*)
@@ -240,6 +282,10 @@ main() {
       REMOVE_SIMULATOR_ARCH=true
       shift
       ;;
+      --xcframework)
+      USE_XCFRAMEWORK=true
+      shift
+      ;;
     esac
   done
 
@@ -259,10 +305,10 @@ main() {
   export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION"}
   echo "Building unitypackage with version ${UNITY_VERSION_STRING}, using iOS ${APPLE_SDK_VERSION} and Android ${ANDROID_SDK_VERSION}"
 
-  if [[ $APPLE_COPY == true ]]; then
-      copy_ios_sdk $APPLE_SDK_VERSION
+  if [ "$APPLE_COPY" = true ]; then
+      copy_ios_sdk $APPLE_SDK_VERSION $USE_XCFRAMEWORK
   else 
-      download_ios_sdk $APPLE_SDK_VERSION
+      download_ios_sdk $APPLE_SDK_VERSION $USE_XCFRAMEWORK
   fi
 
   replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
@@ -274,7 +320,7 @@ main() {
   find Leanplum-Unity-Package -name '*.unitypackage' -delete
   find Leanplum-Unity-SDK/Assets/Plugins/ -name '*.aar' -delete
 
-  build
+  build $USE_XCFRAMEWORK
 
   git checkout Leanplum-Android-SDK-Unity/
   git checkout Leanplum-Unity-SDK/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml

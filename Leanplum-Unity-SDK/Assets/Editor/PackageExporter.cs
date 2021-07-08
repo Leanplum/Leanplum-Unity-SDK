@@ -14,6 +14,7 @@ namespace Leanplum.Private
             "Assets/LeanplumSDK",
             "Assets/Editor/LeanplumAndroidBuildPreProcessor.cs",
             "Assets/Editor/LeanplumAndroidGradleBuildProcessor.cs",
+            "Assets/Editor/LeanplumApplePostProcessor.cs",
         };
 
         [MenuItem("Tools/Leanplum/Export Package")]
