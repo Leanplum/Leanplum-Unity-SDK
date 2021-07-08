@@ -16,6 +16,7 @@
 #import "LPEventCallback.h"
 #import "LPEventCallbackManager.h"
 #import "LPEventDataManager.h"
+#import "LPSecuredVars.h"
 #import "LPVar-Internal.h"
 #import "LPVarCache.h"
 #import "LPFeatureFlagManager.h"

@@ -51,7 +51,7 @@ namespace LeanplumSDK
                 string signature = Util.GetValueOrDefault(varsDict, Constants.Keys.SECURED_VARS_SIGNATURE_KEY)?.ToString();
                 if (!string.IsNullOrEmpty(json) && !string.IsNullOrEmpty(signature))
                 {
-                    LeanplumSecuredVars leanplumSecuredVars = new(json, signature);
+                    LeanplumSecuredVars leanplumSecuredVars = new LeanplumSecuredVars(json, signature);
                     return leanplumSecuredVars;
                 }
             }
