@@ -315,7 +315,8 @@ main() {
   replace "Leanplum-Unity-SDK/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml" "%LP_VERSION%" $ANDROID_SDK_VERSION
   replace "Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
   replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_UNITY_VERSION%" $UNITY_VERSION
-  sed -i '' -e "s/SDK_VERSION =.*/SDK_VERSION = \"$UNITY_VERSION\";/" "Leanplum-Unity-SDK/Assets/LeanplumSDK/Utilities/Constants.cs"
+  awk -v value="\"$UNITY_VERSION\";" '!x{x=sub(/SDK_VERSION =.*/, "SDK_VERSION = "value)}1' "Leanplum-Unity-SDK/Assets/LeanplumSDK/Utilities/Constants.cs" > Constants_tmp.cs \
+    && mv -v Constants_tmp.cs "Leanplum-Unity-SDK/Assets/LeanplumSDK/Utilities/Constants.cs"
 
   find Leanplum-Unity-Package -name '*.unitypackage' -delete
   find Leanplum-Unity-SDK/Assets/Plugins/ -name '*.aar' -delete
