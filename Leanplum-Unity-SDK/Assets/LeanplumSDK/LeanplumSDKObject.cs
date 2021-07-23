@@ -151,6 +151,14 @@ namespace LeanplumSDK
 
         public virtual void RegisterForIOSRemoteNotifications() {}
 
+        public virtual void SetMiPushApplication(string miAppId, string miAppKey) { }
+
+        /// <summary>
+        /// Sets the logging level.
+        /// </summary>
+        /// <param name="logLevel"> Level to set. </param>
+        public virtual void SetLogLevel(Constants.LogLevel logLevel) { }
+
         /// <summary>
         ///     Traverses the variable structure with the specified path.
         ///     Path components can be either strings representing keys in a dictionary,

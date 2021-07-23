@@ -231,7 +231,7 @@ namespace LeanplumSDK
             internal const string KINDS = "kinds";
             internal const string NEW_USER_ID = "newUserId";
             internal const string PARAMS = "params";
-            internal const string SDK_VERSION = "3.2.0";
+            internal const string SDK_VERSION = "sdkVersion";
             internal const string STATE = "state";
             internal const string TIME = "time";
             internal const string TOKEN = "token";
@@ -257,6 +257,26 @@ namespace LeanplumSDK
         {
             MESSAGE = 0x1,
             ACTION = 0x2
+        }
+
+        public enum LogLevel
+        {
+            /// <summary>
+            /// Disables logging.
+            /// </summary>
+            OFF,
+            /// <summary>
+            /// Logs only errors, enabled by default.
+            /// </summary>
+            ERROR,
+            /// <summary>
+            /// Logs informational messages including errors.
+            /// </summary>
+            INFO,
+            /// <summary>
+            /// Enables all levels including DEBUG logging of the SDK.
+            /// </summary>
+            DEBUG
         }
     }
 }

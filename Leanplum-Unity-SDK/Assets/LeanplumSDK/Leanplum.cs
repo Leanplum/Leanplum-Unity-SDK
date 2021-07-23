@@ -230,6 +230,25 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        /// Enables Xiaomi MiPush integration. Available on Android only.
+        /// </summary>
+        /// <param name="miAppId"> The MiPush app id. </param>
+        /// <param name="miAppKey"> The MiPush app key. </param>
+        public static void SetMiPushApplication(string miAppId, string miAppKey)
+        {
+            LeanplumFactory.SDK.SetMiPushApplication(miAppId, miAppKey);
+        }
+
+        /// <summary>
+        /// Sets the logging level.
+        /// </summary>
+        /// <param name="logLevel"> Level to set. </param>
+        public static void SetLogLevel(Constants.LogLevel logLevel)
+        {
+            LeanplumFactory.SDK.SetLogLevel(logLevel);
+        }
+
+        /// <summary>
         ///     Traverses the variable structure with the specified path.
         ///     Path components can be either strings representing keys in a dictionary,
         ///     or integers representing indices in a list.
