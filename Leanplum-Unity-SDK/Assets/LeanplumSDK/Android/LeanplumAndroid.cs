@@ -334,6 +334,16 @@ namespace LeanplumSDK
             NativeSDK.CallStatic("start", userId, Json.Serialize(attributes));
         }
 
+        public override void SetMiPushApplication(string miAppId, string miAppKey)
+        {
+            NativeSDK.CallStatic("setMiPushApplication", miAppId, miAppKey);
+        }
+
+        public override void SetLogLevel(Constants.LogLevel logLevel)
+        {
+            NativeSDK.CallStatic("setLogLevel", (int)logLevel);
+        }
+
         public override void ForceSyncVariables(Leanplum.SyncVariablesCompleted completedHandler)
         {
             // The Android SDK does not support this.

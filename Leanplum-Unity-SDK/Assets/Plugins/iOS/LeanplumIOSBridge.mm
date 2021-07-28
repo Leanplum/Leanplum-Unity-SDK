@@ -165,6 +165,11 @@ extern "C"
         return lp::to_string([Leanplum userId]);
     }
 
+    void _setLogLevel(int logLevel)
+    {
+        [Leanplum setLogLevel:(LPLogLevel)logLevel];
+    }
+
     void _setTestModeEnabled(bool isTestModeEnabled)
     {
         [Leanplum setTestModeEnabled:isTestModeEnabled];

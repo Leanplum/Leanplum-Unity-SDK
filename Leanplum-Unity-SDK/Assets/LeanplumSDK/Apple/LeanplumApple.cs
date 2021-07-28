@@ -75,6 +75,9 @@ namespace LeanplumSDK
         [DllImport("__Internal")]
         internal static extern void _setEventsUploadInterval(int uploadInterval);
 
+        [DllImport("__Internal")]
+        internal static extern void _setLogLevel(int logLevel);
+
         [DllImport ("__Internal")]
         internal static extern void _setAppVersion(string version);
 
@@ -306,6 +309,11 @@ namespace LeanplumSDK
         public override void SetAppVersion(string version)
         {
             _setAppVersion(version);
+        }
+
+        public override void SetLogLevel(Constants.LogLevel logLevel)
+        {
+            _setLogLevel((int)logLevel);
         }
 
         /// <summary>

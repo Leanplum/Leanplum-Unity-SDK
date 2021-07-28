@@ -206,6 +206,18 @@ public class UnityBridge {
     Leanplum.start(bridgeContext, userId, attributes);
   }
 
+  public static void setLogLevel(int logLevel) {
+    Leanplum.setLogLevel(logLevel);
+  }
+
+  public static void setMiPushApplication(String miAppId, String miAppKey) {
+    try {
+      Class.forName("com.leanplum.LeanplumMiPushHandler").getDeclaredMethod("setApplication", String.class, String.class).invoke((Object)null, miAppId, miAppKey);
+    } catch (Throwable var3) {
+      com.leanplum.internal.Log.e("Failed to set up MiPush", var3);
+    }
+  }
+
   public static void trackPurchase(String eventName, double value, String currencyCode,
       String jsonParameters) {
     Leanplum.trackPurchase(eventName, value, currencyCode,
