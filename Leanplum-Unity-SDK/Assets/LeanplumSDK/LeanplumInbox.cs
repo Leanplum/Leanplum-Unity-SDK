@@ -79,6 +79,11 @@ namespace LeanplumSDK
             public bool IsRead = false;
 
             /// <summary>
+            /// Dictionary containing message Advanced Data
+            /// </summary>
+            public IDictionary<string, object> Data = null;
+
+            /// <summary>
             /// ActionContext containing message data
             /// </summary>
             internal IDictionary<string, object> ActionContext = null;
@@ -227,57 +232,61 @@ namespace LeanplumSDK
             foreach (var msg in msgs)
             {
                 var dict = msg as Dictionary<string, object>;
-                var leanpluMessage = new Message();
+                var leanplumMessage = new Message();
 
                 if (dict.TryGetValue("id", out var id))
                 {
-                    leanpluMessage.Id = id as string;
+                    leanplumMessage.Id = id as string;
                 }
                 if (dict.TryGetValue("title", out var title))
                 {
-                    leanpluMessage.Title = title as string;
+                    leanplumMessage.Title = title as string;
                 }
                 if (dict.TryGetValue("subtitle", out var subtitle))
                 {
-                    leanpluMessage.Subtitle = subtitle as string;
+                    leanplumMessage.Subtitle = subtitle as string;
                 }
                 if (dict.TryGetValue("imageFilePath", out var imageFilePath))
                 {
                     if (imageFilePath is string value)
                     {
-                        leanpluMessage.ImageFilePath = value;
+                        leanplumMessage.ImageFilePath = value;
                     }
                 }
                 if (dict.TryGetValue("imageURL", out var imageURL))
                 {
                     if (imageURL is string value)
                     {
-                        leanpluMessage.ImageURL = value;
+                        leanplumMessage.ImageURL = value;
                     }
                 }
                 if (dict.TryGetValue("deliveryTimestamp", out var deliveryTimestamp))
                 {
                     if (deliveryTimestamp is string value)
                     {
-                        leanpluMessage.DeliveryTimestamp = DateTime.Parse(value);
+                        leanplumMessage.DeliveryTimestamp = DateTime.Parse(value);
                     }
                 }
                 if (dict.TryGetValue("expirationTimestamp", out var expirationTimestamp))
                 {
                     if (expirationTimestamp is string value)
                     {
-                        leanpluMessage.ExpirationTimestamp = DateTime.Parse(value);
+                        leanplumMessage.ExpirationTimestamp = DateTime.Parse(value);
                     }
                 }
                 if (dict.TryGetValue("isRead", out var isRead))
                 {
                     if (isRead is bool value)
                     {
-                        leanpluMessage.IsRead = value;
+                        leanplumMessage.IsRead = value;
                     }
                 }
+                if (dict.TryGetValue("data", out var data))
+                {
+                    leanplumMessage.Data = data as IDictionary<string, object>;
+                }
 
-                messages.Add(leanpluMessage);
+                messages.Add(leanplumMessage);
             }
             return messages;
         }
