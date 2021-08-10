@@ -691,6 +691,7 @@ extern "C"
                 @"deliveryTimestamp": deliveryTimestamp ?: [NSNull null],
                 @"expirationTimestamp": expirationTimestamp ?: [NSNull null],
                 @"isRead": @(message.isRead),
+                @"data": message.data ?: [NSNull null]
             };
             [messageData addObject:data];
         }

@@ -20,16 +20,12 @@
 package com.leanplum;
 
 import java.lang.reflect.Method;
-import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import android.content.Context;
 import android.util.Log;
@@ -43,11 +39,9 @@ import com.leanplum.callbacks.InboxSyncedCallback;
 import com.leanplum.callbacks.StartCallback;
 import com.leanplum.callbacks.VariableCallback;
 import com.leanplum.callbacks.VariablesChangedCallback;
-import com.leanplum.internal.ActionManager;
 import com.leanplum.internal.CollectionUtil;
 import com.leanplum.internal.Constants;
 import com.leanplum.internal.LeanplumInternal;
-import com.leanplum.internal.Util;
 import com.leanplum.internal.VarCache;
 import com.leanplum.json.JsonConverter;
 import com.leanplum.messagetemplates.MessageTemplates;
@@ -539,6 +533,11 @@ public class UnityBridge {
         message.put("expirationTimestamp", formatter.format(msg.getExpirationTimestamp()));
       }
       message.put("isRead", msg.isRead());
+      // Use the map directly instead of msg.getData()
+      // gson.toJson of JSONObject produces "nameValuePairs"
+      Map<String, ?> mapData =
+              CollectionUtil.uncheckedCast(msg.getContext().objectNamed(Constants.Keys.DATA));
+      message.put("data", mapData);
       messages.add(message);
     }
     return gson.toJson(messages);

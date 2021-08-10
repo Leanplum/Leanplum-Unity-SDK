@@ -248,6 +248,11 @@ namespace LeanplumSDK
                                                 {
                                                     message.ImageURL = image as string;
                                                 }
+
+                                                if (varsDict.TryGetValue(Constants.Keys.DATA, out var advancedData))
+                                                {
+                                                    message.Data = advancedData as IDictionary<string, object>;
+                                                }
                                             }
                                         }
                                     }
@@ -385,6 +390,11 @@ namespace LeanplumSDK
                     if (msgData.TryGetValue(Constants.Keys.MESSAGE_DATA, out var actionContext))
                     {
                         message.ActionContext = actionContext as IDictionary<string, object>;
+                        if (message.ActionContext != null &&
+                            message.ActionContext.TryGetValue(Constants.Keys.DATA, out var advancedData))
+                        {
+                            message.Data = advancedData as IDictionary<string, object>;
+                        }
                     }
 
                     inboxMessage.Add(message);
