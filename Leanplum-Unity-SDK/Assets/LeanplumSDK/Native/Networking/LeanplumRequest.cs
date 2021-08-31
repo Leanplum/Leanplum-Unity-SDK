@@ -284,7 +284,7 @@ namespace LeanplumSDK
                     long statusCode = response.GetStatusCode();
 					bool connectionError = response.GetError() != null && response.GetError().Contains("Could not resolve host");
 
-					if (statusCode == 408 || statusCode == 502 || statusCode == 503 || statusCode == 504)
+					if (statusCode == 408 || statusCode == 502 || statusCode == 503 || statusCode == 504 || statusCode == 429)
                     {
                         errorMessage = "Server is busy; will retry later";
 						LeanplumNative.CompatibilityLayer.LogWarning(errorMessage);
