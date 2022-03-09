@@ -1,0 +1,68 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.5.1 (swiftlang-1300.0.31.4 clang-1300.0.29.6)
+// swift-module-flags: -target armv7-apple-ios9.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name Leanplum
+import Foundation
+@_exported import Leanplum
+import Swift
+import UIKit
+import _Concurrency
+@_inheritsConvenienceInitializers @objc public class NotificationsManager : ObjectiveC.NSObject {
+  @objc public var shouldHandleNotificationBlock: LeanplumShouldHandleNotificationBlock?
+  @objc public var isPushDeliveryTrackingEnabled: Swift.Bool
+  @objc public func updateNotificationSettings()
+  @objc public func saveNotificationSettings(_ settings: [Swift.AnyHashable : Any])
+  @objc public func removeNotificationSettings()
+  @objc public func getNotificationSettings(completionHandler: @escaping (_ settings: [Swift.AnyHashable : Any], _ areChanged: Swift.Bool) -> ())
+  @objc(didRegisterUserNotificationSettings:) public func didRegister(_ settings: UIKit.UIUserNotificationSettings)
+  @objc public func didRegisterForRemoteNotificationsWithDeviceToken(_ deviceToken: Foundation.Data)
+  @objc public func didFailToRegisterForRemoteNotificationsWithError(_ error: Swift.Error)
+  @objc override dynamic public init()
+  @objc deinit
+}
+@objc @_inheritsConvenienceInitializers public class Utilities : ObjectiveC.NSObject {
+  @objc public static func messageIdFromUserInfo(_ userInfo: [Swift.AnyHashable : Any]) -> Swift.String?
+  @objc override dynamic public init()
+  @objc deinit
+}
+@objc @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers public class NotificationsProxy : ObjectiveC.NSObject {
+  @objc public var resumedTimeInterval: Swift.Double
+  @available(iOS 10.0, *)
+  @objc public var pushNotificationPresentationOption: UserNotifications.UNNotificationPresentationOptions {
+    @objc get
+    @objc set(value)
+  }
+  @objc public func addDidFinishLaunchingObserver()
+  @objc public func removeDidFinishLaunchingObserver()
+  @objc public func setupNotificationSwizzling()
+  @objc deinit
+}
+extension NotificationsProxy {
+  @objc dynamic public func setCustomAppDelegate(_ delegate: UIKit.UIApplicationDelegate)
+}
+extension NotificationsProxy {
+  @objc dynamic public func applicationDidFinishLaunching(launchOptions: [UIKit.UIApplication.LaunchOptionsKey : Any]?)
+  @objc dynamic public func didReceiveRemoteNotification(userInfo: [Swift.AnyHashable : Any], fetchCompletionHandler: @escaping (UIKit.UIBackgroundFetchResult) -> Swift.Void)
+  @available(iOS 10.0, *)
+  @objc dynamic public func userNotificationCenter(didReceive response: UserNotifications.UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Swift.Void)
+  @available(iOS 10.0, *)
+  @objc dynamic public func userNotificationCenter(willPresent notification: UserNotifications.UNNotification, withCompletionHandler completionHandler: @escaping (UserNotifications.UNNotificationPresentationOptions) -> Swift.Void)
+  @objc dynamic public func application(didReceive notification: UIKit.UILocalNotification)
+  @objc dynamic public func handleActionWithIdentifier(_ identifier: Swift.String, forRemoteNotification notification: [Swift.AnyHashable : Any])
+  @objc dynamic public func handleActionWithIdentifier(_ identifier: Swift.String, forLocalNotification notification: UIKit.UILocalNotification)
+}
+@objc extension NotificationsManager {
+  @objc dynamic public var pushToken: Swift.String? {
+    @objc get
+    @objc set(newValue)
+  }
+  @objc dynamic public var isAskToAskDisabled: Swift.Bool {
+    @objc get
+    @objc set(newValue)
+  }
+  @objc dynamic public func enableSystemPush()
+  @available(iOS 12.0, *)
+  @objc dynamic public func enableProvisionalPush()
+  @objc dynamic public func isPushEnabled() -> Swift.Bool
+  @objc dynamic public func refreshPushPermissions()
+  @objc dynamic public func notificationSettingsToRequestParams(_ settings: [Swift.AnyHashable : Any]) -> [Swift.AnyHashable : Any]?
+}
