@@ -22,7 +22,6 @@
 #import <Leanplum/Leanplum.h>
 #import <Leanplum/LPActionContext.h>
 #import <Leanplum/LPInternalState.h>
-#import <Leanplum/LPPushNotificationsManager.h>
 #import "LeanplumUnityHelper.h"
 #import "LeanplumActionContextBridge.h"
 #import "LeanplumIOSBridge.h"
@@ -42,7 +41,6 @@ typedef void (^LeanplumHandledBlock)(BOOL success);
 
 __attribute__ ((__constructor__)) static void initialize_bridge(void)
 {
-    [LPPushNotificationsManager sharedManager];
 }
 
 static char *__LPgameObject;
@@ -96,7 +94,7 @@ extern "C"
 
     void _registerForNotifications()
     {
-        [[LPPushNotificationsManager sharedManager] enableSystemPush];
+        [Leanplum enablePushNotifications];
     }
 
     void _setAppIdDeveloper(const char *appId, const char *accessKey)
