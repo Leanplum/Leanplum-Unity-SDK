@@ -313,6 +313,11 @@ namespace LeanplumSDK
         {
             NativeSDK.CallStatic("disableLocationCollection");
         }
+
+        public override void SetPushDeliveryTrackingEnabled(bool enabled)
+        {
+            NativeSDK.CallStatic("setPushDeliveryTracking", enabled);
+        }
         #endregion
 
         #region API Calls

@@ -212,6 +212,10 @@ public class UnityBridge {
     }
   }
 
+  public static void setPushDeliveryTracking(boolean value) {
+    Leanplum.setPushDeliveryTracking(value);
+  }
+
   public static void trackPurchase(String eventName, double value, String currencyCode,
       String jsonParameters) {
     Leanplum.trackPurchase(eventName, value, currencyCode,

@@ -34,10 +34,13 @@ namespace LeanplumSDK
         private bool isDeveloper = false;
 
         [DllImport ("__Internal")]
+        internal static extern void _setGameObject(string gameObject);
+
+        [DllImport("__Internal")]
         internal static extern void _registerForNotifications();
 
-        [DllImport ("__Internal")]
-        internal static extern void _setGameObject(string gameObject);
+        [DllImport("__Internal")]
+        internal static extern void _setPushDeliveryTrackingEnabled(bool enabled);
 
         [DllImport ("__Internal")]
         internal static extern void _setAppIdDeveloper(string appId, string accessKey);
@@ -189,6 +192,11 @@ namespace LeanplumSDK
         public override void RegisterForIOSRemoteNotifications()
         {
             _registerForNotifications();
+        }
+
+        public override void SetPushDeliveryTrackingEnabled(bool enabled)
+        {
+            _setPushDeliveryTrackingEnabled(enabled);
         }
 
         /// <summary>

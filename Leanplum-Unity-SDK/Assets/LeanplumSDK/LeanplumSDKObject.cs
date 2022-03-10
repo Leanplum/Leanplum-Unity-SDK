@@ -149,7 +149,9 @@ namespace LeanplumSDK
         /// </summary>
         public abstract void SetRealtimeUpdatesInDevelopmentModeEnabled (bool enabled);
 
-        public virtual void RegisterForIOSRemoteNotifications() {}
+        public virtual void RegisterForIOSRemoteNotifications() { }
+
+        public virtual void SetPushDeliveryTrackingEnabled(bool enabled) { }
 
         public virtual void SetMiPushApplication(string miAppId, string miAppKey) { }
 

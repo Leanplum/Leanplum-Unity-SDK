@@ -264,6 +264,11 @@ extern "C"
         [Leanplum disableLocationCollection];
     }
 
+    void _setPushDeliveryTrackingEnabled(bool enabled)
+    {
+        [Leanplum setPushDeliveryTrackingEnabled:enabled];
+    }
+
     void _setGameObject(const char *gameObject)
     {
         __LPgameObject = (char *)malloc(strlen(gameObject) + 1);
