@@ -60,7 +60,27 @@ namespace LeanplumSDK
 
         public override event Leanplum.VariableChangedHandler VariablesChanged;
         public override event Leanplum.VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
-        public override event Leanplum.StartHandler Started;
+
+        private event Leanplum.StartHandler started;
+        private bool startSuccessful;
+
+        public override event Leanplum.StartHandler Started
+        {
+            add
+            {
+                started += value;
+                // If it has not started, event will be invoked
+                // through the start response handler when Leanplum starts
+                if (HasStarted())
+                {
+                    value(startSuccessful);
+                }
+            }
+            remove
+            {
+                started -= value;
+            }
+        }
 
         private Dictionary<int, Action> ForceContentUpdateCallbackDictionary = new Dictionary<int, Action>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
@@ -205,7 +225,7 @@ namespace LeanplumSDK
         {
             return NativeSDK.CallStatic<string>("getDeviceId");
         }
-        
+
         /// <summary>
         ///     Get user id.
         /// </summary>
@@ -325,6 +345,7 @@ namespace LeanplumSDK
         public override void Start(string userId, IDictionary<string, object> attributes,
             Leanplum.StartHandler startResponseAction)
         {
+            // Invokes Started event through NativeCallback
             Started += startResponseAction;
 
             // This also constructs LeanplumUnityHelper and the game object.
@@ -540,8 +561,8 @@ namespace LeanplumSDK
             {
                 if (Started != null)
                 {
-                    bool success = message.EndsWith("true") || message.EndsWith("True");
-                    Started(success);
+                    startSuccessful = message.EndsWith("true") || message.EndsWith("True");
+                    Started(startSuccessful);
                 }
             }
             else if (message.StartsWith(VARIABLE_VALUE_CHANGED))
