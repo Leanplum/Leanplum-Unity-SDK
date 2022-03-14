@@ -385,6 +385,25 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        ///     Logs in-app purchase data from Google Play.
+        /// </summary>
+        /// <param name="item">The name of the item purchased.</param>
+        /// <param name="priceMicros">The purchase price in micros.</param>
+        /// <param name="currencyCode">The ISO 4217 currency code.</param>
+        /// <param name="purchaseData">Purchase data from
+        /// com.android.vending.billing.util.Purchase.getOriginalJson().</param>
+        /// <param name="dataSignature">Purchase data signature from
+        /// com.android.vending.billing.util.Purchase.getSignature().</param>
+        /// <param name="parameters">Optional event parameters.</param>
+        public override void TrackGooglePlayPurchase(string item, long priceMicros,
+            string currencyCode, string purchaseData, string dataSignature,
+            IDictionary<string, object> parameters)
+        {
+            NativeSDK.CallStatic("trackGooglePlayPurchase", item, priceMicros, currencyCode,
+                purchaseData, dataSignature, Json.Serialize(parameters));
+        }
+
+        /// <summary>
         ///     Logs a particular event in your application. The string can be
         ///     any value of your choosing, and will show up in the dashboard.
         ///     To track purchases, use Leanplum.PURCHASE_EVENT_NAME as the event name.

@@ -241,7 +241,6 @@ namespace LeanplumSDK
         ///     com.android.vending.billing.util.Purchase.getSignature().
         /// </param>
         /// <param name="parameters">Optional event parameters.</param>
-        [Obsolete("TrackGooglePlayPurchase is obsolete. Please use TrackPurchase.")]
         public virtual void TrackGooglePlayPurchase(string item, long priceMicros,
             string currencyCode, string purchaseData, string dataSignature,
             IDictionary<string, object> parameters)
