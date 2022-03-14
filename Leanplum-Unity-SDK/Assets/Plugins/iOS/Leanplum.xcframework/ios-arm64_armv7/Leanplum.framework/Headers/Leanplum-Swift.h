@@ -213,9 +213,35 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 # pragma pop_macro("any")
 #endif
 
-
-
+@class NSString;
 @class NSNumber;
+@class NSMutableDictionary;
+
+SWIFT_CLASS("_TtC8Leanplum9ApiConfig")
+@interface ApiConfig : NSObject
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) ApiConfig * _Nonnull shared;)
++ (ApiConfig * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly, copy) NSString * _Nullable appId;
+@property (nonatomic, readonly, copy) NSString * _Nullable accessKey;
+@property (nonatomic) NSInteger socketPort;
+@property (nonatomic) BOOL apiSSL;
+@property (nonatomic, copy) NSString * _Nullable token;
+@property (nonatomic, copy) NSString * _Nonnull apiHostName;
+@property (nonatomic, copy) NSString * _Nonnull apiPath;
+@property (nonatomic, copy) NSString * _Nonnull socketHost;
+- (void)setAppId:(NSString * _Nonnull)appId accessKey:(NSString * _Nonnull)accessKey;
++ (void)attachApiKeysWithDict:(NSMutableDictionary * _Nonnull)dict;
+@end
+
+
+
+@interface LPRequestSender (SWIFT_EXTENSION(Leanplum))
+@property (nonatomic, copy) NSString * _Nonnull uuid;
+@end
+
+
 @class UIUserNotificationSettings;
 @class NSData;
 
@@ -234,10 +260,8 @@ SWIFT_CLASS("_TtC8Leanplum20NotificationsManager")
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
-@class NSString;
 
 @interface NotificationsManager (SWIFT_EXTENSION(Leanplum))
-@property (nonatomic, copy) NSString * _Nullable pushToken;
 @property (nonatomic) BOOL isAskToAskDisabled;
 - (void)enableSystemPush;
 - (void)enableProvisionalPush SWIFT_AVAILABILITY(ios,introduced=12.0);
@@ -286,12 +310,30 @@ SWIFT_CLASS("_TtC8Leanplum18NotificationsProxy")
 
 
 
+SWIFT_CLASS("_TtC8Leanplum4User")
+@interface User : NSObject
+@property (nonatomic, copy) NSString * _Nullable userId;
+@property (nonatomic, copy) NSString * _Nullable deviceId;
+@property (nonatomic, copy) NSString * _Nullable pushToken;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
 SWIFT_CLASS("_TtC8Leanplum9Utilities")
 @interface Utilities : NSObject
 /// Returns Leanplum message Id from Notification userInfo.
 /// Use this method to identify Leanplum Notifications
 + (NSString * _Nullable)messageIdFromUserInfo:(NSDictionary * _Nonnull)userInfo SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+@class NSTimer;
+
+SWIFT_CLASS_NAMED("WeakTimer")
+@interface LPWeakTimer : NSObject
++ (NSTimer * _Nonnull)scheduledTimerWithTimeInterval:(NSTimeInterval)timeInterval target:(id _Nonnull)target userInfo:(id _Nullable)userInfo repeats:(BOOL)repeats block:(void (^ _Nonnull)(NSTimer * _Nonnull))action SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 #if __has_attribute(external_source_symbol)
@@ -514,9 +556,35 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 # pragma pop_macro("any")
 #endif
 
-
-
+@class NSString;
 @class NSNumber;
+@class NSMutableDictionary;
+
+SWIFT_CLASS("_TtC8Leanplum9ApiConfig")
+@interface ApiConfig : NSObject
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) ApiConfig * _Nonnull shared;)
++ (ApiConfig * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly, copy) NSString * _Nullable appId;
+@property (nonatomic, readonly, copy) NSString * _Nullable accessKey;
+@property (nonatomic) NSInteger socketPort;
+@property (nonatomic) BOOL apiSSL;
+@property (nonatomic, copy) NSString * _Nullable token;
+@property (nonatomic, copy) NSString * _Nonnull apiHostName;
+@property (nonatomic, copy) NSString * _Nonnull apiPath;
+@property (nonatomic, copy) NSString * _Nonnull socketHost;
+- (void)setAppId:(NSString * _Nonnull)appId accessKey:(NSString * _Nonnull)accessKey;
++ (void)attachApiKeysWithDict:(NSMutableDictionary * _Nonnull)dict;
+@end
+
+
+
+@interface LPRequestSender (SWIFT_EXTENSION(Leanplum))
+@property (nonatomic, copy) NSString * _Nonnull uuid;
+@end
+
+
 @class UIUserNotificationSettings;
 @class NSData;
 
@@ -535,10 +603,8 @@ SWIFT_CLASS("_TtC8Leanplum20NotificationsManager")
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
-@class NSString;
 
 @interface NotificationsManager (SWIFT_EXTENSION(Leanplum))
-@property (nonatomic, copy) NSString * _Nullable pushToken;
 @property (nonatomic) BOOL isAskToAskDisabled;
 - (void)enableSystemPush;
 - (void)enableProvisionalPush SWIFT_AVAILABILITY(ios,introduced=12.0);
@@ -587,12 +653,30 @@ SWIFT_CLASS("_TtC8Leanplum18NotificationsProxy")
 
 
 
+SWIFT_CLASS("_TtC8Leanplum4User")
+@interface User : NSObject
+@property (nonatomic, copy) NSString * _Nullable userId;
+@property (nonatomic, copy) NSString * _Nullable deviceId;
+@property (nonatomic, copy) NSString * _Nullable pushToken;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
 SWIFT_CLASS("_TtC8Leanplum9Utilities")
 @interface Utilities : NSObject
 /// Returns Leanplum message Id from Notification userInfo.
 /// Use this method to identify Leanplum Notifications
 + (NSString * _Nullable)messageIdFromUserInfo:(NSDictionary * _Nonnull)userInfo SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+@class NSTimer;
+
+SWIFT_CLASS_NAMED("WeakTimer")
+@interface LPWeakTimer : NSObject
++ (NSTimer * _Nonnull)scheduledTimerWithTimeInterval:(NSTimeInterval)timeInterval target:(id _Nonnull)target userInfo:(id _Nullable)userInfo repeats:(BOOL)repeats block:(void (^ _Nonnull)(NSTimer * _Nonnull))action SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 #if __has_attribute(external_source_symbol)

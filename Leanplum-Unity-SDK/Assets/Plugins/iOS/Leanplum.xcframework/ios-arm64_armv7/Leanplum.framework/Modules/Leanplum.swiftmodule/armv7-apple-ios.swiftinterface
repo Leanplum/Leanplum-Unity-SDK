@@ -36,6 +36,60 @@ import _Concurrency
   @objc public func setupNotificationSwizzling()
   @objc deinit
 }
+@_inheritsConvenienceInitializers @objc public class User : ObjectiveC.NSObject {
+  public struct UserKey {
+    public let appId: Swift.String
+    public let userId: Swift.String
+    public let deviceId: Swift.String
+  }
+  @objc public var userId: Swift.String?
+  @objc public var deviceId: Swift.String?
+  @objc public var pushToken: Swift.String? {
+    @objc get
+    @objc set(newValue)
+  }
+  public var key: User.UserKey? {
+    get
+  }
+  @objc override dynamic public init()
+  @objc deinit
+}
+@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class ApiConfig : ObjectiveC.NSObject {
+  @objc public static var shared: ApiConfig
+  @objc public var appId: Swift.String? {
+    get
+  }
+  @objc public var accessKey: Swift.String? {
+    get
+  }
+  @objc public var socketPort: Swift.Int
+  @objc public var apiSSL: Swift.Bool
+  @objc public var token: Swift.String? {
+    @objc get
+    @objc set(newValue)
+  }
+  @objc public var apiHostName: Swift.String {
+    @objc get
+    @objc set(newValue)
+  }
+  @objc public var apiPath: Swift.String {
+    @objc get
+    @objc set(newValue)
+  }
+  @objc public var socketHost: Swift.String {
+    @objc get
+    @objc set(newValue)
+  }
+  @objc public func setAppId(_ appId: Swift.String, accessKey: Swift.String)
+  @objc public static func attachApiKeys(dict: Foundation.NSMutableDictionary)
+  @objc deinit
+}
+extension LPRequestSender {
+  @objc dynamic public var uuid: Swift.String {
+    @objc get
+    @objc set(newValue)
+  }
+}
 extension NotificationsProxy {
   @objc dynamic public func setCustomAppDelegate(_ delegate: UIKit.UIApplicationDelegate)
 }
@@ -51,10 +105,6 @@ extension NotificationsProxy {
   @objc dynamic public func handleActionWithIdentifier(_ identifier: Swift.String, forLocalNotification notification: UIKit.UILocalNotification)
 }
 @objc extension NotificationsManager {
-  @objc dynamic public var pushToken: Swift.String? {
-    @objc get
-    @objc set(newValue)
-  }
   @objc dynamic public var isAskToAskDisabled: Swift.Bool {
     @objc get
     @objc set(newValue)
@@ -65,4 +115,8 @@ extension NotificationsProxy {
   @objc dynamic public func isPushEnabled() -> Swift.Bool
   @objc dynamic public func refreshPushPermissions()
   @objc dynamic public func notificationSettingsToRequestParams(_ settings: [Swift.AnyHashable : Any]) -> [Swift.AnyHashable : Any]?
+}
+@_hasMissingDesignatedInitializers @objc(LPWeakTimer) public class WeakTimer : ObjectiveC.NSObject {
+  @objc(scheduledTimerWithTimeInterval:target:userInfo:repeats:block:) public static func scheduledTimer(timeInterval: Foundation.TimeInterval, target: Swift.AnyObject, userInfo: Any?, repeats: Swift.Bool, action: @escaping (Foundation.Timer) -> Swift.Void) -> Foundation.Timer
+  @objc deinit
 }
