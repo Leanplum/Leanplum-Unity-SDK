@@ -127,7 +127,7 @@ extern "C"
     void _setApiHostName(const char *hostName, const char *servletName, int useSSL)
     {
         [Leanplum setApiHostName:lp::to_nsstring(hostName)
-                 withServletName:lp::to_nsstring(servletName) usingSsl:[@(useSSL) boolValue]];
+                 withPath:lp::to_nsstring(servletName) usingSsl:[@(useSSL) boolValue]];
     }
 
     void _setNetworkTimeout(int seconds, int downloadSeconds)
