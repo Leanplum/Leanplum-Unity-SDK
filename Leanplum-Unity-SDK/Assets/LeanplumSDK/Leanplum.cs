@@ -36,6 +36,7 @@ namespace LeanplumSDK
     public static class Leanplum
     {
         public delegate void StartHandler(bool success);
+        public delegate void ForceContentUpdateHandler(bool success);
         public delegate void SyncVariablesCompleted(bool success);
         public delegate void VariableChangedHandler();
         public delegate void VariablesChangedAndNoDownloadsPendingHandler();
@@ -798,6 +799,11 @@ namespace LeanplumSDK
         public static void ForceContentUpdate(Action callback)
         {
             LeanplumFactory.SDK.ForceContentUpdate(callback);
+        }
+
+        public static void ForceContentUpdate(ForceContentUpdateHandler handler)
+        {
+            LeanplumFactory.SDK.ForceContentUpdate(handler);
         }
 
         public static void OnAction(string actionName, ActionContext.ActionResponder handler)
