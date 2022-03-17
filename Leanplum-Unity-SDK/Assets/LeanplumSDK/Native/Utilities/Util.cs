@@ -353,4 +353,19 @@ namespace LeanplumSDK
                 || value is decimal;
         }
     }
+
+    // TODO: move to a more suitable place
+    public static class MergeDictionaries
+    {
+        public static void Merge<K, V>(this IDictionary<K, V> a, IDictionary<K, V> b, bool overwrite = true)
+        {
+            foreach (KeyValuePair<K, V> p in b)
+            {
+                if (overwrite || !a.ContainsKey(p.Key))
+                {
+                    a[p.Key] = p.Value;
+                }
+            }
+        }
+    }
 }
