@@ -18,6 +18,8 @@
 //  specific language governing permissions and limitations
 //  under the License.
 
+using System.Collections.Generic;
+
 namespace LeanplumSDK
 {
     public class ApiConfig
@@ -40,5 +42,29 @@ namespace LeanplumSDK
         public bool apiSSL = true;
         public string socketHost = "dev.leanplum.com";
         public int socketPort = 443;
+
+        public string Client
+        {
+            get
+            {
+                string platformName = LeanplumNative.CompatibilityLayer.GetPlatformName().ToLower();
+                return $"{Constants.CLIENT_PREFIX}-{platformName}";
+            }
+        }
+
+        public virtual bool AttachApiKeys(IDictionary<string, string> dict)
+        {
+            if (string.IsNullOrEmpty(AppId) || string.IsNullOrEmpty(AccessKey))
+            {
+                LeanplumNative.CompatibilityLayer.LogError("API keys are not set. Please use " +
+                    "Leanplum.SetAppIdForDevelopmentMode or " +
+                    "Leanplum.SetAppIdForProductionMode.");
+                return false;
+            }
+            dict[Constants.Params.APP_ID] = AppId;
+            dict[Constants.Params.CLIENT_KEY] = AccessKey;
+            dict[Constants.Params.CLIENT] = Client;
+            return true;
+        }
     }
 }

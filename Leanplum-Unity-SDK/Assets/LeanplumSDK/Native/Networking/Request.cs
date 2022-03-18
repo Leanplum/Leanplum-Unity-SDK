@@ -30,11 +30,7 @@ namespace LeanplumSDK
 
     public class Request
     {
-        //private readonly string httpMethod;
-        //private readonly string apiMethod;
-        //private readonly LPRequestType type;
         private readonly string requestId = Guid.NewGuid().ToString().ToLower();
-        //private readonly IDictionary<string, object> parameters;
 
         public string Id
         {
@@ -71,10 +67,10 @@ namespace LeanplumSDK
 
         public Request(string httpMethod, string apiMethod, RequestType type, IDictionary<string, object> parameters)
         {
-            this.HttpMethod = httpMethod;
-            this.ApiMethod = apiMethod;
-            this.Type = type;
-            this.Parameters = parameters ?? new Dictionary<string, object>();
+            HttpMethod = httpMethod;
+            ApiMethod = apiMethod;
+            Type = type;
+            Parameters = parameters ?? new Dictionary<string, object>();
         }
 
         public event Action<object> Response;
@@ -89,6 +85,5 @@ namespace LeanplumSDK
         {
             Response?.Invoke(obj);
         }
-
     }
 }

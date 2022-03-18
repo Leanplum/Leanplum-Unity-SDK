@@ -82,6 +82,18 @@ namespace LeanplumSDK
         internal void SendRequests()
         {
 
+            //IList<IDictionary<string, string>> requestsToSend = PopUnsentRequests();
+            IDictionary<string, string> multiRequestArgs = new Dictionary<string, string>
+            {
+                [Constants.Params.SDK_VERSION] = Constants.SDK_VERSION,
+                [Constants.Params.ACTION] = Constants.Methods.MULTI,
+                [Constants.Params.TIME] = Util.GetUnixTimestamp().ToString()
+            };
+
+            if (!apiConfig.AttachApiKeys(multiRequestArgs))
+            {
+                return;
+            }
         }
 
         private bool Validate(Request request)
