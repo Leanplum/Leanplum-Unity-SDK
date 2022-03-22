@@ -20,6 +20,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using LeanplumSDK.MiniJSON;
 using UnityEngine;
 
@@ -211,6 +212,38 @@ namespace LeanplumSDK
 				LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
                 return null;
             }
+        }
+
+        // TODO: move to request util
+        internal static IDictionary<string, object> GetResponseForId(object response, string reqId)
+        {
+            try
+            {
+                var responses = ((response as IDictionary<string, object>)[Constants.Keys.RESPONSE] as IList<IDictionary<string, object>>);
+                if (responses != null)
+                {
+                    foreach (var singleResponse in responses)
+                    {
+                        var val = GetValueOrDefault(singleResponse, Constants.Params.REQUEST_ID) as string;
+                        if (reqId.Equals(val, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return singleResponse;
+                        }
+                    }
+                }
+            }
+            catch (KeyNotFoundException e)
+            {
+                LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
+                return null;
+            }
+            catch (NullReferenceException e)
+            {
+                LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
+                return null;
+            }
+
+            return null;
         }
 
         internal static object GetLastResponse(object response)

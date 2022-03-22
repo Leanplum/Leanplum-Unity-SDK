@@ -32,6 +32,11 @@ namespace LeanplumSDK
     {
         private readonly string requestId = Guid.NewGuid().ToString().ToLower();
 
+
+        //public delegate void ResponseHandler(object data);
+
+        //public ResponseHandler ResponseHH;
+
         public string Id
         {
             get
@@ -76,6 +81,21 @@ namespace LeanplumSDK
         public event Action<object> Response;
         public event Action<Exception> Error;
 
+        public bool IsResponseAttached()
+        {
+            return Response.GetInvocationList().Length > 0;
+        }
+
+        public RequestHandler GetHandler()
+        {
+            if (Response != null && Error != null)
+            {
+                return new RequestHandler(Response, Error);
+            }
+
+            return null;
+        }
+
         internal virtual void OnError(Exception obj)
         {
             Error?.Invoke(obj);
@@ -84,6 +104,28 @@ namespace LeanplumSDK
         internal virtual void OnResponse(object obj)
         {
             Response?.Invoke(obj);
+        }
+    }
+
+    public class RequestHandler
+    {
+        public event Action<object> Response;
+        public event Action<Exception> Error;
+
+        public RequestHandler(Action<object> response, Action<Exception> error)
+        {
+            Response = response;
+            Error = error;
+        }
+
+        public void OnResponse(object data)
+        {
+            Response?.Invoke(data);
+        }
+
+        public void OnError(Exception ex)
+        {
+            Error?.Invoke(ex);
         }
     }
 }

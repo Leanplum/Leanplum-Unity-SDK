@@ -17,6 +17,7 @@
 //  KIND, either express or implied.  See the License for the
 //  specific language governing permissions and limitations
 //  under the License.
+using System;
 using System.Collections.Generic;
 using LeanplumSDK;
 using LeanplumSDK.MiniJSON;
@@ -25,69 +26,37 @@ namespace LeanplumSDK
 {
     public class RequestBatchFactory
     {
+        internal EventDataManager eventDataManager = new EventDataManager();
+
+        private static readonly int MAX_EVENTS_PER_API_CALL = 10000;
+
         public RequestBatchFactory()
         {
         }
 
-        public void CreateNextBatch()
+        public RequestBatch CreateNextBatch()
         {
-
+            IList<IDictionary<string, string>> requestsToSend = eventDataManager.GetEvents(MAX_EVENTS_PER_API_CALL);
+            return new RequestBatch(requestsToSend, JsonEncodeUnsentRequests(requestsToSend));
         }
 
-        internal static IList<IDictionary<string, string>> GetUnsentRequests()
+        internal static string JsonEncodeUnsentRequests(IList<IDictionary<string, string>> requestData)
         {
-            IList<IDictionary<string, string>> requestData = new List<IDictionary<string, string>>();
-            lock (padLock)
+            IDictionary<string, object> data = new Dictionary<string, object>
             {
-                int start = LeanplumNative.CompatibilityLayer.GetSavedInt(Constants.Defaults.START_KEY, 0);
-                int count = LeanplumNative.CompatibilityLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0);
-                if (count == 0)
-                {
-                    return requestData;
-                }
-                LeanplumNative.CompatibilityLayer.DeleteSavedSetting(Constants.Defaults.START_KEY);
-                LeanplumNative.CompatibilityLayer.DeleteSavedSetting(Constants.Defaults.COUNT_KEY);
-                for (int i = start; i < start + count; i++)
-                {
-                    string itemKey = string.Format(Constants.Defaults.ITEM_KEY, i);
-                    string itemValue = LeanplumNative.CompatibilityLayer.GetSavedString(itemKey, null);
-                    if (itemValue != null)
-                    {
-                        IDictionary<string, object> requestArgs =
-                            Json.Deserialize(itemValue) as IDictionary<string, object>;
-                        if (requestArgs != null)
-                        {
-                            IDictionary<string, string> requestArgsAsStrings = new Dictionary<string, string>();
-                            foreach (KeyValuePair<string, object> entry in requestArgs)
-                            {
-                                if (entry.Value != null)
-                                {
-                                    if (entry.Value is IList<object> value)
-                                    {
-                                        // avoid double json encoding for empty array
-                                        if (value.Count == 0)
-                                        {
-                                            requestArgsAsStrings[entry.Key] = "[]";
-                                        }
-                                        else
-                                        {
-                                            requestArgsAsStrings[entry.Key] = entry.Value.ToString();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        requestArgsAsStrings[entry.Key] = entry.Value.ToString();
-                                    }
-                                }
-                            }
-                            requestData.Add(requestArgsAsStrings);
-                        }
-                    }
-                    LeanplumNative.CompatibilityLayer.DeleteSavedSetting(itemKey);
-                }
-                LeanplumNative.CompatibilityLayer.FlushSavedSettings();
-            }
-            return requestData;
+                [Constants.Params.DATA] = requestData
+            };
+            return Json.Serialize(data);
+        }
+
+        //internal static IList<IDictionary<string, string>> GetUnsentRequests()
+        //{
+        //    return null;
+        //}
+
+        internal void DeleteFinishedBatch(RequestBatch batch)
+        {
+            eventDataManager.DeleteEvents(batch.EventsCount);
         }
     }
 }

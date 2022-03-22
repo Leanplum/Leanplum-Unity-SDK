@@ -6,6 +6,7 @@ namespace LeanplumSDK
     public class RequestBatch
     {
         private readonly IList<IDictionary<string, string>> requestsToSend;
+        private readonly string jsonEncoded;
 
         public int EventsCount
         {
@@ -31,10 +32,19 @@ namespace LeanplumSDK
             }
         }
 
+        public string JsonEncoded
+        {
+            get
+            {
+                return jsonEncoded;
+            }
+        }
 
-        public RequestBatch(IList<IDictionary<string, string>> requestsToSend)
+
+        public RequestBatch(IList<IDictionary<string, string>> requestsToSend, string jsonEncoded)
         {
             this.requestsToSend = requestsToSend;
+            this.jsonEncoded = jsonEncoded;
         }
     }
 }

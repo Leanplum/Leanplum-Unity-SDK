@@ -28,6 +28,9 @@ namespace LeanplumSDK
         {
         }
 
+        internal const int MAX_REQUESTS_PER_API_CALL = 10000;
+        //internal const int MAX_STORED_API_CALLS = 10000;
+
 
         public string AppId { get; set; }
         public string AccessKey { get; set; }

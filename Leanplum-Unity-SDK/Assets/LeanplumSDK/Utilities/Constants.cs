@@ -243,6 +243,7 @@ namespace LeanplumSDK
             internal const string VERSION_NAME = "versionName";
             internal const string TRAFFIC_SOURCE = "trafficSource";
             internal const string INBOX_MESSAGE_ID = "newsfeedMessageId";
+            internal const string UUID = "uuid";
         }
 
         public class Values
