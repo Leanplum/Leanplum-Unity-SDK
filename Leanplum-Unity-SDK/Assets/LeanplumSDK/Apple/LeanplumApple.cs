@@ -175,7 +175,27 @@ namespace LeanplumSDK
 
         public override event Leanplum.VariableChangedHandler VariablesChanged;
         public override event Leanplum.VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
-        public override event Leanplum.StartHandler Started;
+
+        private event Leanplum.StartHandler started;
+        private bool startSuccessful;
+
+        public override event Leanplum.StartHandler Started
+        {
+            add
+            {
+                started += value;
+                // If it has not started, event will be invoked
+                // through the start response handler when Leanplum starts
+                if (HasStarted())
+                {
+                    value(startSuccessful);
+                }
+            }
+            remove
+            {
+                started -= value;
+            }
+        }
 
         private Dictionary<int, Action> ForceContentUpdateCallbackDictionary = new Dictionary<int, Action>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
@@ -451,6 +471,7 @@ namespace LeanplumSDK
             Leanplum.StartHandler startResponseAction)
         {
             _setGameObject(LeanplumUnityHelper.Instance.gameObject.name);
+            // Invokes Started event through NativeCallback
             Started += startResponseAction;
             string attributesString = attributes == null ? null : Json.Serialize(attributes);
             _start(Constants.SDK_VERSION, userId, attributesString);
@@ -661,10 +682,10 @@ namespace LeanplumSDK
             }
             else if (message.StartsWith(STARTED))
             {
-                if (Started != null)
+                if (started != null)
                 {
-                    bool success = message.EndsWith("1");
-                    Started(success);
+                    startSuccessful = message.EndsWith("1");
+                    started(startSuccessful);
                 }
             }
             else if (message.StartsWith(VARIABLE_VALUE_CHANGED))
