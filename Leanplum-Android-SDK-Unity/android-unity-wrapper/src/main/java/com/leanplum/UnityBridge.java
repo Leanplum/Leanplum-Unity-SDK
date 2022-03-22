@@ -219,6 +219,14 @@ public class UnityBridge {
         JsonConverter.fromJson(jsonParameters));
   }
 
+  public static void trackGooglePlayPurchase(String item, long priceMicros,
+                                             String currencyCode, String purchaseData, String dataSignature,
+                                             String jsonParameters) {
+    Map<String, Object> params = JsonConverter.fromJson(jsonParameters);
+    Leanplum.trackGooglePlayPurchase(item, priceMicros, currencyCode,
+            purchaseData, dataSignature, params);
+  }
+
   public static void track(String eventName, double value, String info,
       String jsonParameters) {
     Leanplum.track(eventName, value, info,

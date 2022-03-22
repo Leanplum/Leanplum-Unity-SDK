@@ -737,7 +737,6 @@ namespace LeanplumSDK
             return false;
         }
 
-        [Obsolete("TrackGooglePlayPurchase is obsolete. Please use TrackPurchase.")]
         public override void TrackGooglePlayPurchase(string item, long priceMicros,
             string currencyCode, string purchaseData, string dataSignature,
             IDictionary<string, object> parameters)
