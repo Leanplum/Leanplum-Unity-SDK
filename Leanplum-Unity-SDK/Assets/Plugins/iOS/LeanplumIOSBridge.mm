@@ -247,11 +247,11 @@ extern "C"
         [Leanplum forceContentUpdate];
     }
 
-    void _forceContentUpdateWithCallback(int key)
+    void _forceContentUpdateWithHandler(int key)
     {
-        [Leanplum forceContentUpdate:^() {
+        [Leanplum forceContentUpdateWithBlock:^(BOOL success) {
             UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
-                             [[NSString stringWithFormat:@"ForceContentUpdateWithCallback:%d", key] UTF8String]);
+                             [[NSString stringWithFormat:@"ForceContentUpdateWithHandler:%d:%d", key, [@(success) intValue]] UTF8String]);
         }];
     }
     

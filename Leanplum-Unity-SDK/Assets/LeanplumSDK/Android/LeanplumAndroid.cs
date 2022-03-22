@@ -82,7 +82,7 @@ namespace LeanplumSDK
             }
         }
 
-        private Dictionary<int, Action> ForceContentUpdateCallbackDictionary = new Dictionary<int, Action>();
+        private Dictionary<int, Leanplum.ForceContentUpdateHandler> ForceContentUpdateCallbacksDictionary = new Dictionary<int, Leanplum.ForceContentUpdateHandler>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
         private Dictionary<string, List<ActionContext.ActionResponder>> OnActionRespondersDictionary = new Dictionary<string, List<ActionContext.ActionResponder>>();
         private Dictionary<string, ActionContext> ActionContextsDictionary = new Dictionary<string, ActionContext>();
@@ -531,8 +531,31 @@ namespace LeanplumSDK
         ///
         public override void ForceContentUpdate(Action callback)
         {
+
+            Leanplum.ForceContentUpdateHandler handler = (success) =>
+            {
+                callback();
+            };
+
+            ForceContentUpdate(handler);
+        }
+
+        /// <summary>
+        ///     Forces content to update from the server. If variables have changed, the
+        ///     appropriate callbacks will fire. Use sparingly as if the app is updated,
+        ///     you'll have to deal with potentially inconsistent state or user experience.
+        ///     The provided handler will always fire regardless
+        ///     of whether the variables have changed.
+        ///     It provides a boolean value whether the update to the server was successful.
+        /// </summary>
+        /// <param name="handler">
+        ///     The handler to execute once the update completed
+        ///     with the corresponding success result.
+        /// </param>
+        public override void ForceContentUpdate(Leanplum.ForceContentUpdateHandler handler)
+        {
             int key = DictionaryKey++;
-            ForceContentUpdateCallbackDictionary.Add(key, callback);
+            ForceContentUpdateCallbacksDictionary.Add(key, handler);
             NativeSDK.CallStatic("forceContentUpdateWithCallback", key);
         }
 
@@ -573,12 +596,13 @@ namespace LeanplumSDK
             }
             else if (message.StartsWith(FORCE_CONTENT_UPDATE_WITH_CALLBACK))
             {
-                int key = Convert.ToInt32(message.Substring(FORCE_CONTENT_UPDATE_WITH_CALLBACK.Length));
-                Action callback;
-                if (ForceContentUpdateCallbackDictionary.TryGetValue(key, out callback))
+                string[] values = message.Substring(FORCE_CONTENT_UPDATE_WITH_CALLBACK.Length).Split(':');
+                int key = Convert.ToInt32(values[0]);
+                bool success = values[1] == "1";
+                if (ForceContentUpdateCallbacksDictionary.TryGetValue(key, out Leanplum.ForceContentUpdateHandler callback))
                 {
-                    callback();
-                    ForceContentUpdateCallbackDictionary.Remove(key);
+                    callback(success);
+                    ForceContentUpdateCallbacksDictionary.Remove(key);
                 }
             }
             else if (message.StartsWith(DEFINE_ACTION_RESPONDER))
