@@ -33,7 +33,7 @@ namespace LeanplumSDK
             object components = vars;
             for (int i = 0; i < parts.Length - 1; i++)
             {
-                components = VarCache.Traverse(vars, parts[i], false);
+                components = VarCache.Traverse(components, parts[i], false);
             }
             return VarCache.Traverse(components, parts[parts.Length - 1], false);
         }
