@@ -1,5 +1,5 @@
 //
-// Copyright 2020, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -53,6 +53,34 @@ namespace LeanplumSDK
                     return inbox;
                 }
                 return inbox;
+            }
+        }
+
+        private ApiConfig config;
+        internal override ApiConfig ApiConfig
+        {
+            get
+            {
+                if (config == null)
+                {
+                    config = new ApiConfig();
+                    return config;
+                }
+                return config;
+            }
+        }
+
+        private RequestSender requestSender;
+        internal override RequestSender RequestSender
+        {
+            get
+            {
+                if (requestSender == null)
+                {
+                    requestSender = new RequestSender();
+                    return requestSender;
+                }
+                return requestSender;
             }
         }
 
@@ -182,7 +210,8 @@ namespace LeanplumSDK
         public override void SetAppIdForDevelopmentMode(string appId, string accessKey)
         {
             Constants.isDevelopmentModeEnabled = true;
-            LeanplumRequest.SetAppId(appId, accessKey);
+
+            ApiConfig.SetAppId(appId, accessKey);
         }
 
         /// <summary>
@@ -194,7 +223,8 @@ namespace LeanplumSDK
         public override void SetAppIdForProductionMode(string appId, string accessKey)
         {
             Constants.isDevelopmentModeEnabled = false;
-            LeanplumRequest.SetAppId(appId, accessKey);
+
+            ApiConfig.SetAppId(appId, accessKey);
         }
 
         /// <summary>
@@ -294,9 +324,7 @@ namespace LeanplumSDK
         /// <param name="longitude"> Device location longitude. </param>
         public override void SetDeviceLocation(double latitude, double longitude)
         {
-            var parameters = new Dictionary<string, string>();
-            parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
-            LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
+            SetDeviceLocationInternal(latitude, longitude, null);
         }
 
         /// <summary>
@@ -308,10 +336,7 @@ namespace LeanplumSDK
         /// <param name="type"> Location accuracy type. </param>
         public override void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type)
         {
-            var parameters = new Dictionary<string, string>();
-            parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
-            parameters[Constants.Keys.LOCATION_ACCURACY_TYPE] = LocationAccuracyTypeToString(type);
-            LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
+            SetDeviceLocationInternal(latitude, longitude, type);
         }
 
         /// <summary>
@@ -326,13 +351,38 @@ namespace LeanplumSDK
         /// <param name="type"> Location accuracy type. </param>
         public override void SetDeviceLocation(double latitude, double longitude, string city, string region, string country, LPLocationAccuracyType type)
         {
-            var parameters = new Dictionary<string, string>();
-            parameters[Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude);
-            parameters[Constants.Keys.LOCATION_ACCURACY_TYPE] = LocationAccuracyTypeToString(type);
-            parameters[Constants.Keys.COUNTRY] = city;
-            parameters[Constants.Keys.REGION] = region;
-            parameters[Constants.Keys.CITY] = country;
-            LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters);
+            Dictionary<string, object> parameters = new Dictionary<string, object>
+            {
+                [Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude),
+                [Constants.Keys.LOCATION_ACCURACY_TYPE] = LocationAccuracyTypeToString(type),
+                [Constants.Keys.COUNTRY] = city,
+                [Constants.Keys.REGION] = region,
+                [Constants.Keys.CITY] = country
+            };
+
+            Request request = RequestBuilder.withSetUserAttributesAction()
+                .AndParameters(parameters)
+                .Create();
+            Leanplum.RequestSender.Send(request);
+        }
+
+
+        internal void SetDeviceLocationInternal(double latitude, double longitude, LPLocationAccuracyType? type)
+        {
+            Dictionary<string, object> parameters = new Dictionary<string, object>
+            {
+                [Constants.Keys.LOCATION] = string.Format("{0},{1}", latitude, longitude),
+            };
+
+            if (type != null)
+            {
+                parameters[Constants.Keys.LOCATION_ACCURACY_TYPE] = LocationAccuracyTypeToString(type.Value);
+            }
+
+            Request request = RequestBuilder.withSetUserAttributesAction()
+                .AndParameters(parameters)
+                .Create();
+            Leanplum.RequestSender.Send(request);
         }
 
         /// <summary>
@@ -456,17 +506,12 @@ namespace LeanplumSDK
                 CompatibilityLayer.Log("Already called start");
                 return;
             }
-            if (String.IsNullOrEmpty(LeanplumRequest.AppId))
-            {
-                CompatibilityLayer.LogError("You cannot call Start without setting your app's " +
-                    "API keys.");
-                return;
-            }
 
             if (startResponseAction != null)
             {
                 Started += startResponseAction;
             }
+
             if (Constants.isNoop)
             {
                 _hasStarted = true;
@@ -491,13 +536,13 @@ namespace LeanplumSDK
             VarCache.Update += delegate
             {
                 OnVariablesChanged();
-                if (LeanplumRequest.PendingDownloads == 0)
+                if (FileTransferManager.PendingDownloads == 0)
                 {
                     OnVariablesChangedAndNoDownloadsPending();
                 }
                 else
                 {
-                    LeanplumRequest.NoPendingDownloads += delegate
+                    FileTransferManager.NoPendingDownloads += delegate
                     {
                         OnVariablesChangedAndNoDownloadsPending();
                     };
@@ -513,7 +558,7 @@ namespace LeanplumSDK
             {
                 deviceId = CompatibilityLayer.GetDeviceId();
             }
-            LeanplumRequest.DeviceId = deviceId;
+            ApiConfig.DeviceId = deviceId;
 
             // load saved inbox messages
             if (Inbox is LeanplumInboxNative native)
@@ -523,17 +568,17 @@ namespace LeanplumSDK
 
             // Don't overwrite UserID if it was set previously if Start()
             // was called without a new UserID.
-            if (!String.IsNullOrEmpty(userId))
+            if (!string.IsNullOrEmpty(ApiConfig.UserId))
             {
-                LeanplumRequest.UserId = userId;
+                ApiConfig.UserId = userId;
             }
-            if (String.IsNullOrEmpty(LeanplumRequest.UserId))
+            if (string.IsNullOrEmpty(ApiConfig.UserId))
             {
-                LeanplumRequest.UserId = deviceId;
+                ApiConfig.UserId = deviceId;
             }
 
             // Setup parameters.
-            var parameters = new Dictionary<string, string>();
+            var parameters = new Dictionary<string, object>();
             if (IsDeveloperModeEnabled())
             {
                 parameters[Constants.Params.INCLUDE_DEFAULTS] = _includeDefaults.ToString();
@@ -548,6 +593,7 @@ namespace LeanplumSDK
             parameters[Constants.Params.DEVICE_SYSTEM_NAME] = CompatibilityLayer.GetSystemName();
             parameters[Constants.Params.DEVICE_SYSTEM_VERSION] =
                 CompatibilityLayer.GetSystemVersion();
+
             var timezone = TimeZoneInfo.Local;
             if (timezone.IsDaylightSavingTime(DateTime.UtcNow))
             {
@@ -559,10 +605,12 @@ namespace LeanplumSDK
             }
             parameters[Constants.Keys.TIMEZONE_OFFSET_SECONDS] =
                 timezone.GetUtcOffset(DateTime.UtcNow).TotalSeconds.ToString();
+
             parameters[Constants.Keys.COUNTRY] = Constants.Values.DETECT;
             parameters[Constants.Keys.REGION] = Constants.Values.DETECT;
             parameters[Constants.Keys.CITY] = Constants.Values.DETECT;
             parameters[Constants.Keys.LOCATION] = Constants.Values.DETECT;
+
             if (attributes != null)
             {
                 parameters[Constants.Params.USER_ATTRIBUTES] = Json.Serialize(attributes);
@@ -571,92 +619,100 @@ namespace LeanplumSDK
             parameters[Constants.Keys.INBOX_MESSAGES] = Json.Serialize(Inbox.MessageIds);
 
 
-            // Issue start API call.
-            LeanplumRequest req = LeanplumRequest.Post(Constants.Methods.START, parameters);
-            req.Response += delegate (object responsesObject)
+            // Issue start API call
+            Request startRequest = RequestBuilder.withStartAction()
+                .AndParameters(parameters)
+                .CreateImmediate();
+
+            startRequest.Response += StartRequest_Response;
+            startRequest.Error += StartRequest_Error;
+
+            RequestSender.Send(startRequest);
+        }
+
+        private void StartRequest_Error(Exception ex)
+        {
+            VarCache.LoadDiffs();
+            _hasStarted = true;
+            startSuccessful = false;
+            OnStarted(false);
+            CompatibilityLayer.Init();
+
+            LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
+        }
+
+        private void StartRequest_Response(object responsesObject)
+        {
+            IDictionary<string, object> response = Util.GetLastResponse(responsesObject) as IDictionary<string, object>;
+            IDictionary<string, object> messages = Util.GetValueOrDefault(response, "messages") as IDictionary<string, object> ?? new Dictionary<string, object>();
+            IDictionary<string, object> values = Util.GetValueOrDefault(response, Constants.Keys.VARS) as IDictionary<string, object> ?? new Dictionary<string, object>();
+            IDictionary<string, object> fileAttributes = Util.GetValueOrDefault(response, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object> ?? new Dictionary<string, object>();
+            List<object> variants = Util.GetValueOrDefault(response, Constants.Keys.VARIANTS) as List<object> ?? new List<object>();
+
+            bool isRegistered = (bool)Util.GetValueOrDefault(response, Constants.Keys.IS_REGISTERED, false);
+            bool syncInbox = (bool)Util.GetValueOrDefault(response, Constants.Keys.SYNC_INBOX, false);
+
+            string varsJson = Json.Serialize(values);
+            var signature = Util.GetValueOrDefault(response, Constants.Keys.VARS_SIGNATURE);
+            string varsSignature = signature != null ? signature.ToString() : null;
+
+            ApiConfig.Token = Util.GetValueOrDefault(response, Constants.Keys.TOKEN) as
+                string ?? "";
+
+            // Download inbox messages
+            if (syncInbox)
             {
-                IDictionary<string, object> response = Util.GetLastResponse(responsesObject) as IDictionary<string, object>;
-                IDictionary<string, object> messages = Util.GetValueOrDefault(response, "messages") as IDictionary<string, object> ?? new Dictionary<string, object>();
-                IDictionary<string, object> values = Util.GetValueOrDefault(response, Constants.Keys.VARS) as IDictionary<string, object> ?? new Dictionary<string, object>();
-                IDictionary<string, object> fileAttributes = Util.GetValueOrDefault(response, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object> ?? new Dictionary<string, object>();
-                List<object> variants = Util.GetValueOrDefault(response, Constants.Keys.VARIANTS) as List<object> ?? new List<object>();
-
-                bool isRegistered = (bool)Util.GetValueOrDefault(response, Constants.Keys.IS_REGISTERED, false);
-                bool syncInbox = (bool)Util.GetValueOrDefault(response, Constants.Keys.SYNC_INBOX, false);
-
-                string varsJson = Json.Serialize(values);
-                var signature = Util.GetValueOrDefault(response, Constants.Keys.VARS_SIGNATURE);
-                string varsSignature = signature != null ? signature.ToString() : null;
-
-                LeanplumRequest.Token = Util.GetValueOrDefault(response, Constants.Keys.TOKEN) as
-                    string ?? "";
-
-                // Download inbox messages
-                if (syncInbox)
+                if (Inbox is LeanplumInboxNative nativeInbox)
                 {
-                    if (Inbox is LeanplumInboxNative nativeInbox)
-                    {
-                        nativeInbox.DownloadMessages();
-                    }
+                    nativeInbox.DownloadMessages();
                 }
+            }
 
-                // Allow bidirectional realtime variable updates.
-                if (Constants.isDevelopmentModeEnabled)
-                {
-                    VarCache.SetDevModeValuesFromServer(
-                        Util.GetValueOrDefault(response, Constants.Keys.VARS_FROM_CODE) as
-                        Dictionary<string, object>);
+            // Allow bidirectional realtime variable updates.
+            if (Constants.isDevelopmentModeEnabled)
+            {
+                VarCache.SetDevModeValuesFromServer(
+                    Util.GetValueOrDefault(response, Constants.Keys.VARS_FROM_CODE) as
+                    Dictionary<string, object>);
 
 #if !UNITY_WEBGL
-                    if (Constants.EnableRealtimeUpdatesInDevelopmentMode &&
-                        SocketUtilsFactory.Utils.AreSocketsAvailable)
+                if (Constants.EnableRealtimeUpdatesInDevelopmentMode &&
+                    SocketUtilsFactory.Utils.AreSocketsAvailable)
+                {
+                    leanplumSocket = new LeanplumSocket(delegate ()
                     {
-                        leanplumSocket = new LeanplumSocket(delegate ()
-                        {
-                            // Callback when we receive an updateVars command through the
-                            // development socket.
-                            // Set a flag so that the next time VarCache.CheckVarsUpdate() is
-                            // called the variables are updated.
-                            VarCache.VarsNeedUpdate = true;
-                        },
-                        LeanplumActionManager.TriggerPreview);
-                    }
-#endif
-                    // Register device.
-                    if (isRegistered)
-                    {
-                        // Check for updates.
-                        string latestVersion = Util.GetValueOrDefault(response,
-                            Constants.Keys.LATEST_VERSION) as string;
-                        if (latestVersion != null)
-                        {
-                            CompatibilityLayer.Log("Leanplum Unity SDK " + latestVersion +
-                                " available. Go to https://www.leanplum.com/dashboard to " +
-                                "download it.");
-                        }
-                        OnHasStartedAndRegisteredAsDeveloper();
-                    }
+                        // Callback when we receive an updateVars command through the
+                        // development socket.
+                        // Set a flag so that the next time VarCache.CheckVarsUpdate() is
+                        // called the variables are updated.
+                        VarCache.VarsNeedUpdate = true;
+                    },
+                    LeanplumActionManager.TriggerPreview);
                 }
+#endif
+                // Register device.
+                if (isRegistered)
+                {
+                    // Check for updates.
+                    string latestVersion = Util.GetValueOrDefault(response,
+                        Constants.Keys.LATEST_VERSION) as string;
+                    if (latestVersion != null)
+                    {
+                        CompatibilityLayer.Log("Leanplum Unity SDK " + latestVersion +
+                            " available. Go to https://www.leanplum.com/dashboard to " +
+                            "download it.");
+                    }
+                    OnHasStartedAndRegisteredAsDeveloper();
+                }
+            }
 
-                VarCache.ApplyVariableDiffs(values, messages, fileAttributes, variants, varsJson, varsSignature);
-                _hasStarted = true;
-                startSuccessful = true;
-                OnStarted(true);
-                CompatibilityLayer.Init();
+            VarCache.ApplyVariableDiffs(values, messages, fileAttributes, variants, varsJson, varsSignature);
+            _hasStarted = true;
+            startSuccessful = true;
+            OnStarted(true);
+            CompatibilityLayer.Init();
 
-                LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
-            };
-            req.Error += delegate
-            {
-                VarCache.LoadDiffs();
-                _hasStarted = true;
-                startSuccessful = false;
-                OnStarted(false);
-                CompatibilityLayer.Init();
-
-                LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
-            };
-            req.SendIfConnected();
+            LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
         }
 
         public override void ForceSyncVariables(Leanplum.SyncVariablesCompleted completedHandler)
@@ -825,10 +881,13 @@ namespace LeanplumSDK
                 CompatibilityLayer.LogError("You cannot call Track before calling Start.");
                 return;
             }
-            IDictionary<string, string> requestParams = new Dictionary<string, string>();
-            requestParams[Constants.Params.EVENT] = eventName;
-            requestParams[Constants.Params.VALUE] = value.ToString();
-            if (info != null)
+
+            IDictionary<string, object> requestParams = new Dictionary<string, object>
+            {
+                [Constants.Params.EVENT] = eventName,
+                [Constants.Params.VALUE] = value.ToString()
+            };
+            if (!string.IsNullOrEmpty(info))
             {
                 requestParams[Constants.Params.INFO] = info;
             }
@@ -843,7 +902,11 @@ namespace LeanplumSDK
                     requestParams[argName] = arguments[argName];
                 }
             }
-            LeanplumRequest.Post(Constants.Methods.TRACK, requestParams).Send();
+
+            Request request = RequestBuilder.withTrackAction()
+                .AndParameters(requestParams)
+                .Create();
+            Leanplum.RequestSender.Send(request);
 
             LeanplumActionManager.MaybePerformActions(ActionTrigger.Event, eventName);
         }
@@ -865,9 +928,16 @@ namespace LeanplumSDK
                   "Start.");
                 return;
             }
-            IDictionary<string, string> requestParams = new Dictionary<string, string>();
-            requestParams[Constants.Params.TRAFFIC_SOURCE] = Json.Serialize(info);
-            LeanplumRequest.Post(Constants.Methods.SET_TRAFFIC_SOURCE_INFO, requestParams).Send();
+
+            IDictionary<string, object> requestParams = new Dictionary<string, object>
+            {
+                [Constants.Params.TRAFFIC_SOURCE] = Json.Serialize(info)
+            };
+
+            Request request = RequestBuilder.withSetTrafficSourceInfoAction()
+                .AndParameters(requestParams)
+                .Create();
+            Leanplum.RequestSender.Send(request);
         }
 
         /// <summary>
@@ -888,17 +958,21 @@ namespace LeanplumSDK
                 return;
             }
 
-            IDictionary<string, string> requestParams = new Dictionary<string, string>();
-            requestParams[Constants.Params.INFO] = info;
-            if (state != null)
+            IDictionary<string, object> requestParams = new Dictionary<string, object>
             {
-                requestParams[Constants.Params.STATE] = state;
-            }
+                [Constants.Params.INFO] = info,
+                [Constants.Params.STATE] = state
+            };
+
             if (parameters != null)
             {
                 requestParams[Constants.Params.PARAMS] = Json.Serialize(parameters);
             }
-            LeanplumRequest.Post(Constants.Methods.ADVANCE, requestParams).Send();
+
+            Request request = RequestBuilder.withAdvanceAction()
+                .AndParameters(requestParams)
+                .Create();
+            Leanplum.RequestSender.Send(request);
 
             LeanplumActionManager.MaybePerformActions(ActionTrigger.State, state);
         }
@@ -921,22 +995,26 @@ namespace LeanplumSDK
                 return;
             }
 
-            var parameters = new Dictionary<string, string>();
+            var parameters = new Dictionary<string, object>();
             if (value != null)
             {
                 ValidateAttributes(value);
                 parameters[Constants.Params.USER_ATTRIBUTES] = Json.Serialize(value);
             }
-            if (!String.IsNullOrEmpty(newUserId))
+            if (!string.IsNullOrEmpty(newUserId))
             {
                 parameters[Constants.Params.NEW_USER_ID] = newUserId;
                 VarCache.SaveDiffs();
             }
-            LeanplumRequest.Post(Constants.Methods.SET_USER_ATTRIBUTES, parameters).Send();
 
-            if (!String.IsNullOrEmpty(newUserId))
+            Request request = RequestBuilder.withSetUserAttributesAction()
+                .AndParameters(parameters)
+                .Create();
+            Leanplum.RequestSender.Send(request);
+
+            if (!string.IsNullOrEmpty(newUserId))
             {
-                LeanplumRequest.UserId = newUserId;
+                ApiConfig.UserId = newUserId;
                 if (_hasStarted)
                 {
                     VarCache.SaveDiffs();
@@ -950,7 +1028,7 @@ namespace LeanplumSDK
         /// <returns>user id</returns>
         public override string GetUserId()
         {
-            return LeanplumRequest.UserId;
+            return Leanplum.ApiConfig.UserId;
         }
 
         /// <summary>
@@ -969,8 +1047,8 @@ namespace LeanplumSDK
                 CompatibilityLayer.LogError("You cannot call PauseState before calling start.");
                 return;
             }
-            LeanplumRequest.Post(Constants.Methods.PAUSE_STATE,
-                new Dictionary<string, string>()).Send();
+            Request request = RequestBuilder.withPauseStateAction().Create();
+            Leanplum.RequestSender.Send(request);
         }
 
         /// <summary>
@@ -987,8 +1065,9 @@ namespace LeanplumSDK
                 CompatibilityLayer.LogError("You cannot call ResumeState before calling start.");
                 return;
             }
-            LeanplumRequest.Post(Constants.Methods.RESUME_STATE,
-                new Dictionary<string, string>()).Send();
+
+            Request request = RequestBuilder.withResumeStateAction().Create();
+            Leanplum.RequestSender.Send(request);
         }
 
         /// <summary>
@@ -1042,7 +1121,7 @@ namespace LeanplumSDK
         ///
         public override void ForceContentUpdate(Action callback)
         {
-            IDictionary<string, string> updateVarsParams = new Dictionary<string, string>();
+            IDictionary<string, object> updateVarsParams = new Dictionary<string, object>();
 
             if (Leanplum.IsDeveloperModeEnabled)
             {
@@ -1055,8 +1134,11 @@ namespace LeanplumSDK
             // The Inbox is loaded on Start
             updateVarsParams[Constants.Keys.INBOX_MESSAGES] = Json.Serialize(Inbox.MessageIds);
 
-            LeanplumRequest updateVarsReq = LeanplumRequest.Post(Constants.Methods.GET_VARS, updateVarsParams);
-            updateVarsReq.Response += delegate (object varsUpdate)
+            Request updateVarsRequest = RequestBuilder.withGetVarsAction()
+                .AndParameters(updateVarsParams)
+                .CreateImmediate();
+
+            updateVarsRequest.Response += delegate (object varsUpdate)
             {
                 var getVariablesResponse = Util.GetLastResponse(varsUpdate) as IDictionary<string, object>;
                 var newVarValues = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARS) as IDictionary<string, object>;
@@ -1067,7 +1149,7 @@ namespace LeanplumSDK
 
                 string varsJson = Json.Serialize(newVarValues);
                 var signature = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARS_SIGNATURE);
-                string varsSignature = signature != null ? signature.ToString() : null;
+                string varsSignature = signature?.ToString();
 
                 VarCache.ApplyVariableDiffs(newVarValues, newMessages, newVarFileAttributes, newVariants, varsJson, varsSignature);
 
@@ -1080,19 +1162,13 @@ namespace LeanplumSDK
                     }
                 }
 
-                if (callback != null)
-                {
-                    callback();
-                }
+                callback?.Invoke();
             };
-            updateVarsReq.Error += delegate
+            updateVarsRequest.Error += delegate
             {
-                if (callback != null)
-                {
-                    callback();
-                }
+                callback?.Invoke();
             };
-            updateVarsReq.SendNow();
+            RequestSender.Send(updateVarsRequest);
             VarCache.VarsNeedUpdate = false;
         }
 
@@ -1116,8 +1192,7 @@ namespace LeanplumSDK
             if (!isPaused)
             {
                 isPaused = true;
-                LeanplumRequest request =
-                    LeanplumRequest.Post(Constants.Methods.PAUSE_SESSION, null);
+                Request request = RequestBuilder.withStopAction().CreateImmediate();
                 request.Response += (object obj) =>
                 {
                     CompatibilityLayer.FlushSavedSettings();
@@ -1126,7 +1201,7 @@ namespace LeanplumSDK
                 {
                     CompatibilityLayer.FlushSavedSettings();
                 };
-                request.SendIfConnected();
+                Leanplum.RequestSender.Send(request);
             }
         }
 
@@ -1147,7 +1222,10 @@ namespace LeanplumSDK
             if (isPaused)
             {
                 isPaused = false;
-                LeanplumRequest.Post(Constants.Methods.RESUME_SESSION, null).SendIfConnected();
+                Request request = RequestBuilder
+                    .withResumeSessionAction()
+                    .CreateImmediate();
+                Leanplum.RequestSender.Send(request);
             }
         }
 
@@ -1171,7 +1249,9 @@ namespace LeanplumSDK
                 leanplumSocket.Close();
             }
 #endif
-            LeanplumRequest.Post(Constants.Methods.STOP, null).SendIfConnected();
+
+            Request request = RequestBuilder.withStopAction().CreateImmediate();
+            Leanplum.RequestSender.Send(request);
         }
 
         /// <summary>
@@ -1192,7 +1272,7 @@ namespace LeanplumSDK
             variablesChanged = null;
             variablesChangedAndNoDownloadsPending = null;
             started = null;
-            LeanplumRequest.ClearNoPendingDownloads();
+            FileTransferManager.ClearNoPendingDownloads();
         }
         #endregion
 

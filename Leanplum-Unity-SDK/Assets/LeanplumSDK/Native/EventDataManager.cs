@@ -189,8 +189,7 @@ namespace LeanplumSDK
                 handler?.OnError(leanplumException);
                 keys.Add(reqId);
             }
-
-            //requestHandlers.TryRemove()
+            RemoveHandlers(keys);
         }
 
         internal void InvokeCallbacks(object responseJson)
@@ -224,7 +223,18 @@ namespace LeanplumSDK
               
                 keys.Add(reqId);
             }
-            //requestHandlers.TryRemove()
+            RemoveHandlers(keys);
+        }
+
+        private void RemoveHandlers(List<string> keys)
+        {
+            foreach (string key in keys)
+            {
+                if (!requestHandlers.TryRemove(key, out _))
+                {
+                    LeanplumNative.CompatibilityLayer.LogDebug($"Failed to remove request handler with key: {key}");
+                }
+            }
         }
     }
 }

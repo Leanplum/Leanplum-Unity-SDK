@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2013, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -219,15 +219,16 @@ namespace LeanplumSDK
         {
             try
             {
-                var responses = ((response as IDictionary<string, object>)[Constants.Keys.RESPONSE] as IList<IDictionary<string, object>>);
+                IList<object> responses = (response as IDictionary<string, object>)[Constants.Keys.RESPONSE] as IList<object>;
                 if (responses != null)
                 {
                     foreach (var singleResponse in responses)
                     {
-                        var val = GetValueOrDefault(singleResponse, Constants.Params.REQUEST_ID) as string;
+                        var responseValues = singleResponse as IDictionary<string, object>;
+                        var val = GetValueOrDefault(responseValues, Constants.Params.REQUEST_ID) as string;
                         if (reqId.Equals(val, StringComparison.OrdinalIgnoreCase))
                         {
-                            return singleResponse;
+                            return responseValues;
                         }
                     }
                 }

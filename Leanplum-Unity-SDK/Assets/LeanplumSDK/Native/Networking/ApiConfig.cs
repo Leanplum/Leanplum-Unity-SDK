@@ -31,11 +31,26 @@ namespace LeanplumSDK
         internal const int MAX_REQUESTS_PER_API_CALL = 10000;
         //internal const int MAX_STORED_API_CALLS = 10000;
 
+        public string AppId { get; private set; }
+        public string AccessKey { get; private set; }
 
-        public string AppId { get; set; }
-        public string AccessKey { get; set; }
-
-        public string Token { get; set; }
+        private string token;
+        public string Token
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(token))
+                {
+                    token = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.TOKEN_KEY);
+                }
+                return token;
+            }
+            set
+            {
+                token = value;
+                LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.TOKEN_KEY, value);
+            }
+        }
 
         public string DeviceId { get; set; }
         public string UserId { get; set; }
@@ -53,6 +68,12 @@ namespace LeanplumSDK
                 string platformName = LeanplumNative.CompatibilityLayer.GetPlatformName().ToLower();
                 return $"{Constants.CLIENT_PREFIX}-{platformName}";
             }
+        }
+
+        internal void SetAppId(string appId, string accessKey)
+        {
+            AppId = appId;
+            AccessKey = accessKey;
         }
 
         public virtual bool AttachApiKeys(IDictionary<string, string> dict)

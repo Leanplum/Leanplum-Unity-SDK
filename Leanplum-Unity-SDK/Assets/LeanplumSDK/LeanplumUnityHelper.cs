@@ -1,5 +1,5 @@
 //
-// Copyright 2013, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -148,7 +148,7 @@ namespace LeanplumSDK
 #if !LP_UNITY_LEGACY_WWW
         private static UnityNetworkingRequest CreateWebRequest(string url, WWWForm wwwForm, bool isAsset)
         {
-            UnityNetworkingRequest result = null;
+            UnityNetworkingRequest result;
             if (wwwForm == null)
             {
                 result = UnityNetworkingRequest.Get(url);
@@ -195,7 +195,8 @@ namespace LeanplumSDK
                     yield return null;
                 }
 
-                if (request.isNetworkError || request.isHttpError)
+                if (request.result == UnityNetworkingRequest.Result.ConnectionError
+                    || request.result == UnityNetworkingRequest.Result.ProtocolError)
                 {
                     responseHandler(new UnityWebResponse(request.responseCode, request.error, null, null));
                 }

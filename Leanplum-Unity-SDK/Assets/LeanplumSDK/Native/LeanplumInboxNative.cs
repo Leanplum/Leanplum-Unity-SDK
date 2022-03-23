@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2020, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -120,14 +120,10 @@ namespace LeanplumSDK
             if (message != null)
             {
                 message.IsRead = true;
-
-                var param = new Dictionary<string, string>
-                {
-                    [Constants.Params.INBOX_MESSAGE_ID] = message.Id
-                };
-
-                LeanplumRequest request = LeanplumRequest.Post(Constants.Methods.MARK_INBOX_MESSAGE_AS_READ, param);
-                request.SendIfConnected();
+                Request request = RequestBuilder.withMarkInboxMessageAsReadAction()
+                    .AndParam(Constants.Params.INBOX_MESSAGE_ID, message.Id)
+                    .Create();
+                Leanplum.RequestSender.Send(request);
             }
             InboxChanged?.Invoke();
         }
@@ -140,13 +136,10 @@ namespace LeanplumSDK
 
                 UpdateMessages(msgs);
 
-                var param = new Dictionary<string, string>
-                {
-                    [Constants.Params.INBOX_MESSAGE_ID] = messageId
-                };
-
-                LeanplumRequest request = LeanplumRequest.Post(Constants.Methods.DELETE_INBOX_MESSAGE, param);
-                request.SendIfConnected();
+                Request request = RequestBuilder.withDeleteInboxMessageAction()
+                    .AndParam(Constants.Params.INBOX_MESSAGE_ID, messageId)
+                    .Create();
+                Leanplum.RequestSender.Send(request);
             }
         }
 
@@ -176,7 +169,7 @@ namespace LeanplumSDK
 
         public override void DownloadMessages(OnForceContentUpdate completedHandler)
         {
-            LeanplumRequest request = LeanplumRequest.Post(Constants.Methods.GET_INBOX_MESSAGES, null);
+            Request request = RequestBuilder.withGetInboxMessagesAction().CreateImmediate();
             request.Response += delegate (object data)
             {
                 try
@@ -277,7 +270,7 @@ namespace LeanplumSDK
                 TriggerInboxSyncedWithStatus(false, completedHandler);
             };
 
-            request.SendIfConnected();
+            Leanplum.RequestSender.Send(request);
         }
 
         internal void Open(Message message)

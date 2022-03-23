@@ -85,8 +85,8 @@ namespace LeanplumSDK
                 if (!authSent && connected)
                 {
                     IDictionary<string, string> args = new Dictionary<string, string>();
-                    args[Constants.Params.APP_ID] = LeanplumRequest.AppId;
-                    args[Constants.Params.DEVICE_ID] = LeanplumRequest.DeviceId;
+                    args[Constants.Params.APP_ID] = Leanplum.ApiConfig.AppId;
+                    args[Constants.Params.DEVICE_ID] = Leanplum.ApiConfig.DeviceId;
                     socketIOClient.Emit("auth", args);
                     authSent = true;
                 }

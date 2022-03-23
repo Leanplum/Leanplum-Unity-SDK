@@ -32,6 +32,13 @@ namespace LeanplumSDK
             VariablesChangedAndNoDownloadsPending;
         public abstract event Leanplum.StartHandler Started;
 
+        #region Networking
+
+        internal virtual ApiConfig ApiConfig { get; }
+        internal virtual RequestSender RequestSender { get; }
+
+        #endregion
+
         #region Accessors and Mutators
 
         /// <summary>

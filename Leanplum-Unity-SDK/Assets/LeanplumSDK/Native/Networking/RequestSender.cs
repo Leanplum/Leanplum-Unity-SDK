@@ -26,11 +26,6 @@ namespace LeanplumSDK
     internal class RequestSender
     {
         // TODO: Refactor
-        // Move to Leanplum 
-        internal ApiConfig apiConfig = new ApiConfig();
-
-        private static object padLock = new object();
-
         static string uuidKey = "__leanplum_uuid";
 
         internal EventDataManager eventDataManager = new EventDataManager();
@@ -38,7 +33,7 @@ namespace LeanplumSDK
 
         private static readonly int MAX_EVENTS_PER_API_CALL = 10000;
 
-        private RequestSender()
+        public RequestSender()
         {
         }
 
@@ -113,7 +108,7 @@ namespace LeanplumSDK
 
             IDictionary<string, string> multiRequestArgs = new Dictionary<string, string>();
 
-            if (!apiConfig.AttachApiKeys(multiRequestArgs))
+            if (!Leanplum.ApiConfig.AttachApiKeys(multiRequestArgs))
             {
                 return;
             }
@@ -123,13 +118,13 @@ namespace LeanplumSDK
             multiRequestArgs[Constants.Params.ACTION] = Constants.Methods.MULTI;
             multiRequestArgs[Constants.Params.TIME] = Util.GetUnixTimestamp().ToString();
 
-            LeanplumNative.CompatibilityLayer.LogDebug("sending: " + Json.Serialize(multiRequestArgs));
+            LeanplumNative.CompatibilityLayer.LogDebug("Sending Request: " + Json.Serialize(multiRequestArgs));
 
-            Util.CreateWebRequest(apiConfig.apiHost,
-                apiConfig.apiPath,
+            Util.CreateWebRequest(Leanplum.ApiConfig.apiHost,
+                Leanplum.ApiConfig.apiPath,
                 multiRequestArgs,
                 RequestBuilder.POST,
-                apiConfig.apiSSL,
+                Leanplum.ApiConfig.apiSSL,
                 Constants.NETWORK_TIMEOUT_SECONDS).GetResponseAsync(delegate (WebResponse response)
                 {
                     LeanplumNative.CompatibilityLayer.LogDebug("Received response with status code: "
@@ -219,13 +214,13 @@ namespace LeanplumSDK
 
         private bool Validate(Request request)
         {
-            if (string.IsNullOrEmpty(apiConfig.AppId))
+            if (string.IsNullOrEmpty(Leanplum.ApiConfig.AppId))
             {
                 LeanplumNative.CompatibilityLayer.LogError("Cannot send request. appId is not set.");
                 return false;
             }
 
-            if (string.IsNullOrEmpty(apiConfig.AccessKey))
+            if (string.IsNullOrEmpty(Leanplum.ApiConfig.AccessKey))
             {
                 LeanplumNative.CompatibilityLayer.LogError("Cannot send request. accessKey is not set.");
                 return false;
@@ -246,16 +241,16 @@ namespace LeanplumSDK
             IDictionary<string, object> args = new Dictionary<string, object>
             {
                 [Constants.Params.ACTION] = request.ApiMethod,
-                [Constants.Params.DEVICE_ID] = apiConfig.DeviceId,
-                [Constants.Params.USER_ID] = apiConfig.UserId,
+                [Constants.Params.DEVICE_ID] = Leanplum.ApiConfig.DeviceId,
+                [Constants.Params.USER_ID] = Leanplum.ApiConfig.UserId,
                 [Constants.Params.SDK_VERSION] = Constants.SDK_VERSION,
                 [Constants.Params.DEV_MODE] = Constants.isDevelopmentModeEnabled.ToString(),
                 [Constants.Params.TIME] = Util.GetUnixTimestamp().ToString(),
                 [Constants.Params.REQUEST_ID] = request.Id
             };
-            if (!string.IsNullOrEmpty(apiConfig.Token))
+            if (!string.IsNullOrEmpty(Leanplum.ApiConfig.Token))
             {
-                args[Constants.Params.TOKEN] = apiConfig.Token;
+                args[Constants.Params.TOKEN] = Leanplum.ApiConfig.Token;
             }
 
             args.Merge(request.Parameters);

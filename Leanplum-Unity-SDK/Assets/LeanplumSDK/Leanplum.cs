@@ -42,6 +42,26 @@ namespace LeanplumSDK
 
         public const string PURCHASE_EVENT_NAME = "Purchase";
 
+        #region Networking
+
+        internal static ApiConfig ApiConfig
+        {
+            get
+            {
+                return LeanplumFactory.SDK.ApiConfig;
+            }
+        }
+
+        internal static RequestSender RequestSender
+        {
+            get
+            {
+                return LeanplumFactory.SDK.RequestSender;
+            }
+        }
+
+        #endregion
+
         #region Accessors and Mutators
 
         /// <summary>

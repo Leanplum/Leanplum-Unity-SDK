@@ -206,9 +206,14 @@ namespace LeanplumSDK
 
         public Request Create()
         {
-            //Log.d("Will call API method: %s with parameters: %s", apiMethod, parameters);
-            //return RequestFactory.getInstance().createRequest(httpMethod, apiMethod, type, parameters);
+            LeanplumNative.CompatibilityLayer.LogDebug($"Will call API method: {apiMethod} with parameters: {parameters}");
             return new Request(httpMethod, apiMethod, type, parameters);
+        }
+
+        public Request CreateImmediate()
+        {
+            type = RequestType.IMMEDIATE;
+            return Create();
         }
     }
 }
