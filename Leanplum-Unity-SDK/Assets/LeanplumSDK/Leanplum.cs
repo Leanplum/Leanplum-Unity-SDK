@@ -60,6 +60,14 @@ namespace LeanplumSDK
             }
         }
 
+        internal static FileTransferManager FileTransferManager
+        {
+            get
+            {
+                return LeanplumFactory.SDK.FileTransferManager;
+            }
+        }
+
         #endregion
 
         #region Accessors and Mutators

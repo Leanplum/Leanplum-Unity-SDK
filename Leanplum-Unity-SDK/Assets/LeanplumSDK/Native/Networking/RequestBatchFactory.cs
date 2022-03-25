@@ -36,27 +36,27 @@ namespace LeanplumSDK
 
         public RequestBatch CreateNextBatch()
         {
-            IList<IDictionary<string, string>> requestsToSend = eventDataManager.GetEvents(MAX_EVENTS_PER_API_CALL);
-            return new RequestBatch(requestsToSend, JsonEncodeUnsentRequests(requestsToSend));
+            IList<IDictionary<string, string>> requestsToSend = GetUnsentRequests();
+            return new RequestBatch(requestsToSend, JsonEncodeRequests(requestsToSend));
         }
 
-        internal static string JsonEncodeUnsentRequests(IList<IDictionary<string, string>> requestData)
+        protected virtual IList<IDictionary<string, string>> GetUnsentRequests()
+        {
+            return eventDataManager.GetEvents(MAX_EVENTS_PER_API_CALL); ;
+        }
+
+        internal void DeleteFinishedBatch(RequestBatch batch)
+        {
+            eventDataManager.DeleteEvents(batch.EventsCount);
+        }
+
+        internal static string JsonEncodeRequests(IList<IDictionary<string, string>> requestData)
         {
             IDictionary<string, object> data = new Dictionary<string, object>
             {
                 [Constants.Params.DATA] = requestData
             };
             return Json.Serialize(data);
-        }
-
-        //internal static IList<IDictionary<string, string>> GetUnsentRequests()
-        //{
-        //    return null;
-        //}
-
-        internal void DeleteFinishedBatch(RequestBatch batch)
-        {
-            eventDataManager.DeleteEvents(batch.EventsCount);
         }
     }
 }

@@ -84,6 +84,20 @@ namespace LeanplumSDK
             }
         }
 
+        private FileTransferManager fileTransferManager;
+        internal override FileTransferManager FileTransferManager
+        {
+            get
+            {
+                if (fileTransferManager == null)
+                {
+                    fileTransferManager = new FileTransferManager();
+                    return fileTransferManager;
+                }
+                return fileTransferManager;
+            }
+        }
+
         #region Helpers
         private static void ValidateAttributes(IDictionary<string, object> attributes)
         {
@@ -431,6 +445,7 @@ namespace LeanplumSDK
         {
             add
             {
+                // TODO: use downloadsPending check
                 variablesChangedAndNoDownloadsPending += value;
                 if (_hasStarted && VarCache.HasReceivedDiffs)
                     value();
@@ -641,9 +656,9 @@ namespace LeanplumSDK
             LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
         }
 
-        private void StartRequest_Response(object responsesObject)
+        private void StartRequest_Response(object responseObject)
         {
-            IDictionary<string, object> response = Util.GetLastResponse(responsesObject) as IDictionary<string, object>;
+            IDictionary<string, object> response = responseObject as IDictionary<string, object>;
             IDictionary<string, object> messages = Util.GetValueOrDefault(response, "messages") as IDictionary<string, object> ?? new Dictionary<string, object>();
             IDictionary<string, object> values = Util.GetValueOrDefault(response, Constants.Keys.VARS) as IDictionary<string, object> ?? new Dictionary<string, object>();
             IDictionary<string, object> fileAttributes = Util.GetValueOrDefault(response, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object> ?? new Dictionary<string, object>();

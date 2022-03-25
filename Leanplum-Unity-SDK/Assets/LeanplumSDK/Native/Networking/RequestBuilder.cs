@@ -17,13 +17,10 @@
 //  KIND, either express or implied.  See the License for the
 //  specific language governing permissions and limitations
 //  under the License.
-using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace LeanplumSDK
 {
-
     internal class RequestBuilder
     {
         public static string GET = "GET";
@@ -175,6 +172,11 @@ namespace LeanplumSDK
             return new RequestBuilder(POST, ApiMethods.DELETE_INBOX_MESSAGE);
         }
 
+        public static RequestBuilder withFileResource(string resourceUrl)
+        {
+            return new RequestBuilder(GET, resourceUrl);
+        }
+
         public RequestBuilder AndParam(string param, object value)
         {
             if (parameters == null)
@@ -212,8 +214,7 @@ namespace LeanplumSDK
 
         public Request CreateImmediate()
         {
-            type = RequestType.IMMEDIATE;
-            return Create();
+            return AndType(RequestType.IMMEDIATE).Create();
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace LeanplumSDK
 {
     public class FileTransferManager
     {
-                public delegate void NoPendingDownloadsHandler();
+        public delegate void NoPendingDownloadsHandler();
         public FileTransferManager()
         {
         }
@@ -27,13 +28,41 @@ namespace LeanplumSDK
         }
 
 
-        public void DownloadFile()
+        // Uses resources endpoint
+        // Method: GET
+        // Example URL: https://api.leanplum.com/resource/resource/AMIfv94zoleE43w_3PLB0...
+        public void DownloadFileResource(string resourceUrl, Action<object> response, Action<Exception> error)
         {
+            Request request = RequestBuilder.withFileResource(resourceUrl)
+                .CreateImmediate();
 
+            request.Response += response;
+            request.Error += error;
+
+            DownloadAsset(request);
         }
 
-        internal virtual void DownloadAssetNow()
+        internal virtual void DownloadAsset(Request request)
         {
+            PendingDownloads++;
+            Util.CreateWebRequest(Leanplum.ApiConfig.apiHost, request.ApiMethod, null, request.HttpMethod,
+                                  Leanplum.ApiConfig.apiSSL, Constants.NETWORK_TIMEOUT_SECONDS).GetAssetBundle(
+                delegate (WebResponse response)
+            {
+                PendingDownloads--;
+                if (response.GetError() != null)
+                {
+                    request.OnError(new LeanplumException("Error sending request: " + response.GetError()));
+                }
+                else
+                {
+                    request.OnResponse(response.GetResponseAsAsset());
+                }
+                if (PendingDownloads == 0)
+                {
+                    noPendingDownloads?.Invoke();
+                }
+            });
         }
 
         public static void ClearNoPendingDownloads()

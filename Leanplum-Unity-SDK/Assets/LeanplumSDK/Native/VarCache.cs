@@ -81,6 +81,7 @@ namespace LeanplumSDK
             get { return messages; }
             private set { messages = value; }
         }
+        // TODO: Manage
         public static int downloadsPending;
 
         public delegate void updateEventHandler();
@@ -285,7 +286,7 @@ namespace LeanplumSDK
             {
                 return;
             }
-            if (Leanplum.ApiConfig.Token == null)
+            if (string.IsNullOrEmpty(Leanplum.ApiConfig.Token))
             {
                 return;
             }

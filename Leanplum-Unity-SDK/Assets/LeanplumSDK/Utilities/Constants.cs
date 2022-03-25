@@ -72,6 +72,7 @@ namespace LeanplumSDK
             internal const string APP_INBOX_MESSAGES_KEY = "___leanplum_app_inbox_messages";
             internal const string VARIABLES_SIGN_KEY = "__leanplum_variables_json";
             internal const string VARIABLES_JSON_KEY = "__leanplum_variables_signature";
+            internal const string UUID_KEY = "__leanplum_uuid";
         }
 
         internal class Files

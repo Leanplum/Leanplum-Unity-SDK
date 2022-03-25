@@ -99,13 +99,12 @@ namespace LeanplumSDK
                 }
 
                 string newFile = newValue.ToString();
-                string url = null;
-
-                if (String.IsNullOrEmpty(newFile))
+                if (string.IsNullOrEmpty(newFile))
                 {
                     return;
                 }
 
+                string url = null;
                 if (VarCache.FileAttributes != null && VarCache.FileAttributes.ContainsKey(newFile))
                 {
                     IDictionary<string, object> currentFile =
@@ -113,8 +112,7 @@ namespace LeanplumSDK
                         [String.Empty] as IDictionary<string, object>;
                     if (currentFile.ContainsKey(Constants.Keys.URL))
                     {
-                        url = ((VarCache.FileAttributes[newFile] as IDictionary<string, object>)
-                            [String.Empty] as IDictionary<string, object>)[Constants.Keys.URL] as string;
+                        url = GetResourceURL(newFile);
                     }
                 }
 
@@ -125,36 +123,33 @@ namespace LeanplumSDK
                     ((newFile != FileName && realtimeAssetUpdating && fileReady) ||
                      (Value == null && realtimeAssetUpdating)))
                 {
-                    VarCache.downloadsPending++;
+                    // TODO: Manage downloads pending
                     currentlyDownloadingFile = newFile;
                     FileName = newFile;
                     fileReady = false;
 
-                    LeanplumRequest downloadRequest = LeanplumRequest.Get(url.Substring(1));
-                    downloadRequest.Response += delegate(object obj)
+                    void OnFileResponse(object file)
                     {
-                        _value = (T) obj;
+                        _value = (T)file;
                         if (newFile == FileName && !fileReady)
                         {
                             fileReady = true;
                             OnValueChanged();
                             currentlyDownloadingFile = null;
                         }
+                    }
 
-                        VarCache.downloadsPending--;
-                    };
-                    downloadRequest.Error += delegate(Exception obj)
+                    void OnFileError(Exception ex)
                     {
                         if (newFile == FileName && !fileReady)
                         {
                             LeanplumNative.CompatibilityLayer.LogError("Error downloading assetbundle \"" +
-                                                                       FileName + "\". " + obj.ToString());
+                                                                       FileName + "\". " + ex.ToString());
                             currentlyDownloadingFile = null;
                         }
+                    }
 
-                        VarCache.downloadsPending--;
-                    };
-                    downloadRequest.DownloadAssetNow();
+                    Leanplum.FileTransferManager.DownloadFileResource(url, OnFileResponse, OnFileError);
                 }
             }
             else
@@ -187,6 +182,37 @@ namespace LeanplumSDK
                     }
                 }
             }
+        }
+
+
+        /* 
+         * "example.jpg": {
+         *      "": {
+         *          "size": 41802,
+         *          "hash": null,
+         *          "servingUrl": "http://lh3.googleusercontent.com/PymI6X...",
+         *          "url": "/resource/AMIfv94zoleE43w_3PLB02..."
+         *      }
+         *  }
+         */
+        private string GetResourceURL(string fileName)
+        {
+            if (VarCache.FileAttributes.ContainsKey(fileName))
+            {
+                var fileAttributes = VarCache.FileAttributes[fileName] as IDictionary<string, object>;
+                if (fileAttributes != null)
+                {
+                    var fileData = Util.GetValueOrDefault(fileAttributes, string.Empty) as IDictionary<string, object>;
+                    var url = Util.GetValueOrDefault(fileData, Constants.Keys.URL) as string;
+                    if (!string.IsNullOrEmpty(url) && url.StartsWith("/"))
+                    {
+                        return url.Substring(1);
+                    }
+                    return url;
+                }
+            }
+
+            return null;
         }
 
         public override object GetDefaultValue()

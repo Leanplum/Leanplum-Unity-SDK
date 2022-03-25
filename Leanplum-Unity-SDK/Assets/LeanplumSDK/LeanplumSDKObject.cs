@@ -36,6 +36,7 @@ namespace LeanplumSDK
 
         internal virtual ApiConfig ApiConfig { get; }
         internal virtual RequestSender RequestSender { get; }
+        internal virtual FileTransferManager FileTransferManager { get; }
 
         #endregion
 

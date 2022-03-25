@@ -25,26 +25,42 @@ namespace LeanplumSDK
 {
     internal class RequestSender
     {
-        // TODO: Refactor
-        static string uuidKey = "__leanplum_uuid";
-
-        internal EventDataManager eventDataManager = new EventDataManager();
-        internal RequestBatchFactory RequestBatchFactory = new RequestBatchFactory();
-
-        private static readonly int MAX_EVENTS_PER_API_CALL = 10000;
-
-        public RequestSender()
+        private EventDataManager eventDataManager;
+        protected virtual EventDataManager EventDataManager
         {
+            get
+            {
+                if (eventDataManager == null)
+                {
+                    eventDataManager = new EventDataManager();
+                    return eventDataManager;
+                }
+                return eventDataManager;
+            }
+        }
+
+        private RequestBatchFactory requestBatchFactory;
+        protected virtual RequestBatchFactory RequestBatchFactory
+        {
+            get
+            {
+                if (requestBatchFactory == null)
+                {
+                    requestBatchFactory = new RequestBatchFactory();
+                    return requestBatchFactory;
+                }
+                return requestBatchFactory;
+            }
         }
 
         private string UUID
         {
             get
             {
-                string uuid = LeanplumNative.CompatibilityLayer.GetSavedString(uuidKey);
+                string uuid = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.UUID_KEY);
                 if (string.IsNullOrEmpty(uuid))
                 {
-                    uuid = new Guid().ToString().ToLower();
+                    uuid = Guid.NewGuid().ToString().ToLower();
                     UUID = uuid;
                 }
 
@@ -52,8 +68,12 @@ namespace LeanplumSDK
             }
             set
             {
-                LeanplumNative.CompatibilityLayer.StoreSavedString(uuidKey, value);
+                LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.UUID_KEY, value);
             }
+        }
+
+        internal RequestSender()
+        {
         }
 
         internal void SaveRequest(Request request)
@@ -70,7 +90,7 @@ namespace LeanplumSDK
             int eventsCount = eventDataManager.GetEventsCount();
             if (eventsCount % ApiConfig.MAX_REQUESTS_PER_API_CALL == 0)
             {
-                UUID = new Guid().ToString().ToLower();
+                UUID = Guid.NewGuid().ToString().ToLower();
             }
             args[Constants.Params.UUID] = UUID;
         }
@@ -91,7 +111,6 @@ namespace LeanplumSDK
                 }
                 catch (Exception ex)
                 {
-                    // TODO: Check the logging
                     LeanplumNative.CompatibilityLayer.LogError(ex.Message);
                 }
             }
@@ -207,6 +226,7 @@ namespace LeanplumSDK
                             LeanplumNative.CompatibilityLayer.LogError(errorMessage);
                             eventDataManager.InvokeAllCallbacksWithError(new LeanplumException(errorMessage));
                         }
+                        RequestBatchFactory.DeleteFinishedBatch(batch);
                     }
                 }
             );
@@ -272,8 +292,8 @@ namespace LeanplumSDK
         {
             if (response.ContainsKey(Constants.Keys.ERROR))
             {
-                IDictionary<string, object> error = response[Constants.Keys.ERROR] as IDictionary<string, object>;
-                if (error != null && error.ContainsKey(Constants.Keys.MESSAGE))
+                if (response[Constants.Keys.ERROR] is IDictionary<string, object> error
+                    && error.ContainsKey(Constants.Keys.MESSAGE))
                 {
                     return error[Constants.Keys.MESSAGE] as string;
                 }

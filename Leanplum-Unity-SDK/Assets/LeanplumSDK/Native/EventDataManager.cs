@@ -209,6 +209,7 @@ namespace LeanplumSDK
                 var response = Util.GetResponseForId(responseJson, reqId);
                 if (response != null)
                 {
+                    // TODO: pass Dictionary<string, object>
                     if (RequestSender.IsResponseSuccess(response))
                     {
                         handler.OnResponse(response);

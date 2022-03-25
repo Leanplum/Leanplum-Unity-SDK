@@ -71,6 +71,26 @@ namespace LeanplumSDK
             }
         }
 
+        private Queue<IEnumerator> coroutineQueue = new Queue<IEnumerator>();
+        private IEnumerator runningCoroutine;
+
+        IEnumerator CoroutineCoordinator()
+        {
+            while (true)
+            {
+                while (coroutineQueue.Count > 0)
+                {
+                    if (runningCoroutine == null)
+                    {
+                        runningCoroutine = coroutineQueue.Dequeue();
+                        yield return StartCoroutine(runningCoroutine);
+                        runningCoroutine = null;
+                    }
+                }
+                yield return null;
+            }
+        }
+
         public void NativeCallback(string message)
         {
             LeanplumFactory.SDK.NativeCallback(message);
@@ -82,6 +102,8 @@ namespace LeanplumSDK
 
             // Prevent Unity from destroying this GameObject when a new scene is loaded.
             DontDestroyOnLoad(this.gameObject);
+
+            StartCoroutine(CoroutineCoordinator());
         }
 
         private void OnApplicationQuit()
@@ -142,7 +164,16 @@ namespace LeanplumSDK
         internal void StartRequest(string url, WWWForm wwwForm, Action<WebResponse> responseHandler,
                                    int timeout, bool isAsset = false)
         {
-            StartCoroutine(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
+            if (!isAsset)
+            {
+                // Enqueue API requests to be executed one after another
+                coroutineQueue.Enqueue(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
+            }
+            else
+            {
+                // Issue asset requests immediately
+                StartCoroutine(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
+            }
         }
 
 #if !LP_UNITY_LEGACY_WWW
