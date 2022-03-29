@@ -60,9 +60,29 @@ namespace LeanplumSDK
 
         public override event Leanplum.VariableChangedHandler VariablesChanged;
         public override event Leanplum.VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
-        public override event Leanplum.StartHandler Started;
 
-        private Dictionary<int, Action> ForceContentUpdateCallbackDictionary = new Dictionary<int, Action>();
+        private event Leanplum.StartHandler started;
+        private bool startSuccessful;
+
+        public override event Leanplum.StartHandler Started
+        {
+            add
+            {
+                started += value;
+                // If it has not started, event will be invoked
+                // through the start response handler when Leanplum starts
+                if (HasStarted())
+                {
+                    value(startSuccessful);
+                }
+            }
+            remove
+            {
+                started -= value;
+            }
+        }
+
+        private Dictionary<int, Leanplum.ForceContentUpdateHandler> ForceContentUpdateCallbacksDictionary = new Dictionary<int, Leanplum.ForceContentUpdateHandler>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
         private Dictionary<string, List<ActionContext.ActionResponder>> OnActionRespondersDictionary = new Dictionary<string, List<ActionContext.ActionResponder>>();
         private Dictionary<string, ActionContext> ActionContextsDictionary = new Dictionary<string, ActionContext>();
@@ -205,7 +225,7 @@ namespace LeanplumSDK
         {
             return NativeSDK.CallStatic<string>("getDeviceId");
         }
-        
+
         /// <summary>
         ///     Get user id.
         /// </summary>
@@ -330,6 +350,7 @@ namespace LeanplumSDK
         public override void Start(string userId, IDictionary<string, object> attributes,
             Leanplum.StartHandler startResponseAction)
         {
+            // Invokes Started event through NativeCallback
             Started += startResponseAction;
 
             // This also constructs LeanplumUnityHelper and the game object.
@@ -387,6 +408,25 @@ namespace LeanplumSDK
         IDictionary<string, object> parameters)
         {
             NativeSDK.CallStatic("trackPurchase", eventName, value, currencyCode, Json.Serialize(parameters));
+        }
+
+        /// <summary>
+        ///     Logs in-app purchase data from Google Play.
+        /// </summary>
+        /// <param name="item">The name of the item purchased.</param>
+        /// <param name="priceMicros">The purchase price in micros.</param>
+        /// <param name="currencyCode">The ISO 4217 currency code.</param>
+        /// <param name="purchaseData">Purchase data from
+        /// com.android.vending.billing.util.Purchase.getOriginalJson().</param>
+        /// <param name="dataSignature">Purchase data signature from
+        /// com.android.vending.billing.util.Purchase.getSignature().</param>
+        /// <param name="parameters">Optional event parameters.</param>
+        public override void TrackGooglePlayPurchase(string item, long priceMicros,
+            string currencyCode, string purchaseData, string dataSignature,
+            IDictionary<string, object> parameters)
+        {
+            NativeSDK.CallStatic("trackGooglePlayPurchase", item, priceMicros, currencyCode,
+                purchaseData, dataSignature, Json.Serialize(parameters));
         }
 
         /// <summary>
@@ -515,8 +555,31 @@ namespace LeanplumSDK
         ///
         public override void ForceContentUpdate(Action callback)
         {
+
+            Leanplum.ForceContentUpdateHandler handler = (success) =>
+            {
+                callback();
+            };
+
+            ForceContentUpdate(handler);
+        }
+
+        /// <summary>
+        ///     Forces content to update from the server. If variables have changed, the
+        ///     appropriate callbacks will fire. Use sparingly as if the app is updated,
+        ///     you'll have to deal with potentially inconsistent state or user experience.
+        ///     The provided handler will always fire regardless
+        ///     of whether the variables have changed.
+        ///     It provides a boolean value whether the update to the server was successful.
+        /// </summary>
+        /// <param name="handler">
+        ///     The handler to execute once the update completed
+        ///     with the corresponding success result.
+        /// </param>
+        public override void ForceContentUpdate(Leanplum.ForceContentUpdateHandler handler)
+        {
             int key = DictionaryKey++;
-            ForceContentUpdateCallbackDictionary.Add(key, callback);
+            ForceContentUpdateCallbacksDictionary.Add(key, handler);
             NativeSDK.CallStatic("forceContentUpdateWithCallback", key);
         }
 
@@ -545,8 +608,8 @@ namespace LeanplumSDK
             {
                 if (Started != null)
                 {
-                    bool success = message.EndsWith("true") || message.EndsWith("True");
-                    Started(success);
+                    startSuccessful = message.EndsWith("true") || message.EndsWith("True");
+                    Started(startSuccessful);
                 }
             }
             else if (message.StartsWith(VARIABLE_VALUE_CHANGED))
@@ -557,12 +620,13 @@ namespace LeanplumSDK
             }
             else if (message.StartsWith(FORCE_CONTENT_UPDATE_WITH_CALLBACK))
             {
-                int key = Convert.ToInt32(message.Substring(FORCE_CONTENT_UPDATE_WITH_CALLBACK.Length));
-                Action callback;
-                if (ForceContentUpdateCallbackDictionary.TryGetValue(key, out callback))
+                string[] values = message.Substring(FORCE_CONTENT_UPDATE_WITH_CALLBACK.Length).Split(':');
+                int key = Convert.ToInt32(values[0]);
+                bool success = values[1] == "1";
+                if (ForceContentUpdateCallbacksDictionary.TryGetValue(key, out Leanplum.ForceContentUpdateHandler callback))
                 {
-                    callback();
-                    ForceContentUpdateCallbackDictionary.Remove(key);
+                    callback(success);
+                    ForceContentUpdateCallbacksDictionary.Remove(key);
                 }
             }
             else if (message.StartsWith(DEFINE_ACTION_RESPONDER))
