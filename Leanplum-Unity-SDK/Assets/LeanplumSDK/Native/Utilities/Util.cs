@@ -20,7 +20,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using LeanplumSDK.MiniJSON;
 using UnityEngine;
 
@@ -31,7 +30,7 @@ namespace LeanplumSDK
     /// </summary>
     public static class Util
     {
-        		/// <summary>
+        /// <summary>
 		///     Helper function to copy and cast values from containers of object types
 		///     to containers of primitive types.
 		/// </summary>
@@ -146,111 +145,6 @@ namespace LeanplumSDK
                 return s;
             }
             return char.ToUpper(first) + s.Substring(1);
-        }
-
-        public static WebRequest CreateWebRequest(string hostName, string path, IDictionary<string, string> parameters,
-            string httpMethod, bool ssl, int timeout)
-        {
-            WebRequest request = CreateWebRequest(hostName, path, ssl, timeout);
-            if (httpMethod.Equals("GET"))
-            {
-                request.AttachGetParameters(parameters);
-            }
-            else
-            {
-                request.AttachPostParameters(parameters);
-            }
-
-            return request;
-        }
-
-        public static WebRequest CreateWebRequest(string hostName, string path, bool ssl, int timeout)
-        {
-            string fullPath;
-            if (path.StartsWith("http"))
-            {
-                fullPath = path;
-            }
-            else
-            {
-                fullPath = (ssl ? "https://" : "http://") + hostName + "/" + path;
-            }
-			return LeanplumNative.CompatibilityLayer.CreateWebRequest(fullPath, timeout);
-        }
-
-        internal static int NumResponses(object response)
-        {
-            try
-            {
-                return ((response as IDictionary<string, object>)[Constants.Keys.RESPONSE] as IList<object>).Count;
-            }
-            catch (KeyNotFoundException e)
-            {
-				LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
-                return 0;
-            }
-            catch (NullReferenceException e)
-            {
-				LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
-                return 0;
-            }
-        }
-
-        internal static object GetResponseAt(object response, int index)
-        {
-            try
-            {
-                return ((response as IDictionary<string, object>)[Constants.Keys.RESPONSE] as IList<object>)[index];
-            }
-            catch (KeyNotFoundException e)
-            {
-				LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
-                return null;
-            }
-            catch (NullReferenceException e)
-            {
-				LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
-                return null;
-            }
-        }
-
-        // TODO: move to request util
-        internal static IDictionary<string, object> GetResponseForId(object response, string reqId)
-        {
-            try
-            {
-                IList<object> responses = (response as IDictionary<string, object>)[Constants.Keys.RESPONSE] as IList<object>;
-                if (responses != null)
-                {
-                    foreach (var singleResponse in responses)
-                    {
-                        var responseValues = singleResponse as IDictionary<string, object>;
-                        var val = GetValueOrDefault(responseValues, Constants.Params.REQUEST_ID) as string;
-                        if (reqId.Equals(val, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return responseValues;
-                        }
-                    }
-                }
-            }
-            catch (KeyNotFoundException e)
-            {
-                LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
-                return null;
-            }
-            catch (NullReferenceException e)
-            {
-                LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
-                return null;
-            }
-
-            return null;
-        }
-
-        internal static object GetLastResponse(object response)
-        {
-            int numResponses = Util.NumResponses(response);
-            return numResponses > 0 ? GetResponseAt(response, numResponses - 1) : null;
         }
 
         internal static int GetUnixTimestamp()
@@ -385,21 +279,6 @@ namespace LeanplumSDK
                 || value is float
                 || value is double
                 || value is decimal;
-        }
-    }
-
-    // TODO: move to a more suitable place
-    public static class MergeDictionaries
-    {
-        public static void Merge<K, V>(this IDictionary<K, V> a, IDictionary<K, V> b, bool overwrite = true)
-        {
-            foreach (KeyValuePair<K, V> p in b)
-            {
-                if (overwrite || !a.ContainsKey(p.Key))
-                {
-                    a[p.Key] = p.Value;
-                }
-            }
         }
     }
 }

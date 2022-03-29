@@ -174,7 +174,7 @@ namespace LeanplumSDK
             {
                 try
                 {
-                    var response = Util.GetLastResponse(data) as IDictionary<string, object>;
+                    var response = RequestUtil.GetLastResponse(data) as IDictionary<string, object>;
                     var messages = Util.GetValueOrDefault(response, Constants.Keys.INBOX_MESSAGES) as IDictionary<string, object>;
                     var inboxMessages = new List<Message>();
                     if (messages != null)

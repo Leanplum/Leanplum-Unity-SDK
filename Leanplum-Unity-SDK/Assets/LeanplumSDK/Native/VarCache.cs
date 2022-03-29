@@ -81,8 +81,6 @@ namespace LeanplumSDK
             get { return messages; }
             private set { messages = value; }
         }
-        // TODO: Manage
-        public static int downloadsPending;
 
         public delegate void updateEventHandler();
         public static event updateEventHandler Update;

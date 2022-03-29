@@ -34,6 +34,14 @@ namespace LeanplumSDK
 
         private static readonly object padLock = new object();
 
+        internal virtual ICompatibilityLayer StorageLayer
+        {
+            get
+            {
+                return LeanplumNative.CompatibilityLayer;
+            }
+        }
+
         public EventDataManager()
         {
         }
@@ -42,12 +50,12 @@ namespace LeanplumSDK
         {
             lock (padLock)
             {
-                // TODO: shorthand LeanplumNative.CompatibilityLayer
-                // TODO: index is incremental indefinitely unless all requests are sent
-                // TODO: possible race condition if max count is reached and
-                // request is overridden before unsent requests are deleted - delete count overlaps added/overridden request
-                int startIndex = LeanplumNative.CompatibilityLayer.GetSavedInt(Constants.Defaults.START_KEY, 0);
-                int count = LeanplumNative.CompatibilityLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0);
+                // TODO: Rewrite as a Queue so incremental indexes are not needed
+                // Index is incremental indefinitely unless all requests are sent
+                // Possible race condition if max count is reached and request is overridden before
+                // unsent requests are deleted - delete count overlaps added/overridden request
+                int startIndex = StorageLayer.GetSavedInt(Constants.Defaults.START_KEY, 0);
+                int count = StorageLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0);
                 Debug.Log($"[Indexes] Count: {count} | startIndex: {startIndex}");
                 count++;
                 if (count > Constants.MAX_STORED_API_CALLS)
@@ -56,16 +64,16 @@ namespace LeanplumSDK
                     count = Constants.MAX_STORED_API_CALLS;
                     // Delete the first request from queue
                     string itemKeyToDelete = string.Format(Constants.Defaults.ITEM_KEY, startIndex);
-                    LeanplumNative.CompatibilityLayer.DeleteSavedSetting(itemKeyToDelete);
+                    StorageLayer.DeleteSavedSetting(itemKeyToDelete);
                     Debug.Log($"[Delete] Count: {count} | Key: {itemKeyToDelete}");
                     // Shift the start index to the next request
                     startIndex++;
-                    LeanplumNative.CompatibilityLayer.StoreSavedInt(Constants.Defaults.START_KEY, startIndex);
+                    StorageLayer.StoreSavedInt(Constants.Defaults.START_KEY, startIndex);
                 }
                 string itemKey = string.Format(Constants.Defaults.ITEM_KEY, startIndex + count - 1);
-                LeanplumNative.CompatibilityLayer.StoreSavedString(itemKey, eventData);
+                StorageLayer.StoreSavedString(itemKey, eventData);
                 Debug.Log($"[Add] Count: {count} | Key: {itemKey}");
-                LeanplumNative.CompatibilityLayer.StoreSavedInt(Constants.Defaults.COUNT_KEY, count);
+                StorageLayer.StoreSavedInt(Constants.Defaults.COUNT_KEY, count);
             }
         }
 
@@ -83,8 +91,8 @@ namespace LeanplumSDK
             IList<IDictionary<string, string>> requestData = new List<IDictionary<string, string>>();
             lock (padLock)
             {
-                int start = LeanplumNative.CompatibilityLayer.GetSavedInt(Constants.Defaults.START_KEY, 0);
-                int totalCount = LeanplumNative.CompatibilityLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0);
+                int start = StorageLayer.GetSavedInt(Constants.Defaults.START_KEY, 0);
+                int totalCount = StorageLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0);
                 if (count == 0 || totalCount == 0)
                 {
                     return requestData;
@@ -94,7 +102,7 @@ namespace LeanplumSDK
                 for (int i = start; i < start + count; i++)
                 {
                     string itemKey = string.Format(Constants.Defaults.ITEM_KEY, i);
-                    string itemValue = LeanplumNative.CompatibilityLayer.GetSavedString(itemKey, null);
+                    string itemValue = StorageLayer.GetSavedString(itemKey, null);
 
                     if (Json.Deserialize(itemValue) is IDictionary<string, object> requestArgs)
                     {
@@ -130,15 +138,15 @@ namespace LeanplumSDK
 
         public int GetEventsCount()
         {
-            return LeanplumNative.CompatibilityLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0);
+            return StorageLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0);
         }
 
         public void DeleteEvents(int count)
         {
             lock (padLock)
             {
-                int start = LeanplumNative.CompatibilityLayer.GetSavedInt(Constants.Defaults.START_KEY, 0);
-                int totalCount = LeanplumNative.CompatibilityLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0);
+                int start = StorageLayer.GetSavedInt(Constants.Defaults.START_KEY, 0);
+                int totalCount = StorageLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0);
                 if (count == 0 || totalCount == 0)
                 {
                     return;
@@ -148,27 +156,27 @@ namespace LeanplumSDK
                 for (int i = start; i < start + count; i++)
                 {
                     string itemKey = string.Format(Constants.Defaults.ITEM_KEY, i);
-                    LeanplumNative.CompatibilityLayer.DeleteSavedSetting(itemKey);
+                    StorageLayer.DeleteSavedSetting(itemKey);
                     Debug.Log($"[Delete] Count: {count} | Key: {itemKey}");
                 }
 
                 if (count == totalCount)
                 {
                     // Reset indices
-                    LeanplumNative.CompatibilityLayer.DeleteSavedSetting(Constants.Defaults.START_KEY);
-                    LeanplumNative.CompatibilityLayer.DeleteSavedSetting(Constants.Defaults.COUNT_KEY);
+                    StorageLayer.DeleteSavedSetting(Constants.Defaults.START_KEY);
+                    StorageLayer.DeleteSavedSetting(Constants.Defaults.COUNT_KEY);
                 }
                 else
                 {
-                    LeanplumNative.CompatibilityLayer.StoreSavedInt(Constants.Defaults.COUNT_KEY, totalCount - count);
+                    StorageLayer.StoreSavedInt(Constants.Defaults.COUNT_KEY, totalCount - count);
                     // Shift to first request index
-                    LeanplumNative.CompatibilityLayer.StoreSavedInt(Constants.Defaults.START_KEY, start + count);
+                    StorageLayer.StoreSavedInt(Constants.Defaults.START_KEY, start + count);
                 }
 
-                Debug.Log($"[Indexes] Count: {LeanplumNative.CompatibilityLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0)}" +
-                    $" | startIndex: {LeanplumNative.CompatibilityLayer.GetSavedInt(Constants.Defaults.START_KEY, 0)}");
+                Debug.Log($"[Indexes] Count: {StorageLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0)}" +
+                    $" | startIndex: {StorageLayer.GetSavedInt(Constants.Defaults.START_KEY, 0)}");
 
-                LeanplumNative.CompatibilityLayer.FlushSavedSettings();
+                StorageLayer.FlushSavedSettings();
             }
         }
 
@@ -206,10 +214,9 @@ namespace LeanplumSDK
                 
                 var handler = pair.Value;
 
-                var response = Util.GetResponseForId(responseJson, reqId);
+                var response = RequestUtil.GetResponseForId(responseJson, reqId);
                 if (response != null)
                 {
-                    // TODO: pass Dictionary<string, object>
                     if (RequestSender.IsResponseSuccess(response))
                     {
                         handler.OnResponse(response);
@@ -217,7 +224,6 @@ namespace LeanplumSDK
                     else
                     {
                         string err = RequestSender.GetResponseError(response);
-
                         handler?.OnError(new LeanplumException(err));
                     }
                 }

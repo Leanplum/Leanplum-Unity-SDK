@@ -123,7 +123,6 @@ namespace LeanplumSDK
                     ((newFile != FileName && realtimeAssetUpdating && fileReady) ||
                      (Value == null && realtimeAssetUpdating)))
                 {
-                    // TODO: Manage downloads pending
                     currentlyDownloadingFile = newFile;
                     FileName = newFile;
                     fileReady = false;

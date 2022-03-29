@@ -81,13 +81,13 @@ namespace LeanplumSDK
             var args = CreateArgsDictionary(request);
             AttachUuid(args);
 
-            eventDataManager.AddEvent(Json.Serialize(args));
-            eventDataManager.AddCallbacks(request);
+            EventDataManager.AddEvent(Json.Serialize(args));
+            EventDataManager.AddCallbacks(request);
         }
 
         internal void AttachUuid(IDictionary<string, object> args)
         {
-            int eventsCount = eventDataManager.GetEventsCount();
+            int eventsCount = EventDataManager.GetEventsCount();
             if (eventsCount % ApiConfig.MAX_REQUESTS_PER_API_CALL == 0)
             {
                 UUID = Guid.NewGuid().ToString().ToLower();
@@ -139,7 +139,7 @@ namespace LeanplumSDK
 
             LeanplumNative.CompatibilityLayer.LogDebug("Sending Request: " + Json.Serialize(multiRequestArgs));
 
-            Util.CreateWebRequest(Leanplum.ApiConfig.apiHost,
+            RequestUtil.CreateWebRequest(Leanplum.ApiConfig.apiHost,
                 Leanplum.ApiConfig.apiPath,
                 multiRequestArgs,
                 RequestBuilder.POST,
@@ -171,7 +171,7 @@ namespace LeanplumSDK
                             object json = response.GetResponseBodyAsJson();
                             if (json != null && json.GetType() == typeof(IDictionary<string, object>))
                             {
-                                IDictionary<string, object> responseDictionary = Util.GetLastResponse(response.GetResponseBodyAsJson()) as IDictionary<string, object>;
+                                IDictionary<string, object> responseDictionary = RequestUtil.GetLastResponse(response.GetResponseBodyAsJson()) as IDictionary<string, object>;
                                 if (responseDictionary != null)
                                 {
                                     string error = GetResponseError(responseDictionary);
@@ -214,17 +214,17 @@ namespace LeanplumSDK
                     }
                     else
                     {
-                        IDictionary<string, object> responseDictionary = Util.GetLastResponse(response.GetResponseBodyAsJson()) as IDictionary<string, object>;
+                        IDictionary<string, object> responseDictionary = RequestUtil.GetLastResponse(response.GetResponseBodyAsJson()) as IDictionary<string, object>;
                         LeanplumNative.CompatibilityLayer.LogDebug("received: " + response.GetResponseBody());
                         if (IsResponseSuccess(responseDictionary))
                         {
-                            eventDataManager.InvokeCallbacks(response.GetResponseBodyAsJson());
+                            EventDataManager.InvokeCallbacks(response.GetResponseBodyAsJson());
                         }
                         else
                         {
                             string errorMessage = GetResponseError(responseDictionary);
                             LeanplumNative.CompatibilityLayer.LogError(errorMessage);
-                            eventDataManager.InvokeAllCallbacksWithError(new LeanplumException(errorMessage));
+                            EventDataManager.InvokeAllCallbacksWithError(new LeanplumException(errorMessage));
                         }
                         RequestBatchFactory.DeleteFinishedBatch(batch);
                     }
