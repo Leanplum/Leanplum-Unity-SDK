@@ -230,6 +230,11 @@ namespace LeanplumSDK
             LeanplumFactory.SDK.RegisterForIOSRemoteNotifications();
         }
 
+        public static void SetPushDeliveryTrackingEnabled(bool enable)
+        {
+            LeanplumFactory.SDK.SetPushDeliveryTrackingEnabled(enable);
+        }
+
         /// <summary>
         /// Enables Xiaomi MiPush integration. Available on Android only.
         /// </summary>

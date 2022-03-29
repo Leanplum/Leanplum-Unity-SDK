@@ -34,19 +34,15 @@ get_latest_version() {
 # Globals:
 #   None
 # Arguments:
-#   The version to download, e.g. "1.3.2+55"
+#   The version to download, e.g. "1.2.3"
 # Returns:
 #   None
 #######################################
 download_ios_sdk() {
   local version=$1
-  local use_xcframework=$2
   local repo=https://github.com/Leanplum/Leanplum-iOS-SDK
 
   echo "Downloading AppleSDK ${version} ..."
-  if [ -d "/tmp/Leanplum-${version}.framework" ]; then
-    rm -rf "/tmp/Leanplum-${version}.framework"
-  fi
   if [ -d "/tmp/Leanplum-${version}.xcframework" ]; then
     rm -rf "/tmp/Leanplum-${version}.xcframework"
   fi
@@ -54,10 +50,11 @@ download_ios_sdk() {
   # Download from offical git repo.
   local destination="/tmp/Leanplum-${version}.zip"
 
+  # Download the xcframework zip directly
   wget --show-progress -O "$destination" \
-    "${repo}/releases/download/${version}/Leanplum.framework.zip"
+    "${repo}/releases/download/${version}/Leanplum.xcframework.zip"
 
-  extract_ios_sdk $version $use_xcframework
+  extract_ios_sdk $version
 
   echo "Finished downloading iOS SDK."
 }
@@ -65,39 +62,15 @@ download_ios_sdk() {
 extract_ios_sdk()
 {
   local version=$1
-  local use_xcframework=$2
   echo "Extracting AppleSDK ..."
-  rm -rf "/tmp/Leanplum.framework"
   rm -rf "/tmp/Leanplum.xcframework"
-  unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/Leanplum.framework"
+  unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/"
+  mv "/tmp/Leanplum.xcframework" "/tmp/Leanplum-${version}.xcframework"
   rm -rf "/tmp/Leanplum-${version}.zip"
 
-  if [ "$use_xcframework" = true ]; then
-    # Move dynamic xcframework
-    echo "Using dynamic xcframework ..."
-    mv "/tmp/Leanplum.framework/dynamic/Leanplum.xcframework" "/tmp/Leanplum-${version}.xcframework"
-  else
-    # Move dynamic fat framework
-    echo "Using fat framework ..."
-    mv "/tmp/Leanplum.framework/dynamic/Leanplum.framework" "/tmp/Leanplum-${version}.framework"
-  fi
-
-  # Clear others
-  rm -rf "/tmp/Leanplum.framework"
-
-  echo "USE XC ${use_xcframework}"
-
   if [ "$REMOVE_SIMULATOR_ARCH" = true ] ; then
-    if [ "$use_xcframework" = true ]; then
-      echo "Removing x86_64 & i386 architecture from iOS library"
-      rm -rf "/tmp/Leanplum-${version}.xcframework/ios-x86_64-simulator"
-    else
-      echo "Removing x86_64 & i386 architecture from iOS library"
-      cd "/tmp/Leanplum-${version}.framework"
-      lipo -remove x86_64 Leanplum -o Leanplum
-      lipo -remove i386 Leanplum -o Leanplum
-      cd -
-    fi
+    echo "Removing x86_64 & i386 architecture from iOS library"
+    rm -rf "/tmp/Leanplum-${version}.xcframework/ios-x86_64-simulator"
   fi
 }
 
@@ -107,28 +80,23 @@ extract_ios_sdk()
 # Globals:
 #   None
 # Arguments:
-#   The version to copy, whether to use xcframework or not.
+#   The version to copy.
 # Returns:
 #   None
 #######################################
 copy_ios_sdk() {
   local version=$1
-  local use_xcframework=$2
 
-  echo "Copying AppleSDK ${version} (Leanplum-${version}.framework.zip)..."
+  echo "Copying AppleSDK ${version} (Leanplum-${version}.xcframework.zip)..."
   local destination="/tmp/Leanplum-${version}.zip"
-
-  if [ -d "/tmp/Leanplum-${version}.framework" ]; then
-    rm -rf "/tmp/Leanplum-${version}.framework"
-  fi
 
   if [ -d "/tmp/Leanplum-${version}.xcframework" ]; then
     rm -rf "/tmp/Leanplum-${version}.xcframework"
   fi
 
-  cp "Leanplum-${version}.framework.zip" $destination
+  cp "Leanplum-${version}.xcframework.zip" $destination
 
-  extract_ios_sdk $version $use_xcframework
+  extract_ios_sdk $version
 
   echo "Finished copying iOS SDK."
 }
@@ -189,22 +157,16 @@ get_unity_from_hub() {
 #######################################
 build() {
   echo "Preparing dependencies..."
-  local use_xcframework=$1
+
   # Copy AppleSDK
-  rm -rf "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.framework"
   rm -rf "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.xcframework"
 
-  if [ "$use_xcframework" = true ]; then
-    cp -r "/tmp/Leanplum-$APPLE_SDK_VERSION.xcframework" \
+  cp -r "/tmp/Leanplum-$APPLE_SDK_VERSION.xcframework" \
     "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.xcframework"
-  else
-    cp -r "/tmp/Leanplum-$APPLE_SDK_VERSION.framework" \
-    "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.framework"
-  fi
 
   # Build Android SDK
-  rm -rf "../Leanplum-Unity-SDK/Assets/Plugins/Android"
-  mkdir -p "../Leanplum-Unity-SDK/Assets/Plugins/Android"
+  rm -rf "Leanplum-Unity-SDK/Assets/Plugins/Android"
+  mkdir -p "Leanplum-Unity-SDK/Assets/Plugins/Android"
   
   cd Leanplum-Android-SDK-Unity/
   ./gradlew clean assembleRelease
@@ -249,7 +211,6 @@ build() {
 #   None
 #######################################
 main() {
-  USE_XCFRAMEWORK=false
   APPLE_COPY=false
 
   for i in "$@"; do
@@ -282,10 +243,6 @@ main() {
       REMOVE_SIMULATOR_ARCH=true
       shift
       ;;
-      --xcframework)
-      USE_XCFRAMEWORK=true
-      shift
-      ;;
     esac
   done
 
@@ -306,9 +263,9 @@ main() {
   echo "Building unitypackage with version ${UNITY_VERSION_STRING}, using iOS ${APPLE_SDK_VERSION} and Android ${ANDROID_SDK_VERSION}"
 
   if [ "$APPLE_COPY" = true ]; then
-      copy_ios_sdk $APPLE_SDK_VERSION $USE_XCFRAMEWORK
+      copy_ios_sdk $APPLE_SDK_VERSION
   else 
-      download_ios_sdk $APPLE_SDK_VERSION $USE_XCFRAMEWORK
+      download_ios_sdk $APPLE_SDK_VERSION
   fi
 
   replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
@@ -321,7 +278,7 @@ main() {
   find Leanplum-Unity-Package -name '*.unitypackage' -delete
   find Leanplum-Unity-SDK/Assets/Plugins/ -name '*.aar' -delete
 
-  build $USE_XCFRAMEWORK
+  build
 
   git checkout Leanplum-Android-SDK-Unity/
   git checkout Leanplum-Unity-SDK/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml

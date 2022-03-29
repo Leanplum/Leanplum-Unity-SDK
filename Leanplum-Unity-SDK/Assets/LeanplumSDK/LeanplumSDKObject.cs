@@ -151,6 +151,8 @@ namespace LeanplumSDK
 
         public virtual void RegisterForIOSRemoteNotifications() { }
 
+        public virtual void SetPushDeliveryTrackingEnabled(bool enabled) { }
+
         public virtual void SetMiPushApplication(string miAppId, string miAppKey) { }
 
         /// <summary>
