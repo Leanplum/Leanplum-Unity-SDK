@@ -328,9 +328,8 @@ namespace LeanplumSDK
             StoreEncrypted(key, serializedData);
         }
 
-        private static void StoreEncrypted(string key, string data)
+        private static void StoreEncrypted(string key, string serializedData)
         {
-            string serializedData = Json.Serialize(data);
             string encrypted = AESCrypt.Encrypt(serializedData, Leanplum.ApiConfig.Token);
             LeanplumNative.CompatibilityLayer.StoreSavedString(key, encrypted);
         }
