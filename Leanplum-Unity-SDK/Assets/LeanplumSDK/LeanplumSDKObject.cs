@@ -46,7 +46,7 @@ namespace LeanplumSDK
         ///     Gets a value indicating whether Leanplum has finished starting.
         /// </summary>
         /// <value><c>true</c> if this instance has started; otherwise, <c>false</c>.</value>
-        public abstract bool HasStarted ();
+        public abstract bool HasStarted();
 
         /// <summary>
         ///     Gets a value indicating whether Leanplum has started and the device is registered as
@@ -57,13 +57,13 @@ namespace LeanplumSDK
         ///     otherwise,
         ///     <c>false</c>.
         /// </value>
-        public abstract bool HasStartedAndRegisteredAsDeveloper ();
+        public abstract bool HasStartedAndRegisteredAsDeveloper();
 
         /// <summary>
         ///     Gets whether or not developer mode is enabled.
         /// </summary>
         /// <value><c>true</c> if developer mode; otherwise, <c>false</c>.</value>
-        public abstract bool IsDeveloperModeEnabled ();
+        public abstract bool IsDeveloperModeEnabled();
 
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace LeanplumSDK
         /// <param name="hostName"> The name of the API host, such as www.leanplum.com </param>
         /// <param name="servletName"> The name of the API servlet, such as api </param>
         /// <param name="useSSL"> Whether to use SSL </param>
-        public abstract void SetApiConnectionSettings (string hostName, string servletName = "api",
+        public abstract void SetApiConnectionSettings(string hostName, string servletName = "api",
             bool useSSL = true);
 
         /// <summary>
@@ -87,14 +87,14 @@ namespace LeanplumSDK
         /// </summary>
         /// <param name="hostName"> The host name of the socket server. </param>
         /// <param name="port"> The port to connect to. </param>
-        public abstract void SetSocketConnectionSettings (string hostName, int port);
+        public abstract void SetSocketConnectionSettings(string hostName, int port);
 
         /// <summary>
         ///     The default timeout is 10 seconds for requests, and 15 seconds for file downloads.
         /// </summary>
         /// <param name="seconds"> Timeout in seconds for standard webrequests. </param>
         /// <param name="downloadSeconds"> Timeout in seconds for downloads. </param>
-        public abstract void SetNetworkTimeout (int seconds, int downloadSeconds);
+        public abstract void SetNetworkTimeout(int seconds, int downloadSeconds);
 
         /// <summary>
         ///     Sets the time interval between uploading events to server.
@@ -109,7 +109,7 @@ namespace LeanplumSDK
         /// </summary>
         /// <param name="appId"> Your app ID. </param>
         /// <param name="accessKey"> Your development key. </param>
-        public abstract void SetAppIdForDevelopmentMode (string appId, string accessKey);
+        public abstract void SetAppIdForDevelopmentMode(string appId, string accessKey);
 
         /// <summary>
         ///     Must call either this or SetAppIdForDevelopmentMode
@@ -117,19 +117,19 @@ namespace LeanplumSDK
         /// </summary>
         /// <param name="appId"> Your app ID. </param>
         /// <param name="accessKey"> Your production key. </param>
-        public abstract void SetAppIdForProductionMode (string appId, string accessKey);
+        public abstract void SetAppIdForProductionMode(string appId, string accessKey);
 
         /// <summary>
         ///     Set the application version to be sent to Leanplum.
         /// </summary>
         /// <param name="version">Version.</param>
-        public abstract void SetAppVersion (string version);
+        public abstract void SetAppVersion(string version);
 
         /// <summary>
         ///     Sets a custom device ID. Device IDs should be unique across physical devices.
         /// </summary>
         /// <param name="deviceId">Device identifier.</param>
-        public abstract void SetDeviceId (string deviceId);
+        public abstract void SetDeviceId(string deviceId);
 
         /// <summary>
         ///     Gets device id.
@@ -141,7 +141,7 @@ namespace LeanplumSDK
         ///     This should be your first statement in a unit test. Setting this to true
         ///     will prevent Leanplum from communicating with the server.
         /// </summary>
-        public abstract void SetTestMode (bool testModeEnabled);
+        public abstract void SetTestMode(bool testModeEnabled);
 
         /// <summary>
         ///     Sets whether the API should return default ("defaults in code") values
@@ -155,9 +155,11 @@ namespace LeanplumSDK
         ///     Sets whether realtime updates to the client are enabled in development mode.
         ///     This uses websockets which can have high CPU impact. Default: true.
         /// </summary>
-        public abstract void SetRealtimeUpdatesInDevelopmentModeEnabled (bool enabled);
+        public abstract void SetRealtimeUpdatesInDevelopmentModeEnabled(bool enabled);
 
-        public virtual void RegisterForIOSRemoteNotifications() {}
+        public virtual void RegisterForIOSRemoteNotifications() { }
+
+        public virtual void SetPushDeliveryTrackingEnabled(bool enabled) { }
 
         public virtual void SetMiPushApplication(string miAppId, string miAppKey) { }
 
@@ -172,14 +174,14 @@ namespace LeanplumSDK
         ///     Path components can be either strings representing keys in a dictionary,
         ///     or integers representing indices in a list.
         /// </summary>
-        public abstract object ObjectForKeyPath (params object[] components);
+        public abstract object ObjectForKeyPath(params object[] components);
 
         /// <summary>
         ///     Traverses the variable structure with the specified path.
         ///     Path components can be either strings representing keys in a dictionary,
         ///     or integers representing indices in a list.
         /// </summary>
-        public abstract object ObjectForKeyPathComponents (object[] pathComponents);
+        public abstract object ObjectForKeyPathComponents(object[] pathComponents);
 
         /// <summary>
         ///     Set location manually. Calls SetDeviceLocationWithLatitude with cell type. Best if 
@@ -249,7 +251,6 @@ namespace LeanplumSDK
         ///     com.android.vending.billing.util.Purchase.getSignature().
         /// </param>
         /// <param name="parameters">Optional event parameters.</param>
-        [Obsolete("TrackGooglePlayPurchase is obsolete. Please use TrackPurchase.")]
         public virtual void TrackGooglePlayPurchase(string item, long priceMicros,
             string currencyCode, string purchaseData, string dataSignature,
             IDictionary<string, object> parameters)
@@ -321,7 +322,7 @@ namespace LeanplumSDK
         ///     Updates the user ID.
         /// </summary>
         /// <param name="newUserId">New user identifier.</param>
-        public void SetUserId (string newUserId)
+        public void SetUserId(string newUserId)
         {
             this.SetUserAttributes(newUserId, null);
         }
@@ -336,7 +337,7 @@ namespace LeanplumSDK
         ///     Adds or modifies user attributes.
         /// </summary>
         /// <param name="value">User attributes.</param>
-        public void SetUserAttributes (IDictionary<string, object> value)
+        public void SetUserAttributes(IDictionary<string, object> value)
         {
             this.SetUserAttributes(null, value);
         }
@@ -346,7 +347,7 @@ namespace LeanplumSDK
         /// </summary>
         /// <param name="newUserId">New user identifier.</param>
         /// <param name="value">User attributes.</param>
-        public abstract void SetUserAttributes (string newUserId,
+        public abstract void SetUserAttributes(string newUserId,
             IDictionary<string, object> value);
 
         /// <summary>
@@ -354,20 +355,20 @@ namespace LeanplumSDK
         ///     You can use this if your game has a "pause" mode. You shouldn't call it
         ///     when someone switches out of your app because that's done automatically.
         /// </summary>
-        public abstract void PauseState ();
+        public abstract void PauseState();
 
         /// <summary>
         ///     Resumes the current state.
         /// </summary>
-        public abstract void ResumeState ();
+        public abstract void ResumeState();
 
         /// <summary>
         ///     Returns variant ids.
         ///     Recommended only for debugging purposes and advanced use cases.
         /// </summary>
-        public abstract List<object> Variants ();
+        public abstract List<object> Variants();
 
-        public abstract IDictionary<string, object> Vars ();
+        public abstract IDictionary<string, object> Vars();
 
         /// <summary>
         /// Returns the last received signed variables.
@@ -378,20 +379,20 @@ namespace LeanplumSDK
         /// variable's JSON and signature.
         /// If signature was not downloaded from server, returns null.
         /// </returns>
-        public abstract LeanplumSecuredVars SecuredVars ();
+        public abstract LeanplumSecuredVars SecuredVars();
 
         /// <summary>
         ///     Returns metadata for all active in-app messages.
         ///     Recommended only for debugging purposes and advanced use cases.
         /// </summary>
-        public abstract Dictionary<string, object> MessageMetadata ();
+        public abstract Dictionary<string, object> MessageMetadata();
 
         /// <summary>
         ///     Forces content to update from the server. If variables have changed, the
         ///     appropriate callbacks will fire. Use sparingly as if the app is updated,
         ///     you'll have to deal with potentially inconsistent state or user experience.
         /// </summary>
-        public abstract void ForceContentUpdate ();
+        public abstract void ForceContentUpdate();
 
         /// <summary>
         ///     Forces content to update from the server. If variables have changed, the
@@ -401,7 +402,21 @@ namespace LeanplumSDK
         ///     of whether the variables have changed.
         /// </summary>
         ///
-        public abstract void ForceContentUpdate (Action callback);
+        public abstract void ForceContentUpdate(Action callback);
+
+        /// <summary>
+        ///     Forces content to update from the server. If variables have changed, the
+        ///     appropriate callbacks will fire. Use sparingly as if the app is updated,
+        ///     you'll have to deal with potentially inconsistent state or user experience.
+        ///     The provided handler will always fire regardless
+        ///     of whether the variables have changed.
+        ///     It provides a boolean value whether the update to the server was successful.
+        /// </summary>
+        /// <param name="handler">
+        ///     The handler to execute once the update completed
+        ///     with the corresponding success result.
+        /// </param>
+        public abstract void ForceContentUpdate(Leanplum.ForceContentUpdateHandler handler);
 
         public abstract void DefineAction(string name, Constants.ActionKind kind, ActionArgs args,
             IDictionary<string, object> options, ActionContext.ActionResponder responder);
@@ -414,7 +429,7 @@ namespace LeanplumSDK
         public abstract bool ShowMessage(string id);
         #endregion
 
-        public virtual void NativeCallback(string message) {}
+        public virtual void NativeCallback(string message) { }
 
         public abstract void OnAction(string actionName, ActionContext.ActionResponder handler);
 
@@ -433,64 +448,64 @@ namespace LeanplumSDK
 
         public virtual Var<int> Define(string name, int defaultValue)
         {
-            return Define<int> (name, defaultValue);
+            return Define<int>(name, defaultValue);
         }
 
         public virtual Var<long> Define(string name, long defaultValue)
         {
-            return Define<long> (name, defaultValue);
+            return Define<long>(name, defaultValue);
         }
 
         public virtual Var<short> Define(string name, short defaultValue)
         {
-            return Define<short> (name, defaultValue);
+            return Define<short>(name, defaultValue);
         }
 
         public virtual Var<byte> Define(string name, byte defaultValue)
         {
-            return Define<byte> (name, defaultValue);
+            return Define<byte>(name, defaultValue);
         }
 
         public virtual Var<bool> Define(string name, bool defaultValue)
         {
-            return Define<bool> (name, defaultValue);
+            return Define<bool>(name, defaultValue);
         }
 
         public virtual Var<float> Define(string name, float defaultValue)
         {
-            return Define<float> (name, defaultValue);
+            return Define<float>(name, defaultValue);
         }
 
         public virtual Var<double> Define(string name, double defaultValue)
         {
-            return Define<double> (name, defaultValue);
+            return Define<double>(name, defaultValue);
         }
 
         public virtual Var<string> Define(string name, string defaultValue)
         {
-            return Define<string> (name, defaultValue);
+            return Define<string>(name, defaultValue);
         }
 
         public virtual Var<List<object>> Define(string name, List<object> defaultValue)
         {
-            return Define<List<object>> (name, defaultValue);
+            return Define<List<object>>(name, defaultValue);
         }
 
         public virtual Var<List<string>> Define(string name, List<string> defaultValue)
         {
-            return Define<List<string>> (name, defaultValue);
+            return Define<List<string>>(name, defaultValue);
         }
 
         public virtual Var<Dictionary<string, object>> Define(string name,
             Dictionary<string, object> defaultValue)
         {
-            return Define<Dictionary<string, object>> (name, defaultValue);
+            return Define<Dictionary<string, object>>(name, defaultValue);
         }
 
         public virtual Var<Dictionary<string, string>> Define(string name,
             Dictionary<string, string> defaultValue)
         {
-            return Define<Dictionary<string, string>> (name, defaultValue);
+            return Define<Dictionary<string, string>>(name, defaultValue);
         }
 
         public virtual Var<U> Define<U>(string name, U defaultValue)

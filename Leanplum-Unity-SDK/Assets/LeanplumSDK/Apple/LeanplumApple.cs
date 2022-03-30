@@ -34,42 +34,45 @@ namespace LeanplumSDK
         private bool isDeveloper = false;
 
         [DllImport ("__Internal")]
-        internal static extern void _registerForNotifications();
-
-        [DllImport ("__Internal")]
         internal static extern void _setGameObject(string gameObject);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
+        internal static extern void _registerForNotifications();
+
+        [DllImport("__Internal")]
+        internal static extern void _setPushDeliveryTrackingEnabled(bool enabled);
+
+        [DllImport("__Internal")]
         internal static extern void _setAppIdDeveloper(string appId, string accessKey);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _setAppIdProduction(string appId, string accessKey);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern bool _hasStarted();
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern bool _hasStartedAndRegisteredAsDeveloper();
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _start(string sdkVersion, string userId, string dictStringJSON);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _trackIOSInAppPurchases();
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _trackPurchase(string _event, double value, string currencyCode,
           string dictStringJSON);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _track(string _event, double value, string info,
           string dictStringJSON);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _setApiHostName(string hostName, string servletName,
           int useSSL);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _setNetworkTimeout(int seconds, int downloadSeconds);
 
         [DllImport("__Internal")]
@@ -78,37 +81,37 @@ namespace LeanplumSDK
         [DllImport("__Internal")]
         internal static extern void _setLogLevel(int logLevel);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _setAppVersion(string version);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _setDeviceId(string deviceId);
-        
-        [DllImport ("__Internal")]
+
+        [DllImport("__Internal")]
         internal static extern string _getDeviceId();
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern string _getUserId();
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _setTestModeEnabled(bool enabled);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _setTrafficSourceInfo(string dictStringJSON);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _advanceTo(string state, string info, string dictStringJSON);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _setUserAttributes(string newUserId, string dictStringJSON);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _pauseState();
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _resumeState();
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern string _variants();
 
         [DllImport("__Internal")]
@@ -117,13 +120,13 @@ namespace LeanplumSDK
         [DllImport("__Internal")]
         internal static extern string _vars();
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern string _messageMetadata();
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _forceContentUpdate();
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _defineAction(string name, int kind, string argsJSON, string optionsJSON);
 
         [DllImport("__Internal")]
@@ -135,25 +138,25 @@ namespace LeanplumSDK
         [DllImport("__Internal")]
         internal static extern bool _triggerAction(string actionId);
 
-        [DllImport ("__Internal")]
-        internal static extern void _forceContentUpdateWithCallback(int key);
+        [DllImport("__Internal")]
+        internal static extern void _forceContentUpdateWithHandler(int key);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern string _objectForKeyPath(string dictStringJSON);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern string _objectForKeyPathComponents(string dictStringJSON);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude, int type);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude, string city, string region, string country, int type);
-       
-        [DllImport ("__Internal")]
+
+        [DllImport("__Internal")]
         internal static extern void _disableLocationCollection();
 
 
@@ -171,13 +174,33 @@ namespace LeanplumSDK
             }
         }
 
-        public LeanplumApple() {}
+        public LeanplumApple() { }
 
         public override event Leanplum.VariableChangedHandler VariablesChanged;
         public override event Leanplum.VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
-        public override event Leanplum.StartHandler Started;
 
-        private Dictionary<int, Action> ForceContentUpdateCallbackDictionary = new Dictionary<int, Action>();
+        private event Leanplum.StartHandler started;
+        private bool startSuccessful;
+
+        public override event Leanplum.StartHandler Started
+        {
+            add
+            {
+                started += value;
+                // If it has not started, event will be invoked
+                // through the start response handler when Leanplum starts
+                if (HasStarted())
+                {
+                    value(startSuccessful);
+                }
+            }
+            remove
+            {
+                started -= value;
+            }
+        }
+
+        private Dictionary<int, Leanplum.ForceContentUpdateHandler> ForceContentUpdateHandlersDictionary = new Dictionary<int, Leanplum.ForceContentUpdateHandler>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
         private Dictionary<string, List<ActionContext.ActionResponder>> OnActionRespondersDictionary = new Dictionary<string, List<ActionContext.ActionResponder>>();
         private Dictionary<string, ActionContext> ActionContextsDictionary = new Dictionary<string, ActionContext>();
@@ -189,6 +212,11 @@ namespace LeanplumSDK
         public override void RegisterForIOSRemoteNotifications()
         {
             _registerForNotifications();
+        }
+
+        public override void SetPushDeliveryTrackingEnabled(bool enabled)
+        {
+            _setPushDeliveryTrackingEnabled(enabled);
         }
 
         /// <summary>
@@ -241,7 +269,7 @@ namespace LeanplumSDK
         public override void SetApiConnectionSettings(string hostName, string servletName = "api",
           bool useSSL = true)
         {
-            _setApiHostName(hostName, servletName, useSSL?1:0);
+            _setApiHostName(hostName, servletName, useSSL ? 1 : 0);
         }
 
         /// <summary>
@@ -400,7 +428,7 @@ namespace LeanplumSDK
         /// <param name="longitude"> Device location longitude. </param>
         public override void SetDeviceLocation(double latitude, double longitude)
         {
-          _setDeviceLocationWithLatitude(latitude, longitude);
+            _setDeviceLocationWithLatitude(latitude, longitude);
         }
 
         /// <summary>
@@ -410,9 +438,9 @@ namespace LeanplumSDK
         /// <param name="latitude"> Device location latitude. </param>
         /// <param name="longitude"> Device location longitude. </param>
         /// <param name="type"> Location accuracy type. </param>
-        public override void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type) 
+        public override void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type)
         {
-            _setDeviceLocationWithLatitude(latitude, longitude, (int) type);
+            _setDeviceLocationWithLatitude(latitude, longitude, (int)type);
         }
 
         /// <summary>
@@ -427,7 +455,7 @@ namespace LeanplumSDK
         /// <param name="type"> Location accuracy type. </param>
         public override void SetDeviceLocation(double latitude, double longitude, string city, string region, string country, LPLocationAccuracyType type)
         {
-            _setDeviceLocationWithLatitude(latitude, longitude, city, region, country, (int) type);
+            _setDeviceLocationWithLatitude(latitude, longitude, city, region, country, (int)type);
         }
 
         /// <summary>
@@ -436,7 +464,7 @@ namespace LeanplumSDK
         /// </summary>
         public override void DisableLocationCollection()
         {
-          _disableLocationCollection();
+            _disableLocationCollection();
         }
         #endregion
 
@@ -451,6 +479,7 @@ namespace LeanplumSDK
             Leanplum.StartHandler startResponseAction)
         {
             _setGameObject(LeanplumUnityHelper.Instance.gameObject.name);
+            // Invokes Started event through NativeCallback
             Started += startResponseAction;
             string attributesString = attributes == null ? null : Json.Serialize(attributes);
             _start(Constants.SDK_VERSION, userId, attributesString);
@@ -475,7 +504,7 @@ namespace LeanplumSDK
             string argString = args == null ? null : args.ToJSON();
             string optionString = options == null ? null : Json.Serialize(options);
 
-            _defineAction(name, (int) kind, argString, optionString);
+            _defineAction(name, (int)kind, argString, optionString);
         }
 
         public override bool ShowMessage(string id)
@@ -538,7 +567,7 @@ namespace LeanplumSDK
             string parametersString = parameters == null ? null : Json.Serialize(parameters);
             _advanceTo(state, info, parametersString);
         }
-        
+
         /// <summary>
         ///     Updates the user ID and adds or modifies user attributes.
         /// </summary>
@@ -630,12 +659,35 @@ namespace LeanplumSDK
         ///     The provided callback will always fire regardless
         ///     of whether the variables have changed.
         /// </summary>
-        ///
+        /// <param name="callback">The action to execute once the update completed.</param>
         public override void ForceContentUpdate(Action callback)
         {
+
+            Leanplum.ForceContentUpdateHandler handler = (success) =>
+            {
+                callback();
+            };
+
+            ForceContentUpdate(handler);
+        }
+
+        /// <summary>
+        ///     Forces content to update from the server. If variables have changed, the
+        ///     appropriate callbacks will fire. Use sparingly as if the app is updated,
+        ///     you'll have to deal with potentially inconsistent state or user experience.
+        ///     The provided handler will always fire regardless
+        ///     of whether the variables have changed.
+        ///     It provides a boolean value whether the update to the server was successful.
+        /// </summary>
+        /// <param name="handler">
+        ///     The handler to execute once the update completed
+        ///     with the corresponding success result.
+        /// </param>
+        public override void ForceContentUpdate(Leanplum.ForceContentUpdateHandler handler)
+        {
             int key = DictionaryKey++;
-            ForceContentUpdateCallbackDictionary.Add (key, callback);
-            _forceContentUpdateWithCallback(key);
+            ForceContentUpdateHandlersDictionary.Add(key, handler);
+            _forceContentUpdateWithHandler(key);
         }
 
         #endregion
@@ -646,7 +698,7 @@ namespace LeanplumSDK
             const string VARIABLES_CHANGED_NO_DOWNLOAD_PENDING = "VariablesChangedAndNoDownloadsPending:";
             const string STARTED = "Started:";
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
-            const string FORCE_CONTENT_UPDATE_WITH_CALLBACK = "ForceContentUpdateWithCallback:";
+            const string FORCE_CONTENT_UPDATE_WITH_HANDLER = "ForceContentUpdateWithHandler:";
             const string DEFINE_ACTION_RESPONDER = "ActionResponder:";
             const string ON_ACTION_RESPONDER = "OnAction:";
             const string RUN_ACTION_NAMED_RESPONDER = "OnRunActionNamed:";
@@ -661,26 +713,27 @@ namespace LeanplumSDK
             }
             else if (message.StartsWith(STARTED))
             {
-                if (Started != null)
+                if (started != null)
                 {
-                    bool success = message.EndsWith("1");
-                    Started(success);
+                    startSuccessful = message.EndsWith("1");
+                    started(startSuccessful);
                 }
             }
             else if (message.StartsWith(VARIABLE_VALUE_CHANGED))
             {
                 // Drop the beginning of the message to get the name of the variable
                 // Then dispatch to the correct variable
-                LeanplumApple.VariableValueChanged(message.Substring(21));
+                VariableValueChanged(message.Substring(21));
             }
-            else if (message.StartsWith(FORCE_CONTENT_UPDATE_WITH_CALLBACK))
+            else if (message.StartsWith(FORCE_CONTENT_UPDATE_WITH_HANDLER))
             {
-                int key = Convert.ToInt32(message.Substring(FORCE_CONTENT_UPDATE_WITH_CALLBACK.Length));
-                Action callback;
-                if (ForceContentUpdateCallbackDictionary.TryGetValue(key, out callback))
+                string[] values = message.Substring(FORCE_CONTENT_UPDATE_WITH_HANDLER.Length).Split(':');
+                int key = Convert.ToInt32(values[0]);
+                bool success = values[1] == "1";
+                if (ForceContentUpdateHandlersDictionary.TryGetValue(key, out Leanplum.ForceContentUpdateHandler handler))
                 {
-                    callback();
-                    ForceContentUpdateCallbackDictionary.Remove(key);
+                    handler(success);
+                    ForceContentUpdateHandlersDictionary.Remove(key);
                 }
             }
             else if (message.StartsWith(DEFINE_ACTION_RESPONDER))
@@ -760,13 +813,13 @@ namespace LeanplumSDK
 
         #region Dealing with Variables
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _defineVariable(string name, string kind, string jsonValue);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void _registerVariableCallback(string name);
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern string _getVariableValue(string name, string kind);
 
         public static IDictionary<string, Var> IOSVarCache = new Dictionary<string, Var>();
@@ -789,70 +842,70 @@ namespace LeanplumSDK
         public override Var<int> Define(string name, int defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.INT, defaultValue);
-            return (cached != null) ? (Var<int>) cached :
+            return (cached != null) ? (Var<int>)cached :
                 new AppleVar<int>(name, Constants.Kinds.INT, defaultValue);
         }
 
         public override Var<long> Define(string name, long defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.INT, defaultValue);
-            return (cached != null) ? (Var<long>) cached :
+            return (cached != null) ? (Var<long>)cached :
                 new AppleVar<long>(name, Constants.Kinds.INT, defaultValue);
         }
 
         public override Var<short> Define(string name, short defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.INT, defaultValue);
-            return (cached != null) ? (Var<short>) cached :
+            return (cached != null) ? (Var<short>)cached :
                 new AppleVar<short>(name, Constants.Kinds.INT, defaultValue);
         }
 
         public override Var<byte> Define(string name, byte defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.INT, defaultValue);
-            return (cached != null) ? (Var<byte>) cached :
+            return (cached != null) ? (Var<byte>)cached :
                 new AppleVar<byte>(name, Constants.Kinds.INT, defaultValue);
         }
 
         public override Var<bool> Define(string name, bool defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.BOOLEAN, defaultValue);
-            return (cached != null) ? (Var<bool>) cached :
+            return (cached != null) ? (Var<bool>)cached :
                 new AppleVar<bool>(name, Constants.Kinds.BOOLEAN, defaultValue);
         }
 
         public override Var<float> Define(string name, float defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.FLOAT, defaultValue);
-            return (cached != null) ? (Var<float>) cached :
+            return (cached != null) ? (Var<float>)cached :
                 new AppleVar<float>(name, Constants.Kinds.FLOAT, defaultValue);
         }
 
         public override Var<double> Define(string name, double defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.FLOAT, defaultValue);
-            return (cached != null) ? (Var<double>) cached :
+            return (cached != null) ? (Var<double>)cached :
                 new AppleVar<double>(name, Constants.Kinds.FLOAT, defaultValue);
         }
 
         public override Var<string> Define(string name, string defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.STRING, defaultValue);
-            return (cached != null) ? (Var<string>) cached :
+            return (cached != null) ? (Var<string>)cached :
                 new AppleVar<string>(name, Constants.Kinds.STRING, defaultValue);
         }
 
         public override Var<List<object>> Define(string name, List<object> defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.ARRAY, defaultValue);
-            return (cached != null) ? (Var<List<object>>) cached :
+            return (cached != null) ? (Var<List<object>>)cached :
                 new AppleVar<List<object>>(name, Constants.Kinds.ARRAY, defaultValue);
         }
 
         public override Var<List<string>> Define(string name, List<string> defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.ARRAY, defaultValue);
-            return (cached != null) ? (Var<List<string>>) cached :
+            return (cached != null) ? (Var<List<string>>)cached :
                 new AppleVar<List<string>>(name, Constants.Kinds.ARRAY, defaultValue);
         }
 
@@ -860,7 +913,7 @@ namespace LeanplumSDK
             Dictionary<string, object> defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.DICTIONARY, defaultValue);
-            return (cached != null) ? (Var<Dictionary<string, object>>) cached :
+            return (cached != null) ? (Var<Dictionary<string, object>>)cached :
                 new AppleVar<Dictionary<string, object>>(name, Constants.Kinds.DICTIONARY,
                     defaultValue);
         }
@@ -869,7 +922,7 @@ namespace LeanplumSDK
             Dictionary<string, string> defaultValue)
         {
             Var cached = GetOrDefineVariable(name, Constants.Kinds.DICTIONARY, defaultValue);
-            return (cached != null) ? (Var<Dictionary<string, string>>) cached :
+            return (cached != null) ? (Var<Dictionary<string, string>>)cached :
                 new AppleVar<Dictionary<string, string>>(name, Constants.Kinds.DICTIONARY,
                     defaultValue);
         }
@@ -910,7 +963,7 @@ namespace LeanplumSDK
             }
 
             Var cached = GetOrDefineVariable(name, kind, defaultValue);
-            return (cached != null) ? (Var<U>) cached : new AppleVar<U>(name, kind, defaultValue);
+            return (cached != null) ? (Var<U>)cached : new AppleVar<U>(name, kind, defaultValue);
         }
 
         public override Var<AssetBundle> DefineAssetBundle(string name,

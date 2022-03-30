@@ -34,6 +34,7 @@ import android.location.Location;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.leanplum.callbacks.ActionCallback;
+import com.leanplum.callbacks.ForceContentUpdateCallback;
 import com.leanplum.callbacks.InboxChangedCallback;
 import com.leanplum.callbacks.InboxSyncedCallback;
 import com.leanplum.callbacks.StartCallback;
@@ -212,10 +213,22 @@ public class UnityBridge {
     }
   }
 
+  public static void setPushDeliveryTracking(boolean value) {
+    Leanplum.setPushDeliveryTracking(value);
+  }
+
   public static void trackPurchase(String eventName, double value, String currencyCode,
       String jsonParameters) {
     Leanplum.trackPurchase(eventName, value, currencyCode,
         JsonConverter.fromJson(jsonParameters));
+  }
+
+  public static void trackGooglePlayPurchase(String item, long priceMicros,
+                                             String currencyCode, String purchaseData, String dataSignature,
+                                             String jsonParameters) {
+    Map<String, Object> params = JsonConverter.fromJson(jsonParameters);
+    Leanplum.trackGooglePlayPurchase(item, priceMicros, currencyCode,
+            purchaseData, dataSignature, params);
   }
 
   public static void track(String eventName, double value, String info,
@@ -266,10 +279,11 @@ public class UnityBridge {
   }
 
   public static void forceContentUpdateWithCallback(final int key) {
-    Leanplum.forceContentUpdate(new VariablesChangedCallback() {
+    Leanplum.forceContentUpdate(new ForceContentUpdateCallback() {
       @Override
-      public void variablesChanged() {
-        makeCallbackToUnity("ForceContentUpdateWithCallback:" + key);
+      public void onContentUpdated(boolean success) {
+        String message = String.format("ForceContentUpdateWithCallback:%d:%d", key, success ? 1 : 0);
+        makeCallbackToUnity(message);
       }
     });
   }

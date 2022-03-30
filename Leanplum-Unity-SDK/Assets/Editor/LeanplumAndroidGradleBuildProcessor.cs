@@ -1,9 +1,7 @@
 #if UNITY_EDITOR
-using UnityEditor;
 using UnityEditor.Android;
 using UnityEngine;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Leanplum.Private
@@ -19,6 +17,7 @@ namespace Leanplum.Private
             if (current >= min)
             {
                 string output = Path.Combine(Directory.GetCurrentDirectory(), path);
+                output = output.Replace("unityLibrary", "");
                 string gradleProperties = Path.Combine(output, "gradle.properties");
                 string androidx = "android.useAndroidX=true";
                 string jetifier = "android.enableJetifier=true";
@@ -26,10 +25,14 @@ namespace Leanplum.Private
                 if (File.Exists(gradleProperties))
                 {
                     StreamWriter writer = new StreamWriter(gradleProperties, true);
-                    writer.WriteLine("\n");
+                    writer.WriteLine();
                     writer.WriteLine(androidx);
                     writer.WriteLine(jetifier);
                     writer.Close();
+                }
+                else
+                {
+                    Debug.Log("LeanplumAndroidGradleBuildProcessor: gradle.properties does not exist");
                 }
             }
         }

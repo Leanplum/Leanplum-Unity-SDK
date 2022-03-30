@@ -808,7 +808,6 @@ namespace LeanplumSDK
             return false;
         }
 
-        [Obsolete("TrackGooglePlayPurchase is obsolete. Please use TrackPurchase.")]
         public override void TrackGooglePlayPurchase(string item, long priceMicros,
             string currencyCode, string purchaseData, string dataSignature,
             IDictionary<string, object> parameters)
@@ -1123,7 +1122,7 @@ namespace LeanplumSDK
         /// </summary>
         public override void ForceContentUpdate()
         {
-            ForceContentUpdate(null);
+            ForceContentUpdate((Leanplum.ForceContentUpdateHandler)null);
         }
 
         /// <summary>
@@ -1135,6 +1134,14 @@ namespace LeanplumSDK
         /// </summary>
         ///
         public override void ForceContentUpdate(Action callback)
+        {
+            ForceContentUpdate((success) =>
+            {
+                callback();
+            });
+        }
+
+        public override void ForceContentUpdate(Leanplum.ForceContentUpdateHandler handler)
         {
             IDictionary<string, object> updateVarsParams = new Dictionary<string, object>();
 
@@ -1177,11 +1184,12 @@ namespace LeanplumSDK
                     }
                 }
 
-                callback?.Invoke();
+                handler?.Invoke(true);
             };
+
             updateVarsRequest.Error += delegate
             {
-                callback?.Invoke();
+                handler?.Invoke(false);
             };
             RequestSender.Send(updateVarsRequest);
             VarCache.VarsNeedUpdate = false;

@@ -36,6 +36,7 @@ namespace LeanplumSDK
     public static class Leanplum
     {
         public delegate void StartHandler(bool success);
+        public delegate void ForceContentUpdateHandler(bool success);
         public delegate void SyncVariablesCompleted(bool success);
         public delegate void VariableChangedHandler();
         public delegate void VariablesChangedAndNoDownloadsPendingHandler();
@@ -255,6 +256,11 @@ namespace LeanplumSDK
         public static void RegisterForIOSRemoteNotifications()
         {
             LeanplumFactory.SDK.RegisterForIOSRemoteNotifications();
+        }
+
+        public static void SetPushDeliveryTrackingEnabled(bool enable)
+        {
+            LeanplumFactory.SDK.SetPushDeliveryTrackingEnabled(enable);
         }
 
         /// <summary>
@@ -525,7 +531,6 @@ namespace LeanplumSDK
         /// <param name="dataSignature">Purchase data signature from
         /// com.android.vending.billing.util.Purchase.getSignature().</param>
         /// <param name="parameters">Optional event parameters.</param>
-        [Obsolete("TrackGooglePlayPurchase is obsolete. Please use TrackPurchase.")]
         public static void TrackGooglePlayPurchase(string item, long priceMicros,
             string currencyCode, string purchaseData, string dataSignature,
             IDictionary<string, object> parameters)
@@ -826,6 +831,11 @@ namespace LeanplumSDK
         public static void ForceContentUpdate(Action callback)
         {
             LeanplumFactory.SDK.ForceContentUpdate(callback);
+        }
+
+        public static void ForceContentUpdate(ForceContentUpdateHandler handler)
+        {
+            LeanplumFactory.SDK.ForceContentUpdate(handler);
         }
 
         public static void OnAction(string actionName, ActionContext.ActionResponder handler)

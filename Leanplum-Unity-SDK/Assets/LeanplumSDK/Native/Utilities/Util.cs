@@ -192,6 +192,7 @@ namespace LeanplumSDK
         /// Casts the collection and elements to the requested Type and elements type
         /// Example of supported structures: int[], List<string>, Dictionary<string, double>
         /// Does not support complex structures: Dictionary<string, List<double>>, List<List<int>>
+        /// For complex structures use Dictionary<string, object> and parse manually.
         /// </summary>
         /// <typeparam name="T">The type to convert to</typeparam>
         /// <param name="collection">The collection to cast</param>
@@ -239,8 +240,15 @@ namespace LeanplumSDK
                 foreach (var el in valuesDictionary.Keys)
                 {
                     var newKey = Convert.ChangeType(el, keyType);
-                    var newEl = Convert.ChangeType(valuesDictionary[el], elementType);
-                    newDict.Add(newKey, newEl);
+                    if (elementType == typeof(object))
+                    {
+                        newDict.Add(newKey, valuesDictionary[el]);
+                    }
+                    else
+                    {
+                        var newEl = Convert.ChangeType(valuesDictionary[el], elementType);
+                        newDict.Add(newKey, newEl);
+                    }
                 }
                 return (T)newDict;
             }
