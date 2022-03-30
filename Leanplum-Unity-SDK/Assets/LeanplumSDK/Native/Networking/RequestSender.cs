@@ -137,7 +137,9 @@ namespace LeanplumSDK
             multiRequestArgs[Constants.Params.ACTION] = Constants.Methods.MULTI;
             multiRequestArgs[Constants.Params.TIME] = Util.GetUnixTimestamp().ToString();
 
-            LeanplumNative.CompatibilityLayer.LogDebug("Sending Request: " + Json.Serialize(multiRequestArgs));
+            LeanplumNative.CompatibilityLayer.LogDebug($"Sending Request to" +
+                $" {Leanplum.ApiConfig.ApiHost}/{Leanplum.ApiConfig.ApiPath}:{Leanplum.ApiConfig.ApiSSL} with Params" +
+                Json.Serialize(multiRequestArgs));
 
             RequestUtil.CreateWebRequest(Leanplum.ApiConfig.ApiHost,
                 Leanplum.ApiConfig.ApiPath,
@@ -146,21 +148,41 @@ namespace LeanplumSDK
                 Leanplum.ApiConfig.ApiSSL,
                 Constants.NETWORK_TIMEOUT_SECONDS).GetResponseAsync(delegate (WebResponse response)
                 {
-                    LeanplumNative.CompatibilityLayer.LogDebug("Received response with status code: "
-                        + response.GetStatusCode() + " and error: " + response.GetError());
+                    string responseError = response.GetError();
+                    long statusCode = response.GetStatusCode();
+                    string log = $"Received response with status code: {statusCode}";
 
-                    if (!string.IsNullOrEmpty(response.GetError()))
+                    if (string.IsNullOrEmpty(responseError))
                     {
-                        string errorMessage = response.GetError();
-                        long statusCode = response.GetStatusCode();
-                        bool connectionError = !string.IsNullOrEmpty(errorMessage)
-                        && errorMessage.Contains("Could not resolve host");
+                        // Success
+                        LeanplumNative.CompatibilityLayer.LogDebug(log);
+
+                        object json = response.GetResponseBodyAsJson();
+                        LeanplumNative.CompatibilityLayer.LogDebug("received: " + response.GetResponseBody());
+
+                        if (RequestUtil.UpdateApiConfig(json))
+                        {
+                            // API config is changed and we need to send requests again
+                            SendRequests();
+                            return;
+                        }
+
+                        EventDataManager.InvokeCallbacks(json);
+
+                        RequestBatchFactory.DeleteFinishedBatch(batch);
+                    }
+                    else
+                    {
+                        // Error
+                        LeanplumNative.CompatibilityLayer.LogDebug($"{log} and error: {responseError}");
+                        bool connectionError = !string.IsNullOrEmpty(responseError)
+                        && responseError.Contains("Could not resolve host");
 
                         if (statusCode == 408 || statusCode == 429
                         || statusCode == 502 || statusCode == 503 || statusCode == 504)
                         {
-                            errorMessage = "Server is busy; will retry later";
-                            LeanplumNative.CompatibilityLayer.LogWarning(errorMessage);
+                            responseError = "Server is busy; will retry later";
+                            LeanplumNative.CompatibilityLayer.LogWarning(responseError);
                         }
                         else if (connectionError)
                         {
@@ -174,7 +196,7 @@ namespace LeanplumSDK
                                 IDictionary<string, object> responseDictionary = RequestUtil.GetLastResponse(response.GetResponseBodyAsJson()) as IDictionary<string, object>;
                                 if (responseDictionary != null)
                                 {
-                                    string error = GetResponseError(responseDictionary);
+                                    string error = RequestUtil.GetResponseError(responseDictionary);
                                     if (error != null)
                                     {
                                         if (error.StartsWith("App not found"))
@@ -201,32 +223,16 @@ namespace LeanplumSDK
                                             RequestBatchFactory.DeleteFinishedBatch(batch);
                                         }
 
-                                        errorMessage += ", message: " + error;
+                                        responseError += ", message: " + error;
                                     }
                                 }
                             }
-                            if (errorMessage != Constants.NETWORK_TIMEOUT_MESSAGE)
+                            if (responseError != Constants.NETWORK_TIMEOUT_MESSAGE)
                             {
-                                LeanplumNative.CompatibilityLayer.LogError(errorMessage);
+                                LeanplumNative.CompatibilityLayer.LogError(responseError);
                             }
                         }
-                        eventDataManager.InvokeAllCallbacksWithError(new LeanplumException("Error sending request: " + errorMessage));
-                    }
-                    else
-                    {
-                        IDictionary<string, object> responseDictionary = RequestUtil.GetLastResponse(response.GetResponseBodyAsJson()) as IDictionary<string, object>;
-                        LeanplumNative.CompatibilityLayer.LogDebug("received: " + response.GetResponseBody());
-                        if (IsResponseSuccess(responseDictionary))
-                        {
-                            EventDataManager.InvokeCallbacks(response.GetResponseBodyAsJson());
-                        }
-                        else
-                        {
-                            string errorMessage = GetResponseError(responseDictionary);
-                            LeanplumNative.CompatibilityLayer.LogError(errorMessage);
-                            EventDataManager.InvokeAllCallbacksWithError(new LeanplumException(errorMessage));
-                        }
-                        RequestBatchFactory.DeleteFinishedBatch(batch);
+                        eventDataManager.InvokeAllCallbacksWithError(new LeanplumException("Error sending request: " + responseError));
                     }
                 }
             );
@@ -275,31 +281,6 @@ namespace LeanplumSDK
 
             args.Merge(request.Parameters);
             return args;
-        }
-
-        internal static bool IsResponseSuccess(IDictionary<string, object> response)
-        {
-            object success;
-            if (response != null && response.TryGetValue(Constants.Keys.SUCCESS, out success))
-            {
-                return (bool)success;
-            }
-            LeanplumNative.CompatibilityLayer.LogError("Invalid response (missing field: success)");
-            return false;
-        }
-
-        internal static string GetResponseError(IDictionary<string, object> response)
-        {
-            if (response.ContainsKey(Constants.Keys.ERROR))
-            {
-                if (response[Constants.Keys.ERROR] is IDictionary<string, object> error
-                    && error.ContainsKey(Constants.Keys.MESSAGE))
-                {
-                    return error[Constants.Keys.MESSAGE] as string;
-                }
-            }
-            LeanplumNative.CompatibilityLayer.LogError("Invalid response (missing field: error)");
-            return null;
         }
     }
 }

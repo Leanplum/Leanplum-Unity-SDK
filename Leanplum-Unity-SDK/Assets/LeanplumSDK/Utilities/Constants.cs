@@ -239,6 +239,9 @@ namespace LeanplumSDK
             internal const string TRAFFIC_SOURCE = "trafficSource";
             internal const string INBOX_MESSAGE_ID = "newsfeedMessageId";
             internal const string UUID = "uuid";
+            internal const string API_HOST = "apiHost";
+            internal const string API_PATH = "apiPath";
+            internal const string DEV_SERVER_HOST = "devServerHost";
         }
 
         public class Values

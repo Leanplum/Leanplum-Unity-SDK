@@ -18,6 +18,7 @@
 //  specific language governing permissions and limitations
 //  under the License.
 using System.Collections.Generic;
+using LeanplumSDK.MiniJSON;
 
 namespace LeanplumSDK
 {
@@ -208,7 +209,8 @@ namespace LeanplumSDK
 
         public Request Create()
         {
-            LeanplumNative.CompatibilityLayer.LogDebug($"Will call API method: {apiMethod} with parameters: {parameters}");
+            // TODO: fix parameters print
+            LeanplumNative.CompatibilityLayer.LogDebug($"Will call API method: {apiMethod} with parameters: {Json.Serialize(parameters)}");
             return new Request(httpMethod, apiMethod, type, parameters);
         }
 

@@ -56,6 +56,7 @@ namespace LeanplumSDK
                 // unsent requests are deleted - delete count overlaps added/overridden request
                 int startIndex = StorageLayer.GetSavedInt(Constants.Defaults.START_KEY, 0);
                 int count = StorageLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0);
+                // TODO: Remove logging
                 Debug.Log($"[Indexes] Count: {count} | startIndex: {startIndex}");
                 count++;
                 if (count > Constants.MAX_STORED_API_CALLS)
@@ -217,13 +218,13 @@ namespace LeanplumSDK
                 var response = RequestUtil.GetResponseForId(responseJson, reqId);
                 if (response != null)
                 {
-                    if (RequestSender.IsResponseSuccess(response))
+                    if (RequestUtil.IsResponseSuccess(response))
                     {
                         handler.OnResponse(response);
                     }
                     else
                     {
-                        string err = RequestSender.GetResponseError(response);
+                        string err = RequestUtil.GetResponseError(response);
                         handler?.OnError(new LeanplumException(err));
                     }
                 }

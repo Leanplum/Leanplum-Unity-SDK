@@ -187,7 +187,16 @@ namespace LeanplumSDK
         /// <param name="port"> The port to connect to. </param>
         public override void SetSocketConnectionSettings(string hostName, int port)
         {
-            Leanplum.ApiConfig.SetSocketConfig(hostName, port);
+            if (!hostName.Equals(Leanplum.ApiConfig.SocketHost) || !port.Equals(Leanplum.ApiConfig.SocketPort))
+            {
+                Leanplum.ApiConfig.SetSocketConfig(hostName, port);
+                if (leanplumSocket != null)
+                {
+                    // Socket is running - close and reconnect
+                    leanplumSocket.Close();
+                    InitializeSocket();
+                }
+            }
         }
 
         /// <summary>
@@ -209,7 +218,7 @@ namespace LeanplumSDK
         /// <param name="uploadInterval"> The time between uploads. </param>
         public override void SetEventsUploadInterval(EventsUploadInterval uploadInterval)
         {
-
+            // TODO: Implement this intervals
         }
 
         /// <summary>
@@ -689,19 +698,7 @@ namespace LeanplumSDK
                     Dictionary<string, object>);
 
 #if !UNITY_WEBGL
-                if (Constants.EnableRealtimeUpdatesInDevelopmentMode &&
-                    SocketUtilsFactory.Utils.AreSocketsAvailable)
-                {
-                    leanplumSocket = new LeanplumSocket(delegate ()
-                    {
-                        // Callback when we receive an updateVars command through the
-                        // development socket.
-                        // Set a flag so that the next time VarCache.CheckVarsUpdate() is
-                        // called the variables are updated.
-                        VarCache.VarsNeedUpdate = true;
-                    },
-                    LeanplumActionManager.TriggerPreview);
-                }
+                InitializeSocket();
 #endif
                 // Register device.
                 if (isRegistered)
@@ -726,6 +723,23 @@ namespace LeanplumSDK
             CompatibilityLayer.Init();
 
             LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
+        }
+
+        private void InitializeSocket()
+        {
+            if (Constants.EnableRealtimeUpdatesInDevelopmentMode &&
+                SocketUtilsFactory.Utils.AreSocketsAvailable)
+            {
+                leanplumSocket = new LeanplumSocket(delegate ()
+                {
+                    // Callback when we receive an updateVars command through the
+                    // development socket.
+                    // Set a flag so that the next time VarCache.CheckVarsUpdate() is
+                    // called the variables are updated.
+                    VarCache.VarsNeedUpdate = true;
+                },
+                LeanplumActionManager.TriggerPreview);
+            }
         }
 
         public override void ForceSyncVariables(Leanplum.SyncVariablesCompleted completedHandler)

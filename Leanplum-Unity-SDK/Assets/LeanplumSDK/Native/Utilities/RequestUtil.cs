@@ -133,5 +133,91 @@ namespace LeanplumSDK
             int numResponses = NumResponses(response);
             return numResponses > 0 ? GetResponseAt(response, numResponses - 1) : null;
         }
+
+        internal static bool IsResponseSuccess(IDictionary<string, object> response)
+        {
+            object success;
+            if (response != null && response.TryGetValue(Constants.Keys.SUCCESS, out success))
+            {
+                return (bool)success;
+            }
+            LeanplumNative.CompatibilityLayer.LogError("Invalid response (missing field: success)");
+            return false;
+        }
+
+        internal static string GetResponseError(IDictionary<string, object> response)
+        {
+            if (response.ContainsKey(Constants.Keys.ERROR))
+            {
+                if (response[Constants.Keys.ERROR] is IDictionary<string, object> error
+                    && error.ContainsKey(Constants.Keys.MESSAGE))
+                {
+                    return error[Constants.Keys.MESSAGE] as string;
+                }
+            }
+            LeanplumNative.CompatibilityLayer.LogError("Invalid response (missing field: error)");
+            return null;
+        }
+
+        internal static bool UpdateApiConfig(object jsonResponse)
+        {
+            try
+            {
+                int numResponses = NumResponses(jsonResponse);
+
+                for (int i = 0; i < numResponses; i++)
+                {
+                    IDictionary<string, object> response = GetResponseAt(jsonResponse, i) as IDictionary<string, object>;
+
+                    if (IsResponseSuccess(response))
+                    {
+                        continue;
+                    }
+
+                    string apiHost = Util.GetValueOrDefault(response, Constants.Params.API_HOST) as string;
+                    string apiPath = Util.GetValueOrDefault(response, Constants.Params.API_PATH) as string;
+                    string devServerHost = Util.GetValueOrDefault(response, Constants.Params.DEV_SERVER_HOST) as string;
+                    // Prevent setting the same API config and request retry loop
+                    bool configUpdated = false;
+
+                    bool hasNewApiHost = !string.IsNullOrEmpty(apiHost) && !apiHost.Equals(Leanplum.ApiConfig.ApiHost);
+                    bool hasNewApiPath = !string.IsNullOrEmpty(apiPath) && !apiHost.Equals(Leanplum.ApiConfig.ApiHost);
+                    bool hasNewSocketHost = !string.IsNullOrEmpty(devServerHost) && !apiHost.Equals(Leanplum.ApiConfig.SocketHost);
+
+                    // API config
+                    if (hasNewApiHost || hasNewApiPath)
+                    {
+                        configUpdated = true;
+                        if (string.IsNullOrEmpty(apiHost))
+                        {
+                            apiHost = Leanplum.ApiConfig.ApiHost;
+                        }
+                        if (string.IsNullOrEmpty(apiPath))
+                        {
+                            apiPath = Leanplum.ApiConfig.ApiPath;
+                        }
+
+                        LeanplumNative.CompatibilityLayer.LogDebug($"Changing API endpoint to {apiHost}/{apiPath}");
+                        Leanplum.SetApiConnectionSettings(apiHost, apiPath, Leanplum.ApiConfig.ApiSSL);
+                    }
+
+                    // Socket config
+                    if (hasNewSocketHost)
+                    {
+                        configUpdated = true;
+                        int socketPort = Leanplum.ApiConfig.SocketPort;
+                        LeanplumNative.CompatibilityLayer.LogDebug($"Changing socket to {devServerHost}:{socketPort}");
+                        Leanplum.SetSocketConnectionSettings(devServerHost, socketPort);
+                    }
+
+                    return configUpdated;
+                }
+            }
+            catch (Exception e)
+            {
+                LeanplumNative.CompatibilityLayer.LogError("Error parsing response for API config", e);
+            }
+            return false;
+        }
     }
 }

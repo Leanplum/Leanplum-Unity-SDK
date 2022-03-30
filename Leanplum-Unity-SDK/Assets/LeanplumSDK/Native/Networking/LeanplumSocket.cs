@@ -42,7 +42,7 @@ namespace LeanplumSDK
         {
             onUpdateVars = onUpdate;
             onActionTrigger = onAction;
-            string url = $"https://{Leanplum.ApiConfig.SocketHost}:{Leanplum.ApiConfig.SocketHost}";
+            string url = $"https://{Leanplum.ApiConfig.SocketHost}:{Leanplum.ApiConfig.SocketPort}";
             socketIOClient = new Client(url);
             socketIOClient.Opened += OnSocketOpened;
             socketIOClient.Message += OnSocketMessage;
@@ -60,6 +60,7 @@ namespace LeanplumSDK
                 }
             };
 
+            LeanplumNative.CompatibilityLayer.LogDebug($"Will connect to socket: {url}");
             Connect();
             reconnectTimer.Start();
         }
@@ -73,7 +74,9 @@ namespace LeanplumSDK
 
         public void Close()
         {
+            LeanplumNative.CompatibilityLayer.Log("Closing socket");
             socketIOClient.Close();
+            reconnectTimer.Dispose();
         }
 
         private void OnSocketOpened(object obj, EventArgs e)
