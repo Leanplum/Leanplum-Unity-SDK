@@ -1,5 +1,5 @@
 #if !UNITY_WEBGL
-// Copyright 2020, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -42,7 +42,8 @@ namespace LeanplumSDK
         {
             onUpdateVars = onUpdate;
             onActionTrigger = onAction;
-            socketIOClient = new Client("https://" + Constants.SOCKET_HOST + ":" + Constants.SOCKET_PORT);
+            string url = $"https://{Leanplum.ApiConfig.SocketHost}:{Leanplum.ApiConfig.SocketHost}";
+            socketIOClient = new Client(url);
             socketIOClient.Opened += OnSocketOpened;
             socketIOClient.Message += OnSocketMessage;
             socketIOClient.SocketConnectionClosed += OnSocketConnectionClosed;

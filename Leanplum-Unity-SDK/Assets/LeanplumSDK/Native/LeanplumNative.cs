@@ -176,9 +176,7 @@ namespace LeanplumSDK
         public override void SetApiConnectionSettings(string hostName, string servletName = "api",
             bool useSSL = true)
         {
-            Constants.API_HOST_NAME = hostName;
-            Constants.API_SERVLET = servletName;
-            Constants.API_SSL = useSSL;
+            Leanplum.ApiConfig.SetApiConfig(hostName, servletName, useSSL);
         }
 
         /// <summary>
@@ -189,8 +187,7 @@ namespace LeanplumSDK
         /// <param name="port"> The port to connect to. </param>
         public override void SetSocketConnectionSettings(string hostName, int port)
         {
-            Constants.SOCKET_HOST = hostName;
-            Constants.SOCKET_PORT = port;
+            Leanplum.ApiConfig.SetSocketConfig(hostName, port);
         }
 
         /// <summary>
@@ -445,9 +442,10 @@ namespace LeanplumSDK
         {
             add
             {
-                // TODO: use downloadsPending check
                 variablesChangedAndNoDownloadsPending += value;
-                if (_hasStarted && VarCache.HasReceivedDiffs)
+                if (_hasStarted &&
+                    VarCache.HasReceivedDiffs &&
+                    FileTransferManager.PendingDownloads == 0)
                     value();
             }
             remove
@@ -1411,6 +1409,7 @@ namespace LeanplumSDK
         /// <summary>
         ///     Defines an asset bundle. If a Leanplum variable with the same name and type exists,
         ///     this will return the existing variable.
+        ///     Bundle Name is required.
         /// </summary>
         /// <returns>Leanplum variable.</returns>
         /// <param name="name">Name of variable.</param>
@@ -1423,10 +1422,10 @@ namespace LeanplumSDK
           bool realtimeUpdating = true, string iosBundleName = "", string androidBundleName = "",
           string standaloneBundleName = "")
         {
-            string platform = LeanplumNative.CompatibilityLayer.GetPlatformName();
+            string platform = CompatibilityLayer.GetPlatformName();
             string resourceName = Constants.Values.RESOURCES_VARIABLE + '.' + platform +
                 " Assets." + name;
-            string bundleName = String.Empty;
+            string bundleName = string.Empty;
             if (platform == "iOS")
             {
                 bundleName = iosBundleName;

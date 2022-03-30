@@ -17,7 +17,6 @@
 //  KIND, either express or implied.  See the License for the
 //  specific language governing permissions and limitations
 //  under the License.
-
 using System.Collections.Generic;
 
 namespace LeanplumSDK
@@ -28,11 +27,22 @@ namespace LeanplumSDK
         {
         }
 
-        internal const int MAX_REQUESTS_PER_API_CALL = 10000;
-        //internal const int MAX_STORED_API_CALLS = 10000;
+        private static readonly string API_HOST_NAME = "api.leanplum.com";
+        private static readonly string SOCKET_HOST = "dev.leanplum.com";
+        private static readonly int SOCKET_PORT = 443;
+        private static readonly bool API_SSL = true;
+        private static readonly string API_PATH = "api";
+
+        private static readonly string TOKEN_KEY = "__leanplum_token";
+        private static readonly string API_HOST_KEY = "__leanplum_api_host";
+        private static readonly string API_PATH_KEY = "__leanplum_api_path";
+        private static readonly string SOCKET_HOST_KEY = "__leanplum_socket_host";
 
         public string AppId { get; private set; }
         public string AccessKey { get; private set; }
+
+        public string DeviceId { get; set; }
+        public string UserId { get; set; }
 
         private string token;
         public string Token
@@ -41,25 +51,93 @@ namespace LeanplumSDK
             {
                 if (string.IsNullOrEmpty(token))
                 {
-                    token = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.TOKEN_KEY);
+                    token = LeanplumNative.CompatibilityLayer.GetSavedString(TOKEN_KEY);
                 }
                 return token;
             }
             set
             {
                 token = value;
-                LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.TOKEN_KEY, value);
+                LeanplumNative.CompatibilityLayer.StoreSavedString(TOKEN_KEY, value);
             }
         }
 
-        public string DeviceId { get; set; }
-        public string UserId { get; set; }
+        public string ApiHost
+        {
+            get
+            {
+                string host = LeanplumNative.CompatibilityLayer.GetSavedString(API_HOST_KEY);
+                if (string.IsNullOrEmpty(host))
+                {
+                    host = API_HOST_NAME;
+                }
+                return host;
+            }
+            private set
+            {
+                LeanplumNative.CompatibilityLayer.StoreSavedString(API_HOST_KEY, value);
+            }
+        }
 
-        public string apiHost = "api.leanplum.com";
-        public string apiPath = "api";
-        public bool apiSSL = true;
-        public string socketHost = "dev.leanplum.com";
-        public int socketPort = 443;
+        public string ApiPath
+        {
+            get
+            {
+                string path = LeanplumNative.CompatibilityLayer.GetSavedString(API_PATH_KEY);
+                if (string.IsNullOrEmpty(path))
+                {
+                    path = API_PATH;
+                }
+                return path;
+            }
+            private set
+            {
+                LeanplumNative.CompatibilityLayer.StoreSavedString(API_PATH_KEY, value);
+            }
+        }
+
+        public string SocketHost
+        {
+            get
+            {
+                string socketHost = LeanplumNative.CompatibilityLayer.GetSavedString(SOCKET_HOST_KEY);
+                if (string.IsNullOrEmpty(socketHost))
+                {
+                    socketHost = SOCKET_HOST;
+                }
+                return socketHost;
+            }
+            private set
+            {
+                LeanplumNative.CompatibilityLayer.StoreSavedString(SOCKET_HOST_KEY, value);
+            }
+        }
+
+        private bool apiSsl = API_SSL;
+        public bool ApiSSL
+        {
+            get
+            {
+                return apiSsl;
+            }
+            private set
+            {
+                apiSsl = value;
+            }
+        }
+
+        private int socketPort = SOCKET_PORT;
+        public int SocketPort
+        {
+            get
+            {
+                return socketPort;
+            }
+            private set
+            {
+                socketPort = value;
+            }
+        }
 
         public string Client
         {
@@ -68,6 +146,19 @@ namespace LeanplumSDK
                 string platformName = LeanplumNative.CompatibilityLayer.GetPlatformName().ToLower();
                 return $"{Constants.CLIENT_PREFIX}-{platformName}";
             }
+        }
+
+        internal void SetApiConfig(string apiHost, string apiPath, bool apiSSL)
+        {
+            ApiHost = apiHost;
+            ApiPath = apiPath;
+            ApiSSL = apiSSL;
+        }
+
+        internal void SetSocketConfig(string socketHost, int socketPort)
+        {
+            SocketHost = socketHost;
+            SocketPort = socketPort;
         }
 
         internal void SetAppId(string appId, string accessKey)

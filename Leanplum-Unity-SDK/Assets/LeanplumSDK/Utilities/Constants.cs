@@ -28,10 +28,7 @@ namespace LeanplumSDK
 
         internal const string CLIENT_PREFIX = "unity";
         internal const string EVENT_EXCEPTION = "__exception";
-        internal static string API_HOST_NAME = "www.leanplum.com";
-        internal static string SOCKET_HOST = "dev.leanplum.com";
-        internal static int SOCKET_PORT = 443;
-        internal static bool API_SSL = true;
+
         internal static int NETWORK_TIMEOUT_SECONDS = 10;
         internal static int NETWORK_TIMEOUT_SECONDS_FOR_DOWNLOADS = 10;
         internal static int NETWORK_SOCKET_TIMEOUT_SECONDS = 10;
@@ -46,8 +43,6 @@ namespace LeanplumSDK
 #else
         internal static bool EnableRealtimeUpdatesInDevelopmentMode = true;
 #endif
-
-        internal static string API_SERVLET = "api";
 
         internal const int MAX_STORED_API_CALLS = 10000;
 
@@ -67,7 +62,6 @@ namespace LeanplumSDK
             internal const string VARIABLES_KEY = "__leanplum_variables";
             internal const string MESSAGES_KEY = "__leanplum_messages";
             internal const string FILE_ATTRIBUTES_KEY = "__leanplum_file_attributes";
-            internal const string TOKEN_KEY = "__leanplum_token";
             internal const string USERID_KEY = "___leanplum_userid";
             internal const string APP_INBOX_MESSAGES_KEY = "___leanplum_app_inbox_messages";
             internal const string VARIABLES_SIGN_KEY = "__leanplum_variables_json";

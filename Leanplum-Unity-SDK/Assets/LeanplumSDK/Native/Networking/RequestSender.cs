@@ -88,7 +88,7 @@ namespace LeanplumSDK
         internal void AttachUuid(IDictionary<string, object> args)
         {
             int eventsCount = EventDataManager.GetEventsCount();
-            if (eventsCount % ApiConfig.MAX_REQUESTS_PER_API_CALL == 0)
+            if (eventsCount % RequestBatchFactory.MAX_EVENTS_PER_API_CALL == 0)
             {
                 UUID = Guid.NewGuid().ToString().ToLower();
             }
@@ -139,11 +139,11 @@ namespace LeanplumSDK
 
             LeanplumNative.CompatibilityLayer.LogDebug("Sending Request: " + Json.Serialize(multiRequestArgs));
 
-            RequestUtil.CreateWebRequest(Leanplum.ApiConfig.apiHost,
-                Leanplum.ApiConfig.apiPath,
+            RequestUtil.CreateWebRequest(Leanplum.ApiConfig.ApiHost,
+                Leanplum.ApiConfig.ApiPath,
                 multiRequestArgs,
                 RequestBuilder.POST,
-                Leanplum.ApiConfig.apiSSL,
+                Leanplum.ApiConfig.ApiSSL,
                 Constants.NETWORK_TIMEOUT_SECONDS).GetResponseAsync(delegate (WebResponse response)
                 {
                     LeanplumNative.CompatibilityLayer.LogDebug("Received response with status code: "

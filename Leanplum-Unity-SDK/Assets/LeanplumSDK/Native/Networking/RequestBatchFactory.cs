@@ -17,9 +17,7 @@
 //  KIND, either express or implied.  See the License for the
 //  specific language governing permissions and limitations
 //  under the License.
-using System;
 using System.Collections.Generic;
-using LeanplumSDK;
 using LeanplumSDK.MiniJSON;
 
 namespace LeanplumSDK
@@ -28,7 +26,7 @@ namespace LeanplumSDK
     {
         internal EventDataManager eventDataManager = new EventDataManager();
 
-        private static readonly int MAX_EVENTS_PER_API_CALL = 10000;
+        internal static readonly int MAX_EVENTS_PER_API_CALL = 10000;
 
         public RequestBatchFactory()
         {
