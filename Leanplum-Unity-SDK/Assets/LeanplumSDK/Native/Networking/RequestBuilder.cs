@@ -50,6 +50,7 @@ namespace LeanplumSDK
             internal const string MARK_INBOX_MESSAGE_AS_READ = "markNewsfeedMessageAsRead";
             internal const string DELETE_INBOX_MESSAGE = "deleteNewsfeedMessage";
             internal const string LOG = "log";
+            internal const string HEARTBEAT = "heartbeat";
         }
 
         private readonly string httpMethod;
@@ -148,10 +149,10 @@ namespace LeanplumSDK
             return new RequestBuilder(GET, ApiMethods.DOWNLOAD_FILE);
         }
 
-        //public static RequestBuilder withHeartbeatAction()
-        //{
-        //    return new RequestBuilder(POST, ApiMethods.HEARTBEAT);
-        //}
+        public static RequestBuilder withHeartbeatAction()
+        {
+            return new RequestBuilder(POST, ApiMethods.HEARTBEAT);
+        }
 
         public static RequestBuilder withLogAction()
         {

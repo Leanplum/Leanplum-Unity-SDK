@@ -24,12 +24,13 @@ namespace LeanplumSDK
 {
     public class RequestBatchFactory
     {
-        internal EventDataManager eventDataManager = new EventDataManager();
+        private EventDataManager eventDataManager;
 
         internal static readonly int MAX_EVENTS_PER_API_CALL = 10000;
 
-        public RequestBatchFactory()
+        public RequestBatchFactory(EventDataManager dataManager)
         {
+            eventDataManager = dataManager;
         }
 
         public RequestBatch CreateNextBatch()

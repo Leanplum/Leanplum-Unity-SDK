@@ -1174,7 +1174,7 @@ namespace LeanplumSDK
 
             updateVarsRequest.Response += delegate (object varsUpdate)
             {
-                var getVariablesResponse = RequestUtil.GetLastResponse(varsUpdate) as IDictionary<string, object>;
+                var getVariablesResponse = varsUpdate as IDictionary<string, object>;
                 var newVarValues = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.VARS) as IDictionary<string, object>;
                 var newMessages = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.MESSAGES) as IDictionary<string, object>;
                 var newVarFileAttributes = Util.GetValueOrDefault(getVariablesResponse, Constants.Keys.FILE_ATTRIBUTES) as IDictionary<string, object>;
