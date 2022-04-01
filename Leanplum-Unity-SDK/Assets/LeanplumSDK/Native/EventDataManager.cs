@@ -29,8 +29,7 @@ namespace LeanplumSDK
     // UnityDataManager or CompatibilityLayer since it uses it for persistance
     public class EventDataManager
     {
-        private readonly ConcurrentDictionary<string, RequestHandler> requestHandlers =
-            new ConcurrentDictionary<string, RequestHandler>();
+        private readonly ConcurrentDictionary<string, RequestHandler> requestHandlers;
 
         private static readonly object padLock = new object();
 
@@ -44,6 +43,9 @@ namespace LeanplumSDK
 
         public EventDataManager()
         {
+            requestHandlers =
+               new ConcurrentDictionary<string, RequestHandler>();
+
         }
 
         public void AddEvent(string eventData)
@@ -80,11 +82,14 @@ namespace LeanplumSDK
 
         public void AddCallbacks(Request request)
         {
+            LeanplumNative.CompatibilityLayer.LogDebug("AddCallbacks");
             var eventHandler = request.GetHandler();
             if (eventHandler != null)
             {
                 requestHandlers[request.Id] = eventHandler;
             }
+
+            LeanplumNative.CompatibilityLayer.LogDebug("AddCallbacks Done");
         }
 
         public IList<IDictionary<string, string>> GetEvents(int count)
@@ -203,6 +208,8 @@ namespace LeanplumSDK
 
         internal void InvokeCallbacks(object responseJson)
         {
+            LeanplumNative.CompatibilityLayer.LogDebug("InvokeCallbacks");
+            // TODO: fix requestHandlers.Count null exception
             if (responseJson == null || requestHandlers.Count == 0)
             {
                 return;
@@ -212,7 +219,7 @@ namespace LeanplumSDK
             foreach (var pair in requestHandlers)
             {
                 string reqId = pair.Key;
-                
+
                 var handler = pair.Value;
 
                 var response = RequestUtil.GetResponseForId(responseJson, reqId);
@@ -227,11 +234,11 @@ namespace LeanplumSDK
                         string err = RequestUtil.GetResponseError(response);
                         handler?.OnError(new LeanplumException(err));
                     }
+                    keys.Add(reqId);
                 }
-              
-                keys.Add(reqId);
             }
             RemoveHandlers(keys);
+            LeanplumNative.CompatibilityLayer.LogDebug("InvokeCallbacks Done");
         }
 
         private void RemoveHandlers(List<string> keys)

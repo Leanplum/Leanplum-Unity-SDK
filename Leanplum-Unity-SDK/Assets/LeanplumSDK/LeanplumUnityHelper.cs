@@ -38,7 +38,6 @@ namespace LeanplumSDK
     /// <summary>
     ///     Provides a class that is implemented in a MonoBehaviour so that Unity functions can be
     ///     called through the GameObject.
-    ///
     /// </summary>
     public class LeanplumUnityHelper : MonoBehaviour
     {
@@ -71,18 +70,22 @@ namespace LeanplumSDK
             }
         }
 
-        private Queue<IEnumerator> coroutineQueue = new Queue<IEnumerator>();
+        //private Queue<IEnumerator> coroutineQueue = new Queue<IEnumerator>();
+        private LinkedList<IEnumerator> coroutineQueue = new LinkedList<IEnumerator>();
         private IEnumerator runningCoroutine;
 
         IEnumerator CoroutineCoordinator()
         {
+            // TODO: rewrite without the infinite loop if possible
             while (true)
             {
                 while (coroutineQueue.Count > 0)
                 {
                     if (runningCoroutine == null)
                     {
-                        runningCoroutine = coroutineQueue.Dequeue();
+                        //runningCoroutine = coroutineQueue.Dequeue();
+                        runningCoroutine = coroutineQueue.First.Value;
+                        coroutineQueue.RemoveFirst();
                         yield return StartCoroutine(runningCoroutine);
                         runningCoroutine = null;
                     }
@@ -90,6 +93,23 @@ namespace LeanplumSDK
                 yield return null;
             }
         }
+
+        public void Enqueue(Action task)
+        {
+            coroutineQueue.AddLast(DoTask(task));
+        }
+
+        public void Enqueue(Func<IEnumerator> func)
+        {
+            coroutineQueue.AddLast(func());
+        }
+
+        public IEnumerator DoTask(Action task)
+        {
+            yield return null;
+            task();
+        }
+
 
         public void NativeCallback(string message)
         {
@@ -167,7 +187,8 @@ namespace LeanplumSDK
             if (!isAsset)
             {
                 // Enqueue API requests to be executed one after another
-                coroutineQueue.Enqueue(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
+                coroutineQueue.AddFirst(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
+                //coroutineQueue.Enqueue(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
             }
             else
             {
@@ -219,13 +240,17 @@ namespace LeanplumSDK
             {
                 request.timeout = timeout;
 
+                LeanplumNative.CompatibilityLayer.LogDebug("SendWebRequest");
+
                 yield return request.SendWebRequest();
 
+                LeanplumNative.CompatibilityLayer.LogDebug("Before Is Done");
                 while (!request.isDone)
                 {
                     yield return null;
                 }
 
+                LeanplumNative.CompatibilityLayer.LogDebug("Request is Done");
                 if (request.result == UnityNetworkingRequest.Result.ConnectionError
                     || request.result == UnityNetworkingRequest.Result.ProtocolError)
                 {
@@ -233,11 +258,15 @@ namespace LeanplumSDK
                 }
                 else
                 {
+                    var handler = request.downloadHandler;
                     responseHandler(new UnityWebResponse(request.responseCode,
                         request.error,
                         !isAsset ? request.downloadHandler.text : null,
-                        isAsset ? ((DownloadHandlerAssetBundle)request.downloadHandler) : null));
+                        isAsset ? (DownloadHandlerAssetBundle)handler : null));
+
+                    LeanplumNative.CompatibilityLayer.LogDebug("RunRequest Response handler Done (next run request will continue)");
                 }
+
             }
 #else
             using (WWW www = CreateWww(url, wwwForm, isAsset))

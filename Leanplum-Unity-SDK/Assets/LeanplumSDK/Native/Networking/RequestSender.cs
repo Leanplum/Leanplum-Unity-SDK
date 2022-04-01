@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using LeanplumSDK.MiniJSON;
+using UnityEngine;
 
 namespace LeanplumSDK
 {
@@ -46,7 +47,7 @@ namespace LeanplumSDK
             {
                 if (requestBatchFactory == null)
                 {
-                    requestBatchFactory = new RequestBatchFactory();
+                    requestBatchFactory = new RequestBatchFactory(EventDataManager);
                     return requestBatchFactory;
                 }
                 return requestBatchFactory;
@@ -100,6 +101,13 @@ namespace LeanplumSDK
             if (Constants.isNoop)
                 return;
 
+            LeanplumUnityHelper.Instance.Enqueue(() => { SendSync(request); });
+            Debug.Log($"Enqueue");
+        }
+
+        public void SendSync(Request request)
+        {
+            Debug.Log($"Save request");
             SaveRequest(request);
 
             if (Leanplum.IsDeveloperModeEnabled || RequestType.IMMEDIATE.Equals(request.Type))
@@ -141,6 +149,7 @@ namespace LeanplumSDK
                 $" {Leanplum.ApiConfig.ApiHost}/{Leanplum.ApiConfig.ApiPath}:{Leanplum.ApiConfig.ApiSSL} with Params" +
                 Json.Serialize(multiRequestArgs));
 
+            // TODO: test when response is Request is a duplicate
             RequestUtil.CreateWebRequest(Leanplum.ApiConfig.ApiHost,
                 Leanplum.ApiConfig.ApiPath,
                 multiRequestArgs,
@@ -170,6 +179,8 @@ namespace LeanplumSDK
                         EventDataManager.InvokeCallbacks(json);
 
                         RequestBatchFactory.DeleteFinishedBatch(batch);
+
+                        LeanplumNative.CompatibilityLayer.LogDebug("Response Done");
                     }
                     else
                     {
@@ -233,6 +244,8 @@ namespace LeanplumSDK
                             }
                         }
                         eventDataManager.InvokeAllCallbacksWithError(new LeanplumException("Error sending request: " + responseError));
+
+                        LeanplumNative.CompatibilityLayer.LogDebug("Response Done");
                     }
                 }
             );
