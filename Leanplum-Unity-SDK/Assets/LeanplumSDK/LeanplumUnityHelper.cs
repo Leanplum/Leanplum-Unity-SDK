@@ -60,7 +60,7 @@ namespace LeanplumSDK
                     }
 
                     // Create LeanplumUnityHelper 
-                    GameObject container = new GameObject("LeanplumUnityHelper"); 
+                    GameObject container = new GameObject("LeanplumUnityHelper");
                     instance = container.AddComponent<LeanplumUnityHelper>();
 
                     // In case instance is left, never save it to a scene file 
@@ -70,20 +70,18 @@ namespace LeanplumSDK
             }
         }
 
-        //private Queue<IEnumerator> coroutineQueue = new Queue<IEnumerator>();
-        private LinkedList<IEnumerator> coroutineQueue = new LinkedList<IEnumerator>();
+        private readonly LinkedList<IEnumerator> coroutineQueue = new LinkedList<IEnumerator>();
         private IEnumerator runningCoroutine;
 
         IEnumerator CoroutineCoordinator()
         {
-            // TODO: rewrite without the infinite loop if possible
+            // Executed every frame
             while (true)
             {
                 while (coroutineQueue.Count > 0)
                 {
                     if (runningCoroutine == null)
                     {
-                        //runningCoroutine = coroutineQueue.Dequeue();
                         runningCoroutine = coroutineQueue.First.Value;
                         coroutineQueue.RemoveFirst();
                         yield return StartCoroutine(runningCoroutine);
@@ -94,6 +92,10 @@ namespace LeanplumSDK
             }
         }
 
+        /// <summary>
+        /// Enqueue tasks to be executed synchronously
+        /// </summary>
+        /// <param name="task">The action to be executed</param>
         public void Enqueue(Action task)
         {
             coroutineQueue.AddLast(DoTask(task));
@@ -104,12 +106,16 @@ namespace LeanplumSDK
             coroutineQueue.AddLast(func());
         }
 
-        public IEnumerator DoTask(Action task)
+        /// <summary>
+        /// Wraps Action to be executed from a Coroutine
+        /// </summary>
+        /// <param name="task">The action to be executed</param>
+        /// <returns>Iterator for the Coroutine</returns>
+        internal IEnumerator DoTask(Action task)
         {
             yield return null;
             task();
         }
-
 
         public void NativeCallback(string message)
         {
@@ -186,9 +192,11 @@ namespace LeanplumSDK
         {
             if (!isAsset)
             {
-                // Enqueue API requests to be executed one after another
+                // API requests are executed synchronously one after another
+                // Insert at front so the request is run immediately after the task that creates and starts it
+                // Current flow: Send -> SaveRequest -> SendRequests
+                // Wait for the request to execute and then continue with next queued requests
                 coroutineQueue.AddFirst(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
-                //coroutineQueue.Enqueue(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
             }
             else
             {
@@ -201,13 +209,14 @@ namespace LeanplumSDK
         private static UnityNetworkingRequest CreateWebRequest(string url, WWWForm wwwForm, bool isAsset)
         {
             UnityNetworkingRequest result;
-            if (wwwForm == null)
+            if (wwwForm == null && !isAsset)
             {
                 result = UnityNetworkingRequest.Get(url);
             }
             else if (isAsset)
             {
-                result = UnityWebRequestAssetBundle.GetAssetBundle(url, 1);
+                // CRC not available yet
+                result = UnityWebRequestAssetBundle.GetAssetBundle(url);
             }
             else
             {
@@ -240,31 +249,26 @@ namespace LeanplumSDK
             {
                 request.timeout = timeout;
 
-                LeanplumNative.CompatibilityLayer.LogDebug("SendWebRequest");
-
                 yield return request.SendWebRequest();
 
-                LeanplumNative.CompatibilityLayer.LogDebug("Before Is Done");
                 while (!request.isDone)
                 {
                     yield return null;
                 }
 
-                LeanplumNative.CompatibilityLayer.LogDebug("Request is Done");
                 if (request.result == UnityNetworkingRequest.Result.ConnectionError
                     || request.result == UnityNetworkingRequest.Result.ProtocolError)
                 {
-                    responseHandler(new UnityWebResponse(request.responseCode, request.error, null, null));
+                    responseHandler(new LeanplumUnityWebResponse(request.responseCode, request.error, null, null));
                 }
                 else
                 {
-                    var handler = request.downloadHandler;
-                    responseHandler(new UnityWebResponse(request.responseCode,
+                    DownloadHandler download = request.downloadHandler;
+                    DownloadHandlerAssetBundle downloadAsset = download as DownloadHandlerAssetBundle;
+                    responseHandler(new LeanplumUnityWebResponse(request.responseCode,
                         request.error,
-                        !isAsset ? request.downloadHandler.text : null,
-                        isAsset ? (DownloadHandlerAssetBundle)handler : null));
-
-                    LeanplumNative.CompatibilityLayer.LogDebug("RunRequest Response handler Done (next run request will continue)");
+                        !isAsset ? download.text : null,
+                        isAsset ? downloadAsset?.assetBundle : null));
                 }
 
             }

@@ -218,7 +218,7 @@ namespace LeanplumSDK
         /// <param name="uploadInterval"> The time between uploads. </param>
         public override void SetEventsUploadInterval(EventsUploadInterval uploadInterval)
         {
-            // TODO: Implement this intervals
+            Leanplum.RequestSender.RequestSenderTimer.TimerInterval = uploadInterval;
         }
 
         /// <summary>
@@ -562,13 +562,11 @@ namespace LeanplumSDK
                 {
                     OnVariablesChangedAndNoDownloadsPending();
                 }
-                else
-                {
-                    FileTransferManager.NoPendingDownloads += delegate
-                    {
-                        OnVariablesChangedAndNoDownloadsPending();
-                    };
-                }
+            };
+
+            FileTransferManager.NoPendingDownloads += delegate
+            {
+                OnVariablesChangedAndNoDownloadsPending();
             };
 
             string deviceId;
@@ -723,6 +721,7 @@ namespace LeanplumSDK
             CompatibilityLayer.Init();
 
             LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
+            Leanplum.RequestSender.RequestSenderTimer.Start();
         }
 
         private void InitializeSocket()
@@ -1227,6 +1226,7 @@ namespace LeanplumSDK
             if (!isPaused)
             {
                 isPaused = true;
+                Leanplum.RequestSender.RequestSenderTimer.Stop();
                 Request request = RequestBuilder.withStopAction().CreateImmediate();
                 request.Response += (object obj) =>
                 {
@@ -1257,6 +1257,7 @@ namespace LeanplumSDK
             if (isPaused)
             {
                 isPaused = false;
+                Leanplum.RequestSender.RequestSenderTimer.Start();
                 Request request = RequestBuilder
                     .withResumeSessionAction()
                     .CreateImmediate();
@@ -1284,7 +1285,7 @@ namespace LeanplumSDK
                 leanplumSocket.Close();
             }
 #endif
-
+            Leanplum.RequestSender.RequestSenderTimer.Stop();
             Request request = RequestBuilder.withStopAction().CreateImmediate();
             Leanplum.RequestSender.Send(request);
         }

@@ -409,10 +409,7 @@ namespace LeanplumSDK
 
         public static void OnUpdate()
         {
-            if (Update != null)
-            {
-                Update();
-            }
+            Update?.Invoke();
         }
 
         internal static void MergeMessages(IDictionary<string, object> messages)

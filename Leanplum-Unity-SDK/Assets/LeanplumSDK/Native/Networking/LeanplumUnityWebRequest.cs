@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2013, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -23,11 +23,11 @@ using UnityEngine;
 
 namespace LeanplumSDK
 {
-    internal sealed class UnityWebRequest : WebRequest
+    internal sealed class LeanplumUnityWebRequest : WebRequest
     {
         private WWWForm wwwForm;
 
-        public UnityWebRequest(string url, int timeout) : base(url, timeout)
+        public LeanplumUnityWebRequest(string url, int timeout) : base(url, timeout)
         {
         }
 

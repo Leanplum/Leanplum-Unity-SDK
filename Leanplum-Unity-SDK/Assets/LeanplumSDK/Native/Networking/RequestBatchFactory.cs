@@ -24,7 +24,7 @@ namespace LeanplumSDK
 {
     public class RequestBatchFactory
     {
-        private EventDataManager eventDataManager;
+        private readonly EventDataManager eventDataManager;
 
         internal static readonly int MAX_EVENTS_PER_API_CALL = 10000;
 

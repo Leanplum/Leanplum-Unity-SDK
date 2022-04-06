@@ -45,24 +45,29 @@ namespace LeanplumSDK
             remove { noPendingDownloads -= value; }
         }
 
-        // Uses resources endpoint
-        // Method: GET
-        // Example URL: https://api.leanplum.com/resource/resource/AMIfv94zoleE43w_3PLB0...
-        public void DownloadFileResource(string resourceUrl, Action<object> response, Action<Exception> error)
+        /// <summary>
+        /// Downloads AssetBundle using a resource URL
+        /// Uses the resource path
+        /// Method: GET
+        /// Example URL: https://api.leanplum.com/resource/resource/AMIfv94zoleE43w_3PLB0...
+        /// </summary>
+        /// <param name="resourceUrl">Resource URL</param>
+        /// <param name="response">Response handler</param>
+        /// <param name="error">Error handler</param>
+        public void DownloadAssetResource(string resourceUrl, Action<object> response, Action<Exception> error)
         {
-            LeanplumNative.CompatibilityLayer.LogDebug($"DownloadFileResource: {PendingDownloads}");
             Request request = RequestBuilder.withFileResource(resourceUrl)
                 .CreateImmediate();
 
             request.Response += response;
             request.Error += error;
 
+            PendingDownloads++;
             DownloadAsset(request);
         }
 
         internal virtual void DownloadAsset(Request request)
         {
-            PendingDownloads++;
             RequestUtil.CreateWebRequest(Leanplum.ApiConfig.ApiHost, request.ApiMethod, null, request.HttpMethod,
                                   Leanplum.ApiConfig.ApiSSL, Constants.NETWORK_TIMEOUT_SECONDS).GetAssetBundle(
                 delegate (WebResponse response)

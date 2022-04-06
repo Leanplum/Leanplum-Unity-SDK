@@ -54,6 +54,20 @@ namespace LeanplumSDK
             }
         }
 
+        private RequestSenderTimer requestSenderTimer;
+        internal virtual RequestSenderTimer RequestSenderTimer
+        {
+            get
+            {
+                if (requestSenderTimer == null)
+                {
+                    requestSenderTimer = new RequestSenderTimer();
+                    return requestSenderTimer;
+                }
+                return requestSenderTimer;
+            }
+        }
+
         private string UUID
         {
             get
@@ -102,12 +116,10 @@ namespace LeanplumSDK
                 return;
 
             LeanplumUnityHelper.Instance.Enqueue(() => { SendSync(request); });
-            Debug.Log($"Enqueue");
         }
 
         public void SendSync(Request request)
         {
-            Debug.Log($"Save request");
             SaveRequest(request);
 
             if (Leanplum.IsDeveloperModeEnabled || RequestType.IMMEDIATE.Equals(request.Type))
@@ -146,10 +158,9 @@ namespace LeanplumSDK
             multiRequestArgs[Constants.Params.TIME] = Util.GetUnixTimestamp().ToString();
 
             LeanplumNative.CompatibilityLayer.LogDebug($"Sending Request to" +
-                $" {Leanplum.ApiConfig.ApiHost}/{Leanplum.ApiConfig.ApiPath}:{Leanplum.ApiConfig.ApiSSL} with Params" +
+                $" {Leanplum.ApiConfig.ApiHost}/{Leanplum.ApiConfig.ApiPath}:{Leanplum.ApiConfig.ApiSSL} with Parameters: " +
                 Json.Serialize(multiRequestArgs));
 
-            // TODO: test when response is Request is a duplicate
             RequestUtil.CreateWebRequest(Leanplum.ApiConfig.ApiHost,
                 Leanplum.ApiConfig.ApiPath,
                 multiRequestArgs,
@@ -167,7 +178,7 @@ namespace LeanplumSDK
                         LeanplumNative.CompatibilityLayer.LogDebug(log);
 
                         object json = response.GetResponseBodyAsJson();
-                        LeanplumNative.CompatibilityLayer.LogDebug("received: " + response.GetResponseBody());
+                        LeanplumNative.CompatibilityLayer.LogDebug($"Received response body: {response.GetResponseBody()}");
 
                         if (RequestUtil.UpdateApiConfig(json))
                         {

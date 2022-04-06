@@ -17,16 +17,16 @@
 //  KIND, either express or implied.  See the License for the
 //  specific language governing permissions and limitations
 //  under the License.
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using LeanplumSDK.MiniJSON;
-using UnityEngine;
 
 namespace LeanplumSDK
 {
-    // RequestDataManager
-    // UnityDataManager or CompatibilityLayer since it uses it for persistance
+    /// <summary>
+    /// Manages the event data of Leanplum Requests and Callbacks
+    /// Uses ICompatibilityLayer for data persistance
+    /// </summary>
     public class EventDataManager
     {
         private readonly ConcurrentDictionary<string, RequestHandler> requestHandlers;
@@ -58,8 +58,6 @@ namespace LeanplumSDK
                 // unsent requests are deleted - delete count overlaps added/overridden request
                 int startIndex = StorageLayer.GetSavedInt(Constants.Defaults.START_KEY, 0);
                 int count = StorageLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0);
-                // TODO: Remove logging
-                Debug.Log($"[Indexes] Count: {count} | startIndex: {startIndex}");
                 count++;
                 if (count > Constants.MAX_STORED_API_CALLS)
                 {
@@ -68,28 +66,23 @@ namespace LeanplumSDK
                     // Delete the first request from queue
                     string itemKeyToDelete = string.Format(Constants.Defaults.ITEM_KEY, startIndex);
                     StorageLayer.DeleteSavedSetting(itemKeyToDelete);
-                    Debug.Log($"[Delete] Count: {count} | Key: {itemKeyToDelete}");
                     // Shift the start index to the next request
                     startIndex++;
                     StorageLayer.StoreSavedInt(Constants.Defaults.START_KEY, startIndex);
                 }
                 string itemKey = string.Format(Constants.Defaults.ITEM_KEY, startIndex + count - 1);
                 StorageLayer.StoreSavedString(itemKey, eventData);
-                Debug.Log($"[Add] Count: {count} | Key: {itemKey}");
                 StorageLayer.StoreSavedInt(Constants.Defaults.COUNT_KEY, count);
             }
         }
 
         public void AddCallbacks(Request request)
         {
-            LeanplumNative.CompatibilityLayer.LogDebug("AddCallbacks");
             var eventHandler = request.GetHandler();
             if (eventHandler != null)
             {
                 requestHandlers[request.Id] = eventHandler;
             }
-
-            LeanplumNative.CompatibilityLayer.LogDebug("AddCallbacks Done");
         }
 
         public IList<IDictionary<string, string>> GetEvents(int count)
@@ -163,7 +156,6 @@ namespace LeanplumSDK
                 {
                     string itemKey = string.Format(Constants.Defaults.ITEM_KEY, i);
                     StorageLayer.DeleteSavedSetting(itemKey);
-                    Debug.Log($"[Delete] Count: {count} | Key: {itemKey}");
                 }
 
                 if (count == totalCount)
@@ -178,9 +170,6 @@ namespace LeanplumSDK
                     // Shift to first request index
                     StorageLayer.StoreSavedInt(Constants.Defaults.START_KEY, start + count);
                 }
-
-                Debug.Log($"[Indexes] Count: {StorageLayer.GetSavedInt(Constants.Defaults.COUNT_KEY, 0)}" +
-                    $" | startIndex: {StorageLayer.GetSavedInt(Constants.Defaults.START_KEY, 0)}");
 
                 StorageLayer.FlushSavedSettings();
             }
@@ -208,9 +197,9 @@ namespace LeanplumSDK
 
         internal void InvokeCallbacks(object responseJson)
         {
-            LeanplumNative.CompatibilityLayer.LogDebug("InvokeCallbacks");
-            // TODO: fix requestHandlers.Count null exception
-            if (responseJson == null || requestHandlers.Count == 0)
+            if (responseJson == null ||
+                requestHandlers == null ||
+                requestHandlers.Count == 0)
             {
                 return;
             }
@@ -238,7 +227,6 @@ namespace LeanplumSDK
                 }
             }
             RemoveHandlers(keys);
-            LeanplumNative.CompatibilityLayer.LogDebug("InvokeCallbacks Done");
         }
 
         private void RemoveHandlers(List<string> keys)

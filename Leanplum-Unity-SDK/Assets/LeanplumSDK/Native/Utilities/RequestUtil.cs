@@ -69,7 +69,7 @@ namespace LeanplumSDK
             }
             catch (KeyNotFoundException e)
             {
-                LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
+                LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response: " + MiniJSON.Json.Serialize(response), e);
                 return 0;
             }
             catch (NullReferenceException e)

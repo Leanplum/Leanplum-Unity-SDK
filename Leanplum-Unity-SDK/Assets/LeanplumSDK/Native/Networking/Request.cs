@@ -32,18 +32,7 @@ namespace LeanplumSDK
     {
         private readonly string requestId = Guid.NewGuid().ToString().ToLower();
 
-
-        //public delegate void ResponseHandler(object data);
-
-        //public ResponseHandler ResponseHH;
-
-        public string Id
-        {
-            get
-            {
-                return requestId;
-            }
-        }
+        public string Id => requestId;
 
         public RequestType Type
         {

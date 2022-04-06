@@ -109,17 +109,20 @@ namespace LeanplumSDK
                 {
                     IDictionary<string, object> currentFile =
                         (VarCache.FileAttributes[newFile] as IDictionary<string, object>)
-                        [String.Empty] as IDictionary<string, object>;
+                        [string.Empty] as IDictionary<string, object>;
                     if (currentFile.ContainsKey(Constants.Keys.URL))
                     {
                         url = GetResourceURL(newFile);
                     }
                 }
 
-                // Update if the file is different from what we currently have and if we have started downloading it
-                // already. Also update if we don't have the file but don't update if realtime updating is disabled -
-                // wait 'til we get the value from the serve so that the correct file is displayed.
-                if (currentlyDownloadingFile != newFile && !String.IsNullOrEmpty(url) &&
+                // Download new file if the file is different than:
+                // - the current file for the varible
+                // - the file currently being downloaded for the variable
+                // - there is no file value and realtime updating is enabled
+                // Do not download and update if realtime updating is disabled
+                // Wait until the file is downloaded from the server
+                if (currentlyDownloadingFile != newFile && !string.IsNullOrEmpty(url) &&
                     ((newFile != FileName && realtimeAssetUpdating && fileReady) ||
                      (Value == null && realtimeAssetUpdating)))
                 {
@@ -142,13 +145,13 @@ namespace LeanplumSDK
                     {
                         if (newFile == FileName && !fileReady)
                         {
-                            LeanplumNative.CompatibilityLayer.LogError("Error downloading assetbundle \"" +
-                                                                       FileName + "\". " + ex.ToString());
+                            string errorMessage = $"Error downloading AssetBundle \"{Name}\" with \"{FileName}\". {ex}";
+                            LeanplumNative.CompatibilityLayer.LogError(errorMessage);
                             currentlyDownloadingFile = null;
                         }
                     }
 
-                    Leanplum.FileTransferManager.DownloadFileResource(url, OnFileResponse, OnFileError);
+                    Leanplum.FileTransferManager.DownloadAssetResource(url, OnFileResponse, OnFileError);
                 }
             }
             else

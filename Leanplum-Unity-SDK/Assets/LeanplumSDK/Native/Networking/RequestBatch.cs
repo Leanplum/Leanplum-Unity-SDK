@@ -26,38 +26,13 @@ namespace LeanplumSDK
         private readonly IList<IDictionary<string, string>> requestsToSend;
         private readonly string jsonEncoded;
 
-        public int EventsCount
-        {
-            get
-            {
-                return requestsToSend.Count;
-            }
-        }
+        public int EventsCount => requestsToSend.Count;
 
-        public bool IsFull
-        {
-            get
-            {
-                return EventsCount == Constants.MAX_STORED_API_CALLS;
-            }
-        }
+        public bool IsFull => EventsCount == Constants.MAX_STORED_API_CALLS;
 
-        public bool IsEmpty
-        {
-            get
-            {
-                return EventsCount == 0;
-            }
-        }
+        public bool IsEmpty => EventsCount == 0;
 
-        public string JsonEncoded
-        {
-            get
-            {
-                return jsonEncoded;
-            }
-        }
-
+        public string JsonEncoded => jsonEncoded;
 
         public RequestBatch(IList<IDictionary<string, string>> requestsToSend, string jsonEncoded)
         {

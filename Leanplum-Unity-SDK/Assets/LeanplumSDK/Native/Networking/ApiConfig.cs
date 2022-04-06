@@ -23,7 +23,7 @@ namespace LeanplumSDK
 {
     public class ApiConfig
     {
-        public ApiConfig()
+        internal ApiConfig()
         {
         }
 
