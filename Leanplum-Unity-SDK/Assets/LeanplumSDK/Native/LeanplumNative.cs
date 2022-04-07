@@ -485,10 +485,7 @@ namespace LeanplumSDK
 
         private static void OnStarted(bool success)
         {
-            if (started != null)
-            {
-                started(success);
-            }
+            started?.Invoke(success);
         }
 
         internal static void OnHasStartedAndRegisteredAsDeveloper()
@@ -498,18 +495,12 @@ namespace LeanplumSDK
 
         private static void OnVariablesChanged()
         {
-            if (variablesChanged != null)
-            {
-                variablesChanged();
-            }
+            variablesChanged?.Invoke();
         }
 
         private static void OnVariablesChangedAndNoDownloadsPending()
         {
-            if (variablesChangedAndNoDownloadsPending != null)
-            {
-                variablesChangedAndNoDownloadsPending();
-            }
+            variablesChangedAndNoDownloadsPending?.Invoke();
         }
 
         #endregion
@@ -558,15 +549,10 @@ namespace LeanplumSDK
             VarCache.Update += delegate
             {
                 OnVariablesChanged();
-                if (FileTransferManager.PendingDownloads == 0)
-                {
-                    OnVariablesChangedAndNoDownloadsPending();
-                }
-            };
 
-            FileTransferManager.NoPendingDownloads += delegate
-            {
-                OnVariablesChangedAndNoDownloadsPending();
+                // Ensure delegate is attached only once here
+                FileTransferManager.NoPendingDownloads -= FileTransferManager_NoPendingDownloads;
+                FileTransferManager.NoPendingDownloads += FileTransferManager_NoPendingDownloads;
             };
 
             string deviceId;
@@ -648,6 +634,11 @@ namespace LeanplumSDK
             startRequest.Error += StartRequest_Error;
 
             RequestSender.Send(startRequest);
+        }
+
+        private void FileTransferManager_NoPendingDownloads()
+        {
+            OnVariablesChangedAndNoDownloadsPending();
         }
 
         private void StartRequest_Error(Exception ex)

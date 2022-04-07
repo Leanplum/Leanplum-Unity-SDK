@@ -23,16 +23,15 @@ namespace LeanplumSDK
 {
     public class FileTransferManager
     {
-        public delegate void NoPendingDownloadsHandler();
         public FileTransferManager()
         {
         }
 
         public static int PendingDownloads { get; private set; }
 
-        private static event NoPendingDownloadsHandler noPendingDownloads;
+        private static event Leanplum.NoPendingDownloadsHandler noPendingDownloads;
 
-        public static event NoPendingDownloadsHandler NoPendingDownloads
+        public static event Leanplum.NoPendingDownloadsHandler NoPendingDownloads
         {
             add
             {

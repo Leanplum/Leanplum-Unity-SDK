@@ -40,6 +40,7 @@ namespace LeanplumSDK
         public delegate void SyncVariablesCompleted(bool success);
         public delegate void VariableChangedHandler();
         public delegate void VariablesChangedAndNoDownloadsPendingHandler();
+        public delegate void NoPendingDownloadsHandler();
 
         public const string PURCHASE_EVENT_NAME = "Purchase";
 
