@@ -77,7 +77,7 @@ namespace LeanplumSDK
 		{ 
 			get
 			{
-				string jsonRepresentation = LeanplumApple._getVariableValue(Name, Kind);
+				string jsonRepresentation = LeanplumApple.lp_getVariableValue(Name, Kind);
 
 				if (jsonRepresentation == null)
 				{

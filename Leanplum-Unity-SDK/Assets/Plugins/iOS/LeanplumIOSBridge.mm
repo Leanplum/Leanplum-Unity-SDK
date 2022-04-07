@@ -92,12 +92,12 @@ extern "C"
      * Leanplum bridge public methods implementation
      */
 
-    void _registerForNotifications()
+    void lp_registerForNotifications()
     {
         [Leanplum enablePushNotifications];
     }
 
-    void _setAppIdDeveloper(const char *appId, const char *accessKey)
+    void lp_setAppIdDeveloper(const char *appId, const char *accessKey)
     {
         
         NSString *NSSAppId = lp::to_nsstring(appId);
@@ -106,7 +106,7 @@ extern "C"
         [Leanplum setAppId:NSSAppId withDevelopmentKey:NSSAccessKey];
     }
 
-    void _setAppIdProduction(const char *appId, const char *accessKey)
+    void lp_setAppIdProduction(const char *appId, const char *accessKey)
     {
         NSString *NSSAppId = lp::to_nsstring(appId);
         NSString *NSSAccessKey = lp::to_nsstring(accessKey);
@@ -114,28 +114,28 @@ extern "C"
         [Leanplum setAppId:NSSAppId withProductionKey:NSSAccessKey];
     }
 
-    bool _hasStarted()
+    bool lp_hasStarted()
     {
         return [Leanplum hasStarted];
     }
 
-    bool _hasStartedAndRegisteredAsDeveloper()
+    bool lp_hasStartedAndRegisteredAsDeveloper()
     {
         return [Leanplum hasStartedAndRegisteredAsDeveloper];
     }
 
-    void _setApiHostName(const char *hostName, const char *servletName, int useSSL)
+    void lp_setApiHostName(const char *hostName, const char *servletName, int useSSL)
     {
         [Leanplum setApiHostName:lp::to_nsstring(hostName)
                  withPath:lp::to_nsstring(servletName) usingSsl:[@(useSSL) boolValue]];
     }
 
-    void _setNetworkTimeout(int seconds, int downloadSeconds)
+    void lp_setNetworkTimeout(int seconds, int downloadSeconds)
     {
         [Leanplum setNetworkTimeoutSeconds:seconds forDownloads:downloadSeconds];
     }
 
-    void _setEventsUploadInterval(int uploadInterval)
+    void lp_setEventsUploadInterval(int uploadInterval)
     {
         LPEventsUploadInterval interval = (LPEventsUploadInterval)uploadInterval;
         if (interval == AT_MOST_5_MINUTES || interval == AT_MOST_10_MINUTES || interval == AT_MOST_15_MINUTES) {
@@ -143,37 +143,37 @@ extern "C"
         }
     }
 
-    void _setAppVersion(const char *version)
+    void lp_setAppVersion(const char *version)
     {
         [Leanplum setAppVersion:lp::to_nsstring(version)];
     }
 
-    void _setDeviceId(const char *deviceId)
+    void lp_setDeviceId(const char *deviceId)
     {
         [Leanplum setDeviceId:lp::to_nsstring(deviceId)];
     }
 
-    const char *_getDeviceId()
+    const char *lp_getDeviceId()
     {
         return lp::to_string([Leanplum deviceId]);
     }
 
-    const char *_getUserId()
+    const char *lp_getUserId()
     {
         return lp::to_string([Leanplum userId]);
     }
 
-    void _setLogLevel(int logLevel)
+    void lp_setLogLevel(int logLevel)
     {
         [Leanplum setLogLevel:(LPLogLevel)logLevel];
     }
 
-    void _setTestModeEnabled(bool isTestModeEnabled)
+    void lp_setTestModeEnabled(bool isTestModeEnabled)
     {
         [Leanplum setTestModeEnabled:isTestModeEnabled];
     }
 
-    void _setTrafficSourceInfo(const char *dictStringJSON)
+    void lp_setTrafficSourceInfo(const char *dictStringJSON)
     {
         NSData *data = [lp::to_nsstring(dictStringJSON)
                         dataUsingEncoding:NSUTF8StringEncoding];
@@ -183,7 +183,7 @@ extern "C"
         [Leanplum setTrafficSourceInfo:dictionary];
     }
 
-    void _advanceTo(const char *state, const char *info, const char *dictStringJSON)
+    void lp_advanceTo(const char *state, const char *info, const char *dictStringJSON)
     {
         NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
@@ -193,7 +193,7 @@ extern "C"
                    withInfo:lp::to_nsstring(info) andParameters:dictionary];
     }
 
-    void _setUserAttributes(const char *newUserId, const char *dictStringJSON)
+    void lp_setUserAttributes(const char *newUserId, const char *dictStringJSON)
     {
         NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
@@ -202,22 +202,22 @@ extern "C"
         [Leanplum setUserId:lp::to_nsstring(newUserId) withUserAttributes:dictionary];
     }
 
-    void _pauseState()
+    void lp_pauseState()
     {
         [Leanplum pauseState];
     }
 
-    void _resumeState()
+    void lp_resumeState()
     {
         [Leanplum resumeState];
     }
 
-    const char * _variants()
+    const char * lp_variants()
     {
         return lp::to_json_string([Leanplum variants]);
     }
 
-    const char * _securedVars()
+    const char * lp_securedVars()
     {   
         LPSecuredVars *securedVars = [Leanplum securedVars];
         if (securedVars) {
@@ -230,22 +230,22 @@ extern "C"
         return NULL;
     }
 
-    const char * _vars()
+    const char * lp_vars()
     {
         return lp::to_json_string([[LPVarCache sharedCache] diffs]);
     }
 
-    const char * _messageMetadata()
+    const char * lp_messageMetadata()
     {
         return lp::to_json_string([Leanplum messageMetadata]);
     }
 
-    void _forceContentUpdate()
+    void lp_forceContentUpdate()
     {
         [Leanplum forceContentUpdate];
     }
 
-    void _forceContentUpdateWithHandler(int key)
+    void lp_forceContentUpdateWithHandler(int key)
     {
         [Leanplum forceContentUpdateWithBlock:^(BOOL success) {
             UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
@@ -253,23 +253,23 @@ extern "C"
         }];
     }
     
-    void _setDeviceLocationWithLatitude(double latitude, double longitude)
+    void lp_setDeviceLocationWithLatitude(double latitude, double longitude)
     {
         [Leanplum setDeviceLocationWithLatitude: latitude
                                       longitude: longitude];
     }
     
-    void _disableLocationCollection()
+    void lp_disableLocationCollection()
     {
         [Leanplum disableLocationCollection];
     }
 
-    void _setPushDeliveryTrackingEnabled(bool enabled)
+    void lp_setPushDeliveryTrackingEnabled(bool enabled)
     {
         [Leanplum setPushDeliveryTrackingEnabled:enabled];
     }
 
-    void _setGameObject(const char *gameObject)
+    void lp_setGameObject(const char *gameObject)
     {
         __LPgameObject = (char *)malloc(strlen(gameObject) + 1);
         strcpy(__LPgameObject, gameObject);
@@ -299,7 +299,7 @@ extern "C"
         }];
     }
 
-    void _start(const char *sdkVersion, const char *userId, const char *dictStringJSON)
+    void lp_start(const char *sdkVersion, const char *userId, const char *dictStringJSON)
     {
         [Leanplum setClient:LEANPLUM_CLIENT withVersion:lp::to_nsstring(sdkVersion)];
 
@@ -318,12 +318,12 @@ extern "C"
         LeanplumSetupCallbackBlocks();
     }
 
-    void _trackIOSInAppPurchases()
+    void lp_trackIOSInAppPurchases()
     {
         [Leanplum trackInAppPurchases];
     }
 
-    void _trackPurchase(const char *event, double value, const char *currencyCode, const char *dictStringJSON)
+    void lp_trackPurchase(const char *event, double value, const char *currencyCode, const char *dictStringJSON)
     {
         NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
@@ -334,7 +334,7 @@ extern "C"
           andParameters:dictionary];
     }
 
-    void _track(const char *event, double value, const char *info, const char *dictStringJSON)
+    void lp_track(const char *event, double value, const char *info, const char *dictStringJSON)
     {
         NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
@@ -345,7 +345,7 @@ extern "C"
           andParameters:dictionary];
     }
 
-    const char *_objectForKeyPath(const char *dictStringJSON)
+    const char *lp_objectForKeyPath(const char *dictStringJSON)
     {
         NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
@@ -354,7 +354,7 @@ extern "C"
         return lp::to_json_string([Leanplum objectForKeyPath:dictionary, nil]);
     }
 
-    const char *_objectForKeyPathComponents(const char *dictStringJSON)
+    const char *lp_objectForKeyPathComponents(const char *dictStringJSON)
     {
         NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         id object = [NSJSONSerialization JSONObjectWithData:data
@@ -363,7 +363,7 @@ extern "C"
         return lp::to_json_string([Leanplum objectForKeyPathComponents:object]);
     }
 
-    void _registerVariableCallback(const char *name)
+    void lp_registerVariableCallback(const char *name)
     {
         NSString *varName = lp::to_nsstring(name);
         for (int i = 0; i < __LPVariablesCache.count; i++) {
@@ -385,7 +385,7 @@ extern "C"
         }
     }
 
-    void _defineAction(const char* name, int kind, const char *args, const char *options)
+    void lp_defineAction(const char* name, int kind, const char *args, const char *options)
     {
         if (name == nil) {
             NSLog(@"_defineAction: name provided is nil");
@@ -407,15 +407,15 @@ extern "C"
         
         NSMutableArray *arguments = [NSMutableArray new];
         
-        static NSString *LP_KIND_INT = @"integer";
-        static NSString *LP_KIND_FLOAT = @"float";
-        static NSString *LP_KIND_STRING = @"string";
-        static NSString *LP_KIND_BOOLEAN = @"bool";
-        static NSString *LP_KIND_DICTIONARY = @"group";
-        static NSString *LP_KIND_ARRAY = @"list";
-        static NSString *LP_KIND_ACTION = @"action";
-        static NSString *LP_KIND_COLOR = @"color";
-        static NSString *LP_KIND_FILE = @"file";
+        static NSString *lp_KIND_INT = @"integer";
+        static NSString *lp_KIND_FLOAT = @"float";
+        static NSString *lp_KIND_STRING = @"string";
+        static NSString *lp_KIND_BOOLEAN = @"bool";
+        static NSString *lp_KIND_DICTIONARY = @"group";
+        static NSString *lp_KIND_ARRAY = @"list";
+        static NSString *lp_KIND_ACTION = @"action";
+        static NSString *lp_KIND_COLOR = @"color";
+        static NSString *lp_KIND_FILE = @"file";
         
         for (NSDictionary* arg in argsArray)
         {
@@ -423,12 +423,12 @@ extern "C"
             NSString* argKind = arg[@"kind"];
             id defaultValue = arg[@"defaultValue"];
             
-            if (argName == nil || argKind == nil || (defaultValue == nil && ![argKind isEqualToString:LP_KIND_ACTION]))
+            if (argName == nil || argKind == nil || (defaultValue == nil && ![argKind isEqualToString:lp_KIND_ACTION]))
             {
                 continue;
             }
             
-            if ([argKind isEqualToString:LP_KIND_ACTION])
+            if ([argKind isEqualToString:lp_KIND_ACTION])
             {
                 // Allow registering an Action with null default value
                 // as it is done in the iOS SDK
@@ -439,40 +439,40 @@ extern "C"
                 }
                 [arguments addObject:[LPActionArg argNamed:argName withAction:actionValue]];
             }
-            else if ([argKind isEqualToString:LP_KIND_INT] && [defaultValue isKindOfClass:[NSNumber class]])
+            else if ([argKind isEqualToString:lp_KIND_INT] && [defaultValue isKindOfClass:[NSNumber class]])
             {
                 NSNumber* intValue = (NSNumber*) defaultValue;
                 [arguments addObject:[LPActionArg argNamed:argName withNumber:intValue]];
             }
-            else if ([argKind isEqualToString:LP_KIND_FLOAT] && [defaultValue isKindOfClass:[NSNumber class]])
+            else if ([argKind isEqualToString:lp_KIND_FLOAT] && [defaultValue isKindOfClass:[NSNumber class]])
             {
                 NSNumber* floatValue = (NSNumber*) defaultValue;
                 [arguments addObject:[LPActionArg argNamed:argName withNumber:floatValue]];
             }
-            else if ([argKind isEqualToString:LP_KIND_STRING] && [defaultValue isKindOfClass:[NSString class]])
+            else if ([argKind isEqualToString:lp_KIND_STRING] && [defaultValue isKindOfClass:[NSString class]])
             {
                 NSString* stringValue = (NSString*) defaultValue;
                 [arguments addObject:[LPActionArg argNamed:argName withString:stringValue]];
             }
-            else if ([argKind isEqualToString:LP_KIND_BOOLEAN])
+            else if ([argKind isEqualToString:lp_KIND_BOOLEAN])
             {
                 BOOL boolValue = [defaultValue boolValue];
                 [arguments addObject:[LPActionArg argNamed:argName withBool:boolValue]];
             }
-            else if ([argKind isEqualToString:LP_KIND_DICTIONARY])
+            else if ([argKind isEqualToString:lp_KIND_DICTIONARY])
             {
                 [arguments addObject:[LPActionArg argNamed:argName withDict:defaultValue]];
             }
-            else if ([argKind isEqualToString:LP_KIND_ARRAY])
+            else if ([argKind isEqualToString:lp_KIND_ARRAY])
             {
                 [arguments addObject:[LPActionArg argNamed:argName withArray:defaultValue]];
             }
-            else if ([argKind isEqualToString:LP_KIND_COLOR])
+            else if ([argKind isEqualToString:lp_KIND_COLOR])
             {
                 long long longVal = [defaultValue longLongValue];
                 [arguments addObject:[LPActionArg argNamed:argName withColor:lp::leanplum_intToColor(longVal)]];
             }
-            else if ([argKind isEqualToString:LP_KIND_FILE])
+            else if ([argKind isEqualToString:lp_KIND_FILE])
             {
                 [arguments addObject:[LPActionArg argNamed:argName withFile:defaultValue]];
             }
@@ -489,7 +489,7 @@ extern "C"
                  }];
     }
 
-    void _onAction(const char *name)
+    void lp_onAction(const char *name)
     {
         // Initialize default templates to prevent defineAction:actionResponder to override
         // the onAction that will be registered
@@ -503,7 +503,7 @@ extern "C"
         }];
     }
 
-    const char * _createActionContextForId(const char *actionId)
+    const char * lp_createActionContextForId(const char *actionId)
     {
         NSString *mId = lp::to_nsstring(actionId);
         LPActionContext *context = [Leanplum createActionContextForMessageId:mId];
@@ -517,7 +517,7 @@ extern "C"
         return lp::to_string(key);
     }
 
-    bool _triggerAction(const char *actionId)
+    bool lp_triggerAction(const char *actionId)
     {
         NSString *key = lp::to_nsstring(actionId);
         LPActionContext *context = [LeanplumActionContextBridge sharedActionContexts][key];
@@ -534,7 +534,7 @@ extern "C"
               if (index != NSNotFound) {
                   context = [LeanplumActionContextBridge sharedActionContexts][keys[index]];
               } else {
-                  const char * newKey = _createActionContextForId(actionId);
+                  const char * newKey = lp_createActionContextForId(actionId);
                   if (newKey)
                   {
                       context = [LeanplumActionContextBridge sharedActionContexts][lp::to_nsstring(newKey)];
@@ -553,7 +553,7 @@ extern "C"
     }
 
     // Leanplum Content
-    void _defineVariable(const char *name, const char *kind, const char *jsonValue)
+    void lp_defineVariable(const char *name, const char *kind, const char *jsonValue)
     {
         LPVar *var = nil;
         NSString *nameString = lp::to_nsstring(name);
@@ -625,7 +625,7 @@ extern "C"
         [var setDelegate:delegate];
     }
 
-    const char *_getVariableValue(const char *name, const char *kind)
+    const char *lp_getVariableValue(const char *name, const char *kind)
     {
         LPVar *var = [LPVar define:lp::to_nsstring(name)];
 
@@ -635,27 +635,27 @@ extern "C"
         return lp::to_json_string([var objectForKeyPath:nil]);
     }
 
-    int _inbox_count()
+    int lp_inbox_count()
     {
         return (int) [Leanplum inbox].count;
     }
     
-    int _inbox_unreadCount()
+    int lp_inbox_unreadCount()
     {
         return (int) [Leanplum inbox].unreadCount;
     }
 
-    const char *_inbox_messageIds()
+    const char *lp_inbox_messageIds()
     {
         return lp::to_json_string([Leanplum inbox].messagesIds);
     }
 
-    void _inbox_downloadMessages()
+    void lp_inbox_downloadMessages()
     {
         [[Leanplum inbox] downloadMessages];
     }
 
-    void _inbox_downloadMessagesWithCallback()
+    void lp_inbox_downloadMessagesWithCallback()
     {
         [[Leanplum inbox] downloadMessages:^(BOOL success) {
             int res = [@(success) intValue];
@@ -664,7 +664,7 @@ extern "C"
         }];
     }
 
-    const char *_inbox_messages()
+    const char *lp_inbox_messages()
     {
         NSMutableArray<NSDictionary *> *messageData = [NSMutableArray new];
         NSArray<LPInboxMessage *> *messages = [Leanplum inbox].allMessages;
@@ -701,7 +701,7 @@ extern "C"
         return lp::to_json_string(messageData);
     }
 
-    void _inbox_read(const char *messageId)
+    void lp_inbox_read(const char *messageId)
     {
         NSString *msgId = lp::to_nsstring(messageId);
         LPInboxMessage *msg = [[Leanplum inbox] messageForId:msgId];
@@ -710,7 +710,7 @@ extern "C"
         }
     }
 
-    void _inbox_markAsRead(const char *messageId)
+    void lp_inbox_markAsRead(const char *messageId)
     {
         NSString *msgId = lp::to_nsstring(messageId);
         LPInboxMessage *msg = [[Leanplum inbox] messageForId:msgId];
@@ -719,7 +719,7 @@ extern "C"
         }
     }
 
-    void _inbox_remove(const char *messageId)
+    void lp_inbox_remove(const char *messageId)
     {
         NSString *msgId = lp::to_nsstring(messageId);
         LPInboxMessage *msg = [[Leanplum inbox] messageForId:msgId];
@@ -728,7 +728,7 @@ extern "C"
         }
     }
 
-    void _inbox_disableImagePrefetching()
+    void lp_inbox_disableImagePrefetching()
     {
         [[Leanplum inbox] disableImagePrefetching];
     }
