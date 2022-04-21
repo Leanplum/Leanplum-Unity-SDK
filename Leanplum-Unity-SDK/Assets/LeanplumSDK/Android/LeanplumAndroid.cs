@@ -606,10 +606,10 @@ namespace LeanplumSDK
             }
             else if (message.StartsWith(STARTED))
             {
-                if (Started != null)
+                if (started != null)
                 {
                     startSuccessful = message.EndsWith("true") || message.EndsWith("True");
-                    Started(startSuccessful);
+                    started(startSuccessful);
                 }
             }
             else if (message.StartsWith(VARIABLE_VALUE_CHANGED))

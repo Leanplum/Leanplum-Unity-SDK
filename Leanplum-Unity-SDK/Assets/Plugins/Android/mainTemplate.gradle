@@ -4,10 +4,15 @@ buildscript {
     repositories {
         google()
         jcenter()
+        mavenCentral()
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.2'
+        // Uncomment for FCM
+        // classpath 'com.google.gms:google-services:4.3.3'
+        // Uncomment for Huawei
+        // classpath 'com.huawei.agconnect:agcp:1.6.3.300'
 **BUILD_SCRIPT_DEPS**}
 }
 
@@ -16,6 +21,10 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
+        // Uncomment for Huawei
+        // maven {
+        //     url 'https://developer.huawei.com/repo/'
+        // }
         flatDir {
             dirs 'libs'
         }
@@ -25,6 +34,10 @@ allprojects {
 def LEANPLUM_SDK_VERSION = "%LP_VERSION%"
 
 apply plugin: 'com.android.library'
+// Uncomment for FCM
+// apply plugin: 'com.google.gms.google-services'
+// Uncomment for Huawei
+// apply plugin: 'com.huawei.agconnect'
 **APPLY_PLUGINS**
 
 dependencies {
@@ -32,13 +45,20 @@ dependencies {
 
     implementation "com.leanplum:leanplum-core:${LEANPLUM_SDK_VERSION}"
     // implementation "com.leanplum:leanplum-push:${LEANPLUM_SDK_VERSION}"
-    // implementation "com.leanplum:leanplum-fcm:${LEANPLUM_SDK_VERSION}"
     // implementation "com.leanplum:leanplum-location:${LEANPLUM_SDK_VERSION}"
+
+    // Uncomment for FCM
+    // implementation "com.leanplum:leanplum-fcm:${LEANPLUM_SDK_VERSION}"
+    // implementation 'com.google.firebase:firebase-messaging:22.0.0'
+
+    // Uncomment for Huawei
+    // implementation "com.leanplum:leanplum-hms:${LEANPLUM_SDK_VERSION}"
+
+    // Uncomment for MiPush
+    // implementation "com.leanplum:leanplum-mipush:${LEANPLUM_SDK_VERSION}"
 
     implementation 'com.google.code.gson:gson:2.8.5'
 
-    // Uncomment for FCM
-    // implementation 'com.google.firebase:firebase-messaging:17.3.4'
     // implementation(name: "com.leanplum.unity-wrapper-${LEANPLUM_SDK_VERSION}", ext:'aar')
 **DEPS**}
 
