@@ -1,9 +1,26 @@
-﻿#if UNITY_IPHONE
-using System;
+﻿//
+// Copyright 2022, Leanplum, Inc.
+//
+//  Licensed to the Apache Software Foundation (ASF) under one
+//  or more contributor license agreements.  See the NOTICE file
+//  distributed with this work for additional information
+//  regarding copyright ownership.  The ASF licenses this file
+//  to you under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing,
+//  software distributed under the License is distributed on an
+//  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+//  KIND, either express or implied.  See the License for the
+//  specific language governing permissions and limitations
+//  under the License.
+#if UNITY_IPHONE
 using System.Collections.Generic;
 using LeanplumSDK.MiniJSON;
 using System.Runtime.InteropServices;
-using UnityEngine;
 using System.Linq;
 
 namespace LeanplumSDK
@@ -16,34 +33,34 @@ namespace LeanplumSDK
         public event OnForceContentUpdate OneTimeUpdate;
 
         [DllImport("__Internal")]
-        internal static extern int _inbox_count();
+        internal static extern int lp_inbox_count();
 
         [DllImport("__Internal")]
-        internal static extern int _inbox_unreadCount();
+        internal static extern int lp_inbox_unreadCount();
 
         [DllImport("__Internal")]
-        internal static extern string _inbox_messageIds();
+        internal static extern string lp_inbox_messageIds();
 
         [DllImport("__Internal")]
-        internal static extern string _inbox_messages();
+        internal static extern string lp_inbox_messages();
 
         [DllImport("__Internal")]
-        internal static extern void _inbox_read(string messageId);
+        internal static extern void lp_inbox_read(string messageId);
 
         [DllImport("__Internal")]
-        internal static extern void _inbox_markAsRead(string messageId);
+        internal static extern void lp_inbox_markAsRead(string messageId);
 
         [DllImport("__Internal")]
-        internal static extern void _inbox_remove(string messageId);
+        internal static extern void lp_inbox_remove(string messageId);
 
         [DllImport("__Internal")]
-        internal static extern int _inbox_disableImagePrefetching();
+        internal static extern int lp_inbox_disableImagePrefetching();
 
         [DllImport("__Internal")]
-        internal static extern void _inbox_downloadMessages();
+        internal static extern void lp_inbox_downloadMessages();
 
         [DllImport("__Internal")]
-        internal static extern void _inbox_downloadMessagesWithCallback();
+        internal static extern void lp_inbox_downloadMessagesWithCallback();
 
         internal LeanplumInboxApple()
         {
@@ -54,7 +71,7 @@ namespace LeanplumSDK
         {
             get
             {
-                return _inbox_count();
+                return lp_inbox_count();
             }
         }
 
@@ -62,7 +79,7 @@ namespace LeanplumSDK
         {
             get
             {
-                return _inbox_unreadCount();
+                return lp_inbox_unreadCount();
             }
         }
 
@@ -70,7 +87,7 @@ namespace LeanplumSDK
         {
             get
             {
-                var ids = (List<object>)Json.Deserialize(_inbox_messageIds());
+                var ids = (List<object>)Json.Deserialize(lp_inbox_messageIds());
                 return ids.OfType<string>().ToList();
             }
         }
@@ -79,7 +96,7 @@ namespace LeanplumSDK
         {
             get
             {
-                var json = _inbox_messages();
+                var json = lp_inbox_messages();
                 return ParseMessages(json);
             }
         }
@@ -96,20 +113,20 @@ namespace LeanplumSDK
 
         public override void DownloadMessages()
         {
-            _inbox_downloadMessages();
+            lp_inbox_downloadMessages();
         }
 
         public override void DownloadMessages(OnForceContentUpdate completedHandler)
         {
             OneTimeUpdate = completedHandler;
-            _inbox_downloadMessagesWithCallback();
+            lp_inbox_downloadMessagesWithCallback();
         }
 
         public override void Read(string messageId)
         {
             if (messageId != null)
             {
-                _inbox_read(messageId);
+                lp_inbox_read(messageId);
             }
         }
 
@@ -125,7 +142,7 @@ namespace LeanplumSDK
         {
             if (messageId != null)
             {
-                _inbox_markAsRead(messageId);
+                lp_inbox_markAsRead(messageId);
             }
 
             InboxChanged?.Invoke();
@@ -143,7 +160,7 @@ namespace LeanplumSDK
         {
             if (messageId != null)
             {
-                _inbox_remove(messageId);
+                lp_inbox_remove(messageId);
             }
         }
 
@@ -157,7 +174,7 @@ namespace LeanplumSDK
 
         public override void DisableImagePrefetching()
         {
-            _inbox_disableImagePrefetching();
+            lp_inbox_disableImagePrefetching();
         }
 
         internal override void NativeCallback(string message)

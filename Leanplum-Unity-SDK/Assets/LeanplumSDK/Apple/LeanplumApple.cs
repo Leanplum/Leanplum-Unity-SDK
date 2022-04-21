@@ -1,5 +1,5 @@
 //
-// Copyright 2014, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -34,130 +34,130 @@ namespace LeanplumSDK
         private bool isDeveloper = false;
 
         [DllImport ("__Internal")]
-        internal static extern void _setGameObject(string gameObject);
+        internal static extern void lp_setGameObject(string gameObject);
 
         [DllImport("__Internal")]
-        internal static extern void _registerForNotifications();
+        internal static extern void lp_registerForNotifications();
 
         [DllImport("__Internal")]
-        internal static extern void _setPushDeliveryTrackingEnabled(bool enabled);
+        internal static extern void lp_setPushDeliveryTrackingEnabled(bool enabled);
 
         [DllImport("__Internal")]
-        internal static extern void _setAppIdDeveloper(string appId, string accessKey);
+        internal static extern void lp_setAppIdDeveloper(string appId, string accessKey);
 
         [DllImport("__Internal")]
-        internal static extern void _setAppIdProduction(string appId, string accessKey);
+        internal static extern void lp_setAppIdProduction(string appId, string accessKey);
 
         [DllImport("__Internal")]
-        internal static extern bool _hasStarted();
+        internal static extern bool lp_hasStarted();
 
         [DllImport("__Internal")]
-        internal static extern bool _hasStartedAndRegisteredAsDeveloper();
+        internal static extern bool lp_hasStartedAndRegisteredAsDeveloper();
 
         [DllImport("__Internal")]
-        internal static extern void _start(string sdkVersion, string userId, string dictStringJSON);
+        internal static extern void lp_start(string sdkVersion, string userId, string dictStringJSON);
 
         [DllImport("__Internal")]
-        internal static extern void _trackIOSInAppPurchases();
+        internal static extern void lp_trackIOSInAppPurchases();
 
         [DllImport("__Internal")]
-        internal static extern void _trackPurchase(string _event, double value, string currencyCode,
+        internal static extern void lp_trackPurchase(string lp_event, double value, string currencyCode,
           string dictStringJSON);
 
         [DllImport("__Internal")]
-        internal static extern void _track(string _event, double value, string info,
+        internal static extern void lp_track(string lp_event, double value, string info,
           string dictStringJSON);
 
         [DllImport("__Internal")]
-        internal static extern void _setApiHostName(string hostName, string servletName,
+        internal static extern void lp_setApiHostName(string hostName, string servletName,
           int useSSL);
 
         [DllImport("__Internal")]
-        internal static extern void _setNetworkTimeout(int seconds, int downloadSeconds);
+        internal static extern void lp_setNetworkTimeout(int seconds, int downloadSeconds);
 
         [DllImport("__Internal")]
-        internal static extern void _setEventsUploadInterval(int uploadInterval);
+        internal static extern void lp_setEventsUploadInterval(int uploadInterval);
 
         [DllImport("__Internal")]
-        internal static extern void _setLogLevel(int logLevel);
+        internal static extern void lp_setLogLevel(int logLevel);
 
         [DllImport("__Internal")]
-        internal static extern void _setAppVersion(string version);
+        internal static extern void lp_setAppVersion(string version);
 
         [DllImport("__Internal")]
-        internal static extern void _setDeviceId(string deviceId);
+        internal static extern void lp_setDeviceId(string deviceId);
 
         [DllImport("__Internal")]
-        internal static extern string _getDeviceId();
+        internal static extern string lp_getDeviceId();
 
         [DllImport("__Internal")]
-        internal static extern string _getUserId();
+        internal static extern string lp_getUserId();
 
         [DllImport("__Internal")]
-        internal static extern void _setTestModeEnabled(bool enabled);
+        internal static extern void lp_setTestModeEnabled(bool enabled);
 
         [DllImport("__Internal")]
-        internal static extern void _setTrafficSourceInfo(string dictStringJSON);
+        internal static extern void lp_setTrafficSourceInfo(string dictStringJSON);
 
         [DllImport("__Internal")]
-        internal static extern void _advanceTo(string state, string info, string dictStringJSON);
+        internal static extern void lp_advanceTo(string state, string info, string dictStringJSON);
 
         [DllImport("__Internal")]
-        internal static extern void _setUserAttributes(string newUserId, string dictStringJSON);
+        internal static extern void lp_setUserAttributes(string newUserId, string dictStringJSON);
 
         [DllImport("__Internal")]
-        internal static extern void _pauseState();
+        internal static extern void lp_pauseState();
 
         [DllImport("__Internal")]
-        internal static extern void _resumeState();
+        internal static extern void lp_resumeState();
 
         [DllImport("__Internal")]
-        internal static extern string _variants();
+        internal static extern string lp_variants();
 
         [DllImport("__Internal")]
-        internal static extern string _securedVars();
+        internal static extern string lp_securedVars();
 
         [DllImport("__Internal")]
-        internal static extern string _vars();
+        internal static extern string lp_vars();
 
         [DllImport("__Internal")]
-        internal static extern string _messageMetadata();
+        internal static extern string lp_messageMetadata();
 
         [DllImport("__Internal")]
-        internal static extern void _forceContentUpdate();
+        internal static extern void lp_forceContentUpdate();
 
         [DllImport("__Internal")]
-        internal static extern void _defineAction(string name, int kind, string argsJSON, string optionsJSON);
+        internal static extern void lp_defineAction(string name, int kind, string argsJSON, string optionsJSON);
 
         [DllImport("__Internal")]
-        internal static extern void _onAction(string name);
+        internal static extern void lp_onAction(string name);
 
         [DllImport("__Internal")]
-        internal static extern string _createActionContextForId(string actionId);
+        internal static extern string lp_createActionContextForId(string actionId);
 
         [DllImport("__Internal")]
-        internal static extern bool _triggerAction(string actionId);
+        internal static extern bool lp_triggerAction(string actionId);
 
         [DllImport("__Internal")]
-        internal static extern void _forceContentUpdateWithHandler(int key);
+        internal static extern void lp_forceContentUpdateWithHandler(int key);
 
         [DllImport("__Internal")]
-        internal static extern string _objectForKeyPath(string dictStringJSON);
+        internal static extern string lp_objectForKeyPath(string dictStringJSON);
 
         [DllImport("__Internal")]
-        internal static extern string _objectForKeyPathComponents(string dictStringJSON);
+        internal static extern string lp_objectForKeyPathComponents(string dictStringJSON);
 
         [DllImport("__Internal")]
-        internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude);
+        internal static extern void lp_setDeviceLocationWithLatitude(double latitude, double longitude);
 
         [DllImport("__Internal")]
-        internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude, int type);
+        internal static extern void lp_setDeviceLocationWithLatitude(double latitude, double longitude, int type);
 
         [DllImport("__Internal")]
-        internal static extern void _setDeviceLocationWithLatitude(double latitude, double longitude, string city, string region, string country, int type);
+        internal static extern void lp_setDeviceLocationWithLatitude(double latitude, double longitude, string city, string region, string country, int type);
 
         [DllImport("__Internal")]
-        internal static extern void _disableLocationCollection();
+        internal static extern void lp_disableLocationCollection();
 
 
         private LeanplumInbox inbox;
@@ -211,12 +211,12 @@ namespace LeanplumSDK
 
         public override void RegisterForIOSRemoteNotifications()
         {
-            _registerForNotifications();
+            lp_registerForNotifications();
         }
 
         public override void SetPushDeliveryTrackingEnabled(bool enabled)
         {
-            _setPushDeliveryTrackingEnabled(enabled);
+            lp_setPushDeliveryTrackingEnabled(enabled);
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace LeanplumSDK
         /// <value><c>true</c> if this instance has started; otherwise, <c>false</c>.</value>
         public override bool HasStarted()
         {
-            return _hasStarted();
+            return lp_hasStarted();
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace LeanplumSDK
         /// </value>
         public override bool HasStartedAndRegisteredAsDeveloper()
         {
-            return _hasStartedAndRegisteredAsDeveloper();
+            return lp_hasStartedAndRegisteredAsDeveloper();
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace LeanplumSDK
         /// <value><c>true</c> if developer mode; otherwise, <c>false</c>.</value>
         public override bool IsDeveloperModeEnabled()
         {
-            return _hasStarted() && isDeveloper;
+            return lp_hasStarted() && isDeveloper;
         }
 
         /// <summary>
@@ -269,7 +269,7 @@ namespace LeanplumSDK
         public override void SetApiConnectionSettings(string hostName, string servletName = "api",
           bool useSSL = true)
         {
-            _setApiHostName(hostName, servletName, useSSL ? 1 : 0);
+            lp_setApiHostName(hostName, servletName, useSSL ? 1 : 0);
         }
 
         /// <summary>
@@ -290,7 +290,7 @@ namespace LeanplumSDK
         /// <param name="downloadSeconds"> Timeout in seconds for downloads. </param>
         public override void SetNetworkTimeout(int seconds, int downloadSeconds)
         {
-            _setNetworkTimeout(seconds, downloadSeconds);
+            lp_setNetworkTimeout(seconds, downloadSeconds);
         }
 
         /// <summary>
@@ -300,7 +300,7 @@ namespace LeanplumSDK
         /// <param name="uploadInterval"> The time between uploads. </param>
         public override void SetEventsUploadInterval(EventsUploadInterval uploadInterval)
         {
-            _setEventsUploadInterval((int)uploadInterval);
+            lp_setEventsUploadInterval((int)uploadInterval);
         }
 
         /// <summary>
@@ -311,7 +311,7 @@ namespace LeanplumSDK
         /// <param name="accessKey"> Your development key. </param>
         public override void SetAppIdForDevelopmentMode(string appId, string accessKey)
         {
-            _setAppIdDeveloper(appId, accessKey);
+            lp_setAppIdDeveloper(appId, accessKey);
             isDeveloper = true;
         }
 
@@ -323,7 +323,7 @@ namespace LeanplumSDK
         /// <param name="accessKey"> Your production key. </param>
         public override void SetAppIdForProductionMode(string appId, string accessKey)
         {
-            _setAppIdProduction(appId, accessKey);
+            lp_setAppIdProduction(appId, accessKey);
             isDeveloper = false;
         }
 
@@ -336,12 +336,12 @@ namespace LeanplumSDK
         /// <param name="version">Version.</param>
         public override void SetAppVersion(string version)
         {
-            _setAppVersion(version);
+            lp_setAppVersion(version);
         }
 
         public override void SetLogLevel(Constants.LogLevel logLevel)
         {
-            _setLogLevel((int)logLevel);
+            lp_setLogLevel((int)logLevel);
         }
 
         /// <summary>
@@ -350,7 +350,7 @@ namespace LeanplumSDK
         /// <param name="deviceId">Device identifier.</param>
         public override void SetDeviceId(string deviceId)
         {
-            _setDeviceId(deviceId);
+            lp_setDeviceId(deviceId);
         }
 
         /// <summary>
@@ -358,7 +358,7 @@ namespace LeanplumSDK
         /// </summary>
         public override string GetDeviceId()
         {
-            return _getDeviceId();
+            return lp_getDeviceId();
         }
 
         /// <summary>
@@ -366,7 +366,7 @@ namespace LeanplumSDK
         /// </summary>
         public override string GetUserId()
         {
-            return _getUserId();
+            return lp_getUserId();
         }
 
         /// <summary>
@@ -375,7 +375,7 @@ namespace LeanplumSDK
         /// </summary>
         public override void SetTestMode(bool testModeEnabled)
         {
-            _setTestModeEnabled(testModeEnabled);
+            lp_setTestModeEnabled(testModeEnabled);
         }
 
         /// <summary>
@@ -405,7 +405,7 @@ namespace LeanplumSDK
         /// </summary>
         public override object ObjectForKeyPath(params object[] components)
         {
-            string jsonString = _objectForKeyPath(Json.Serialize(components));
+            string jsonString = lp_objectForKeyPath(Json.Serialize(components));
             return Json.Deserialize(jsonString);
         }
 
@@ -416,7 +416,7 @@ namespace LeanplumSDK
         /// </summary>
         public override object ObjectForKeyPathComponents(object[] pathComponents)
         {
-            string jsonString = _objectForKeyPathComponents(Json.Serialize(pathComponents));
+            string jsonString = lp_objectForKeyPathComponents(Json.Serialize(pathComponents));
             return Json.Deserialize(jsonString);
         }
 
@@ -428,7 +428,7 @@ namespace LeanplumSDK
         /// <param name="longitude"> Device location longitude. </param>
         public override void SetDeviceLocation(double latitude, double longitude)
         {
-            _setDeviceLocationWithLatitude(latitude, longitude);
+            lp_setDeviceLocationWithLatitude(latitude, longitude);
         }
 
         /// <summary>
@@ -440,7 +440,7 @@ namespace LeanplumSDK
         /// <param name="type"> Location accuracy type. </param>
         public override void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type)
         {
-            _setDeviceLocationWithLatitude(latitude, longitude, (int)type);
+            lp_setDeviceLocationWithLatitude(latitude, longitude, (int)type);
         }
 
         /// <summary>
@@ -455,7 +455,7 @@ namespace LeanplumSDK
         /// <param name="type"> Location accuracy type. </param>
         public override void SetDeviceLocation(double latitude, double longitude, string city, string region, string country, LPLocationAccuracyType type)
         {
-            _setDeviceLocationWithLatitude(latitude, longitude, city, region, country, (int)type);
+            lp_setDeviceLocationWithLatitude(latitude, longitude, city, region, country, (int)type);
         }
 
         /// <summary>
@@ -464,7 +464,7 @@ namespace LeanplumSDK
         /// </summary>
         public override void DisableLocationCollection()
         {
-            _disableLocationCollection();
+            lp_disableLocationCollection();
         }
         #endregion
 
@@ -478,11 +478,11 @@ namespace LeanplumSDK
         public override void Start(string userId, IDictionary<string, object> attributes,
             Leanplum.StartHandler startResponseAction)
         {
-            _setGameObject(LeanplumUnityHelper.Instance.gameObject.name);
+            lp_setGameObject(LeanplumUnityHelper.Instance.gameObject.name);
             // Invokes Started event through NativeCallback
             Started += startResponseAction;
             string attributesString = attributes == null ? null : Json.Serialize(attributes);
-            _start(Constants.SDK_VERSION, userId, attributesString);
+            lp_start(Constants.SDK_VERSION, userId, attributesString);
         }
 
         public override void ForceSyncVariables(Leanplum.SyncVariablesCompleted completedHandler)
@@ -504,7 +504,7 @@ namespace LeanplumSDK
             string argString = args == null ? null : args.ToJSON();
             string optionString = options == null ? null : Json.Serialize(options);
 
-            _defineAction(name, (int)kind, argString, optionString);
+            lp_defineAction(name, (int)kind, argString, optionString);
         }
 
         public override bool ShowMessage(string id)
@@ -518,7 +518,7 @@ namespace LeanplumSDK
         /// </summary>
         public override void TrackIOSInAppPurchases()
         {
-            _trackIOSInAppPurchases();
+            lp_trackIOSInAppPurchases();
         }
 
         /// <summary>
@@ -530,7 +530,7 @@ namespace LeanplumSDK
             IDictionary<string, object> parameters)
         {
             string parametersString = parameters == null ? null : Json.Serialize(parameters);
-            _trackPurchase(eventName, value, currencyCode, parametersString);
+            lp_trackPurchase(eventName, value, currencyCode, parametersString);
         }
 
         /// <summary>
@@ -542,7 +542,7 @@ namespace LeanplumSDK
             IDictionary<string, object> parameters)
         {
             string parametersString = parameters == null ? null : Json.Serialize(parameters);
-            _track(eventName, value, info, parametersString);
+            lp_track(eventName, value, info, parametersString);
         }
 
         /// <summary>
@@ -553,7 +553,7 @@ namespace LeanplumSDK
         public override void SetTrafficSourceInfo(IDictionary<string, string> info)
         {
             string infoString = (info == null) ? null : Json.Serialize(info);
-            _setTrafficSourceInfo(infoString);
+            lp_setTrafficSourceInfo(infoString);
         }
 
         /// <summary>
@@ -565,7 +565,7 @@ namespace LeanplumSDK
             IDictionary<string, object> parameters)
         {
             string parametersString = parameters == null ? null : Json.Serialize(parameters);
-            _advanceTo(state, info, parametersString);
+            lp_advanceTo(state, info, parametersString);
         }
 
         /// <summary>
@@ -577,7 +577,7 @@ namespace LeanplumSDK
             IDictionary<string, object> attributes)
         {
             string attributesString = attributes == null ? null : Json.Serialize(attributes);
-            _setUserAttributes(newUserId, attributesString);
+            lp_setUserAttributes(newUserId, attributesString);
         }
 
         /// <summary>
@@ -587,7 +587,7 @@ namespace LeanplumSDK
         /// </summary>
         public override void PauseState()
         {
-            _pauseState();
+            lp_pauseState();
         }
 
         /// <summary>
@@ -595,7 +595,7 @@ namespace LeanplumSDK
         /// </summary>
         public override void ResumeState()
         {
-            _resumeState();
+            lp_resumeState();
         }
 
         /// <summary>
@@ -604,7 +604,7 @@ namespace LeanplumSDK
         /// </summary>
         public override List<object> Variants()
         {
-            return (List<object>)Json.Deserialize(_variants());
+            return (List<object>)Json.Deserialize(lp_variants());
         }
 
         /// <summary>
@@ -618,7 +618,7 @@ namespace LeanplumSDK
         /// </returns>
         public override LeanplumSecuredVars SecuredVars()
         {
-            string jsonString = _securedVars();
+            string jsonString = lp_securedVars();
             if (!string.IsNullOrEmpty(jsonString))
             {
                 var varsDict = (Dictionary<string, object>)Json.Deserialize(jsonString);
@@ -629,7 +629,7 @@ namespace LeanplumSDK
 
         public override IDictionary<string, object> Vars()
         {
-            string jsonString = _vars();
+            string jsonString = lp_vars();
             return (Dictionary<string, object>)Json.Deserialize(jsonString);
         }
 
@@ -639,7 +639,7 @@ namespace LeanplumSDK
         /// </summary>
         public override Dictionary<string, object> MessageMetadata()
         {
-            return (Dictionary<string, object>)Json.Deserialize(_messageMetadata());
+            return (Dictionary<string, object>)Json.Deserialize(lp_messageMetadata());
         }
 
         /// <summary>
@@ -649,7 +649,7 @@ namespace LeanplumSDK
         /// </summary>
         public override void ForceContentUpdate()
         {
-            _forceContentUpdate();
+            lp_forceContentUpdate();
         }
 
         /// <summary>
@@ -687,7 +687,7 @@ namespace LeanplumSDK
         {
             int key = DictionaryKey++;
             ForceContentUpdateHandlersDictionary.Add(key, handler);
-            _forceContentUpdateWithHandler(key);
+            lp_forceContentUpdateWithHandler(key);
         }
 
         #endregion
@@ -814,13 +814,13 @@ namespace LeanplumSDK
         #region Dealing with Variables
 
         [DllImport("__Internal")]
-        internal static extern void _defineVariable(string name, string kind, string jsonValue);
+        internal static extern void lp_defineVariable(string name, string kind, string jsonValue);
 
         [DllImport("__Internal")]
-        internal static extern void _registerVariableCallback(string name);
+        internal static extern void lp_registerVariableCallback(string name);
 
         [DllImport("__Internal")]
-        internal static extern string _getVariableValue(string name, string kind);
+        internal static extern string lp_getVariableValue(string name, string kind);
 
         public static IDictionary<string, Var> IOSVarCache = new Dictionary<string, Var>();
 
@@ -835,7 +835,7 @@ namespace LeanplumSDK
                 }
                 return IOSVarCache[name];
             }
-            _defineVariable(name, kind, Json.Serialize(defaultValue));
+            lp_defineVariable(name, kind, Json.Serialize(defaultValue));
             return null;
         }
 
@@ -996,14 +996,14 @@ namespace LeanplumSDK
             }
 
             OnActionRespondersDictionary[actionName].Add(handler);
-            _onAction(actionName);
+            lp_onAction(actionName);
         }
 
         public override ActionContext CreateActionContextForId(string actionId)
         {
             if (!string.IsNullOrEmpty(actionId))
             {
-                string key = _createActionContextForId(actionId);
+                string key = lp_createActionContextForId(actionId);
                 string messageId = GetMessageIdFromMessageKey(key);
                 var context = new ActionContextApple(key, messageId);
                 ActionContextsDictionary[key] = context;
@@ -1015,7 +1015,7 @@ namespace LeanplumSDK
 
         public override bool TriggerActionForId(string actionId)
         {
-            return _triggerAction(actionId);
+            return lp_triggerAction(actionId);
         }
 
         #endregion
