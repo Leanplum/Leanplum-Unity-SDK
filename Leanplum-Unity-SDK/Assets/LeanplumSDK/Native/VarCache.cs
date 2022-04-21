@@ -81,7 +81,6 @@ namespace LeanplumSDK
             get { return messages; }
             private set { messages = value; }
         }
-        public static int downloadsPending;
 
         public delegate void updateEventHandler();
         public static event updateEventHandler Update;
@@ -285,12 +284,11 @@ namespace LeanplumSDK
             {
                 return;
             }
-            string token = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.TOKEN_KEY);
-            if (token == null)
+            if (string.IsNullOrEmpty(Leanplum.ApiConfig.Token))
             {
                 return;
             }
-            LeanplumRequest.Token = token;
+
             string variablesCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.VARIABLES_KEY, "{}");
             string fileAttributesCipher =
                 LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.FILE_ATTRIBUTES_KEY, "{}");
@@ -298,24 +296,42 @@ namespace LeanplumSDK
             string messagesCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.MESSAGES_KEY, "{}");
 
             string userIdCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.USERID_KEY);
-            if (!String.IsNullOrEmpty(userIdCipher))
+            if (!string.IsNullOrEmpty(userIdCipher))
             {
-                LeanplumRequest.UserId = AESCrypt.Decrypt(userIdCipher, LeanplumRequest.Token);
+                Leanplum.ApiConfig.UserId = AESCrypt.Decrypt(userIdCipher, Leanplum.ApiConfig.Token);
             }
 
             string varsJsonCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.VARIABLES_JSON_KEY, null);
             string varsSignatureCipher = LeanplumNative.CompatibilityLayer.GetSavedString(Constants.Defaults.VARIABLES_SIGN_KEY, null);
-            string varsJson = varsJsonCipher != null ? AESCrypt.Decrypt(varsJsonCipher, LeanplumRequest.Token) : null;
-            string varsSignature = varsSignatureCipher != null ? AESCrypt.Decrypt(varsSignatureCipher, LeanplumRequest.Token) : null;
+            string varsJson = varsJsonCipher != null ? AESCrypt.Decrypt(varsJsonCipher, Leanplum.ApiConfig.Token) : null;
+            string varsSignature = varsSignatureCipher != null ? AESCrypt.Decrypt(varsSignatureCipher, Leanplum.ApiConfig.Token) : null;
 
             ApplyVariableDiffs(
-                Json.Deserialize(variablesCipher == "{}" ? variablesCipher :
-                                   AESCrypt.Decrypt(variablesCipher, LeanplumRequest.Token))
-                                 as IDictionary<string, object>,
-                Json.Deserialize(messagesCipher == "{}" ? messagesCipher : AESCrypt.Decrypt(messagesCipher, LeanplumRequest.Token)) as IDictionary<string, object>,
-                Json.Deserialize(fileAttributesCipher == "{}" ? fileAttributesCipher :
-                                    AESCrypt.Decrypt(fileAttributesCipher, LeanplumRequest.Token))
-                                 as IDictionary<string, object>, null, varsJson, varsSignature);
+                DeserializeEncryptedData(variablesCipher),
+                DeserializeEncryptedData(messagesCipher),
+                DeserializeEncryptedData(fileAttributesCipher),
+                null,
+                varsJson,
+                varsSignature);
+        }
+
+        private static IDictionary<string, object> DeserializeEncryptedData(string dataCipher)
+        {
+            return Json.Deserialize(dataCipher == "{}" ? dataCipher :
+                                   AESCrypt.Decrypt(dataCipher, Leanplum.ApiConfig.Token))
+                                 as IDictionary<string, object>;
+        }
+
+        private static void StoreEncrypted(string key, object data)
+        {
+            string serializedData = Json.Serialize(data);
+            StoreEncrypted(key, serializedData);
+        }
+
+        private static void StoreEncrypted(string key, string serializedData)
+        {
+            string encrypted = AESCrypt.Encrypt(serializedData, Leanplum.ApiConfig.Token);
+            LeanplumNative.CompatibilityLayer.StoreSavedString(key, encrypted);
         }
 
         public static void SaveDiffs()
@@ -324,31 +340,22 @@ namespace LeanplumSDK
             {
                 return;
             }
-            if (String.IsNullOrEmpty(LeanplumRequest.Token))
+            if (string.IsNullOrEmpty(Leanplum.ApiConfig.Token))
             {
                 return;
             }
 
-            string variablesCipher = Json.Serialize(diffs);
-            string fileAttributeCipher = Json.Serialize(fileAttributes);
+            StoreEncrypted(Constants.Defaults.MESSAGES_KEY, Messages);
+            StoreEncrypted(Constants.Defaults.VARIABLES_KEY, diffs);
+            StoreEncrypted(Constants.Defaults.FILE_ATTRIBUTES_KEY, fileAttributes);
 
-            string messagesCipher = Json.Serialize(Messages);
-            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.MESSAGES_KEY,
-    AESCrypt.Encrypt(messagesCipher, LeanplumRequest.Token));
-
-            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.VARIABLES_KEY,
-                AESCrypt.Encrypt(variablesCipher, LeanplumRequest.Token));
-            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.FILE_ATTRIBUTES_KEY,
-                 AESCrypt.Encrypt(fileAttributeCipher, LeanplumRequest.Token));
-            if (!String.IsNullOrEmpty(LeanplumRequest.UserId))
+            if (!string.IsNullOrEmpty(Leanplum.ApiConfig.UserId))
             {
-                LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.USERID_KEY,
-                                                             AESCrypt.Encrypt(LeanplumRequest.UserId, LeanplumRequest.Token));
+                StoreEncrypted(Constants.Defaults.USERID_KEY, Leanplum.ApiConfig.UserId);
             }
-            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.TOKEN_KEY, LeanplumRequest.Token);
 
-            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.VARIABLES_JSON_KEY, AESCrypt.Encrypt(varsJson, LeanplumRequest.Token));
-            LeanplumNative.CompatibilityLayer.StoreSavedString(Constants.Defaults.VARIABLES_SIGN_KEY, AESCrypt.Encrypt(varsSignature, LeanplumRequest.Token));
+            StoreEncrypted(Constants.Defaults.VARIABLES_JSON_KEY, varsJson);
+            StoreEncrypted(Constants.Defaults.VARIABLES_SIGN_KEY, varsSignature);
 
             LeanplumNative.CompatibilityLayer.FlushSavedSettings();
         }
@@ -402,10 +409,7 @@ namespace LeanplumSDK
 
         public static void OnUpdate()
         {
-            if (Update != null)
-            {
-                Update();
-            }
+            Update?.Invoke();
         }
 
         internal static void MergeMessages(IDictionary<string, object> messages)
@@ -468,21 +472,30 @@ namespace LeanplumSDK
 
         internal static void ForceSendVariables(Leanplum.SyncVariablesCompleted completedHandler)
         {
-            var parameters = new Dictionary<string, string>();
-            parameters[Constants.Params.VARIABLES] = Json.Serialize(valuesFromClient);
-            parameters[Constants.Params.KINDS] = Json.Serialize(defaultKinds);
+            if (!Leanplum.IsDeveloperModeEnabled)
+            {
+                LeanplumNative.CompatibilityLayer.LogError("Leanplum Error: ForceSendVariables requires Development mode");
+                return;
+            }
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>
+            {
+                [Constants.Params.VARIABLES] = Json.Serialize(valuesFromClient),
+                [Constants.Params.KINDS] = Json.Serialize(defaultKinds)
+            };
             LeanplumUnityHelper.QueueOnMainThread(() => {
-                LeanplumRequest setVarsReq = LeanplumRequest.Post(Constants.Methods.SET_VARS, parameters);
-                setVarsReq.Response += delegate (object response)
+
+                Request request = RequestBuilder.withSetVarsAction().AndParameters(parameters).CreateImmediate();
+                request.Response += delegate (object response)
                 {
                     completedHandler?.Invoke(true);
                 };
-                setVarsReq.Error += delegate (Exception ex)
+                request.Error += delegate (Exception ex)
                 {
                     LeanplumNative.CompatibilityLayer.LogError("Leanplum Error: ForceSyncVariables", ex);
                     completedHandler?.Invoke(false);
                 };
-                setVarsReq.SendNow();
+                Leanplum.RequestSender.Send(request);
             });
         }
 

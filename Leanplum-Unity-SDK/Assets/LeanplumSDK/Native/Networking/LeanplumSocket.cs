@@ -1,5 +1,5 @@
 #if !UNITY_WEBGL
-// Copyright 2020, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -42,7 +42,8 @@ namespace LeanplumSDK
         {
             onUpdateVars = onUpdate;
             onActionTrigger = onAction;
-            socketIOClient = new Client("https://" + Constants.SOCKET_HOST + ":" + Constants.SOCKET_PORT);
+            string url = $"https://{Leanplum.ApiConfig.SocketHost}:{Leanplum.ApiConfig.SocketPort}";
+            socketIOClient = new Client(url);
             socketIOClient.Opened += OnSocketOpened;
             socketIOClient.Message += OnSocketMessage;
             socketIOClient.SocketConnectionClosed += OnSocketConnectionClosed;
@@ -59,6 +60,7 @@ namespace LeanplumSDK
                 }
             };
 
+            LeanplumNative.CompatibilityLayer.LogDebug($"Will connect to socket: {url}");
             Connect();
             reconnectTimer.Start();
         }
@@ -72,7 +74,9 @@ namespace LeanplumSDK
 
         public void Close()
         {
+            LeanplumNative.CompatibilityLayer.Log("Closing socket");
             socketIOClient.Close();
+            reconnectTimer.Dispose();
         }
 
         private void OnSocketOpened(object obj, EventArgs e)
@@ -85,8 +89,8 @@ namespace LeanplumSDK
                 if (!authSent && connected)
                 {
                     IDictionary<string, string> args = new Dictionary<string, string>();
-                    args[Constants.Params.APP_ID] = LeanplumRequest.AppId;
-                    args[Constants.Params.DEVICE_ID] = LeanplumRequest.DeviceId;
+                    args[Constants.Params.APP_ID] = Leanplum.ApiConfig.AppId;
+                    args[Constants.Params.DEVICE_ID] = Leanplum.ApiConfig.DeviceId;
                     socketIOClient.Emit("auth", args);
                     authSent = true;
                 }

@@ -40,8 +40,37 @@ namespace LeanplumSDK
         public delegate void SyncVariablesCompleted(bool success);
         public delegate void VariableChangedHandler();
         public delegate void VariablesChangedAndNoDownloadsPendingHandler();
+        public delegate void NoPendingDownloadsHandler();
 
         public const string PURCHASE_EVENT_NAME = "Purchase";
+
+        #region Networking
+
+        internal static ApiConfig ApiConfig
+        {
+            get
+            {
+                return LeanplumFactory.SDK.ApiConfig;
+            }
+        }
+
+        internal static RequestSender RequestSender
+        {
+            get
+            {
+                return LeanplumFactory.SDK.RequestSender;
+            }
+        }
+
+        internal static FileTransferManager FileTransferManager
+        {
+            get
+            {
+                return LeanplumFactory.SDK.FileTransferManager;
+            }
+        }
+
+        #endregion
 
         #region Accessors and Mutators
 

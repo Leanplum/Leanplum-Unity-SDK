@@ -1,5 +1,5 @@
 //
-// Copyright 2013, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -38,7 +38,6 @@ namespace LeanplumSDK
     /// <summary>
     ///     Provides a class that is implemented in a MonoBehaviour so that Unity functions can be
     ///     called through the GameObject.
-    ///
     /// </summary>
     public class LeanplumUnityHelper : MonoBehaviour
     {
@@ -61,7 +60,7 @@ namespace LeanplumSDK
                     }
 
                     // Create LeanplumUnityHelper 
-                    GameObject container = new GameObject("LeanplumUnityHelper"); 
+                    GameObject container = new GameObject("LeanplumUnityHelper");
                     instance = container.AddComponent<LeanplumUnityHelper>();
 
                     // In case instance is left, never save it to a scene file 
@@ -69,6 +68,53 @@ namespace LeanplumSDK
                 }
                 return instance;
             }
+        }
+
+        private readonly LinkedList<IEnumerator> coroutineQueue = new LinkedList<IEnumerator>();
+        private IEnumerator runningCoroutine;
+
+        IEnumerator CoroutineCoordinator()
+        {
+            // Executed every frame
+            while (true)
+            {
+                while (coroutineQueue.Count > 0)
+                {
+                    if (runningCoroutine == null)
+                    {
+                        runningCoroutine = coroutineQueue.First.Value;
+                        coroutineQueue.RemoveFirst();
+                        yield return StartCoroutine(runningCoroutine);
+                        runningCoroutine = null;
+                    }
+                }
+                yield return null;
+            }
+        }
+
+        /// <summary>
+        /// Enqueue tasks to be executed synchronously
+        /// </summary>
+        /// <param name="task">The action to be executed</param>
+        public void Enqueue(Action task)
+        {
+            coroutineQueue.AddLast(DoTask(task));
+        }
+
+        public void Enqueue(Func<IEnumerator> func)
+        {
+            coroutineQueue.AddLast(func());
+        }
+
+        /// <summary>
+        /// Wraps Action to be executed from a Coroutine
+        /// </summary>
+        /// <param name="task">The action to be executed</param>
+        /// <returns>Iterator for the Coroutine</returns>
+        internal IEnumerator DoTask(Action task)
+        {
+            yield return null;
+            task();
         }
 
         public void NativeCallback(string message)
@@ -82,6 +128,8 @@ namespace LeanplumSDK
 
             // Prevent Unity from destroying this GameObject when a new scene is loaded.
             DontDestroyOnLoad(this.gameObject);
+
+            StartCoroutine(CoroutineCoordinator());
         }
 
         private void OnApplicationQuit()
@@ -142,20 +190,33 @@ namespace LeanplumSDK
         internal void StartRequest(string url, WWWForm wwwForm, Action<WebResponse> responseHandler,
                                    int timeout, bool isAsset = false)
         {
-            StartCoroutine(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
+            if (!isAsset)
+            {
+                // API requests are executed synchronously one after another
+                // Insert at front so the request is run immediately after the task that creates and starts it
+                // Current flow: Send -> SaveRequest -> SendRequests
+                // Wait for the request to execute and then continue with next queued requests
+                coroutineQueue.AddFirst(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
+            }
+            else
+            {
+                // Issue asset requests immediately
+                StartCoroutine(RunRequest(url, wwwForm, responseHandler, timeout, isAsset));
+            }
         }
 
 #if !LP_UNITY_LEGACY_WWW
         private static UnityNetworkingRequest CreateWebRequest(string url, WWWForm wwwForm, bool isAsset)
         {
-            UnityNetworkingRequest result = null;
-            if (wwwForm == null)
+            UnityNetworkingRequest result;
+            if (wwwForm == null && !isAsset)
             {
                 result = UnityNetworkingRequest.Get(url);
             }
             else if (isAsset)
             {
-                result = UnityWebRequestAssetBundle.GetAssetBundle(url, 1);
+                // CRC not available yet
+                result = UnityWebRequestAssetBundle.GetAssetBundle(url);
             }
             else
             {
@@ -195,17 +256,21 @@ namespace LeanplumSDK
                     yield return null;
                 }
 
-                if (request.isNetworkError || request.isHttpError)
+                if (request.result == UnityNetworkingRequest.Result.ConnectionError
+                    || request.result == UnityNetworkingRequest.Result.ProtocolError)
                 {
-                    responseHandler(new UnityWebResponse(request.responseCode, request.error, null, null));
+                    responseHandler(new LeanplumUnityWebResponse(request.responseCode, request.error, null, null));
                 }
                 else
                 {
-                    responseHandler(new UnityWebResponse(request.responseCode,
+                    DownloadHandler download = request.downloadHandler;
+                    DownloadHandlerAssetBundle downloadAsset = download as DownloadHandlerAssetBundle;
+                    responseHandler(new LeanplumUnityWebResponse(request.responseCode,
                         request.error,
-                        !isAsset ? request.downloadHandler.text : null,
-                        isAsset ? ((DownloadHandlerAssetBundle)request.downloadHandler) : null));
+                        !isAsset ? download.text : null,
+                        isAsset ? downloadAsset?.assetBundle : null));
                 }
+
             }
 #else
             using (WWW www = CreateWww(url, wwwForm, isAsset))

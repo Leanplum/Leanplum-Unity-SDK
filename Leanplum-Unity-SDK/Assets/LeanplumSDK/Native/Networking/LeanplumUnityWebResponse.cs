@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2013, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -19,14 +19,14 @@
 //  under the License.
 namespace LeanplumSDK
 {
-    internal class UnityWebResponse : WebResponse
+    internal class LeanplumUnityWebResponse : WebResponse
     {
         private readonly string error;
         private long statusCode;
         private readonly string responseBody;
         private readonly object responseBodyAsAsset;
 
-        public UnityWebResponse(long statusCode, string error, string text, object data)
+        public LeanplumUnityWebResponse(long statusCode, string error, string text, object data)
         {
             this.statusCode = statusCode;
             this.error = error;

@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2013, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -30,7 +30,7 @@ namespace LeanplumSDK
     /// </summary>
     public static class Util
     {
-        		/// <summary>
+        /// <summary>
 		///     Helper function to copy and cast values from containers of object types
 		///     to containers of primitive types.
 		/// </summary>
@@ -145,78 +145,6 @@ namespace LeanplumSDK
                 return s;
             }
             return char.ToUpper(first) + s.Substring(1);
-        }
-
-        public static WebRequest CreateWebRequest(string hostName, string path, IDictionary<string, string> parameters,
-            string httpMethod, bool ssl, int timeout)
-        {
-            WebRequest request = CreateWebRequest(hostName, path, ssl, timeout);
-            if (httpMethod.Equals("GET"))
-            {
-                request.AttachGetParameters(parameters);
-            }
-            else
-            {
-                request.AttachPostParameters(parameters);
-            }
-
-            return request;
-        }
-
-        public static WebRequest CreateWebRequest(string hostName, string path, bool ssl, int timeout)
-        {
-            string fullPath;
-            if (path.StartsWith("http"))
-            {
-                fullPath = path;
-            }
-            else
-            {
-                fullPath = (ssl ? "https://" : "http://") + hostName + "/" + path;
-            }
-			return LeanplumNative.CompatibilityLayer.CreateWebRequest(fullPath, timeout);
-        }
-
-        internal static int NumResponses(object response)
-        {
-            try
-            {
-                return ((response as IDictionary<string, object>)[Constants.Keys.RESPONSE] as IList<object>).Count;
-            }
-            catch (KeyNotFoundException e)
-            {
-				LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
-                return 0;
-            }
-            catch (NullReferenceException e)
-            {
-				LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
-                return 0;
-            }
-        }
-
-        internal static object GetResponseAt(object response, int index)
-        {
-            try
-            {
-                return ((response as IDictionary<string, object>)[Constants.Keys.RESPONSE] as IList<object>)[index];
-            }
-            catch (KeyNotFoundException e)
-            {
-				LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
-                return null;
-            }
-            catch (NullReferenceException e)
-            {
-				LeanplumNative.CompatibilityLayer.LogError("Could not parse JSON response", e);
-                return null;
-            }
-        }
-
-        internal static object GetLastResponse(object response)
-        {
-            int numResponses = Util.NumResponses(response);
-            return numResponses > 0 ? GetResponseAt(response, numResponses - 1) : null;
         }
 
         internal static int GetUnixTimestamp()

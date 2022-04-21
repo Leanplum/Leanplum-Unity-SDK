@@ -99,62 +99,59 @@ namespace LeanplumSDK
                 }
 
                 string newFile = newValue.ToString();
-                string url = null;
-
-                if (String.IsNullOrEmpty(newFile))
+                if (string.IsNullOrEmpty(newFile))
                 {
                     return;
                 }
 
+                string url = null;
                 if (VarCache.FileAttributes != null && VarCache.FileAttributes.ContainsKey(newFile))
                 {
                     IDictionary<string, object> currentFile =
                         (VarCache.FileAttributes[newFile] as IDictionary<string, object>)
-                        [String.Empty] as IDictionary<string, object>;
+                        [string.Empty] as IDictionary<string, object>;
                     if (currentFile.ContainsKey(Constants.Keys.URL))
                     {
-                        url = ((VarCache.FileAttributes[newFile] as IDictionary<string, object>)
-                            [String.Empty] as IDictionary<string, object>)[Constants.Keys.URL] as string;
+                        url = GetResourceURL(newFile);
                     }
                 }
 
-                // Update if the file is different from what we currently have and if we have started downloading it
-                // already. Also update if we don't have the file but don't update if realtime updating is disabled -
-                // wait 'til we get the value from the serve so that the correct file is displayed.
-                if (currentlyDownloadingFile != newFile && !String.IsNullOrEmpty(url) &&
+                // Download new file if the file is different than:
+                // - the current file for the varible
+                // - the file currently being downloaded for the variable
+                // - there is no file value and realtime updating is enabled
+                // Do not download and update if realtime updating is disabled
+                // Wait until the file is downloaded from the server
+                if (currentlyDownloadingFile != newFile && !string.IsNullOrEmpty(url) &&
                     ((newFile != FileName && realtimeAssetUpdating && fileReady) ||
                      (Value == null && realtimeAssetUpdating)))
                 {
-                    VarCache.downloadsPending++;
                     currentlyDownloadingFile = newFile;
                     FileName = newFile;
                     fileReady = false;
 
-                    LeanplumRequest downloadRequest = LeanplumRequest.Get(url.Substring(1));
-                    downloadRequest.Response += delegate(object obj)
+                    void OnFileResponse(object file)
                     {
-                        _value = (T) obj;
+                        _value = (T)file;
                         if (newFile == FileName && !fileReady)
                         {
                             fileReady = true;
                             OnValueChanged();
                             currentlyDownloadingFile = null;
                         }
+                    }
 
-                        VarCache.downloadsPending--;
-                    };
-                    downloadRequest.Error += delegate(Exception obj)
+                    void OnFileError(Exception ex)
                     {
                         if (newFile == FileName && !fileReady)
                         {
-                            LeanplumNative.CompatibilityLayer.LogError("Error downloading assetbundle \"" +
-                                                                       FileName + "\". " + obj.ToString());
+                            string errorMessage = $"Error downloading AssetBundle \"{Name}\" with \"{FileName}\". {ex}";
+                            LeanplumNative.CompatibilityLayer.LogError(errorMessage);
                             currentlyDownloadingFile = null;
                         }
+                    }
 
-                        VarCache.downloadsPending--;
-                    };
-                    downloadRequest.DownloadAssetNow();
+                    Leanplum.FileTransferManager.DownloadAssetResource(url, OnFileResponse, OnFileError);
                 }
             }
             else
@@ -187,6 +184,37 @@ namespace LeanplumSDK
                     }
                 }
             }
+        }
+
+
+        /* 
+         * "example.jpg": {
+         *      "": {
+         *          "size": 41802,
+         *          "hash": null,
+         *          "servingUrl": "http://lh3.googleusercontent.com/PymI6X...",
+         *          "url": "/resource/AMIfv94zoleE43w_3PLB02..."
+         *      }
+         *  }
+         */
+        private string GetResourceURL(string fileName)
+        {
+            if (VarCache.FileAttributes.ContainsKey(fileName))
+            {
+                var fileAttributes = VarCache.FileAttributes[fileName] as IDictionary<string, object>;
+                if (fileAttributes != null)
+                {
+                    var fileData = Util.GetValueOrDefault(fileAttributes, string.Empty) as IDictionary<string, object>;
+                    var url = Util.GetValueOrDefault(fileData, Constants.Keys.URL) as string;
+                    if (!string.IsNullOrEmpty(url) && url.StartsWith("/"))
+                    {
+                        return url.Substring(1);
+                    }
+                    return url;
+                }
+            }
+
+            return null;
         }
 
         public override object GetDefaultValue()

@@ -58,7 +58,7 @@ namespace LeanplumSDK
         {
             if (LeanplumDeveloperMode)
             {
-                Debug.Log(message);
+                Log(message);
             }
         }
 
@@ -145,7 +145,7 @@ namespace LeanplumSDK
         #region Web
         public WebRequest CreateWebRequest(string url, int timeout)
         {
-            return new UnityWebRequest(url, timeout);
+            return new LeanplumUnityWebRequest(url, timeout);
         }
 
         public string URLEncode(string str)
