@@ -165,9 +165,6 @@ build() {
     "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.xcframework"
 
   # Build Android SDK
-  rm -rf "Leanplum-Unity-SDK/Assets/Plugins/Android"
-  mkdir -p "Leanplum-Unity-SDK/Assets/Plugins/Android"
-  
   cd Leanplum-Android-SDK-Unity/
   ./gradlew clean assembleRelease
 
