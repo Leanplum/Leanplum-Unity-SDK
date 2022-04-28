@@ -1145,6 +1145,12 @@ namespace LeanplumSDK
 
         public override void ForceContentUpdate(Leanplum.ForceContentUpdateHandler handler)
         {
+            if (Constants.isNoop)
+            {
+                handler?.Invoke(true);
+                return;
+            }
+
             IDictionary<string, object> updateVarsParams = new Dictionary<string, object>();
 
             if (Leanplum.IsDeveloperModeEnabled)
