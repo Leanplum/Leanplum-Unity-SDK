@@ -94,6 +94,11 @@ namespace LeanplumSDK
         {
             AndroidJNI.AttachCurrentThread();
             nativeSdk = new AndroidJavaClass("com.leanplum.UnityBridge");
+
+            // This also constructs LeanplumUnityHelper and the game object.
+            gameObjectName = LeanplumUnityHelper.Instance.gameObject.name;
+
+            NativeSDK.CallStatic("initialize", gameObjectName, Constants.SDK_VERSION, null);
         }
 
         #region Accessors and Mutators
@@ -353,10 +358,6 @@ namespace LeanplumSDK
             // Invokes Started event through NativeCallback
             Started += startResponseAction;
 
-            // This also constructs LeanplumUnityHelper and the game object.
-            gameObjectName = LeanplumUnityHelper.Instance.gameObject.name;
-
-            NativeSDK.CallStatic("initialize", gameObjectName, Constants.SDK_VERSION, null);
             NativeSDK.CallStatic("start", userId, Json.Serialize(attributes));
         }
 
