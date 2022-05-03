@@ -5,31 +5,28 @@ using System.IO;
 using LeanplumSDK.MiniJSON;
 using UnityEditor;
 using UnityEditor.Build;
-
-#if UNITY_2018_1_OR_NEWER
 using UnityEditor.Build.Reporting;
-#endif
 
 namespace Leanplum.Private
 {
-    #if UNITY_2018_1_OR_NEWER
+    /// <summary>
+    /// Generates googleservices.xml file from google-services.json
+    /// The json file must be inside Assets folder
+    /// This circumvents the need of the 'com.google.gms.google-services' gradle plugin
+    /// and the json file to be in the project
+    /// </summary>
+    [Obsolete("Use google-services gradle plugin instead")]
     class LeanplumAndroidBuildPreProcessor : IPreprocessBuildWithReport
-    #else
-    class LeanplumAndroidBuildPreProcessor : IPreprocessBuild
-    #endif
     {
-
         public int callbackOrder
         {
             get { return 0; }
         }
 
-        #if UNITY_2018_1_OR_NEWER
         public void OnPreprocessBuild(BuildReport report)
         {
             OnPreprocessBuild(report.summary.platform, report.summary.outputPath);
         }
-        #endif
 
         public void OnPreprocessBuild(BuildTarget target, string path)
         {
@@ -48,7 +45,7 @@ namespace Leanplum.Private
 
                 var dict = Json.Deserialize(json) as Dictionary<string, object>;
                 var projectInfo = dict["project_info"] as Dictionary<string, object>;
-                var projectNumber = projectInfo["project_number"] as string;
+                var projectId = projectInfo["project_id"] as string;
 
                 var client = dict["client"] as List<object>;
                 var element = client[0] as Dictionary<string, object>;
@@ -59,7 +56,11 @@ namespace Leanplum.Private
                 var clientInfo = element["client_info"] as Dictionary<string, object>;
                 var appId = clientInfo["mobilesdk_app_id"];
 
-                var xml = CreateXml(projectNumber, clientId, appId);
+                var apiKey = element["api_key"] as List<object>;
+                var apiKeyValues = apiKey[0] as Dictionary<string, object>;
+                var key = apiKeyValues["current_key"] as string;
+
+                var xml = CreateXml(projectId, key, clientId, appId);
                 WriteFile(xml, destPath);
             }
 
@@ -89,12 +90,13 @@ namespace Leanplum.Private
             writer.Close();
         }
 
-        private string CreateXml(string projectNumber, string clientId, object appId)
+        private string CreateXml(string projectId, string appKey, string clientId, object appId)
         {
-            return "<?xml version='1.0' encoding='utf-8'?>\n<resources tools:keep=\"@string/gcm_defaultSenderId,@string/project_id,@string/default_web_client_id,@string/google_app_id\" xmlns:tools=\"http://schemas.android.com/tools\">\n "
-                + "<string name=\"gcm_defaultSenderId\" translatable=\"false\">" + projectNumber + "</string>\n"
+            return "<?xml version='1.0' encoding='utf-8'?>\n<resources tools:keep=\"@string/project_id,@string/default_web_client_id,@string/google_app_id,@string/google_app_key\" xmlns:tools=\"http://schemas.android.com/tools\">\n "
                 + "<string name=\"default_web_client_id\" translatable=\"false\">" + clientId + "</string>\n"
                 + "<string name=\"google_app_id\" translatable=\"false\">" + appId + "</string>\n"
+                + "<string name=\"google_app_key\" translatable=\"false\">" + appKey + "</string>\n"
+                + "<string name=\"project_id\" translatable=\"false\">" + projectId + "</string>\n"
                 + "</resources>";
         }
     }
