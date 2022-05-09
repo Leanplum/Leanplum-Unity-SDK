@@ -43,6 +43,7 @@ import com.leanplum.callbacks.VariablesChangedCallback;
 import com.leanplum.internal.CollectionUtil;
 import com.leanplum.internal.Constants;
 import com.leanplum.internal.LeanplumInternal;
+import com.leanplum.internal.OperationQueue;
 import com.leanplum.internal.VarCache;
 import com.leanplum.json.JsonConverter;
 import com.leanplum.messagetemplates.MessageTemplates;
@@ -56,8 +57,14 @@ public class UnityBridge {
 
   private static final String CLIENT = "unity-nativeandroid";
 
-  static void makeCallbackToUnity(String message) {
-    UnityPlayer.UnitySendMessage(unityGameObject, "NativeCallback", message);
+  static void makeCallbackToUnity(final String message) {
+    final Runnable sendMessageOperation = new Runnable() {
+      @Override
+      public void run() {
+        UnityPlayer.UnitySendMessage(unityGameObject, "NativeCallback", message);
+      }
+    };
+    OperationQueue.sharedInstance().addParallelOperation(sendMessageOperation);
   }
 
   public static void initialize(String gameObject, String sdkVersion, String defaultDeviceId) {
