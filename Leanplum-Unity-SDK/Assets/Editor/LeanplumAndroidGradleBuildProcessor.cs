@@ -9,9 +9,15 @@ namespace Leanplum.Private
     class LeanplumAndroidGradleBuildProcessor : IPostGenerateGradleAndroidProject
     {
         public int callbackOrder { get { return 0; } }
+
+        private static readonly string BETA = "beta";
+        private static readonly string SEPARATOR = "-";
+
         public void OnPostGenerateGradleAndroidProject(string path)
         {
-            var current = new Version(LeanplumSDK.Constants.SDK_VERSION);
+            string version = LeanplumSDK.Constants.SDK_VERSION;
+            version = version.Split(new string[] { $"{SEPARATOR}{BETA}" }, StringSplitOptions.RemoveEmptyEntries)[0];
+            var current = new Version(version);
             var min = new Version("2.0.0");
 
             if (current >= min)

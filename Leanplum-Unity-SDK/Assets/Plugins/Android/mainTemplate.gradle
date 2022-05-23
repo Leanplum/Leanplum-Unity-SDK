@@ -34,7 +34,7 @@ allprojects {
 def LEANPLUM_SDK_VERSION = "%LP_VERSION%"
 
 apply plugin: 'com.android.library'
-// Uncomment for FCM
+// Uncomment for FCM if not using GooglePlugin or googleservices.xml
 // apply plugin: 'com.google.gms.google-services'
 // Uncomment for Huawei
 // apply plugin: 'com.huawei.agconnect'
