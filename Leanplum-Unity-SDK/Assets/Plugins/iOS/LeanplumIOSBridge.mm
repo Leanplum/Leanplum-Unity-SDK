@@ -25,6 +25,7 @@
 #import "LeanplumUnityHelper.h"
 #import "LeanplumActionContextBridge.h"
 #import "LeanplumIOSBridge.h"
+#import <Leanplum/Leanplum-Swift.h>
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
 
@@ -91,6 +92,67 @@ extern "C"
     /**
      * Leanplum bridge public methods implementation
      */
+
+    typedef int (*ShouldDisplayCallback) (const char *);
+    void lp_onShouldDisplayMessage(ShouldDisplayCallback callback)
+    {
+        [[ActionManager shared] shouldDisplayMessage:^MessageDisplayChoice * _Nonnull(LPActionContext * _Nonnull context) {
+            NSString *key = [LeanplumActionContextBridge addActionContext:context];
+            int result = callback(lp::to_string(key));
+            [[LeanplumActionContextBridge sharedActionContexts] removeObjectForKey:key];
+            switch (result) {
+                case 0:
+                    return [MessageDisplayChoice show];
+                    break;
+                case 1:
+                    return [MessageDisplayChoice discard];
+                    break;
+                case -1:
+                    return [MessageDisplayChoice delayWithSeconds:-1];
+                    break;
+                default:
+                    int delay = result - 2;
+                    return [MessageDisplayChoice delayWithSeconds:delay];
+                    break;
+            }
+        }];
+    }
+    
+    typedef const char * (*PrioritizeMessagesCallback) (const char *, const char *);
+    void lp_onPrioritizeMessages(PrioritizeMessagesCallback callback)
+    {
+        [[ActionManager shared] prioritizeMessages:^NSArray<LPActionContext *> * _Nonnull(NSArray<LPActionContext *> * _Nonnull contexts, ActionsTrigger * _Nullable actionsTrigger) {
+            
+            NSMutableArray<NSString *> *arr = [NSMutableArray arrayWithCapacity:contexts.count];
+            [contexts enumerateObjectsUsingBlock:^(LPActionContext * _Nonnull context, NSUInteger idx, BOOL * _Nonnull stop) {
+                [arr addObject:[LeanplumActionContextBridge addActionContext:context]];
+            }];
+            
+            NSDictionary *trigger = @{
+                @"eventName": actionsTrigger.eventName ?: @"",
+                @"condition": actionsTrigger.condition ?: @[],
+                @"contextualValues": actionsTrigger.contextualValues ?: @{}
+            };
+            
+            NSString *csv = [arr componentsJoinedByString:@","];
+            
+            const char *result = callback(lp::to_string(csv), lp::to_json_string(trigger));
+            
+            NSArray<NSString *> *keys = [lp::to_nsstring(result) componentsSeparatedByString:@","];
+            NSMutableArray<LPActionContext *> *eligibleContexts = [NSMutableArray arrayWithCapacity:keys.count];
+            [keys enumerateObjectsUsingBlock:^(NSString * _Nonnull key, NSUInteger idx, BOOL * _Nonnull stop) {
+                [eligibleContexts addObject:[LeanplumActionContextBridge sharedActionContexts][key]];
+            }];
+            
+            // remove non-eligible contexts from the shared ones
+            [arr removeObjectsInArray:keys];
+            [arr enumerateObjectsUsingBlock:^(NSString * _Nonnull key, NSUInteger idx, BOOL * _Nonnull stop) {
+                [[LeanplumActionContextBridge sharedActionContexts] removeObjectForKey:key];
+            }];
+            
+            return eligibleContexts;
+        }];
+    }
 
     void lp_registerForNotifications()
     {
@@ -218,7 +280,7 @@ extern "C"
     }
 
     const char * lp_securedVars()
-    {   
+    {
         LPSecuredVars *securedVars = [Leanplum securedVars];
         if (securedVars) {
             NSDictionary *securedVarsDict = @{
@@ -478,15 +540,15 @@ extern "C"
             }
         }
 
-        [Leanplum defineAction:actionName
-                        ofKind:actionKind
-                 withArguments:arguments
-                   withOptions:optionsDictionary
-                 withResponder:^BOOL(LPActionContext *context) {
-                     // Propagate back event to unity layer
-                     sendMessageActionContext(@"ActionResponder", actionName, context);
-                     return YES;
-                 }];
+//        [Leanplum defineAction:actionName
+//                        ofKind:actionKind
+//                 withArguments:arguments
+//                   withOptions:optionsDictionary
+//                 withResponder:^BOOL(LPActionContext *context) {
+//                     // Propagate back event to unity layer
+//                     sendMessageActionContext(@"ActionResponder", actionName, context);
+//                     return YES;
+//                 }];
     }
 
     void lp_onAction(const char *name)
@@ -497,10 +559,10 @@ extern "C"
         
         NSString *actionName = lp::to_nsstring(name);
         // Register the onAction responder
-        [Leanplum onAction:actionName invoke:^BOOL(LPActionContext *context) {
-            sendMessageActionContext(@"OnAction", actionName, context);
-            return YES;
-        }];
+//        [Leanplum onAction:actionName invoke:^BOOL(LPActionContext *context) {
+//            sendMessageActionContext(@"OnAction", actionName, context);
+//            return YES;
+//        }];
     }
 
     const char * lp_createActionContextForId(const char *actionId)
