@@ -26,6 +26,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using LeanplumSDK.Apple;
+using AOT;
+using System.Linq;
 
 namespace LeanplumSDK
 {
@@ -159,6 +161,128 @@ namespace LeanplumSDK
         [DllImport("__Internal")]
         internal static extern void lp_disableLocationCollection();
 
+
+        #region Action Manager Changes
+
+        public class MessageDisplayChoice
+        {
+            public int DelaySeconds { get; set; }
+            public DisplayChoice Choice { get; set; }
+
+            public enum DisplayChoice
+            {
+                SHOW = 0,
+                DISCARD,
+                DELAY
+            }
+
+            private MessageDisplayChoice(DisplayChoice type, int delaySeconds = 0)
+            {
+                Choice = type;
+                DelaySeconds = delaySeconds;
+            }
+
+            public static MessageDisplayChoice Show()
+            {
+                return new MessageDisplayChoice(DisplayChoice.SHOW);
+            }
+
+            public static MessageDisplayChoice Discard()
+            {
+                return new MessageDisplayChoice(DisplayChoice.DISCARD);
+            }
+            public static MessageDisplayChoice Delay(int delaySeconds)
+            {
+                return new MessageDisplayChoice(DisplayChoice.DELAY, delaySeconds);
+            }
+        }
+
+        public delegate MessageDisplayChoice ShouldDisplayMessageHandler(ActionContext context);
+        private static ShouldDisplayMessageHandler shouldDisplayMessageHandler;
+
+        public delegate ActionContext[] PrioritizeMessagesHandler(ActionContext[] contexts, Dictionary<string, object> actionTrigger);
+        private static PrioritizeMessagesHandler prioritizeMessagesHandler;
+
+        private static LeanplumApple sharedInstance;
+
+        [DllImport("__Internal")]
+        private static extern void lp_onShouldDisplayMessage(ShouldDisplayMessageDelegate callback);
+
+        private delegate int ShouldDisplayMessageDelegate(string key);
+
+        [MonoPInvokeCallback(typeof(ShouldDisplayMessageDelegate))]
+        public static int ShouldDisplayMessageInternal(string key)
+        {
+            if (sharedInstance == null || shouldDisplayMessageHandler == null)
+            {
+                return (int)MessageDisplayChoice.DisplayChoice.SHOW;
+            }
+
+            string messageId = sharedInstance.GetMessageIdFromMessageKey(key);
+            var context = new ActionContextApple(key, messageId);
+            sharedInstance.ActionContextsDictionary[key] = context;
+
+            var result = shouldDisplayMessageHandler(context);
+            if (result.Choice.Equals(MessageDisplayChoice.DisplayChoice.DELAY))
+            {
+                if (result.DelaySeconds <= -1)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return (int)MessageDisplayChoice.DisplayChoice.DELAY + result.DelaySeconds;
+                }
+            }
+            return (int)result.Choice;
+        }
+
+        // The method the customer will call
+        public void ShouldDisplayMessage(ShouldDisplayMessageHandler handler)
+        {
+            shouldDisplayMessageHandler = handler;
+            lp_onShouldDisplayMessage(ShouldDisplayMessageInternal);
+        }
+
+
+        [DllImport("__Internal")]
+        private static extern void lp_onPrioritizeMessages(PrioritizeMessagesDelegate callback);
+
+        private delegate string PrioritizeMessagesDelegate(string contexts, string actionTrigger);
+
+        [MonoPInvokeCallback(typeof(PrioritizeMessagesDelegate))]
+        public static string PrioritizeMessagesDelegateInternal(string contextsKeys, string actionTrigger)
+        { 
+            if (sharedInstance == null || prioritizeMessagesHandler == null)
+            {
+                return contextsKeys;
+            }
+
+            Debug.Log($"PrioritizeMessagesDelegateInternal: {contextsKeys} {actionTrigger}");
+
+            string[] keys = contextsKeys.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+
+            List<ActionContext> contexts = new List<ActionContext>();
+            foreach (string key in keys)
+            {
+                string messageId = sharedInstance.GetMessageIdFromMessageKey(key);
+                var context = new ActionContextApple(key, messageId);
+                sharedInstance.ActionContextsDictionary[key] = context;
+                contexts.Add(context);
+            }
+
+            var eligibleContexts = prioritizeMessagesHandler(contexts.ToArray(), Json.Deserialize(actionTrigger) as Dictionary<string, object>);
+            return string.Join(",", eligibleContexts.Select(x => x.Name));
+        }
+
+        // The method the customer will call
+        public void PrioritizeMessages(PrioritizeMessagesHandler handler)
+        {
+            prioritizeMessagesHandler = handler;
+            lp_onPrioritizeMessages(PrioritizeMessagesDelegateInternal);
+        }
+
+        #endregion
 
         private LeanplumInbox inbox;
         public override LeanplumInbox Inbox
@@ -479,10 +603,41 @@ namespace LeanplumSDK
             Leanplum.StartHandler startResponseAction)
         {
             lp_setGameObject(LeanplumUnityHelper.Instance.gameObject.name);
+
+            sharedInstance = this;
+
             // Invokes Started event through NativeCallback
             Started += startResponseAction;
             string attributesString = attributes == null ? null : Json.Serialize(attributes);
             lp_start(Constants.SDK_VERSION, userId, attributesString);
+
+            // Sample Implementation
+            ShouldDisplayMessage((context) =>
+            {
+                Debug.Log($"ShouldDisplayMessage: {context}");
+
+                if (GetActionNameFromMessageKey(context.Name) == "Confirm")
+                {
+                    return MessageDisplayChoice.Discard();
+                }
+                if (GetActionNameFromMessageKey(context.Name) == "Interstitial")
+                {
+                    return MessageDisplayChoice.Delay(5);
+                }
+
+                return MessageDisplayChoice.Show();
+            });
+
+            PrioritizeMessages((contexts, trigger) =>
+            {
+                Debug.Log($"PrioritizeMessages: {trigger}");
+                if (contexts.Length > 2)
+                {
+                    return contexts.Take(2).ToArray();
+                }
+
+                return contexts;
+            });
         }
 
         public override void ForceSyncVariables(Leanplum.SyncVariablesCompleted completedHandler)
