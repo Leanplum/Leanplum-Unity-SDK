@@ -184,7 +184,7 @@ namespace LeanplumSDK
                         // Merge now when the action is to be triggered
                         var mergedActions = VarCache.MergeMessage(actionData);
 
-                        NativeActionContext actionContext = new NativeActionContext(null, actionName.ToString(), mergedActions);
+                        NativeActionContext actionContext = new NativeActionContext(Id, actionName.ToString(), mergedActions);
                         LeanplumActionManager.TriggerAction(actionContext, mergedActions);
                     }
                 }
