@@ -768,6 +768,42 @@ namespace LeanplumSDK
             LeanplumActionManager.RegisterOnActionResponder(actionName, handler);
         }
 
+        public override void ShouldDisplayMessage(Leanplum.ShouldDisplayMessageHandler handler)
+        {
+            // Not implemented
+            CompatibilityLayer.LogWarning("ShouldDisplayMessage is not implemented in Unity Native.");
+        }
+
+        public override void PrioritizeMessages(Leanplum.PrioritizeMessagesHandler handler)
+        {
+            // Not implemented
+            CompatibilityLayer.LogWarning("PrioritizeMessages is not implemented in Unity Native.");
+        }
+
+        public override void TriggerDelayedMessages()
+        {
+            // Not implemented
+            CompatibilityLayer.LogWarning("TriggerDelayedMessages is not implemented in Unity Native.");
+        }
+
+        public override void OnMessageAction(Leanplum.MessageActionHandler handler)
+        {
+            // Not implemented
+            CompatibilityLayer.LogWarning("OnMessageAction is not implemented in Unity Native.");
+        }
+
+        public override void OnMessageDismissed(Leanplum.MessageHandler handler)
+        {
+            // Not implemented
+            CompatibilityLayer.LogWarning("OnMessageDismissed is not implemented in Unity Native.");
+        }
+
+        public override void OnMessageDisplayed(Leanplum.MessageHandler handler)
+        {
+            // Not implemented
+            CompatibilityLayer.LogWarning("OnMessageDisplayed is not implemented in Unity Native.");
+        }
+
         /// <summary>
         ///     Whether In-app Messages and Actions should be triggered and executed.
         /// </summary>

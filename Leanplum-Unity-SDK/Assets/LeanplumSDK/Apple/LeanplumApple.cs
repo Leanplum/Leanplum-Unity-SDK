@@ -28,6 +28,7 @@ using System.Runtime.InteropServices;
 using LeanplumSDK.Apple;
 using AOT;
 using System.Linq;
+using static LeanplumSDK.Leanplum;
 
 namespace LeanplumSDK
 {
@@ -164,43 +165,8 @@ namespace LeanplumSDK
 
         #region Action Manager Changes
 
-        public class MessageDisplayChoice
-        {
-            public int DelaySeconds { get; set; }
-            public DisplayChoice Choice { get; set; }
-
-            public enum DisplayChoice
-            {
-                SHOW = 0,
-                DISCARD,
-                DELAY
-            }
-
-            private MessageDisplayChoice(DisplayChoice type, int delaySeconds = 0)
-            {
-                Choice = type;
-                DelaySeconds = delaySeconds;
-            }
-
-            public static MessageDisplayChoice Show()
-            {
-                return new MessageDisplayChoice(DisplayChoice.SHOW);
-            }
-
-            public static MessageDisplayChoice Discard()
-            {
-                return new MessageDisplayChoice(DisplayChoice.DISCARD);
-            }
-            public static MessageDisplayChoice Delay(int delaySeconds)
-            {
-                return new MessageDisplayChoice(DisplayChoice.DELAY, delaySeconds);
-            }
-        }
-
-        public delegate MessageDisplayChoice ShouldDisplayMessageHandler(ActionContext context);
         private static ShouldDisplayMessageHandler shouldDisplayMessageHandler;
 
-        public delegate ActionContext[] PrioritizeMessagesHandler(ActionContext[] contexts, Dictionary<string, object> actionTrigger);
         private static PrioritizeMessagesHandler prioritizeMessagesHandler;
 
         private static LeanplumApple sharedInstance;
@@ -238,12 +204,11 @@ namespace LeanplumSDK
         }
 
         // The method the customer will call
-        public void ShouldDisplayMessage(ShouldDisplayMessageHandler handler)
+        public override void ShouldDisplayMessage(ShouldDisplayMessageHandler handler)
         {
             shouldDisplayMessageHandler = handler;
             lp_onShouldDisplayMessage(ShouldDisplayMessageInternal);
         }
-
 
         [DllImport("__Internal")]
         private static extern void lp_onPrioritizeMessages(PrioritizeMessagesDelegate callback);
@@ -276,10 +241,30 @@ namespace LeanplumSDK
         }
 
         // The method the customer will call
-        public void PrioritizeMessages(PrioritizeMessagesHandler handler)
+        public override void PrioritizeMessages(PrioritizeMessagesHandler handler)
         {
             prioritizeMessagesHandler = handler;
             lp_onPrioritizeMessages(PrioritizeMessagesDelegateInternal);
+        }
+
+        public override void TriggerDelayedMessages()
+        {
+            // TODO: implement
+        }
+
+        public override void OnMessageDisplayed(MessageHandler handler)
+        {
+            // TODO: implement
+        }
+
+        public override void OnMessageDismissed(MessageHandler handler)
+        {
+            // TODO: implement
+        }
+
+        public override void OnMessageAction(MessageActionHandler handler)
+        {
+            // TODO: implement
         }
 
         #endregion

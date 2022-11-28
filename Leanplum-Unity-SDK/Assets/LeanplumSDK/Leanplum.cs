@@ -42,6 +42,12 @@ namespace LeanplumSDK
         public delegate void VariablesChangedAndNoDownloadsPendingHandler();
         public delegate void NoPendingDownloadsHandler();
 
+        public delegate MessageDisplayChoice ShouldDisplayMessageHandler(ActionContext context);
+        public delegate ActionContext[] PrioritizeMessagesHandler(ActionContext[] contexts, Dictionary<string, object> actionTrigger);
+
+        public delegate void MessageHandler(ActionContext context);
+        public delegate void MessageActionHandler(string action, ActionContext context);
+
         public const string PURCHASE_EVENT_NAME = "Purchase";
 
         #region Networking
@@ -81,7 +87,7 @@ namespace LeanplumSDK
         public static bool HasStarted
         {
             get { return LeanplumFactory.SDK.HasStarted(); }
-         }
+        }
 
         /// <summary>
         ///     Gets a value indicating whether Leanplum has started and the device is registered
@@ -309,7 +315,8 @@ namespace LeanplumSDK
         /// </summary>
         /// <param name="latitude"> Device location latitude. </param>
         /// <param name="longitude"> Device location longitude. </param>
-        public static void SetDeviceLocation(double latitude, double longitude) {
+        public static void SetDeviceLocation(double latitude, double longitude)
+        {
             LeanplumFactory.SDK.SetDeviceLocation(latitude, longitude);
         }
 
@@ -320,7 +327,7 @@ namespace LeanplumSDK
         /// <param name="latitude"> Device location latitude. </param>
         /// <param name="longitude"> Device location longitude. </param>
         /// <param name="type"> Location accuracy type. </param>
-        public static void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type) 
+        public static void SetDeviceLocation(double latitude, double longitude, LPLocationAccuracyType type)
         {
             LeanplumFactory.SDK.SetDeviceLocation(latitude, longitude, type);
         }
@@ -344,7 +351,8 @@ namespace LeanplumSDK
         ///    Disables collecting location automatically. Will do nothing if Leanplum-Location is 
         ///    not used. Not supported on Native.
         /// </summary>
-        public static void DisableLocationCollection() {
+        public static void DisableLocationCollection()
+        {
             LeanplumFactory.SDK.DisableLocationCollection();
         }
 
@@ -370,13 +378,14 @@ namespace LeanplumSDK
         /// </summary>
         public static event VariableChangedHandler VariablesChanged
         {
-                add
-                {
-                    LeanplumFactory.SDK.VariablesChanged += value;
-                }
-                remove {
-                    LeanplumFactory.SDK.VariablesChanged -= value;
-                }
+            add
+            {
+                LeanplumFactory.SDK.VariablesChanged += value;
+            }
+            remove
+            {
+                LeanplumFactory.SDK.VariablesChanged -= value;
+            }
         }
 
         /// <summary>
@@ -517,7 +526,7 @@ namespace LeanplumSDK
         /// </summary>
         /// <param name="id"> The message Id. </param>
         public static bool ShowMessage(string id)
-        { 
+        {
             return LeanplumFactory.SDK.ShowMessage(id);
         }
 
@@ -828,21 +837,32 @@ namespace LeanplumSDK
         ///     The provided callback will always fire regardless
         ///     of whether the variables have changed.
         /// </summary>
-        ///
+        /// <param name="callback">Action to execute when the update has completed.</param>
         public static void ForceContentUpdate(Action callback)
         {
             LeanplumFactory.SDK.ForceContentUpdate(callback);
         }
 
+        /// <summary>
+        ///     Forces content to update from the server. If variables have changed, the
+        ///     appropriate callbacks will fire. Use sparingly as if the app is updated,
+        ///     you'll have to deal with potentially inconsistent state or user experience.
+        ///     The provided callback will always fire regardless
+        ///     of whether the variables have changed.
+        /// </summary>
+        /// <param name="handler">
+        ///     Handler to execute after the update has completed,
+        ///     providing a success flag.
+        /// </param>
         public static void ForceContentUpdate(ForceContentUpdateHandler handler)
         {
             LeanplumFactory.SDK.ForceContentUpdate(handler);
         }
 
-        public static void OnAction(string actionName, ActionContext.ActionResponder handler)
-        {
-            LeanplumFactory.SDK.OnAction(actionName, handler);
-        }
+        //public static void OnAction(string actionName, ActionContext.ActionResponder handler)
+        //{
+        //    LeanplumFactory.SDK.OnAction(actionName, handler);
+        //}
 
         public static ActionContext CreateActionContextForId(string actionId)
         {
@@ -852,6 +872,71 @@ namespace LeanplumSDK
         public static bool TriggerActionForId(string actionId)
         {
             return LeanplumFactory.SDK.TriggerActionForId(actionId);
+        }
+
+        /// <summary>
+        ///     Called per in-app message to decide whether to show, discard or delay it.
+        /// </summary>
+        /// <param name="handler">
+        ///     Handler to be called before displaying a message.
+        ///     Provides an ActionContext and returns MessageDisplayChoice
+        /// </param>
+        public static void ShouldDisplayMessage(ShouldDisplayMessageHandler handler)
+        {
+            LeanplumFactory.SDK.ShouldDisplayMessage(handler);
+        }
+
+        /// <summary>
+        ///     Called when there are multiple messages to be displayed. Messages are ordered by Priority.
+        ///     Messages can be reordered or removed if desired. Removed messages will not be presented.
+        ///     Messages will be presented one after another in the order returned.
+        /// </summary>
+        /// <remarks>
+        ///     If this function is not implemented, the first message is presented only.
+        /// </remarks>
+        /// <param name="handler">
+        ///     Handler to be called if there are multiple messages triggered by the same trigger.
+        ///     Provides ActionContexts ordered by priority.
+        ///     Returns the messages to be displayed in that order.
+        /// </param>
+        public static void PrioritizeMessages(PrioritizeMessagesHandler handler)
+        {
+            LeanplumFactory.SDK.PrioritizeMessages(handler);
+        }
+
+        /// <summary>
+        ///     Triggers all postponed messages when indefinite time was used with `MessageDisplayChoice`
+        /// </summary>
+        public static void TriggerDelayedMessages()
+        {
+            LeanplumFactory.SDK.TriggerDelayedMessages();
+        }
+
+        /// <summary>
+        ///     Called when the message is displayed.
+        /// </summary>
+        /// <param name="handler">Handler with the message ActionContext.</param>
+        public static void OnMessageDisplayed(MessageHandler handler)
+        {
+            LeanplumFactory.SDK.OnMessageDisplayed(handler);
+        }
+
+        /// <summary>
+        ///     Called when the message is dismissed.
+        /// </summary>
+        /// <param name="handler">Handler with the message ActionContext.</param>
+        public static void OnMessageDismissed(MessageHandler handler)
+        {
+            LeanplumFactory.SDK.OnMessageDismissed(handler);
+        }
+
+        /// <summary>
+        ///     Called when a message action is executed.
+        /// </summary>
+        /// <param name="handler">Handler with the actionName and message ActionContext.</param>
+        public static void OnMessageAction(MessageActionHandler handler)
+        {
+            LeanplumFactory.SDK.OnMessageAction(handler);
         }
         #endregion
     }

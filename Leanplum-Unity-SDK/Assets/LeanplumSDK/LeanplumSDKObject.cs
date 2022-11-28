@@ -427,6 +427,18 @@ namespace LeanplumSDK
         /// </summary>
         /// <param name="id"> The message Id. </param>
         public abstract bool ShowMessage(string id);
+
+        public abstract void ShouldDisplayMessage(Leanplum.ShouldDisplayMessageHandler handler);
+
+        public abstract void PrioritizeMessages(Leanplum.PrioritizeMessagesHandler handler);
+
+        public abstract void TriggerDelayedMessages();
+
+        public abstract void OnMessageDisplayed(Leanplum.MessageHandler handler);
+
+        public abstract void OnMessageDismissed(Leanplum.MessageHandler handler);
+
+        public abstract void OnMessageAction(Leanplum.MessageActionHandler handler);
         #endregion
 
         public virtual void NativeCallback(string message) { }
