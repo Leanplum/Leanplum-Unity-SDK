@@ -31,10 +31,12 @@ namespace LeanplumSDK
                 context.GetStringNamed(Constants.Args.CANCEL_TEXT)))
                 {
                     context.RunTrackedActionNamed(Constants.Args.ACCEPT_ACTION);
+                    context.Dismissed();
                 }
                 else
                 {
                     context.RunActionNamed(Constants.Args.CANCEL_ACTION);
+                    context.Dismissed();
                 }
             });
 
@@ -53,6 +55,7 @@ namespace LeanplumSDK
                 {
                     Application.OpenURL(url);
                 }
+                context.Dismissed();
             });
 
             Leanplum.DefineAction(Constants.Args.OPEN_URL, Constants.ActionKind.ACTION, actionArgs, null, responder);
@@ -80,6 +83,8 @@ namespace LeanplumSDK
                     messageConfig, builder, 0);
 
                 EditorUtility.DisplayDialog(context.Name, builder.ToString(), null);
+                // EditorDialog stops execution until dismissed
+                context.Dismissed();
             });
 
             Leanplum.DefineAction(Constants.Args.GENERIC_DEFINITION_NAME, Constants.ActionKind.MESSAGE, args, null, responder);

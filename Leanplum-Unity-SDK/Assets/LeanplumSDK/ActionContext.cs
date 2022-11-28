@@ -5,6 +5,8 @@ namespace LeanplumSDK
     public abstract class ActionContext
     {
         public delegate void ActionResponder(ActionContext context);
+        public delegate void ActionDidDismiss();
+        internal virtual event ActionDidDismiss Dismiss;
 
         /// <summary>
         /// Id of the action
@@ -53,6 +55,14 @@ namespace LeanplumSDK
         /// </summary>
         /// <param name="name">action name</param>
         public abstract void RunTrackedActionNamed(string name);
+
+        /// <summary>
+        /// Indicates the action has been dismissed.
+        /// </summary>
+        public virtual void Dismissed()
+        {
+            Dismiss?.Invoke();
+        }
 
         /// <summary>
         /// Get string for name
