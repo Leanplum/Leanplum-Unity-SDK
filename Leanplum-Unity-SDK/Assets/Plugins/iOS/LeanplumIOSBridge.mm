@@ -551,20 +551,6 @@ extern "C"
 //                 }];
     }
 
-    void lp_onAction(const char *name)
-    {
-        // Initialize default templates to prevent defineAction:actionResponder to override
-        // the onAction that will be registered
-        [LPMessageTemplatesClass sharedTemplates];
-        
-        NSString *actionName = lp::to_nsstring(name);
-        // Register the onAction responder
-//        [Leanplum onAction:actionName invoke:^BOOL(LPActionContext *context) {
-//            sendMessageActionContext(@"OnAction", actionName, context);
-//            return YES;
-//        }];
-    }
-
     const char * lp_createActionContextForId(const char *actionId)
     {
         NSString *mId = lp::to_nsstring(actionId);

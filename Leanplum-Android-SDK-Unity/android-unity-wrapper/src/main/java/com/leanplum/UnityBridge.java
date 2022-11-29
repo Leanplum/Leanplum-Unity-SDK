@@ -359,21 +359,6 @@ public class UnityBridge {
     });
   }
 
-  public static void onAction(final String name) {
-    // Initialize default templates to prevent defineAction:actionResponder to override
-    // the onAction that will be registered
-    if (!LeanplumInternal.hasCalledStart() && UnityPlayer.currentActivity != null){
-      MessageTemplates.register(UnityPlayer.currentActivity);
-    }
-    Leanplum.onAction(name, new ActionCallback() {
-      @Override
-      public boolean onResponse(ActionContext context) {
-        sendMessageActionContext("OnAction", name, context);
-        return true;
-      }
-    });
-  }
-
   public static String createActionContextForId(final String actionId) {
     Map<String, Object> messages = VarCache.messages();
     if (messages == null) return null;

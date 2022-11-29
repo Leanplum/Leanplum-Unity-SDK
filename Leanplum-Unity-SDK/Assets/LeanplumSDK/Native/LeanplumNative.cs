@@ -763,11 +763,6 @@ namespace LeanplumSDK
             VarCache.RegisterActionDefinition(ad);
         }
 
-        public override void OnAction(string actionName, ActionContext.ActionResponder handler)
-        {
-            LeanplumActionManager.RegisterOnActionResponder(actionName, handler);
-        }
-
         public override void ShouldDisplayMessage(Leanplum.ShouldDisplayMessageHandler handler)
         {
             // Not implemented

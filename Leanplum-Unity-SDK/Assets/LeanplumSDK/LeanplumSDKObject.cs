@@ -443,8 +443,6 @@ namespace LeanplumSDK
 
         public virtual void NativeCallback(string message) { }
 
-        public abstract void OnAction(string actionName, ActionContext.ActionResponder handler);
-
         public abstract ActionContext CreateActionContextForId(string actionId);
 
         public abstract bool TriggerActionForId(string actionId);

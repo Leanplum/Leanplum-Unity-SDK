@@ -133,9 +133,6 @@ namespace LeanplumSDK
         internal static extern void lp_defineAction(string name, int kind, string argsJSON, string optionsJSON);
 
         [DllImport("__Internal")]
-        internal static extern void lp_onAction(string name);
-
-        [DllImport("__Internal")]
         internal static extern string lp_createActionContextForId(string actionId);
 
         [DllImport("__Internal")]
@@ -311,7 +308,6 @@ namespace LeanplumSDK
 
         private Dictionary<int, Leanplum.ForceContentUpdateHandler> ForceContentUpdateHandlersDictionary = new Dictionary<int, Leanplum.ForceContentUpdateHandler>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
-        private Dictionary<string, List<ActionContext.ActionResponder>> OnActionRespondersDictionary = new Dictionary<string, List<ActionContext.ActionResponder>>();
         private Dictionary<string, ActionContext> ActionContextsDictionary = new Dictionary<string, ActionContext>();
 
         static private int DictionaryKey = 0;
@@ -840,7 +836,6 @@ namespace LeanplumSDK
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_HANDLER = "ForceContentUpdateWithHandler:";
             const string DEFINE_ACTION_RESPONDER = "ActionResponder:";
-            const string ON_ACTION_RESPONDER = "OnAction:";
             const string RUN_ACTION_NAMED_RESPONDER = "OnRunActionNamed:";
 
             if (message.StartsWith(VARIABLES_CHANGED))
@@ -888,27 +883,6 @@ namespace LeanplumSDK
                     var context = new ActionContextApple(key, messageId);
                     ActionContextsDictionary[key] = context;
                     callback(context);
-                }
-            }
-            else if (message.StartsWith(ON_ACTION_RESPONDER))
-            {
-                string key = message.Substring(ON_ACTION_RESPONDER.Length);
-                string actionName = GetActionNameFromMessageKey(key);
-
-                if (OnActionRespondersDictionary.TryGetValue(actionName, out List<ActionContext.ActionResponder> callbacks))
-                {
-                    if (!ActionContextsDictionary.ContainsKey(key))
-                    {
-                        string messageId = GetMessageIdFromMessageKey(key);
-                        var newContext = new ActionContextApple(key, messageId);
-                        ActionContextsDictionary[key] = newContext;
-                    }
-
-                    ActionContext context = ActionContextsDictionary[key];
-                    foreach (var callback in callbacks)
-                    {
-                        callback(context);
-                    }
                 }
             }
             else if (message.StartsWith(RUN_ACTION_NAMED_RESPONDER))
@@ -1121,22 +1095,6 @@ namespace LeanplumSDK
             {
                 variable.OnValueChanged();
             }
-        }
-
-        public override void OnAction(string actionName, ActionContext.ActionResponder handler)
-        {
-            if (string.IsNullOrEmpty(actionName) || handler == null)
-            {
-                return;
-            }
-
-            if (!OnActionRespondersDictionary.ContainsKey(actionName))
-            {
-                OnActionRespondersDictionary[actionName] = new List<ActionContext.ActionResponder>();
-            }
-
-            OnActionRespondersDictionary[actionName].Add(handler);
-            lp_onAction(actionName);
         }
 
         public override ActionContext CreateActionContextForId(string actionId)

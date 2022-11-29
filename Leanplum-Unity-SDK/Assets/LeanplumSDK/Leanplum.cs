@@ -859,11 +859,6 @@ namespace LeanplumSDK
             LeanplumFactory.SDK.ForceContentUpdate(handler);
         }
 
-        //public static void OnAction(string actionName, ActionContext.ActionResponder handler)
-        //{
-        //    LeanplumFactory.SDK.OnAction(actionName, handler);
-        //}
-
         public static ActionContext CreateActionContextForId(string actionId)
         {
             return LeanplumFactory.SDK.CreateActionContextForId(actionId);
