@@ -30,15 +30,6 @@
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
 
-typedef void (*LeanplumRequestAuthorization)
-(id, SEL, unsigned long long, void (^)(BOOL, NSError *__nullable));
-
-@interface Leanplum()
-typedef void (^LeanplumHandledBlock)(BOOL success);
-+ (void)setClient:(NSString *)client withVersion:(NSString *)version;
-+ (LPActionContext *)createActionContextForMessageId:(NSString *)messageId;
-@end
-
 __attribute__ ((__constructor__)) static void initialize_bridge(void)
 {
 }
@@ -46,6 +37,12 @@ __attribute__ ((__constructor__)) static void initialize_bridge(void)
 static char *__LPgameObject;
 static NSMutableArray *__LPVariablesCache = [NSMutableArray array];
 const char *__NativeCallbackMethod = "NativeCallback";
+
+@interface Leanplum()
+typedef void (^LeanplumHandledBlock)(BOOL success);
++ (void)setClient:(NSString *)client withVersion:(NSString *)version;
++ (LPActionContext *)createActionContextForMessageId:(NSString *)messageId;
+@end
 
 // Variable Delegate class
 @interface LPUnityVarDelegate : NSObject <LPVarDelegate>
@@ -79,6 +76,11 @@ const char *__NativeCallbackMethod = "NativeCallback";
 @end
 
 @implementation LeanplumIOSBridge
++ (void) sendMessageToUnity:(NSString *) messageName withKey: (NSString *)key
+{
+    [self sendMessageToUnity:[NSString stringWithFormat:@"%@:%@", messageName, key]];
+}
+
 + (void) sendMessageToUnity:(NSString *) message
 {
     UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
@@ -91,68 +93,38 @@ extern "C"
     /**
      * Leanplum bridge public methods implementation
      */
-
-    typedef int (*ShouldDisplayCallback) (const char *);
-    void lp_onShouldDisplayMessage(ShouldDisplayCallback callback)
+#pragma mark Setup
+    void lp_setGameObject(const char *gameObject)
     {
-        [[LPActionManager shared] shouldDisplayMessage:^MessageDisplayChoice * _Nonnull(LPActionContext * _Nonnull context) {
-            NSString *key = [LeanplumActionContextBridge addActionContext:context];
-            int result = callback(lp::to_string(key));
-            [[LeanplumActionContextBridge sharedActionContexts] removeObjectForKey:key];
-            switch (result) {
-                case 0:
-                    return [MessageDisplayChoice show];
-                    break;
-                case 1:
-                    return [MessageDisplayChoice discard];
-                    break;
-                case -1:
-                    return [MessageDisplayChoice delayWithSeconds:-1];
-                    break;
-                default:
-                    int delay = result - 2;
-                    return [MessageDisplayChoice delayWithSeconds:delay];
-                    break;
-            }
-        }];
+        __LPgameObject = (char *)malloc(strlen(gameObject) + 1);
+        strcpy(__LPgameObject, gameObject);
     }
-    
-    typedef const char * (*PrioritizeMessagesCallback) (const char *, const char *);
-    void lp_onPrioritizeMessages(PrioritizeMessagesCallback callback)
+
+    // Leanplum start actions
+    void LeanplumSetupCallbackBlocks()
     {
-        [[LPActionManager shared] prioritizeMessages:^NSArray<LPActionContext *> * _Nonnull(NSArray<LPActionContext *> * _Nonnull contexts, ActionsTrigger * _Nullable actionsTrigger) {
-            
-            NSMutableArray<NSString *> *arr = [NSMutableArray arrayWithCapacity:contexts.count];
-            [contexts enumerateObjectsUsingBlock:^(LPActionContext * _Nonnull context, NSUInteger idx, BOOL * _Nonnull stop) {
-                [arr addObject:[LeanplumActionContextBridge addActionContext:context]];
-            }];
-            
-            NSDictionary *trigger = @{
-                @"eventName": actionsTrigger.eventName ?: @"",
-                @"condition": actionsTrigger.condition ?: @[],
-                @"contextualValues": actionsTrigger.contextualValues ?: @{}
-            };
-            
-            NSString *csv = [arr componentsJoinedByString:@","];
-            
-            const char *result = callback(lp::to_string(csv), lp::to_json_string(trigger));
-            
-            NSArray<NSString *> *keys = [lp::to_nsstring(result) componentsSeparatedByString:@","];
-            NSMutableArray<LPActionContext *> *eligibleContexts = [NSMutableArray arrayWithCapacity:keys.count];
-            [keys enumerateObjectsUsingBlock:^(NSString * _Nonnull key, NSUInteger idx, BOOL * _Nonnull stop) {
-                [eligibleContexts addObject:[LeanplumActionContextBridge sharedActionContexts][key]];
-            }];
-            
-            // remove non-eligible contexts from the shared ones
-            [arr removeObjectsInArray:keys];
-            [arr enumerateObjectsUsingBlock:^(NSString * _Nonnull key, NSUInteger idx, BOOL * _Nonnull stop) {
-                [[LeanplumActionContextBridge sharedActionContexts] removeObjectForKey:key];
-            }];
-            
-            return eligibleContexts;
+        [Leanplum onVariablesChanged:^{
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod, "VariablesChanged:");
+        }];
+        
+        [Leanplum onVariablesChangedAndNoDownloadsPending:^{
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
+                            "VariablesChangedAndNoDownloadsPending:");
+        }];
+        
+        [[Leanplum inbox] onChanged:^{
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
+                            [@"InboxOnChanged" UTF8String]);
+        }];
+        
+        [[Leanplum inbox] onForceContentUpdate:^(BOOL success) {
+            int res = [@(success) intValue];
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
+                                [[NSString stringWithFormat:@"InboxForceContentUpdate:%d", res] UTF8String]);
         }];
     }
 
+#pragma mark Leanplum Methods
     void lp_registerForNotifications()
     {
         [Leanplum enablePushNotifications];
@@ -278,24 +250,6 @@ extern "C"
         return lp::to_json_string([Leanplum variants]);
     }
 
-    const char * lp_securedVars()
-    {
-        LPSecuredVars *securedVars = [Leanplum securedVars];
-        if (securedVars) {
-            NSDictionary *securedVarsDict = @{
-                [LPSecuredVars securedVarsKey]: [securedVars varsJson],
-                [LPSecuredVars securedVarsSignatureKey]: [securedVars varsSignature]
-            };
-            return lp::to_json_string(securedVarsDict);
-        }
-        return NULL;
-    }
-
-    const char * lp_vars()
-    {
-        return lp::to_json_string([[LPVarCache sharedCache] diffs]);
-    }
-
     const char * lp_messageMetadata()
     {
         return lp::to_json_string([Leanplum messageMetadata]);
@@ -328,36 +282,6 @@ extern "C"
     void lp_setPushDeliveryTrackingEnabled(bool enabled)
     {
         [Leanplum setPushDeliveryTrackingEnabled:enabled];
-    }
-
-    void lp_setGameObject(const char *gameObject)
-    {
-        __LPgameObject = (char *)malloc(strlen(gameObject) + 1);
-        strcpy(__LPgameObject, gameObject);
-    }
-
-    // Leanplum start actions
-    void LeanplumSetupCallbackBlocks()
-    {
-        [Leanplum onVariablesChanged:^{
-            UnitySendMessage(__LPgameObject, __NativeCallbackMethod, "VariablesChanged:");
-        }];
-
-        [Leanplum onVariablesChangedAndNoDownloadsPending:^{
-            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
-                             "VariablesChangedAndNoDownloadsPending:");
-        }];
-
-        [[Leanplum inbox] onChanged:^{
-            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
-                             [@"InboxOnChanged" UTF8String]);
-        }];
-
-        [[Leanplum inbox] onForceContentUpdate:^(BOOL success) {
-            int res = [@(success) intValue];
-            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
-                                 [[NSString stringWithFormat:@"InboxForceContentUpdate:%d", res] UTF8String]);
-        }];
     }
 
     void lp_start(const char *sdkVersion, const char *userId, const char *dictStringJSON)
@@ -406,35 +330,68 @@ extern "C"
           andParameters:dictionary];
     }
 
-    const char *lp_objectForKeyPath(const char *dictStringJSON)
+#pragma mark Actions
+    typedef int (*ShouldDisplayCallback) (const char *);
+    void lp_onShouldDisplayMessage(ShouldDisplayCallback callback)
     {
-        NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
-        NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
-                                                                   options:NSUTF8StringEncoding
-                                                                     error:nil];
-        return lp::to_json_string([Leanplum objectForKeyPath:dictionary, nil]);
-    }
-
-    const char *lp_objectForKeyPathComponents(const char *dictStringJSON)
-    {
-        NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
-        id object = [NSJSONSerialization JSONObjectWithData:data
-                                                    options:NSUTF8StringEncoding
-                                                      error:nil];
-        return lp::to_json_string([Leanplum objectForKeyPathComponents:object]);
-    }
-
-    void lp_registerVariableCallback(const char *name)
-    {
-        NSString *varName = lp::to_nsstring(name);
-        for (int i = 0; i < __LPVariablesCache.count; i++) {
-            LPVar *var = [__LPVariablesCache objectAtIndex:i];
-            if ([var.name isEqualToString:varName]) {
-                // Create a delegate and set it to the variable.
-                [var setDelegate:[[LPUnityVarDelegate alloc] init]];
-                return;
+        [[LPActionManager shared] shouldDisplayMessage:^MessageDisplayChoice * _Nonnull(LPActionContext * _Nonnull context) {
+            NSString *key = [LeanplumActionContextBridge addActionContext:context];
+            // Call Unity
+            int result = callback(lp::to_string(key));
+            [[LeanplumActionContextBridge sharedActionContexts] removeObjectForKey:key];
+            switch (result) {
+                case 0:
+                    return [MessageDisplayChoice show];
+                    break;
+                case 1:
+                    return [MessageDisplayChoice discard];
+                    break;
+                case -1:
+                    return [MessageDisplayChoice delayWithSeconds:-1];
+                    break;
+                default:
+                    int delay = result - 2;
+                    return [MessageDisplayChoice delayWithSeconds:delay];
+                    break;
             }
-        }
+        }];
+    }
+    
+    typedef const char * (*PrioritizeMessagesCallback) (const char *, const char *);
+    void lp_onPrioritizeMessages(PrioritizeMessagesCallback callback)
+    {
+        [[LPActionManager shared] prioritizeMessages:^NSArray<LPActionContext *> * _Nonnull(NSArray<LPActionContext *> * _Nonnull contexts, ActionsTrigger * _Nullable  actionsTrigger) {
+    
+            NSMutableArray<NSString *> *arr = [NSMutableArray arrayWithCapacity:contexts.count];
+            [contexts enumerateObjectsUsingBlock:^(LPActionContext * _Nonnull context, NSUInteger idx, BOOL * _Nonnull stop) {
+                [arr addObject:[LeanplumActionContextBridge addActionContext:context]];
+            }];
+    
+            NSDictionary *trigger = @{
+                @"eventName": actionsTrigger.eventName ?: @"",
+                @"condition": actionsTrigger.condition ?: @[],
+                @"contextualValues": actionsTrigger.contextualValues ?: @{}
+            };
+    
+            NSString *csv = [arr componentsJoinedByString:@","];
+    
+            // Call Unity
+            const char *result = callback(lp::to_string(csv), lp::to_json_string(trigger));
+    
+            NSArray<NSString *> *keys = [lp::to_nsstring(result) componentsSeparatedByString:@","];
+            NSMutableArray<LPActionContext *> *eligibleContexts = [NSMutableArray arrayWithCapacity:keys.count];
+            [keys enumerateObjectsUsingBlock:^(NSString * _Nonnull key, NSUInteger idx, BOOL * _Nonnull stop) {
+                [eligibleContexts addObject:[LeanplumActionContextBridge sharedActionContexts][key]];
+            }];
+    
+            // remove non-eligible contexts from the shared ones
+            [arr removeObjectsInArray:keys];
+            [arr enumerateObjectsUsingBlock:^(NSString * _Nonnull key, NSUInteger idx, BOOL * _Nonnull stop) {
+                [[LeanplumActionContextBridge sharedActionContexts] removeObjectForKey:key];
+            }];
+    
+            return eligibleContexts;
+        }];
     }
 
     void sendMessageActionContext(NSString *messageName, LPActionContext *context)
@@ -544,11 +501,10 @@ extern "C"
                  withArguments:arguments
                    withOptions:optionsDictionary
                 presentHandler:^BOOL(LPActionContext * _Nonnull context) {
-            // Propagate back event to unity layer
             sendMessageActionContext(ACTION_RESPONDER, context);
             return YES;
         } dismissHandler:^BOOL(LPActionContext * _Nonnull context) {
-            // TODO: provide dismissHandler
+            sendMessageActionContext(ACTION_DISMISS, context);
             return YES;
         }];
     }
@@ -630,7 +586,56 @@ extern "C"
         return NO;
     }
 
-    // Leanplum Content
+#pragma mark Variables
+    const char * lp_securedVars()
+    {
+        LPSecuredVars *securedVars = [Leanplum securedVars];
+        if (securedVars) {
+            NSDictionary *securedVarsDict = @{
+                [LPSecuredVars securedVarsKey]: [securedVars varsJson],
+                [LPSecuredVars securedVarsSignatureKey]: [securedVars varsSignature]
+            };
+            return lp::to_json_string(securedVarsDict);
+        }
+        return NULL;
+    }
+    
+    const char * lp_vars()
+    {
+        return lp::to_json_string([[LPVarCache sharedCache] diffs]);
+    }
+
+    const char *lp_objectForKeyPath(const char *dictStringJSON)
+    {
+        NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
+                                                                options:NSUTF8StringEncoding
+                                                                    error:nil];
+        return lp::to_json_string([Leanplum objectForKeyPath:dictionary, nil]);
+    }
+    
+    const char *lp_objectForKeyPathComponents(const char *dictStringJSON)
+    {
+        NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
+        id object = [NSJSONSerialization JSONObjectWithData:data
+                                                    options:NSUTF8StringEncoding
+                                                    error:nil];
+        return lp::to_json_string([Leanplum objectForKeyPathComponents:object]);
+    }
+    
+    void lp_registerVariableCallback(const char *name)
+    {
+        NSString *varName = lp::to_nsstring(name);
+        for (int i = 0; i < __LPVariablesCache.count; i++) {
+            LPVar *var = [__LPVariablesCache objectAtIndex:i];
+            if ([var.name isEqualToString:varName]) {
+                // Create a delegate and set it to the variable.
+                [var setDelegate:[[LPUnityVarDelegate alloc] init]];
+                return;
+            }
+        }
+    }
+
     void lp_defineVariable(const char *name, const char *kind, const char *jsonValue)
     {
         LPVar *var = nil;
@@ -713,6 +718,7 @@ extern "C"
         return lp::to_json_string([var objectForKeyPath:nil]);
     }
 
+#pragma mark Inbox
     int lp_inbox_count()
     {
         return (int) [Leanplum inbox].count;

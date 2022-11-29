@@ -12,3 +12,4 @@ NSString *const ON_MESSAGE_DISMISSED = @"OnMessageDismissed";
 NSString *const ON_MESSAGE_ACTION = @"OnMessageAction";
 
 NSString *const ACTION_RESPONDER = @"ActionResponder";
+NSString *const ACTION_DISMISS = @"ActionDismiss";
