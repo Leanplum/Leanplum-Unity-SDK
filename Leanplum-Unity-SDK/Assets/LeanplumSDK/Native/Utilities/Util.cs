@@ -43,49 +43,43 @@ namespace LeanplumSDK
 				return;
 			}
 			
-			if (source is IDictionary)
+			if (source is IDictionary sourceDictionary)
 			{
-				if (destination is IDictionary)
+				if (destination is IDictionary destinationDictionary)
 				{
-					bool cleared = false;
-					foreach (object key in ((IDictionary) source).Keys)
+					foreach (object key in sourceDictionary.Keys)
 					{
-						object typedKey = Convert.ChangeType(key, destination.GetType().GetGenericArguments()[0]);
-						if (((IDictionary) source)[key] is IDictionary ||
-						    ((IDictionary) source)[key] is IList)
+                        object typedKey = Convert.ChangeType(key, destination.GetKeyType());
+						if (sourceDictionary[key] is IDictionary ||
+						    sourceDictionary[key] is IList)
 						{
-							if (((IDictionary) destination).Contains(typedKey))
+							if (destinationDictionary.Contains(typedKey))
 							{
-								FillInValues(((IDictionary) source)[key],
-								             ((IDictionary) destination)[typedKey]);
+								FillInValues(sourceDictionary[key],
+								             destinationDictionary[typedKey]);
 							}
 							else
 							{
-								((IDictionary) destination)[typedKey] = ((IDictionary) source)[key];
+								destinationDictionary[typedKey] = sourceDictionary[key];
 							}
 						}
 						else
 						{
-							if (!cleared)
-							{
-								cleared = true;
-								((IDictionary) destination).Clear();
-							}
-							
-							((IDictionary) destination)[typedKey] =
-								Convert.ChangeType(((IDictionary) source)[key],
-								                   destination.GetType().GetGenericArguments()[1]);
+                            destinationDictionary[typedKey] =
+								Convert.ChangeType(sourceDictionary[key],
+                                                   destination.GetValueType());
 						}
 					}
 				}
-				else if (destination is IList)
+				else if (destination is IList destinationList)
 				{
-					foreach (object varSubscript in ((IDictionary) source).Keys)
+					foreach (object varSubscript in sourceDictionary.Keys)
 					{
 						var strSubscript = (string) varSubscript;
-						int subscript = Convert.ToInt32(strSubscript.Substring(1, strSubscript.Length - 1 - 1));
-						FillInValues(((IDictionary) source)[varSubscript],
-						             ((IList) destination)[subscript]);
+                        // assumes key is in format "[index]"
+                        int subscript = Convert.ToInt32(strSubscript.Substring(1, strSubscript.Length - 1 - 1));
+						FillInValues(sourceDictionary[varSubscript],
+						             destinationList[subscript]);
 					}
 				}
 			}
@@ -93,7 +87,6 @@ namespace LeanplumSDK
 			{
 				int index = 0;
 				var sourceList = (IList) source;
-				//        foreach (object value in (IList) source)
 				for (int sourceIndex = 0; sourceIndex < sourceList.Count; sourceIndex++)
 				{
 					object value = sourceList[sourceIndex];
@@ -108,7 +101,7 @@ namespace LeanplumSDK
 							Convert.ChangeType(value,
 							                   destination.GetType().IsArray ?
 							                   destination.GetType().GetElementType() :
-							                   destination.GetType().GetGenericArguments()[0]);
+                                               destination.GetKeyType());
 					}
 					index++;
 				}
@@ -134,9 +127,9 @@ namespace LeanplumSDK
 
         public static string Capitalize(string s)
         {
-            if (String.IsNullOrEmpty(s))
+            if (string.IsNullOrEmpty(s))
             {
-                return String.Empty;
+                return string.Empty;
             }
 
             char first = s[0];
@@ -287,6 +280,19 @@ namespace LeanplumSDK
                 || value is float
                 || value is double
                 || value is decimal;
+        }
+    }
+
+    static class UtilExtensions
+    {
+        internal static Type GetKeyType(this object dictionary)
+        {
+            return dictionary.GetType().GetGenericArguments()[0];
+        }
+
+        internal static Type GetValueType(this object dictionary)
+        {
+            return dictionary.GetType().GetGenericArguments()[1];
         }
     }
 }
