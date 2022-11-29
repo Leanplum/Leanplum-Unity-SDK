@@ -10,7 +10,8 @@ namespace LeanplumSDK
         private readonly string name;
         private readonly string id;
         private readonly IDictionary<string, object> vars;
-        private ActionResponder runActionResponder;
+
+        internal virtual event ActionDidDismiss Dismiss;
 
         public NativeActionContext(string id, string name, IDictionary<string, object> vars)
         {
@@ -122,24 +123,6 @@ namespace LeanplumSDK
             return value != null ? value.ToString() : string.Empty;
         }
 
-        public override void MuteForFutureMessagesOfSameKind()
-        {
-            throw new NotImplementedException();
-        }
-
-        internal override void TriggerActionNamedResponder(ActionContext context)
-        {
-            if (runActionResponder != null)
-            {
-                runActionResponder.Invoke(context);
-            }
-        }
-
-        public override void SetActionNamedResponder(ActionResponder handler)
-        {
-            runActionResponder = handler;
-        }
-
         public override void RunActionNamed(string name)
         {
             object actionObject = Traverse(name);
@@ -159,7 +142,6 @@ namespace LeanplumSDK
             }
 
             NativeActionContext runActionContext = new NativeActionContext(Id, name, actionData);
-            TriggerActionNamedResponder(runActionContext);
 
             if (actionData != null)
             {
@@ -214,6 +196,11 @@ namespace LeanplumSDK
                 };
                 (LeanplumFactory.SDK as LeanplumNative).Track(eventName, value, info, param, args);
             }
+        }
+
+        public override void Dismissed()
+        {
+            Dismiss?.Invoke();
         }
 
         public static string GetFileURL(string fileName)

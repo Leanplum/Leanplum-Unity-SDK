@@ -55,9 +55,6 @@ namespace LeanplumSDK.Apple
         internal static extern void run_action_named(string id, string name);
 
         [DllImport("__Internal")]
-        internal static extern void set_action_named_responder(string id);
-
-        [DllImport("__Internal")]
         internal static extern void run_tracked_action_named(string id, string name);
 
         [DllImport("__Internal")]
@@ -67,7 +64,7 @@ namespace LeanplumSDK.Apple
         internal static extern void track_message_event(string id, string eventName, double value, string info, string parameters);
 
         [DllImport("__Internal")]
-        internal static extern void mute_future_messages_of_same_kind(string id);
+        internal static extern void dismiss(string id);
         
         public override string Name { get; }
         public override string Id { get; }
@@ -90,12 +87,6 @@ namespace LeanplumSDK.Apple
         {
             var parameters = param != null ? Json.Serialize(param) : "";
             track_event(Name, eventName, value, parameters);
-        }
-
-        public override void SetActionNamedResponder(ActionResponder responder)
-        {
-            runActionResponder = responder;
-            set_action_named_responder(Name);
         }
 
         internal override void TriggerActionNamedResponder(ActionContext context)
@@ -189,9 +180,9 @@ namespace LeanplumSDK.Apple
             return default(T);
         }
 
-        public override void MuteForFutureMessagesOfSameKind()
+        public override void Dismissed()
         {
-            mute_future_messages_of_same_kind(Name);
+            dismiss(Name);
         }
     }
 }

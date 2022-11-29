@@ -6,7 +6,6 @@ namespace LeanplumSDK
     {
         public delegate void ActionResponder(ActionContext context);
         public delegate void ActionDidDismiss();
-        internal virtual event ActionDidDismiss Dismiss;
 
         /// <summary>
         /// Id of the action
@@ -36,14 +35,6 @@ namespace LeanplumSDK
         public abstract void TrackMessageEvent(string eventName, double value, string info, IDictionary<string, object> param);
 
         /// <summary>
-        /// Sets a responder to be executed when an action is run.
-        /// </summary>
-        /// <param name="handler">the action responder to be invoked</param>
-        public abstract void SetActionNamedResponder(ActionResponder handler);
-
-        internal abstract void TriggerActionNamedResponder(ActionContext context);
-
-        /// <summary>
         /// Runs the action given by the "name" key.
         /// </summary>
         /// <param name="name">action name</param>
@@ -59,10 +50,7 @@ namespace LeanplumSDK
         /// <summary>
         /// Indicates the action has been dismissed.
         /// </summary>
-        public virtual void Dismissed()
-        {
-            Dismiss?.Invoke();
-        }
+        public abstract void Dismissed();
 
         /// <summary>
         /// Get string for name
@@ -108,10 +96,5 @@ namespace LeanplumSDK
         /// <typeparam name="T">int, double, float, byte, char</typeparam>
         /// <returns>found object or default</returns>
         public abstract T GetNumberNamed<T>(string name);
-
-        /// <summary>
-        /// Prevents the currently active message from appearing again in the future.
-        /// </summary>
-        public abstract void MuteForFutureMessagesOfSameKind();
     }
 }

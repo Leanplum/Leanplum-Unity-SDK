@@ -25,6 +25,7 @@
 #import "LeanplumUnityHelper.h"
 #import "LeanplumActionContextBridge.h"
 #import "LeanplumIOSBridge.h"
+#import "LeanplumUnityConstants.h"
 #import <Leanplum/Leanplum-Swift.h>
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
@@ -36,8 +37,6 @@ typedef void (*LeanplumRequestAuthorization)
 typedef void (^LeanplumHandledBlock)(BOOL success);
 + (void)setClient:(NSString *)client withVersion:(NSString *)version;
 + (LPActionContext *)createActionContextForMessageId:(NSString *)messageId;
-+ (void)triggerAction:(LPActionContext *)context
-         handledBlock:(nullable LeanplumHandledBlock)handledBlock;
 @end
 
 __attribute__ ((__constructor__)) static void initialize_bridge(void)
@@ -80,10 +79,10 @@ const char *__NativeCallbackMethod = "NativeCallback";
 @end
 
 @implementation LeanplumIOSBridge
-+ (void) sendMessageToUnity:(NSString *) messageName withKey: (NSString *)key
++ (void) sendMessageToUnity:(NSString *) message
 {
     UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
-                     [[NSString stringWithFormat:@"%@:%@", messageName, key] UTF8String]);
+                     [message UTF8String]);
 }
 @end
 
@@ -96,7 +95,7 @@ extern "C"
     typedef int (*ShouldDisplayCallback) (const char *);
     void lp_onShouldDisplayMessage(ShouldDisplayCallback callback)
     {
-        [[ActionManager shared] shouldDisplayMessage:^MessageDisplayChoice * _Nonnull(LPActionContext * _Nonnull context) {
+        [[LPActionManager shared] shouldDisplayMessage:^MessageDisplayChoice * _Nonnull(LPActionContext * _Nonnull context) {
             NSString *key = [LeanplumActionContextBridge addActionContext:context];
             int result = callback(lp::to_string(key));
             [[LeanplumActionContextBridge sharedActionContexts] removeObjectForKey:key];
@@ -121,7 +120,7 @@ extern "C"
     typedef const char * (*PrioritizeMessagesCallback) (const char *, const char *);
     void lp_onPrioritizeMessages(PrioritizeMessagesCallback callback)
     {
-        [[ActionManager shared] prioritizeMessages:^NSArray<LPActionContext *> * _Nonnull(NSArray<LPActionContext *> * _Nonnull contexts, ActionsTrigger * _Nullable actionsTrigger) {
+        [[LPActionManager shared] prioritizeMessages:^NSArray<LPActionContext *> * _Nonnull(NSArray<LPActionContext *> * _Nonnull contexts, ActionsTrigger * _Nullable actionsTrigger) {
             
             NSMutableArray<NSString *> *arr = [NSMutableArray arrayWithCapacity:contexts.count];
             [contexts enumerateObjectsUsingBlock:^(LPActionContext * _Nonnull context, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -438,12 +437,12 @@ extern "C"
         }
     }
 
-    void sendMessageActionContext(NSString *messageName, NSString *actionName, LPActionContext *context)
+    void sendMessageActionContext(NSString *messageName, LPActionContext *context)
     {
-        if (actionName != nil && context != nil) {
+        if (context != nil) {
             NSString *key = [LeanplumActionContextBridge addActionContext:context];
-            UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
-                            [[NSString stringWithFormat:@"%@:%@", messageName, key] UTF8String]);
+            NSString *unityMessage = [NSString stringWithFormat:@"%@:%@", messageName, key];
+            [LeanplumIOSBridge sendMessageToUnity:unityMessage];
         }
     }
 
@@ -539,16 +538,47 @@ extern "C"
                 [arguments addObject:[LPActionArg argNamed:argName withFile:defaultValue]];
             }
         }
+        
+        [Leanplum defineAction:actionName
+                        ofKind:actionKind
+                 withArguments:arguments
+                   withOptions:optionsDictionary
+                presentHandler:^BOOL(LPActionContext * _Nonnull context) {
+            // Propagate back event to unity layer
+            sendMessageActionContext(ACTION_RESPONDER, context);
+            return YES;
+        } dismissHandler:^BOOL(LPActionContext * _Nonnull context) {
+            // TODO: provide dismissHandler
+            return YES;
+        }];
+    }
 
-//        [Leanplum defineAction:actionName
-//                        ofKind:actionKind
-//                 withArguments:arguments
-//                   withOptions:optionsDictionary
-//                 withResponder:^BOOL(LPActionContext *context) {
-//                     // Propagate back event to unity layer
-//                     sendMessageActionContext(@"ActionResponder", actionName, context);
-//                     return YES;
-//                 }];
+    const void lp_triggerDelayedMessages()
+    {
+        [[LPActionManager shared] triggerDelayedMessages];
+    }
+
+    const void lp_onMessageDisplayed()
+    {
+        [[LPActionManager shared] onMessageDisplayed:^(LPActionContext * _Nonnull context) {
+            sendMessageActionContext(ON_MESSAGE_DISPLAYED, context);
+        }];
+    }
+
+    const void lp_onMessageDismissed()
+    {
+        [[LPActionManager shared] onMessageDismissed:^(LPActionContext * _Nonnull context) {
+            sendMessageActionContext(ON_MESSAGE_DISMISSED, context);
+        }];
+    }
+
+    const void lp_onMessageAction()
+    {
+        [[LPActionManager shared] onMessageAction:^(NSString * _Nonnull action, LPActionContext * _Nonnull context) {
+            NSString *key = [LeanplumActionContextBridge addActionContext:context];
+            NSString *message = [NSString stringWithFormat:@"%@:%@|%@", ON_MESSAGE_ACTION, action, key];
+            [LeanplumIOSBridge sendMessageToUnity:message];
+        }];
     }
 
     const char * lp_createActionContextForId(const char *actionId)
@@ -569,7 +599,7 @@ extern "C"
     {
         NSString *key = lp::to_nsstring(actionId);
         LPActionContext *context = [LeanplumActionContextBridge sharedActionContexts][key];
-    
+
         if (!context)
         {
             NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF CONTAINS[cd] %@", key];
@@ -589,12 +619,12 @@ extern "C"
                   }
               }
         }
-    
+
         if (context) {
-            [Leanplum triggerAction:context handledBlock:^(BOOL success) {
-                [[LPInternalState sharedState].actionManager
-                 recordMessageImpression:[context messageId]];
-            }];
+            ActionsTrigger *trigger = [[ActionsTrigger alloc] initWithEventName:@"manual-trigger"
+                                                                      condition:@[@"manual-trigger"]
+                                                               contextualValues:nil];
+            [[LPActionManager shared] triggerWithContexts:@[context] priority:PriorityDefault trigger:trigger];
             return YES;
         }
         return NO;
