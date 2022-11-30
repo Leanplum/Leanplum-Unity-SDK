@@ -673,26 +673,6 @@ namespace LeanplumSDK
                     callback(context);
                 }
             }
-            else if (message.StartsWith(RUN_ACTION_NAMED_RESPONDER))
-            {
-                char keysSeparator = '|';
-                string data = message.Substring(RUN_ACTION_NAMED_RESPONDER.Length);
-
-                string[] keys = data.Split(new char[] { keysSeparator }, StringSplitOptions.RemoveEmptyEntries);
-                if (keys.Length != 2)
-                {
-                    return;
-                }
-
-                string parentKey = keys[0];
-                string actionKey = keys[1];
-
-                if (ActionContextsDictionary.TryGetValue(parentKey, out ActionContext parentContext))
-                {
-                    var context = new ActionContextAndroid(actionKey, GetMessageIdFromMessageKey(actionKey));
-                    parentContext.TriggerActionNamedResponder(context);
-                }
-            }
 
             if (Inbox != null)
             {

@@ -69,8 +69,6 @@ namespace LeanplumSDK.Apple
         public override string Name { get; }
         public override string Id { get; }
 
-        private ActionResponder runActionResponder;
-
         internal ActionContextApple(string key, string messageId)
         {
             Name = key;
@@ -87,14 +85,6 @@ namespace LeanplumSDK.Apple
         {
             var parameters = param != null ? Json.Serialize(param) : "";
             track_event(Name, eventName, value, parameters);
-        }
-
-        internal override void TriggerActionNamedResponder(ActionContext context)
-        {
-            if (runActionResponder != null)
-            {
-                runActionResponder.Invoke(context);
-            }
         }
 
         public override void RunActionNamed(string name)
