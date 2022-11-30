@@ -36,7 +36,7 @@ namespace LeanplumSDK
     {
         private bool isDeveloper = false;
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void lp_setGameObject(string gameObject);
 
         [DllImport("__Internal")]
@@ -236,7 +236,7 @@ namespace LeanplumSDK
 
         [MonoPInvokeCallback(typeof(PrioritizeMessagesDelegate))]
         public static string PrioritizeMessagesDelegateInternal(string contextsKeys, string actionTrigger)
-        { 
+        {
             if (sharedInstance == null || prioritizeMessagesHandler == null)
             {
                 return contextsKeys;
@@ -343,6 +343,7 @@ namespace LeanplumSDK
 
         private Dictionary<int, Leanplum.ForceContentUpdateHandler> ForceContentUpdateHandlersDictionary = new Dictionary<int, Leanplum.ForceContentUpdateHandler>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
+        private Dictionary<string, ActionContext.ActionResponder> DismissActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
         private Dictionary<string, ActionContext> ActionContextsDictionary = new Dictionary<string, ActionContext>();
 
         static private int DictionaryKey = 0;
@@ -663,6 +664,12 @@ namespace LeanplumSDK
 
         public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
+            DefineAction(name, kind, args, options, responder, null);
+        }
+
+        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options,
+            ActionContext.ActionResponder responder, ActionContext.ActionResponder dismissResponder)
+        { 
             if (name == null)
             {
                 return;
@@ -671,11 +678,15 @@ namespace LeanplumSDK
             {
                 ActionRespondersDictionary.Add(name, responder);
             }
+            if (dismissResponder != null)
+            {
+                DismissActionRespondersDictionary.Add(name, dismissResponder);
+            }
 
             string argString = args == null ? null : args.ToJSON();
             string optionString = options == null ? null : Json.Serialize(options);
 
-            lp_defineAction(name, (int)kind, argString, optionString);
+            lp_defineAction(name, (int) kind, argString, optionString);
         }
 
         public override bool ShowMessage(string id)
@@ -928,7 +939,13 @@ namespace LeanplumSDK
                 string key = message.Substring(ACTION_DISMISS.Length);
                 string actionName = GetActionNameFromMessageKey(key);
 
-                // TODO: Implement
+                if (DismissActionRespondersDictionary.TryGetValue(actionName, out ActionContext.ActionResponder callback))
+                {
+                    string messageId = GetMessageIdFromMessageKey(key);
+                    var context = new ActionContextApple(key, messageId);
+                    ActionContextsDictionary[key] = context;
+                    callback(context);
+                }
             }
             else if (message.StartsWith(ON_MESSAGE_DISPLAYED))
             {

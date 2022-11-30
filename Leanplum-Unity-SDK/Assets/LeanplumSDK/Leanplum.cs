@@ -520,6 +520,12 @@ namespace LeanplumSDK
             LeanplumFactory.SDK.DefineAction(name, kind, args, options, responder);
         }
 
+        public static void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options,
+            ActionContext.ActionResponder responder, ActionContext.ActionResponder dismissResponder)
+        {
+            LeanplumFactory.SDK.DefineAction(name, kind, args, options, responder, dismissResponder);
+        }
+
         /// <summary>
         ///     Manually Trigger an In-App Message. Supported in Unity only.
         ///     The user must be eligible for the message and the message must be present on the device (requires a Start call).

@@ -739,6 +739,12 @@ namespace LeanplumSDK
 
         public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
+            DefineAction(name, kind, args, options, responder, null);
+        }
+
+        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options,
+            ActionContext.ActionResponder responder, ActionContext.ActionResponder dismissResponder)
+        {
             if (string.IsNullOrWhiteSpace(name))
             {
                 CompatibilityLayer.LogError($"Empty name parameter.");

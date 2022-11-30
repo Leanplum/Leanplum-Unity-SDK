@@ -393,6 +393,12 @@ namespace LeanplumSDK
             NativeSDK.CallStatic("defineAction", name, kindInt, argString, optionString);
         }
 
+        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options,
+            ActionContext.ActionResponder responder, ActionContext.ActionResponder dismissResponder)
+        {
+            // TODO: Implement
+        }
+
         public override void ShouldDisplayMessage(Leanplum.ShouldDisplayMessageHandler handler)
         {
             // TODO: Implement
