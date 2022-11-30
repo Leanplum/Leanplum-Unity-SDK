@@ -537,6 +537,16 @@ extern "C"
         }];
     }
 
+    const void lp_setActionManagerPaused(bool paused)
+    {
+        [[LPActionManager shared] setIsPaused:paused];
+    }
+
+    const void lp_setActionManagerEnabled(bool enabled)
+    {
+        [[LPActionManager shared] setIsEnabled:enabled];
+    }
+
     const char * lp_createActionContextForId(const char *actionId)
     {
         NSString *mId = lp::to_nsstring(actionId);

@@ -151,6 +151,12 @@ namespace LeanplumSDK
         internal static extern bool lp_onMessageAction();
 
         [DllImport("__Internal")]
+        internal static extern bool lp_setActionManagerPaused(bool paused);
+
+        [DllImport("__Internal")]
+        internal static extern bool lp_setActionManagerEnabled(bool enabled);
+
+        [DllImport("__Internal")]
         internal static extern void lp_forceContentUpdateWithHandler(int key);
 
         [DllImport("__Internal")]
@@ -285,12 +291,12 @@ namespace LeanplumSDK
 
         public override void SetActionManagerPaused(bool paused)
         {
-            // TODO: Implement
+            lp_setActionManagerPaused(paused);
         }
 
         public override void SetActionManagerEnabled(bool enabled)
         {
-            // TODO: Implement
+            lp_setActionManagerEnabled(enabled);
         }
 
         #endregion
