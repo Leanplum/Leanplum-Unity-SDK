@@ -439,6 +439,10 @@ namespace LeanplumSDK
         public abstract void OnMessageDismissed(Leanplum.MessageHandler handler);
 
         public abstract void OnMessageAction(Leanplum.MessageActionHandler handler);
+
+        public abstract void SetActionManagerPaused(bool paused);
+
+        public abstract void SetActionManagerEnabled(bool enabled);
         #endregion
 
         public virtual void NativeCallback(string message) { }

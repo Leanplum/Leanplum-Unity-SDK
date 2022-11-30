@@ -423,6 +423,16 @@ namespace LeanplumSDK
             // TODO: implement
         }
 
+        public override void SetActionManagerPaused(bool paused)
+        {
+            // TODO: Implement
+        }
+
+        public override void SetActionManagerEnabled(bool enabled)
+        {
+            // TODO: Implement
+        }
+
         public override bool ShowMessage(string id)
         {
             // The Android SDK does not support this.

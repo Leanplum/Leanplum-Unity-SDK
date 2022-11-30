@@ -933,6 +933,27 @@ namespace LeanplumSDK
         {
             LeanplumFactory.SDK.OnMessageAction(handler);
         }
+
+        /// <summary>
+        ///     Use method to pause or unpause in-app messages execution.
+        ///     When paused, it stops executing actions but new actions will continue to be added to the queue.
+        ///     Default value is false (unpaused).
+        /// </summary>
+        /// <param name="enabled">True to pause queue, false otherwise.</param>
+        public static void SetActionManagerPaused(bool paused)
+        {
+            LeanplumFactory.SDK.SetActionManagerPaused(paused);
+        }
+
+        /// <summary>
+        ///     Use method to disable queue. That would stop queue from receiving new actions.
+        ///     Default value is true (enabled).
+        /// </summary>
+        /// <param name="enabled">False to disable adding actions to queue and true otherwise.</param>
+        public static void SetActionManagerEnabled(bool enabled)
+        {
+            LeanplumFactory.SDK.SetActionManagerEnabled(enabled);
+        }
         #endregion
     }
 }

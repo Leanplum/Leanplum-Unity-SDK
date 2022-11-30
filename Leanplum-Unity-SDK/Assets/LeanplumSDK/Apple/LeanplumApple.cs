@@ -283,6 +283,16 @@ namespace LeanplumSDK
             lp_onMessageAction();
         }
 
+        public override void SetActionManagerPaused(bool paused)
+        {
+            // TODO: Implement
+        }
+
+        public override void SetActionManagerEnabled(bool enabled)
+        {
+            // TODO: Implement
+        }
+
         #endregion
 
         private LeanplumInbox inbox;
@@ -855,7 +865,7 @@ namespace LeanplumSDK
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_HANDLER = "ForceContentUpdateWithHandler:";
             const string DEFINE_ACTION_RESPONDER = "ActionResponder:";
-            const string RUN_ACTION_NAMED_RESPONDER = "OnRunActionNamed:";
+            const string ACTION_DISMISS = "ActionDismiss:";
             const string ON_MESSAGE_DISPLAYED = "OnMessageDisplayed:";
             const string ON_MESSAGE_DISMISSED = "OnMessageDismissed:";
             const string ON_MESSAGE_ACTION = "OnMessageAction:";
@@ -907,6 +917,13 @@ namespace LeanplumSDK
                     callback(context);
                 }
             }
+            else if (message.StartsWith(ACTION_DISMISS))
+            {
+                string key = message.Substring(ACTION_DISMISS.Length);
+                string actionName = GetActionNameFromMessageKey(key);
+
+                // TODO: Implement
+            }
             else if (message.StartsWith(ON_MESSAGE_DISPLAYED))
             {
                 if (messageDisplayedHandler != null)
@@ -933,23 +950,23 @@ namespace LeanplumSDK
             {
                 if (messageActionHandler != null)
                 {
-                    //char keysSeparator = '|';
-                    //string data = message.Substring(ON_MESSAGE_ACTION.Length);
+                    string data = message.Substring(ON_MESSAGE_ACTION.Length);
 
-                    //string[] keys = data.Split(new char[] { keysSeparator }, StringSplitOptions.RemoveEmptyEntries);
-                    //if (keys.Length != 2)
-                    //{
-                    //    return;
-                    //}
+                    char keysSeparator = '|';
+                    string[] keys = data.Split(new char[] { keysSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                    if (keys.Length != 2)
+                    {
+                        return;
+                    }
 
-                    //string parentKey = keys[0];
-                    //string actionKey = keys[1];
+                    string actionName = keys[0];
+                    string actionKey = keys[1];
 
-                    //if (ActionContextsDictionary.TryGetValue(parentKey, out ActionContext parentContext))
-                    //{
-                    //    var context = new ActionContextApple(actionKey, GetMessageIdFromMessageKey(actionKey));
-                    //    parentContext.TriggerActionNamedResponder(context);
-                    //}
+                    if (ActionContextsDictionary.TryGetValue(actionKey, out ActionContext parentContext))
+                    {
+                        var context = new ActionContextApple(actionKey, GetMessageIdFromMessageKey(actionKey));
+                        messageActionHandler.Invoke(actionName, context);
+                    }
                 }
             }
 
@@ -970,6 +987,25 @@ namespace LeanplumSDK
             string actionName = GetActionNameFromMessageKey(key);
             string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
             return messageId;
+        }
+
+        public override ActionContext CreateActionContextForId(string actionId)
+        {
+            if (!string.IsNullOrEmpty(actionId))
+            {
+                string key = lp_createActionContextForId(actionId);
+                string messageId = GetMessageIdFromMessageKey(key);
+                var context = new ActionContextApple(key, messageId);
+                ActionContextsDictionary[key] = context;
+
+                return context;
+            }
+            return null;
+        }
+
+        public override bool TriggerActionForId(string actionId)
+        {
+            return lp_triggerAction(actionId);
         }
 
         #region Dealing with Variables
@@ -1143,26 +1179,6 @@ namespace LeanplumSDK
                 variable.OnValueChanged();
             }
         }
-
-        public override ActionContext CreateActionContextForId(string actionId)
-        {
-            if (!string.IsNullOrEmpty(actionId))
-            {
-                string key = lp_createActionContextForId(actionId);
-                string messageId = GetMessageIdFromMessageKey(key);
-                var context = new ActionContextApple(key, messageId);
-                ActionContextsDictionary[key] = context;
-
-                return context;
-            }
-            return null;
-        }
-
-        public override bool TriggerActionForId(string actionId)
-        {
-            return lp_triggerAction(actionId);
-        }
-
         #endregion
     }
 }

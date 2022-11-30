@@ -799,6 +799,18 @@ namespace LeanplumSDK
             CompatibilityLayer.LogWarning("OnMessageDisplayed is not implemented in Unity Native.");
         }
 
+        public override void SetActionManagerEnabled(bool enabled)
+        {
+            // Not implemented
+            CompatibilityLayer.LogWarning("SetActionManagerEnabled is not implemented in Unity Native.");
+        }
+
+        public override void SetActionManagerPaused(bool paused)
+        {
+            // Not implemented
+            CompatibilityLayer.LogWarning("SetActionManagerPaused is not implemented in Unity Native.");
+        }
+
         /// <summary>
         ///     Whether In-app Messages and Actions should be triggered and executed.
         /// </summary>
