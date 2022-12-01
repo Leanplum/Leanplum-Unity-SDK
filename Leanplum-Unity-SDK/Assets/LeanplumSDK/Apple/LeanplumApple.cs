@@ -1018,6 +1018,12 @@ namespace LeanplumSDK
             return lp_triggerAction(actionId);
         }
 
+        public override void AddOnceVariablesChangedAndNoDownloadsPendingHandler(Leanplum.VariablesChangedAndNoDownloadsPendingHandler handler)
+        {
+            throw new NotImplementedException();
+            // TODO implement using iOS native method
+        }
+
         #endregion
     }
 }

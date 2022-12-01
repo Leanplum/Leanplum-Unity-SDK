@@ -86,6 +86,8 @@ namespace LeanplumSDK
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
         private Dictionary<string, List<ActionContext.ActionResponder>> OnActionRespondersDictionary = new Dictionary<string, List<ActionContext.ActionResponder>>();
         private Dictionary<string, ActionContext> ActionContextsDictionary = new Dictionary<string, ActionContext>();
+        private Dictionary<int, Leanplum.VariablesChangedAndNoDownloadsPendingHandler> OnceVariablesChangedAndNoDownloadsPendingDict =
+            new Dictionary<int, Leanplum.VariablesChangedAndNoDownloadsPendingHandler>();
 
         static private int DictionaryKey = 0;
         private string gameObjectName;
@@ -590,6 +592,7 @@ namespace LeanplumSDK
         {
             const string VARIABLES_CHANGED = "VariablesChanged:";
             const string VARIABLES_CHANGED_NO_DOWNLOAD_PENDING = "VariablesChangedAndNoDownloadsPending:";
+            const string ONCE_VARIABLES_CHANGED_NO_DOWNLOADS_PENDING = "OnceVariablesChangedAndNoDownloadsPendingHandler:";
             const string STARTED = "Started:";
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_CALLBACK = "ForceContentUpdateWithCallback:";
@@ -604,6 +607,16 @@ namespace LeanplumSDK
             else if (message.StartsWith(VARIABLES_CHANGED_NO_DOWNLOAD_PENDING))
             {
                 VariablesChangedAndNoDownloadsPending?.Invoke();
+            }
+            else if (message.StartsWith(ONCE_VARIABLES_CHANGED_NO_DOWNLOADS_PENDING))
+            {
+                string[] values = message.Substring(ONCE_VARIABLES_CHANGED_NO_DOWNLOADS_PENDING.Length).Split(':');
+                int key = Convert.ToInt32(values[0]);
+                if (OnceVariablesChangedAndNoDownloadsPendingDict.TryGetValue(key, out Leanplum.VariablesChangedAndNoDownloadsPendingHandler callback))
+                {
+                    callback();
+                    OnceVariablesChangedAndNoDownloadsPendingDict.Remove(key);
+                }
             }
             else if (message.StartsWith(STARTED))
             {
@@ -849,6 +862,14 @@ namespace LeanplumSDK
             string actionName = GetActionNameFromMessageKey(key);
             string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
             return messageId;
+        }
+
+        public override void AddOnceVariablesChangedAndNoDownloadsPendingHandler(
+            Leanplum.VariablesChangedAndNoDownloadsPendingHandler handler)
+        {
+            int key = DictionaryKey++;
+            OnceVariablesChangedAndNoDownloadsPendingDict.Add(key, handler);
+            NativeSDK.CallStatic("addOnceVariablesChangedAndNoDownloadsPendingHandler", key);
         }
 
         #endregion
