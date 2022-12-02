@@ -1,0 +1,10 @@
+include ':launcher', ':unityLibrary'
+
+// Steps to configure the Leanplum native SDK wrapper dependency as a source code:
+// 1. In settings.gradle uncomment ':android-unity-wrapper' project.
+// 2. In build.gradle uncomment ':android-unity-wrapper' dependency.
+// 3. In build.gradle comment the line: implementation(name: "com.leanplum.unity-wrapper-XXX", ext:'aar').
+
+//include ':android-unity-wrapper'
+//project(':android-unity-wrapper').projectDir = new File("$rootDir/../Leanplum-Android-SDK-Unity/android-unity-wrapper")
+**INCLUDES**

@@ -1464,6 +1464,26 @@ namespace LeanplumSDK
             return variable;
         }
 
+        public override void AddOnceVariablesChangedAndNoDownloadsPendingHandler(
+            Leanplum.VariablesChangedAndNoDownloadsPendingHandler handler)
+        {
+            if (_hasStarted &&
+                    VarCache.HasReceivedDiffs &&
+                    FileTransferManager.PendingDownloads == 0)
+            {
+                handler();
+            }
+            else
+            {
+                void internalHandler()
+                {
+                    handler();
+                    variablesChangedAndNoDownloadsPending -= internalHandler;
+                };
+                variablesChangedAndNoDownloadsPending += internalHandler;
+            }
+        }
+
         #endregion
     }
 }

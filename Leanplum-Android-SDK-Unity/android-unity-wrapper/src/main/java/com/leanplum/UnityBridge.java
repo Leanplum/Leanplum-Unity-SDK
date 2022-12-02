@@ -588,4 +588,14 @@ public class UnityBridge {
   public static void inboxDisableImagePrefetching() {
     LeanplumInbox.disableImagePrefetching();
   }
+
+  public static void addOnceVariablesChangedAndNoDownloadsPendingHandler(final int key) {
+    Leanplum.addOnceVariablesChangedAndNoDownloadsPendingHandler(new VariablesChangedCallback() {
+      @Override
+      public void variablesChanged() {
+        String message = String.format("OnceVariablesChangedAndNoDownloadsPendingHandler:%d", key);
+        makeCallbackToUnity(message);
+      }
+    });
+  }
 }

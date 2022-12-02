@@ -839,6 +839,12 @@ namespace LeanplumSDK
             LeanplumFactory.SDK.ForceContentUpdate(handler);
         }
 
+        public static void AddOnceVariablesChangedAndNoDownloadsPendingHandler(
+            VariablesChangedAndNoDownloadsPendingHandler handler)
+        {
+            LeanplumFactory.SDK.AddOnceVariablesChangedAndNoDownloadsPendingHandler(handler);
+        }
+
         public static void OnAction(string actionName, ActionContext.ActionResponder handler)
         {
             LeanplumFactory.SDK.OnAction(actionName, handler);

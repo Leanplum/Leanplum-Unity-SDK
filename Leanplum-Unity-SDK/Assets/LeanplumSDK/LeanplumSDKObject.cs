@@ -418,6 +418,17 @@ namespace LeanplumSDK
         /// </param>
         public abstract void ForceContentUpdate(Leanplum.ForceContentUpdateHandler handler);
 
+        /// <summary>
+        ///     Registers a handler to be called when variables are fetched and no downloads
+        ///     are pending. The handler will be called only once.
+        /// </summary>
+        /// <param name="handler">
+        ///     The handler to execute once variables are fetched and there
+        ///     aren't any pending downloads.
+        /// </param>
+        public abstract void AddOnceVariablesChangedAndNoDownloadsPendingHandler(
+            Leanplum.VariablesChangedAndNoDownloadsPendingHandler handler);
+
         public abstract void DefineAction(string name, Constants.ActionKind kind, ActionArgs args,
             IDictionary<string, object> options, ActionContext.ActionResponder responder);
 
