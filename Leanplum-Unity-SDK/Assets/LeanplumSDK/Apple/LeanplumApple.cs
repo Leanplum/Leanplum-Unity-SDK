@@ -804,7 +804,6 @@ namespace LeanplumSDK
                 if (messageDismissedHandler != null)
                 {
                     string key = message.Substring(ON_MESSAGE_DISMISSED.Length);
-                    string messageId = GetMessageIdFromMessageKey(key);
                     var context = CreateActionContextFromKey(key);
                     messageDismissedHandler(context);
                 }
@@ -973,17 +972,17 @@ namespace LeanplumSDK
             return key.Split(':')[0];
         }
 
-        private static string GetMessageIdFromMessageKey(string key)
+        private static Tuple<string, string> GetActionNameMessageIdFromMessageKey(string key)
         {
             string actionName = GetActionNameFromMessageKey(key);
             string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
-            return messageId;
+            return new Tuple<string, string>(actionName, messageId);
         }
 
         private static ActionContextApple CreateActionContextFromKey(string key)
         {
-            string messageId = GetMessageIdFromMessageKey(key);
-            return new ActionContextApple(key, messageId);
+            Tuple<string, string> actionNameMessageId = GetActionNameMessageIdFromMessageKey(key);
+            return new ActionContextApple(key, actionNameMessageId.Item1, actionNameMessageId.Item2);
         }
 
         #endregion

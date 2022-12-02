@@ -65,14 +65,16 @@ namespace LeanplumSDK.Apple
 
         [DllImport("__Internal")]
         internal static extern void dismiss(string id);
-        
-        public override string Name { get; }
-        public override string Id { get; }
 
-        internal ActionContextApple(string key, string messageId)
+        internal override string Key { get; }
+        public override string Id { get; }
+        public override string Name { get; }
+
+        internal ActionContextApple(string key, string actionName, string messageId)
         {
-            Name = key;
+            Key = key;
             Id = messageId;
+            Name = actionName;
         }
 
         public override void TrackMessageEvent(string eventName, double value, string info, IDictionary<string, object> param)
