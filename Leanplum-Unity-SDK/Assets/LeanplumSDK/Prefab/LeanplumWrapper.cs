@@ -69,6 +69,7 @@ public class LeanplumWrapper : MonoBehaviour
 
         if (Debug.isDebugBuild)
         {
+            LeanplumNative.CompatibilityLayer.LeanplumDeveloperMode = true;
             Leanplum.SetAppIdForDevelopmentMode(AppID, DevelopmentKey);
         }
         else

@@ -20,6 +20,7 @@ namespace LeanplumSDK
 
         private Leanplum.MessageHandler displayMessageHandler;
         private Leanplum.MessageHandler dismissMessageHandler;
+        private Leanplum.MessageActionHandler actionMessageHandler;
 
         private bool enabled = true;
         private bool paused = false;
@@ -44,6 +45,8 @@ namespace LeanplumSDK
 
             Queue.RemoveFirst();
 
+            LeanplumNative.CompatibilityLayer.LogDebug($"[ActionManager]: running action with name: {currentAction}");
+
             MessageDisplayChoice messageDecision = shouldDisplay?.Invoke(currentAction) ?? MessageDisplayChoice.Show();
 
             if (messageDecision.Choice == MessageDisplayChoice.DisplayChoice.DISCARD)
@@ -55,6 +58,7 @@ namespace LeanplumSDK
 
             if (messageDecision.Choice == MessageDisplayChoice.DisplayChoice.DELAY)
             {
+                LeanplumNative.CompatibilityLayer.LogDebug($"[ActionManager]: delaying action: {currentAction} for {messageDecision.DelaySeconds}s");
                 if (messageDecision.DelaySeconds < 0)
                 {
                     DelayedQueue.Enqueue(currentAction);
@@ -70,34 +74,37 @@ namespace LeanplumSDK
                 return;
             }
 
-            // actionDidExecute
+            // ActionDidExecute
             currentAction.ActionExecute += CurrentAction_ActionExecute;
 
-            // actionDidDismiss
+            // ActionDidDismiss
             currentAction.Dismiss += LeanplumActionManager_Dismiss;
 
             // Show message
             if (VarCache.actionDefinitions.TryGetValue(currentAction.Name, out ActionDefinition actionDefinition))
             {
-                if (!string.IsNullOrEmpty(currentAction.Id))
-                {
-                    // The View event is tracked using the messageId only, without an event name
-                    currentAction.TrackMessageEvent(null, 0, null, null);
-                }
-
+                LeanplumNative.CompatibilityLayer.LogDebug($"[ActionManager]: action presented: {currentAction}");
+                RecordImpression(currentAction);
                 actionDefinition.Responder?.Invoke(currentAction);
-
                 displayMessageHandler?.Invoke(currentAction);
             }
         }
 
-        private void CurrentAction_ActionExecute(ActionContext context)
+        private void RecordImpression(ActionContext context)
         {
-            //throw new System.NotImplementedException();
+            // The View event is tracked using the messageId only, without an event name
+            context?.TrackMessageEvent(null, 0, null, null);
+        }
+
+        private void CurrentAction_ActionExecute(string actionName, ActionContext context)
+        {
+            LeanplumNative.CompatibilityLayer.LogDebug($"[ActionManager]: actionDidExecute: {context}");
+            actionMessageHandler?.Invoke(actionName, context);
         }
 
         private void LeanplumActionManager_Dismiss(ActionContext context)
         {
+            LeanplumNative.CompatibilityLayer.LogDebug($"[ActionManager]: actionDidDismiss: {context}");
             dismissMessageHandler?.Invoke(context);
             currentAction = null;
             PerformAvailableActions();
@@ -140,6 +147,11 @@ namespace LeanplumSDK
             dismissMessageHandler = handler;
         }
 
+        internal void SetOnActionMessageHandler(Leanplum.MessageActionHandler handler)
+        {
+            actionMessageHandler = handler;
+        }
+
         internal void TriggerContexts(ActionContext[] contexts, Priority priority, ActionTrigger trigger, string eventName)
         {
             if (contexts == null || contexts.Length == 0)
@@ -148,9 +160,9 @@ namespace LeanplumSDK
             var actionTrigger = new Dictionary<string, object>
             {
                 {"eventName", eventName },
-                {"condition", trigger.Value }
+                {"condition", trigger?.Value },
+                { "contextualValues", new Dictionary<string, object>() }
             };
-
 
             ActionContext[] filteredContexts = prioritizeHandler?.Invoke(contexts, actionTrigger);
             if (filteredContexts == null)
@@ -215,30 +227,15 @@ namespace LeanplumSDK
             for (int i = 0; i < condition.Length; i++)
             {
                 string id = condition[i].Id;
-                var message = Util.GetValueOrDefault(VarCache.Messages, id) as IDictionary<string, object>;
-                string actionName = Util.GetValueOrDefault(message, Constants.Args.ACTION) as string;
-                if (!string.IsNullOrEmpty(actionName)
-                    && Util.GetValueOrDefault(message, Constants.Args.VARS) is IDictionary<string, object> vars)
+                ActionContext actionContext = CreateActionContext(id);
+                if (actionContext != null)
                 {
-                    if (VarCache.actionDefinitions.ContainsKey(actionName))
-                    {
-                        contexts.Add(new NativeActionContext(id, actionName, vars));
-                    }
-                    // If no matching action definition is found, use the Generic one if such is registered 
-                    else if (VarCache.actionDefinitions.ContainsKey(Constants.Args.GENERIC_DEFINITION_NAME))
-                    {
-                        IDictionary<string, object> args = new Dictionary<string, object>
-                        {
-                            { Constants.Args.GENERIC_DEFINITION_CONFIG, message }
-                        };
-                        contexts.Add(new NativeActionContext(id, Constants.Args.GENERIC_DEFINITION_NAME, args));
-                    }
+                    contexts.Add(actionContext);
                 }
             }
 
             TriggerContexts(contexts.ToArray(), Priority.DEFAULT, actionTrigger, eventName);
         }
-
 
         internal void TriggerPreview(IDictionary<string, object> packetData)
         {
@@ -252,10 +249,41 @@ namespace LeanplumSDK
                 {
                     var newVars = VarCache.MergeMessage(actionData);
                     NativeActionContext context = new NativeActionContext(messageId, actionName, newVars);
-                    // TODO: will count view event
-                    TriggerContexts(new ActionContext[] { context }, Priority.HIGH, ActionTrigger.Preview, null);
+                    TriggerContexts(new ActionContext[] { context }, Priority.HIGH, null, null);
                 }
             }
+        }
+
+        /// <summary>
+        ///     Creates ActionContext.
+        ///     Ensures there is an action definition for the message action name.
+        ///     Uses the GENERIC_DEFINITION_NAME as a fallback, if such is registered.
+        /// </summary>
+        /// <param name="id">The action id.</param>
+        /// <returns>ActionContext otherwise null.</returns>
+        internal ActionContext CreateActionContext(string id)
+        {
+            var message = Util.GetValueOrDefault(VarCache.Messages, id) as IDictionary<string, object>;
+            string actionName = Util.GetValueOrDefault(message, Constants.Args.ACTION) as string;
+            if (!string.IsNullOrEmpty(actionName)
+                && Util.GetValueOrDefault(message, Constants.Args.VARS) is IDictionary<string, object> vars)
+            {
+                if (VarCache.actionDefinitions.ContainsKey(actionName))
+                {
+                    return new NativeActionContext(id, actionName, vars);
+                }
+                // If no matching action definition is found, use the Generic one if such is registered 
+                else if (VarCache.actionDefinitions.ContainsKey(Constants.Args.GENERIC_DEFINITION_NAME))
+                {
+                    IDictionary<string, object> args = new Dictionary<string, object>
+                        {
+                            { Constants.Args.GENERIC_DEFINITION_CONFIG, message }
+                        };
+                    return new NativeActionContext(id, Constants.Args.GENERIC_DEFINITION_NAME, args);
+                }
+            }
+
+            return null;
         }
     }
 }

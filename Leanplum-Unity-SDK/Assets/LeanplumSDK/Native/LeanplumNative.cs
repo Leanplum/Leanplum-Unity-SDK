@@ -800,8 +800,7 @@ namespace LeanplumSDK
 
         public override void OnMessageAction(Leanplum.MessageActionHandler handler)
         {
-            // Not implemented
-            CompatibilityLayer.LogWarning("OnMessageAction is not implemented in Unity Native.");
+            LeanplumActionManager.SetOnActionMessageHandler(handler);
         }
 
         public override void OnMessageDismissed(Leanplum.MessageHandler handler)
@@ -856,37 +855,13 @@ namespace LeanplumSDK
 
         public override bool ShowMessage(string id)
         {
-            var messageConfig = Util.GetValueOrDefault(VarCache.Messages, id) as IDictionary<string, object>;
-            if (messageConfig != null)
+            var context = LeanplumActionManager.CreateActionContext(id);
+            if (context != null)
             {
-                NativeActionContext context = null;
-                var message = Util.GetValueOrDefault(VarCache.Messages, id) as IDictionary<string, object>;
-                string actionName = Util.GetValueOrDefault(message, Constants.Args.ACTION) as string;
-                if (!string.IsNullOrEmpty(actionName)
-                    && Util.GetValueOrDefault(message, Constants.Args.VARS) is IDictionary<string, object> vars)
-                {
-                    if (VarCache.actionDefinitions.ContainsKey(actionName))
-                    {
-                        context = new NativeActionContext(id, actionName, vars);
-                    }
-                    // If no matching action definition is found, use the Generic one if such is registered 
-                    else if (VarCache.actionDefinitions.ContainsKey(Constants.Args.GENERIC_DEFINITION_NAME))
-                    {
-                        IDictionary<string, object> args = new Dictionary<string, object>
-                        {
-                            { Constants.Args.GENERIC_DEFINITION_CONFIG, message }
-                        };
-                        context = new NativeActionContext(id, Constants.Args.GENERIC_DEFINITION_NAME, args);
-                    }
-                }
+                LeanplumActionManager.TriggerContexts(new ActionContext[] { context }, LeanplumActionManager.Priority.HIGH, null, null);
+                return true;
+            }
 
-                if (context != null)
-                {
-                    // TODO: fix action trigger
-                    LeanplumActionManager.TriggerContexts(new ActionContext[] { context }, LeanplumActionManager.Priority.HIGH, ActionTrigger.Event, null);
-                    return true;
-                }
-                }
             CompatibilityLayer.LogError($"Message not found. Message Id: {id}");
             return false;
         }

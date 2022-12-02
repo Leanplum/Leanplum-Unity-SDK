@@ -7,7 +7,7 @@ namespace LeanplumSDK
         public delegate void ActionResponder(ActionContext context);
         public delegate void ActionDidDismiss(ActionContext context);
 
-        internal delegate void ActionDidExecute(ActionContext context);
+        internal delegate void ActionDidExecute(string actionName, ActionContext context);
 
         internal virtual event ActionDidDismiss Dismiss;
         internal virtual event ActionDidExecute ActionExecute;
@@ -20,7 +20,7 @@ namespace LeanplumSDK
         /// <summary>
         /// 
         /// </summary>
-        /// TODO: Implement - use Key instead of Name for native communication
+        /// TODO: Android Implement - use Key instead of Name for native communication
         internal virtual string Key { get; }
 
         /// <summary>

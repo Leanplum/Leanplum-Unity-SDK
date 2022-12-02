@@ -126,52 +126,54 @@ namespace LeanplumSDK
 
         public override void RunActionNamed(string name)
         {
-            // TODO: Invoke action execute
             object actionObject = Traverse(name);
 
-            Dictionary<string, object> actionData = null;
-            if (actionObject != null)
+            Dictionary<string, object> actionData = actionObject as Dictionary<string, object>;
+            if (actionData == null && actionObject is IDictionary<object, object>)
             {
-                if (actionObject is IDictionary<object, object>)
-                {
-                    var actionDataObj = actionObject as IDictionary<object, object>;
-                    actionData = actionDataObj.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value);
-                }
-                else if (actionObject is IDictionary<string, object>)
-                {
-                    actionData = actionObject as Dictionary<string, object>;
-                }
+                var actionDataObj = actionObject as IDictionary<object, object>;
+                actionData = actionDataObj.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value);
             }
 
-            NativeActionContext runActionContext = new NativeActionContext(Id, name, actionData);
+            NativeActionContext actionDidExecuteContext = new NativeActionContext(Id, name, actionData);
+            ActionExecute?.Invoke(name, actionDidExecuteContext);
 
-            if (actionData != null)
+            if (actionData == null)
+                return;
+
+            var actionName = actionData[Constants.Args.ACTION_NAME];
+            if (!string.IsNullOrEmpty(actionName?.ToString()))
             {
-                var actionName = actionData[Constants.Args.ACTION_NAME];
-                if (!string.IsNullOrEmpty(actionName?.ToString()))
+                // Chain to Existing message
+                if (actionName.Equals(Constants.Args.CHAIN_TO_EXISTING) && actionData.ContainsKey(Constants.Args.CHAIN_MESSAGE))
                 {
-                    if (actionName.Equals(Constants.Args.CHAIN_TO_EXISTING) && actionData.ContainsKey(Constants.Args.CHAIN_MESSAGE))
+                    string messageId = actionData[Constants.Args.CHAIN_MESSAGE]?.ToString();
+                    ActionContext actionContext = Leanplum.LeanplumActionManager.CreateActionContext(messageId);
+                    if (actionContext == null)
                     {
-                        string messageId = actionData[Constants.Args.CHAIN_MESSAGE]?.ToString();
-                        if (!Leanplum.ShowMessage(messageId))
+                        // Try to fetch the chained message if not on the device
+                        Leanplum.ForceContentUpdate(() =>
                         {
-                            // Try to fetch the chained message if not on the device
-                            Leanplum.ForceContentUpdate(() =>
+                            ActionContext actionContext = Leanplum.LeanplumActionManager.CreateActionContext(messageId);
+                            if (actionContext != null)
                             {
-                                Leanplum.ShowMessage(messageId);
-                            });
-                        }
+                                Leanplum.LeanplumActionManager.TriggerContexts(new ActionContext[] { actionContext }, LeanplumActionManager.Priority.HIGH, null, null);
+                            }
+                        });
                     }
                     else
                     {
-                        // The Actions default values are not merged when the message is merged
-                        // Merge now when the action is to be triggered
-                        var mergedActions = VarCache.MergeMessage(actionData);
-
-                        NativeActionContext actionContext = new NativeActionContext(null, actionName.ToString(), mergedActions);
-                        // TODO: fix action trigger
-                        Leanplum.LeanplumActionManager.TriggerContexts(new ActionContext[] { actionContext }, LeanplumActionManager.Priority.HIGH, ActionTrigger.Event, null);
+                        Leanplum.LeanplumActionManager.TriggerContexts(new ActionContext[] { actionContext }, LeanplumActionManager.Priority.HIGH, null, null);
                     }
+                }
+                // Action is embedded
+                else
+                {
+                    // The Actions default values are not merged when the message is merged
+                    // Merge now when the action is to be triggered
+                    var mergedActions = VarCache.MergeMessage(actionData);
+                    NativeActionContext actionContext = new NativeActionContext(Id, actionName.ToString(), mergedActions);
+                    Leanplum.LeanplumActionManager.TriggerContexts(new ActionContext[] { actionContext }, LeanplumActionManager.Priority.HIGH, null, null);
                 }
             }
         }
@@ -230,6 +232,11 @@ namespace LeanplumSDK
             }
 
             return null;
+        }
+
+        public override string ToString()
+        {
+            return $"{Name}:{Id}";
         }
     }
 }
