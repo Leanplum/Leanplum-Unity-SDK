@@ -5,7 +5,12 @@ namespace LeanplumSDK
     public abstract class ActionContext
     {
         public delegate void ActionResponder(ActionContext context);
-        public delegate void ActionDidDismiss();
+        public delegate void ActionDidDismiss(ActionContext context);
+
+        internal delegate void ActionDidExecute(ActionContext context);
+
+        internal virtual event ActionDidDismiss Dismiss;
+        internal virtual event ActionDidExecute ActionExecute;
 
         /// <summary>
         /// Id of the action

@@ -422,6 +422,14 @@ namespace LeanplumSDK
         }
         #endregion
 
+        internal static LeanplumActionManager LeanplumActionManager
+        {
+            get
+            {
+                return LeanplumFactory.SDK.LeanplumActionManager;
+            }
+        }
+
         #region API Calls
         /// <summary>
         ///     Call this when your application starts.
@@ -902,6 +910,7 @@ namespace LeanplumSDK
         /// </param>
         public static void PrioritizeMessages(PrioritizeMessagesHandler handler)
         {
+            // TODO: Check if action trigger keys are the same on iOS and Android
             LeanplumFactory.SDK.PrioritizeMessages(handler);
         }
 
@@ -960,6 +969,8 @@ namespace LeanplumSDK
         {
             LeanplumFactory.SDK.SetActionManagerEnabled(enabled);
         }
+
+        // TODO: Add Configuration methods?
         #endregion
     }
 }

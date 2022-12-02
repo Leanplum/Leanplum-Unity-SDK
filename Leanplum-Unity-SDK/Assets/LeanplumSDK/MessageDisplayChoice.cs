@@ -27,6 +27,7 @@
         {
             return new MessageDisplayChoice(DisplayChoice.DISCARD);
         }
+
         public static MessageDisplayChoice Delay(int delaySeconds)
         {
             return new MessageDisplayChoice(DisplayChoice.DELAY, delaySeconds);

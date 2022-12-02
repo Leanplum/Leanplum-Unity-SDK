@@ -38,6 +38,8 @@ namespace LeanplumSDK
         internal virtual RequestSender RequestSender { get; }
         internal virtual FileTransferManager FileTransferManager { get; }
 
+        internal virtual LeanplumActionManager LeanplumActionManager { get; }
+
         #endregion
 
         #region Accessors and Mutators

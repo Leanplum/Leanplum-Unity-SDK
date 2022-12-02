@@ -11,7 +11,8 @@ namespace LeanplumSDK
         private readonly string id;
         private readonly IDictionary<string, object> vars;
 
-        internal virtual event ActionDidDismiss Dismiss;
+        internal override event ActionDidDismiss Dismiss;
+        internal override event ActionDidExecute ActionExecute;
 
         public NativeActionContext(string id, string name, IDictionary<string, object> vars)
         {
@@ -125,6 +126,7 @@ namespace LeanplumSDK
 
         public override void RunActionNamed(string name)
         {
+            // TODO: Invoke action execute
             object actionObject = Traverse(name);
 
             Dictionary<string, object> actionData = null;
@@ -167,7 +169,8 @@ namespace LeanplumSDK
                         var mergedActions = VarCache.MergeMessage(actionData);
 
                         NativeActionContext actionContext = new NativeActionContext(null, actionName.ToString(), mergedActions);
-                        LeanplumActionManager.TriggerAction(actionContext, mergedActions);
+                        // TODO: fix action trigger
+                        Leanplum.LeanplumActionManager.TriggerContexts(new ActionContext[] { actionContext }, LeanplumActionManager.Priority.HIGH, ActionTrigger.Event, null);
                     }
                 }
             }
@@ -200,7 +203,7 @@ namespace LeanplumSDK
 
         public override void Dismissed()
         {
-            Dismiss?.Invoke();
+            Dismiss?.Invoke(this);
         }
 
         public static string GetFileURL(string fileName)
