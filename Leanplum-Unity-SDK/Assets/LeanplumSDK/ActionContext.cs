@@ -18,6 +18,12 @@ namespace LeanplumSDK
         public abstract string Id { get; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// TODO: Implement - use Key instead of Name for native communication
+        internal virtual string Key { get; }
+
+        /// <summary>
         /// Name of the action
         /// </summary>
         public abstract string Name { get; }
