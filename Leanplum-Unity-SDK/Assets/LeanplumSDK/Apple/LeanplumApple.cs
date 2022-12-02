@@ -193,18 +193,15 @@ namespace LeanplumSDK
 
         public LeanplumApple()
         {
-            sharedInstance = this;
         }
 
-        private static LeanplumApple sharedInstance;
+        public override event VariableChangedHandler VariablesChanged;
+        public override event VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
 
-        public override event Leanplum.VariableChangedHandler VariablesChanged;
-        public override event Leanplum.VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
-
-        private event Leanplum.StartHandler started;
+        private event StartHandler started;
         private bool startSuccessful;
 
-        public override event Leanplum.StartHandler Started
+        public override event StartHandler Started
         {
             add
             {
@@ -222,10 +219,9 @@ namespace LeanplumSDK
             }
         }
 
-        private Dictionary<int, Leanplum.ForceContentUpdateHandler> ForceContentUpdateHandlersDictionary = new Dictionary<int, Leanplum.ForceContentUpdateHandler>();
+        private Dictionary<int, ForceContentUpdateHandler> ForceContentUpdateHandlersDictionary = new Dictionary<int, ForceContentUpdateHandler>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
         private Dictionary<string, ActionContext.ActionResponder> DismissActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
-        private Dictionary<string, ActionContext> ActionContextsDictionary = new Dictionary<string, ActionContext>();
 
         static private int DictionaryKey = 0;
 
@@ -779,9 +775,7 @@ namespace LeanplumSDK
                 ActionContext.ActionResponder callback;
                 if (ActionRespondersDictionary.TryGetValue(actionName, out callback))
                 {
-                    string messageId = GetMessageIdFromMessageKey(key);
-                    var context = new ActionContextApple(key, messageId);
-                    ActionContextsDictionary[key] = context;
+                    var context = CreateActionContextFromKey(key);
                     callback(context);
                 }
             }
@@ -792,9 +786,7 @@ namespace LeanplumSDK
 
                 if (DismissActionRespondersDictionary.TryGetValue(actionName, out ActionContext.ActionResponder callback))
                 {
-                    string messageId = GetMessageIdFromMessageKey(key);
-                    var context = new ActionContextApple(key, messageId);
-                    ActionContextsDictionary[key] = context;
+                    var context = CreateActionContextFromKey(key);
                     callback(context);
                 }
             }
@@ -803,9 +795,7 @@ namespace LeanplumSDK
                 if (messageDisplayedHandler != null)
                 {
                     string key = message.Substring(ON_MESSAGE_DISPLAYED.Length);
-                    string messageId = GetMessageIdFromMessageKey(key);
-                    var context = new ActionContextApple(key, messageId);
-                    ActionContextsDictionary[key] = context;
+                    var context = CreateActionContextFromKey(key);
                     messageDisplayedHandler(context);
                 }
             }
@@ -815,8 +805,7 @@ namespace LeanplumSDK
                 {
                     string key = message.Substring(ON_MESSAGE_DISMISSED.Length);
                     string messageId = GetMessageIdFromMessageKey(key);
-                    var context = new ActionContextApple(key, messageId);
-                    ActionContextsDictionary[key] = context;
+                    var context = CreateActionContextFromKey(key);
                     messageDismissedHandler(context);
                 }
             }
@@ -835,12 +824,8 @@ namespace LeanplumSDK
 
                     string actionName = keys[0];
                     string actionKey = keys[1];
-
-                    if (ActionContextsDictionary.TryGetValue(actionKey, out ActionContext parentContext))
-                    {
-                        var context = new ActionContextApple(actionKey, GetMessageIdFromMessageKey(actionKey));
-                        messageActionHandler.Invoke(actionName, context);
-                    }
+                    var context = CreateActionContextFromKey(actionKey);
+                    messageActionHandler.Invoke(actionName, context);
                 }
             }
 
@@ -867,14 +852,12 @@ namespace LeanplumSDK
         [MonoPInvokeCallback(typeof(ShouldDisplayMessageDelegate))]
         public static int ShouldDisplayMessageInternal(string key)
         {
-            if (sharedInstance == null || shouldDisplayMessageHandler == null)
+            if (shouldDisplayMessageHandler == null)
             {
                 return (int)MessageDisplayChoice.DisplayChoice.SHOW;
             }
 
-            string messageId = sharedInstance.GetMessageIdFromMessageKey(key);
-            var context = new ActionContextApple(key, messageId);
-            sharedInstance.ActionContextsDictionary[key] = context;
+            var context = CreateActionContextFromKey(key);
 
             var result = shouldDisplayMessageHandler(context);
             if (result.Choice.Equals(MessageDisplayChoice.DisplayChoice.DELAY))
@@ -909,7 +892,7 @@ namespace LeanplumSDK
         [MonoPInvokeCallback(typeof(PrioritizeMessagesDelegate))]
         public static string PrioritizeMessagesDelegateInternal(string contextsKeys, string actionTrigger)
         {
-            if (sharedInstance == null || prioritizeMessagesHandler == null)
+            if (prioritizeMessagesHandler == null)
             {
                 return contextsKeys;
             }
@@ -921,9 +904,7 @@ namespace LeanplumSDK
             List<ActionContext> contexts = new List<ActionContext>();
             foreach (string key in keys)
             {
-                string messageId = sharedInstance.GetMessageIdFromMessageKey(key);
-                var context = new ActionContextApple(key, messageId);
-                sharedInstance.ActionContextsDictionary[key] = context;
+                var context = CreateActionContextFromKey(key);
                 contexts.Add(context);
             }
 
@@ -971,29 +952,12 @@ namespace LeanplumSDK
             lp_setActionManagerEnabled(enabled);
         }
 
-        private string GetActionNameFromMessageKey(string key)
-        {
-            // {actionName:messageId}
-            return key.Split(':')[0];
-        }
-
-        private string GetMessageIdFromMessageKey(string key)
-        {
-            string actionName = GetActionNameFromMessageKey(key);
-            string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
-            return messageId;
-        }
-
         public override ActionContext CreateActionContextForId(string actionId)
         {
             if (!string.IsNullOrEmpty(actionId))
             {
                 string key = lp_createActionContextForId(actionId);
-                string messageId = GetMessageIdFromMessageKey(key);
-                var context = new ActionContextApple(key, messageId);
-                ActionContextsDictionary[key] = context;
-
-                return context;
+                return CreateActionContextFromKey(key);
             }
             return null;
         }
@@ -1001,6 +965,25 @@ namespace LeanplumSDK
         public override bool TriggerActionForId(string actionId)
         {
             return lp_triggerAction(actionId);
+        }
+
+        private static string GetActionNameFromMessageKey(string key)
+        {
+            // {actionName:messageId}
+            return key.Split(':')[0];
+        }
+
+        private static string GetMessageIdFromMessageKey(string key)
+        {
+            string actionName = GetActionNameFromMessageKey(key);
+            string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
+            return messageId;
+        }
+
+        private static ActionContextApple CreateActionContextFromKey(string key)
+        {
+            string messageId = GetMessageIdFromMessageKey(key);
+            return new ActionContextApple(key, messageId);
         }
 
         #endregion
