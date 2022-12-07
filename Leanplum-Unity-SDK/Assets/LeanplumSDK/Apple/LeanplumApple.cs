@@ -702,7 +702,7 @@ namespace LeanplumSDK
         {
             const string VARIABLES_CHANGED = "VariablesChanged:";
             const string VARIABLES_CHANGED_NO_DOWNLOAD_PENDING = "VariablesChangedAndNoDownloadsPending:";
-            const string ONCE_VARIABLES_CHANGED_NO_DOWNLOADS_PENDING = "OnceVariablesChangedAndNoDownloadsPendingHandler:";
+            const string ONCE_VARIABLES_CHANGED_NO_DOWNLOADS_PENDING = "OnceVariablesChangedAndNoDownloadsPending:";
             const string STARTED = "Started:";
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_HANDLER = "ForceContentUpdateWithHandler:";
@@ -724,7 +724,7 @@ namespace LeanplumSDK
                 int key = Convert.ToInt32(values[0]);
                 if (OnceVariablesChangedAndNoDownloadsPendingDict.TryGetValue(key, out Leanplum.VariablesChangedAndNoDownloadsPendingHandler callback))
                 {
-                    callback();
+                    callback?.Invoke();
                     OnceVariablesChangedAndNoDownloadsPendingDict.Remove(key);
                 }
             }
