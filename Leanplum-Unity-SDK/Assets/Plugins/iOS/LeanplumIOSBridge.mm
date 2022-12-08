@@ -124,6 +124,14 @@ extern "C"
         return [Leanplum hasStartedAndRegisteredAsDeveloper];
     }
 
+    void lp_addOnceVariablesChangedAndNoDownloadsPendingHandler(const int key)
+    {
+        [Leanplum onceVariablesChangedAndNoDownloadsPending:^{
+            const char *msg = [[NSString stringWithFormat:@"OnceVariablesChangedAndNoDownloadsPending:%d", key] UTF8String];
+            UnitySendMessage(__LPgameObject, __NativeCallbackMethod, msg);
+        }];
+    }
+
     void lp_setApiHostName(const char *hostName, const char *servletName, int useSSL)
     {
         [Leanplum setApiHostName:lp::to_nsstring(hostName)
