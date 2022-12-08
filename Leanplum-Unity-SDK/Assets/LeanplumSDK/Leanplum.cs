@@ -18,9 +18,7 @@
 //  specific language governing permissions and limitations
 //  under the License.
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace LeanplumSDK
 {
@@ -871,6 +869,20 @@ namespace LeanplumSDK
         public static void ForceContentUpdate(ForceContentUpdateHandler handler)
         {
             LeanplumFactory.SDK.ForceContentUpdate(handler);
+        }
+
+        /// <summary>
+        ///     Registers a handler to be called when variables are fetched and no downloads
+        ///     are pending. The handler will be called only once.
+        /// </summary>
+        /// <param name="handler">
+        ///     The handler to execute once variables are fetched and there
+        ///     aren't any pending downloads.
+        /// </param>
+        public static void AddOnceVariablesChangedAndNoDownloadsPendingHandler(
+            VariablesChangedAndNoDownloadsPendingHandler handler)
+        {
+            LeanplumFactory.SDK.AddOnceVariablesChangedAndNoDownloadsPendingHandler(handler);
         }
 
         public static ActionContext CreateActionContextForId(string actionId)
