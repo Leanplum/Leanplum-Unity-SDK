@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2014 Leanplum. All rights reserved.
+//  Copyright (c) 2022 Leanplum. All rights reserved.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -19,9 +19,19 @@
 //  under the License.
 package com.leanplum;
 
+import com.leanplum.actions.LeanplumActions;
+import com.leanplum.actions.MessageDisplayController;
+import com.leanplum.actions.MessageDisplayControllerImpl;
+import com.leanplum.actions.MessageDisplayListener;
+import com.leanplum.actions.MessageDisplayListenerImpl;
+import com.leanplum.actions.internal.ActionManagerTriggeringKt;
+import com.leanplum.actions.internal.ActionsTrigger;
+import com.leanplum.actions.internal.Priority;
+import com.leanplum.internal.ActionManager;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +52,9 @@ import com.leanplum.callbacks.VariableCallback;
 import com.leanplum.callbacks.VariablesChangedCallback;
 import com.leanplum.internal.CollectionUtil;
 import com.leanplum.internal.Constants;
-import com.leanplum.internal.LeanplumInternal;
 import com.leanplum.internal.OperationQueue;
 import com.leanplum.internal.VarCache;
 import com.leanplum.json.JsonConverter;
-import com.leanplum.messagetemplates.MessageTemplates;
 import com.unity3d.player.UnityPlayer;
 
 public class UnityBridge {
@@ -54,6 +62,9 @@ public class UnityBridge {
   private static boolean isDeveloper = false;
   private static Gson gson = new Gson();
   private static Context bridgeContext;
+  private static IJavaBridge javaBridge;
+  private static MessageDisplayController messageController;
+  private static MessageDisplayListener messageListener;
 
   private static final String CLIENT = "unity-nativeandroid";
 
@@ -67,12 +78,25 @@ public class UnityBridge {
     OperationQueue.sharedInstance().addParallelOperation(sendMessageOperation);
   }
 
-  public static void initialize(String gameObject, String sdkVersion, String defaultDeviceId) {
+  public static void initialize(
+      String gameObject,
+      String sdkVersion,
+      String defaultDeviceId,
+      IJavaBridge bridge) {
     if (bridgeContext != null) {
       return;
     }
     unityGameObject = gameObject;
     bridgeContext = UnityPlayer.currentActivity;
+    javaBridge = bridge;
+    if (javaBridge != null) {
+      messageController = new MessageDisplayControllerImpl(javaBridge);
+      LeanplumActions.setMessageDisplayController(messageController);
+      messageListener = new MessageDisplayListenerImpl(javaBridge);
+      LeanplumActions.setMessageDisplayListener(messageListener);
+    } else {
+      Log.e("Leanplum", "IJavaBridge instance is null");
+    }
     try {
       final Method setClient = Leanplum.class.getDeclaredMethod(
           "setClient", String.class, String.class, String.class);
@@ -350,13 +374,25 @@ public class UnityBridge {
       }
     }
 
-    Leanplum.defineAction(name, kind, actionArgs, new ActionCallback() {
-      @Override
-      public boolean onResponse(ActionContext context) {
-        sendMessageActionContext("ActionResponder", name, context);
-        return true;
-      }
-    });
+    Leanplum.defineAction(
+        name,
+        kind,
+        actionArgs,
+        new ActionCallback() { // present handler
+          @Override
+          public boolean onResponse(ActionContext context) {
+            sendMessageActionContext("ActionResponder", context);
+            return true;
+          }
+        },
+        new ActionCallback() { // dismiss handler
+          @Override
+          public boolean onResponse(ActionContext context) {
+            sendMessageActionContext("ActionDismiss", context);
+            return true;
+          }
+        }
+    );
   }
 
   public static String createActionContextForId(final String actionId) {
@@ -401,25 +437,28 @@ public class UnityBridge {
     }
 
     if (context != null) {
-      final ActionContext actionContext = context;
-      LeanplumInternal.triggerAction(actionContext, new VariablesChangedCallback() {
-        @Override
-        public void variablesChanged() {
-          try {
-            Leanplum.triggerMessageDisplayed(actionContext);
-          } catch (Throwable t) {
-          }
-        }
-      });
+      ActionsTrigger trigger = new ActionsTrigger(
+          "manual-trigger",
+          Collections.singletonList("manual-trigger"),
+          null);
+      ActionManagerTriggeringKt.trigger(
+          ActionManager.getInstance(),
+          Collections.singletonList(context),
+          Priority.DEFAULT,
+          trigger);
       return true;
     }
 
     return false;
   }
 
-  private static void sendMessageActionContext(String message, String name, ActionContext context){
-    if (name != null && context != null) {
-      String key = String.format("%s:%s", name, context.getMessageId());
+  public static String getActionContextId(ActionContext actionContext) {
+    return String.format("%s:%s", actionContext.actionName(), actionContext.getMessageId());
+  }
+
+  private static void sendMessageActionContext(String message, ActionContext context){
+    if (context != null) {
+      String key = getActionContextId(context);
       UnityActionContextBridge.actionContexts.put(key, context);
       String callbackMessage = String.format("%s:%s", message, key);
       makeCallbackToUnity(callbackMessage);
@@ -582,5 +621,17 @@ public class UnityBridge {
         makeCallbackToUnity(message);
       }
     });
+  }
+
+  public static void triggerDelayedMessages() {
+    LeanplumActions.triggerDelayedMessages();
+  }
+
+  public static void setActionManagerPaused(boolean paused) {
+    LeanplumActions.setQueuePaused(paused);
+  }
+
+  public static void setActionManagerEnabled(boolean enabled) {
+    LeanplumActions.setQueueEnabled(enabled);
   }
 }

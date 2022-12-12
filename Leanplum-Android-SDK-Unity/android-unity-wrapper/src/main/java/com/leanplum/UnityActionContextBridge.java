@@ -164,4 +164,11 @@ public class UnityActionContextBridge {
         }
         return empty;
     }
+
+    public static void dismiss(String contextId) {
+        ActionContext context = actionContexts.get(contextId);
+        if (context != null) {
+            context.actionDismissed();
+        }
+    }
 }
