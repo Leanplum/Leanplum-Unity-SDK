@@ -240,7 +240,8 @@ namespace LeanplumSDK
                     {
                         if (!diffMap.Contains(lpVariable))
                         {
-                            merged[lpVariable] = MergeHelper(varsMap.Contains(lpVariable) ? varsMap[lpVariable] : null, null);
+                            var varsMapValue = varsMap != null && varsMap.Contains(lpVariable) ? varsMap[lpVariable] : null;
+                            merged[lpVariable] = MergeHelper(varsMapValue, null);
                         }
                     }
                 }
