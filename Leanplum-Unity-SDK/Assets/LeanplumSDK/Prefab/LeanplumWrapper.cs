@@ -81,9 +81,11 @@ public class LeanplumWrapper : MonoBehaviour
         Leanplum.Inbox.ForceContentUpdate += forceContentUpdate;
 
 #if UNITY_EDITOR
-        EditorMessageTemplates.DefineConfirm();
-        EditorMessageTemplates.DefineOpenURL();
-        EditorMessageTemplates.DefineGenericDefinition();
+        MessageTemplates.DefineAlert();
+        MessageTemplates.DefineConfirm();
+        MessageTemplates.DefineCenterPopup();
+        MessageTemplates.DefineOpenURL();
+        MessageTemplates.DefineGenericDefinition();
         LeanplumNative.ShouldPerformActions(true);
 #endif
 
@@ -107,7 +109,11 @@ public class LeanplumWrapper : MonoBehaviour
 
         Leanplum.PrioritizeMessages((contexts, trigger) =>
         {
-            Debug.Log($"PrioritizeMessages: {trigger}");
+            string triggerLog = Json.Serialize(trigger);
+            string[] contextsArr = contexts.Select(x => x.ToString()).ToArray();
+            string contextsLog = string.Join(", ", contextsArr);
+            Debug.Log($"PrioritizeMessages for trigger: {triggerLog} with contexts: {contextsLog}");
+
             if (contexts.Length > 2)
             {
                 return contexts.Take(2).ToArray();
@@ -131,8 +137,8 @@ public class LeanplumWrapper : MonoBehaviour
             Debug.Log($"OnMessageAction: {action} for {context}");
         });
 
-        StartCoroutine(Pause());
-        StartCoroutine(Enable());
+        //StartCoroutine(Pause());
+        //StartCoroutine(Enable());
 
         Leanplum.Start();
     }
