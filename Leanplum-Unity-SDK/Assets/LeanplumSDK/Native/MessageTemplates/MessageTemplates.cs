@@ -72,7 +72,6 @@ namespace LeanplumSDK
 
         public static void DefineCenterPopup()
         {
-            // TODO: Add fields
             ActionArgs actionArgs = new ActionArgs();
             actionArgs.With(Constants.Args.TITLE_TEXT, "App name");
             actionArgs.With(Constants.Args.MESSAGE_TEXT, "Alert message goes here.");

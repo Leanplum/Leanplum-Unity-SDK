@@ -922,7 +922,6 @@ namespace LeanplumSDK
         /// </param>
         public static void PrioritizeMessages(PrioritizeMessagesHandler handler)
         {
-            // TODO: Check if action trigger keys are the same on iOS and Android
             LeanplumFactory.SDK.PrioritizeMessages(handler);
         }
 
@@ -981,8 +980,6 @@ namespace LeanplumSDK
         {
             LeanplumFactory.SDK.SetActionManagerEnabled(enabled);
         }
-
-        // TODO: Add Configuration methods?
         #endregion
     }
 }

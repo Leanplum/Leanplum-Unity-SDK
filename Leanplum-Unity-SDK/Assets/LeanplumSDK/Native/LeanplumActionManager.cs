@@ -159,8 +159,8 @@ namespace LeanplumSDK
 
             var actionTrigger = new Dictionary<string, object>
             {
-                {"eventName", eventName },
-                {"condition", trigger?.Value },
+                { "eventName", eventName },
+                { "condition", trigger?.Value },
                 { "contextualValues", new Dictionary<string, object>() }
             };
 

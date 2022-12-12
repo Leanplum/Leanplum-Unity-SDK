@@ -17,12 +17,8 @@
 //  KIND, either express or implied.  See the License for the
 //  specific language governing permissions and limitations
 //  under the License.
-using System.Collections.Generic;
 using LeanplumSDK;
 using UnityEngine;
-using LeanplumSDK.MiniJSON;
-using System.Linq;
-using System.Collections;
 
 public class LeanplumWrapper : MonoBehaviour
 {
@@ -89,84 +85,7 @@ public class LeanplumWrapper : MonoBehaviour
         LeanplumNative.ShouldPerformActions(true);
 #endif
 
-        // Sample Implementation
-        // TODO: remove when done testing here
-        Leanplum.ShouldDisplayMessage((context) =>
-        {
-            Debug.Log($"ShouldDisplayMessage: {context}");
-
-            if (GetActionNameFromMessageKey(context.Name) == "Confirm")
-            {
-                return MessageDisplayChoice.Discard();
-            }
-            if (GetActionNameFromMessageKey(context.Name) == "Interstitial")
-            {
-                return MessageDisplayChoice.Delay(5);
-            }
-
-            return MessageDisplayChoice.Show();
-        });
-
-        Leanplum.PrioritizeMessages((contexts, trigger) =>
-        {
-            string triggerLog = Json.Serialize(trigger);
-            string[] contextsArr = contexts.Select(x => x.ToString()).ToArray();
-            string contextsLog = string.Join(", ", contextsArr);
-            Debug.Log($"PrioritizeMessages for trigger: {triggerLog} with contexts: {contextsLog}");
-
-            if (contexts.Length > 2)
-            {
-                return contexts.Take(2).ToArray();
-            }
-
-            return contexts;
-        });
-
-        Leanplum.OnMessageDisplayed((context) =>
-        {
-            Debug.Log($"OnMessageDisplayed: {context}");
-        });
-
-        Leanplum.OnMessageDismissed((context) =>
-        {
-            Debug.Log($"OnMessageDismissed: {context}");
-        });
-
-        Leanplum.OnMessageAction((action, context) =>
-        {
-            Debug.Log($"OnMessageAction: {action} for {context}");
-        });
-
-        //StartCoroutine(Pause());
-        //StartCoroutine(Enable());
-
         Leanplum.Start();
-    }
-
-    IEnumerator Pause()
-    {
-        yield return new WaitForSeconds(5);
-        Debug.Log($"SetActionManagerPaused  - pause");
-        Leanplum.SetActionManagerPaused(true);
-        yield return new WaitForSeconds(5);
-        Debug.Log($"SetActionManagerPaused - unpause");
-        Leanplum.SetActionManagerPaused(false);
-    }
-
-    IEnumerator Enable()
-    {
-        yield return new WaitForSeconds(20);
-        Debug.Log($"SetActionManagerEnabled  - false");
-        Leanplum.SetActionManagerEnabled(false);
-        yield return new WaitForSeconds(10);
-        Debug.Log($"SetActionManagerEnabled - true");
-        Leanplum.SetActionManagerEnabled(true);
-    }
-
-    private string GetActionNameFromMessageKey(string key)
-    {
-        // {actionName:messageId}
-        return key.Split(':')[0];
     }
 
     void inboxChanged()

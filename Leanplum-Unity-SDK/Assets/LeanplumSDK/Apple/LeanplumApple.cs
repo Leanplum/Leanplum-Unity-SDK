@@ -913,8 +913,6 @@ namespace LeanplumSDK
                 return contextsKeys;
             }
 
-            Debug.Log($"PrioritizeMessagesDelegateInternal: {contextsKeys} {actionTrigger}");
-
             string[] keys = contextsKeys.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
 
             List<ActionContext> contexts = new List<ActionContext>();
