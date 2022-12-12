@@ -374,11 +374,19 @@ extern "C"
             [contexts enumerateObjectsUsingBlock:^(LPActionContext * _Nonnull context, NSUInteger idx, BOOL * _Nonnull stop) {
                 [arr addObject:[LeanplumActionContextBridge addActionContext:context]];
             }];
-    
+            
+            NSMutableDictionary *contextualValues = [[NSMutableDictionary alloc] init];
+            if ([actionsTrigger contextualValues]) {
+                contextualValues[@"parameters"] = actionsTrigger.contextualValues.parameters;
+                contextualValues[@"arguments"] = actionsTrigger.contextualValues.arguments;
+                contextualValues[@"previousAttributeValue"] = actionsTrigger.contextualValues.previousAttributeValue;
+                contextualValues[@"attributeValue"] = actionsTrigger.contextualValues.attributeValue;
+            }
+            
             NSDictionary *trigger = @{
                 @"eventName": actionsTrigger.eventName ?: @"",
                 @"condition": actionsTrigger.condition ?: @[],
-                @"contextualValues": actionsTrigger.contextualValues ?: @{}
+                @"contextualValues": contextualValues
             };
     
             NSString *csv = [arr componentsJoinedByString:@","];
