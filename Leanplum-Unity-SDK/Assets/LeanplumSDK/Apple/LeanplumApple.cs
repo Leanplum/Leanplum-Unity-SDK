@@ -925,7 +925,7 @@ namespace LeanplumSDK
             }
 
             var eligibleContexts = prioritizeMessagesHandler(contexts.ToArray(), Json.Deserialize(actionTrigger) as Dictionary<string, object>);
-            return string.Join(",", eligibleContexts.Select(x => x.Name));
+            return string.Join(",", eligibleContexts.Select(x => x.Key));
         }
 
         // The method the customer will call
