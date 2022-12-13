@@ -2,7 +2,7 @@
 
 namespace LeanplumSDK
 {
-    public class ActionDefinition
+    internal class ActionDefinition
     {
         internal string Name { get; set; }
         internal Constants.ActionKind Kind;

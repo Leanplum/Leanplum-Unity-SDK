@@ -1,5 +1,5 @@
 //
-// Copryight 2014, Leanplum, Inc.
+// Copryight 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file

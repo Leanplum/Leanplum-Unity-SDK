@@ -21,8 +21,6 @@ using LeanplumSDK.MiniJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace LeanplumSDK
@@ -732,6 +730,7 @@ namespace LeanplumSDK
             LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
             Leanplum.RequestSender.RequestSenderTimer.Start();
         }
+
 #if !UNITY_WEBGL
         private void InitializeSocket()
         {
