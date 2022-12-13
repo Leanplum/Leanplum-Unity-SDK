@@ -187,6 +187,7 @@ namespace LeanplumSDK
         /// <param name="port"> The port to connect to. </param>
         public override void SetSocketConnectionSettings(string hostName, int port)
         {
+#if !UNITY_WEBGL
             if (!hostName.Equals(Leanplum.ApiConfig.SocketHost) || !port.Equals(Leanplum.ApiConfig.SocketPort))
             {
                 Leanplum.ApiConfig.SetSocketConfig(hostName, port);
@@ -197,6 +198,9 @@ namespace LeanplumSDK
                     InitializeSocket();
                 }
             }
+#else
+            CompatibilityLayer.LogWarning("Leanplum Socket is not supported in WebGL. Cannot set socket connection settings.");
+#endif
         }
 
         /// <summary>
@@ -714,7 +718,7 @@ namespace LeanplumSDK
             LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
             Leanplum.RequestSender.RequestSenderTimer.Start();
         }
-
+#if !UNITY_WEBGL
         private void InitializeSocket()
         {
             if (Constants.EnableRealtimeUpdatesInDevelopmentMode &&
@@ -731,6 +735,7 @@ namespace LeanplumSDK
                 LeanplumActionManager.TriggerPreview);
             }
         }
+#endif
 
         public override void ForceSyncVariables(Leanplum.SyncVariablesCompleted completedHandler)
         {
