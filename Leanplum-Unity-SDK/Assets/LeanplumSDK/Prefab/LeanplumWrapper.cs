@@ -35,14 +35,16 @@ public class LeanplumWrapper : MonoBehaviour
 		}
 		else
 		{
-			// NOTE: Currently, the native iOS and Android SDKs do not support Unity Asset Bundles.
-			// If you require the use of asset bundles, use LeanplumNative on all platforms.
-			#if UNITY_IPHONE
-			LeanplumFactory.SDK = new LeanplumApple();
-			#elif UNITY_ANDROID
-			LeanplumFactory.SDK = new LeanplumAndroid();
-			#else
-			LeanplumFactory.SDK = new LeanplumNative();
+            #if UNITY_EDITOR
+            LeanplumFactory.SDK = new LeanplumNative();
+            // NOTE: Currently, the native iOS and Android SDKs do not support Unity Asset Bundles.
+            // If you require the use of asset bundles, use LeanplumNative on all platforms.
+            #elif UNITY_IPHONE
+            LeanplumFactory.SDK = new LeanplumApple();
+            #elif UNITY_ANDROID
+            LeanplumFactory.SDK = new LeanplumAndroid();
+            #else
+            LeanplumFactory.SDK = new LeanplumNative();
             #endif
         }
     }
