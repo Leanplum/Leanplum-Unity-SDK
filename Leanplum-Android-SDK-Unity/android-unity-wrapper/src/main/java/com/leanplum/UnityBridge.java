@@ -236,6 +236,10 @@ public class UnityBridge {
     Leanplum.setLogLevel(logLevel);
   }
 
+  /**
+   * @deprecated MiPush implementation of Leanplum will be replaced with CleverTap SDK.
+   */
+  @Deprecated
   public static void setMiPushApplication(String miAppId, String miAppKey) {
     try {
       Class.forName("com.leanplum.LeanplumMiPushHandler").getDeclaredMethod("setApplication", String.class, String.class).invoke((Object)null, miAppId, miAppKey);
