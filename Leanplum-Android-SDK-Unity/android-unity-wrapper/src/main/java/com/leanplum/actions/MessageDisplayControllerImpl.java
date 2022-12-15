@@ -83,13 +83,13 @@ public class MessageDisplayControllerImpl implements MessageDisplayController {
 
     StringBuilder sb = new StringBuilder();
     for (ActionContext ac: list) {
-      String contextId = UnityBridge.getActionContextId(ac);
-      UnityActionContextBridge.actionContexts.put(contextId, ac);
+      String contextKey = UnityBridge.getActionContextKey(ac);
+      UnityActionContextBridge.actionContexts.put(contextKey, ac);
       if (sb.length() == 0) {
-        sb.append(contextId);
+        sb.append(contextKey);
       } else {
         sb.append(',');
-        sb.append(contextId);
+        sb.append(contextKey);
       }
     }
     String csv = javaBridge.prioritizeMessages(sb.toString(), actionsTriggerJson);
@@ -108,8 +108,8 @@ public class MessageDisplayControllerImpl implements MessageDisplayController {
   @Nullable
   @Override
   public MessageDisplayChoice shouldDisplayMessage(@NonNull ActionContext actionContext) {
-    String contextId = UnityBridge.getActionContextId(actionContext);
-    int result = javaBridge.shouldDisplayMessage(contextId);
+    String contextKey = UnityBridge.getActionContextKey(actionContext);
+    int result = javaBridge.shouldDisplayMessage(contextKey);
     switch (result) {
       case 0:
         return MessageDisplayChoice.show();

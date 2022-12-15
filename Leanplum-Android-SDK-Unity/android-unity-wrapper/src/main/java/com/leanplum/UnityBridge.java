@@ -418,7 +418,7 @@ public class UnityBridge {
             actionId,
             Constants.Messaging.DEFAULT_PRIORITY);
 
-    String key = String.format("%s:%s", actionName, context.getMessageId());
+    String key = getActionContextKey(context);
     UnityActionContextBridge.actionContexts.put(key, context);
 
     return key;
@@ -456,13 +456,21 @@ public class UnityBridge {
     return false;
   }
 
-  public static String getActionContextId(ActionContext actionContext) {
-    return String.format("%s:%s", actionContext.actionName(), actionContext.getMessageId());
+  public static String getActionContextKey(ActionContext actionContext) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(String.format("%s:%s", actionContext.actionName(), actionContext.getMessageId()));
+
+    ActionContext parent = actionContext.getParentContext();
+    while (parent != null) {
+      sb.insert(0, String.format("%s:%s:", parent.actionName(), parent.getMessageId()));
+      parent = parent.getParentContext();
+    }
+    return sb.toString();
   }
 
   private static void sendMessageActionContext(String message, ActionContext context){
     if (context != null) {
-      String key = getActionContextId(context);
+      String key = getActionContextKey(context);
       UnityActionContextBridge.actionContexts.put(key, context);
       String callbackMessage = String.format("%s:%s", message, key);
       makeCallbackToUnity(callbackMessage);

@@ -36,19 +36,19 @@ public class MessageDisplayListenerImpl implements MessageDisplayListener {
 
   @Override
   public void onActionExecuted(@NonNull String name, @NonNull ActionContext actionContext) {
-    String contextId = UnityBridge.getActionContextId(actionContext);
-    javaBridge.onMessageAction(name, contextId);
+    String contextKey = UnityBridge.getActionContextKey(actionContext);
+    javaBridge.onMessageAction(name, contextKey);
   }
 
   @Override
   public void onMessageDismissed(@NonNull ActionContext actionContext) {
-    String contextId = UnityBridge.getActionContextId(actionContext);
-    javaBridge.onMessageDismissed(contextId);
+    String contextKey = UnityBridge.getActionContextKey(actionContext);
+    javaBridge.onMessageDismissed(contextKey);
   }
 
   @Override
   public void onMessageDisplayed(@NonNull ActionContext actionContext) {
-    String contextId = UnityBridge.getActionContextId(actionContext);
-    javaBridge.onMessageDisplayed(contextId);
+    String contextKey = UnityBridge.getActionContextKey(actionContext);
+    javaBridge.onMessageDisplayed(contextKey);
   }
 }
