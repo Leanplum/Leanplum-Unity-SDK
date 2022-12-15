@@ -104,8 +104,8 @@ namespace LeanplumSDK
             {
                 LeanplumNative.CompatibilityLayer.LogDebug($"[ActionManager]: action presented: {currentAction}");
                 RecordImpression(currentAction);
-                actionDefinition.Responder?.Invoke(currentAction);
                 displayMessageHandler?.Invoke(currentAction);
+                actionDefinition.Responder?.Invoke(currentAction);
             }
         }
 
