@@ -830,7 +830,7 @@ namespace LeanplumSDK
                 if (messageActionHandler != null)
                 {
                     string data = message.Substring(ON_MESSAGE_ACTION.Length);
-
+                    // {actionName|parentActionName:parentMessageId:...:actionName:messageId}
                     char keysSeparator = '|';
                     string[] keys = data.Split(new char[] { keysSeparator }, StringSplitOptions.RemoveEmptyEntries);
                     if (keys.Length != 2)
@@ -983,14 +983,22 @@ namespace LeanplumSDK
 
         private static string GetActionNameFromMessageKey(string key)
         {
-            // {actionName:messageId}
-            return key.Split(':')[0];
+            // {parentActionName:parentMessageId:...:actionName:messageId}
+            var keys = key.Split(':');
+            return keys[keys.Length - 2];
+        }
+
+        private static string GetActionIdFromMessageKey(string key)
+        {
+            // {parentActionName:parentMessageId:...:actionName:messageId}
+            var keys = key.Split(':');
+            return keys[keys.Length - 1];
         }
 
         private static Tuple<string, string> GetActionNameMessageIdFromMessageKey(string key)
         {
             string actionName = GetActionNameFromMessageKey(key);
-            string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
+            string messageId = GetActionIdFromMessageKey(key);
             return new Tuple<string, string>(actionName, messageId);
         }
 

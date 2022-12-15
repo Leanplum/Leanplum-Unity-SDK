@@ -36,8 +36,20 @@ static NSMutableDictionary<NSString *, LPActionContext *> *actionContexts;
 
 + (NSString *) addActionContext:(LPActionContext *) context
 {
-    NSString *key = [NSString stringWithFormat:@"%@:%@", [context actionName], [context messageId]];
+    NSString *key = [self generateActionContextKey:context];
     [LeanplumActionContextBridge sharedActionContexts][key] = context;
+    return key;
+}
+
++ (NSString *) generateActionContextKey:(LPActionContext *) context
+{
+    LPActionContext *parent = [context parentContext];
+    NSString *key = [NSString stringWithFormat:@"%@:%@", [context actionName], [context messageId]];
+    while (parent) {
+        NSString *parentKey = [NSString stringWithFormat:@"%@:%@:", [parent actionName], [parent messageId]];
+        key = [parentKey stringByAppendingString:key];
+        parent = [parent parentContext];
+    }
     return key;
 }
 
