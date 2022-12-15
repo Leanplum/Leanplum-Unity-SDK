@@ -930,7 +930,13 @@ namespace LeanplumSDK
         public override void PrioritizeMessages(PrioritizeMessagesHandler handler)
         {
             prioritizeMessagesHandler = handler;
-            lp_onPrioritizeMessages(PrioritizeMessagesDelegateInternal);
+            if (handler != null) { 
+                lp_onPrioritizeMessages(PrioritizeMessagesDelegateInternal);
+            }
+            else
+            {
+                lp_onPrioritizeMessages(null);
+            }
         }
 
         public override void TriggerDelayedMessages()

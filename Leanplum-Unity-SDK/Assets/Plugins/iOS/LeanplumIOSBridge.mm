@@ -368,6 +368,11 @@ extern "C"
     typedef const char * (*PrioritizeMessagesCallback) (const char *, const char *);
     void lp_onPrioritizeMessages(PrioritizeMessagesCallback callback)
     {
+        if (!callback) {
+            [[LPActionManager shared] prioritizeMessages:nil];
+            return;
+        }
+        
         [[LPActionManager shared] prioritizeMessages:^NSArray<LPActionContext *> * _Nonnull(NSArray<LPActionContext *> * _Nonnull contexts, ActionsTrigger * _Nullable  actionsTrigger) {
     
             NSMutableArray<NSString *> *arr = [NSMutableArray arrayWithCapacity:contexts.count];
