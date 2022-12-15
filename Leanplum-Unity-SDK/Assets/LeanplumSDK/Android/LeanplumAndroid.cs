@@ -1,5 +1,5 @@
 //
-// Copyright 2014, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -950,7 +950,7 @@ namespace LeanplumSDK
         private static Tuple<string, string> GetActionNameMessageIdFromMessageKey(string key)
         {
             string actionName = GetActionNameFromMessageKey(key);
-            string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
+            string messageId = GetActionIdFromMessageKey(key);
             return new Tuple<string, string>(actionName, messageId);
         }
 
@@ -967,15 +967,16 @@ namespace LeanplumSDK
 
         private static string GetActionNameFromMessageKey(string key)
         {
-            // {actionName:messageId}
-            return key.Split(':')[0];
+            // {parentActionName:parentMessageId:...:actionName:messageId}
+            var keys = key.Split(':');
+            return keys[keys.Length - 2];
         }
 
-        private string GetMessageIdFromMessageKey(string key)
+        private static string GetActionIdFromMessageKey(string key)
         {
-            string actionName = GetActionNameFromMessageKey(key);
-            string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
-            return messageId;
+            // {parentActionName:parentMessageId:...:actionName:messageId}
+            var keys = key.Split(':');
+            return keys[keys.Length - 1];
         }
 
         public override void AddOnceVariablesChangedAndNoDownloadsPendingHandler(
