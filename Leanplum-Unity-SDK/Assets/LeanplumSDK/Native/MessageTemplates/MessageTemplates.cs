@@ -16,7 +16,7 @@ namespace LeanplumSDK
         public static void DefineAlert()
         {
             ActionArgs actionArgs = new ActionArgs();
-            actionArgs.With(Constants.Args.TITLE, "App name");
+            actionArgs.With(Constants.Args.TITLE, Application.productName);
             actionArgs.With(Constants.Args.MESSAGE, "Alert message goes here.");
             actionArgs.With(Constants.Args.DISMISS_TEXT, "OK");
 
@@ -42,6 +42,7 @@ namespace LeanplumSDK
         public static void DefineConfirm()
         {
             ActionArgs actionArgs = new ActionArgs();
+            actionArgs.With(Constants.Args.TITLE, Application.productName);
             actionArgs.With(Constants.Args.MESSAGE, "Confirm message");
             actionArgs.With(Constants.Args.ACCEPT_TEXT, "Accept");
             actionArgs.With(Constants.Args.CANCEL_TEXT, "Cancel");
