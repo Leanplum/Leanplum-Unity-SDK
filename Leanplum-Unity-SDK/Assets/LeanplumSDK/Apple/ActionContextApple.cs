@@ -176,6 +176,11 @@ namespace LeanplumSDK.Apple
         {
             dismiss(Key);
         }
+
+        public override string ToString()
+        {
+            return $"{Key}";
+        }
     }
 }
 #endif
