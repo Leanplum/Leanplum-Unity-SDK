@@ -137,6 +137,8 @@ namespace LeanplumSDK
         public class Args
         {
             public const string CONFIRM_NAME = "Confirm";
+            public const string ALERT_NAME = "Alert";
+            public const string CENTER_POPUP = "Center Popup";
             public const string GENERIC_DEFINITION_NAME = "GenericMessageAction";
             public const string GENERIC_DEFINITION_CONFIG = "messageConfig";
             public const string ACTION = "action";

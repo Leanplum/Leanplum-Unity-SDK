@@ -10,66 +10,53 @@ namespace LeanplumSDK
     public class ActionContextAndroid : ActionContext
     {
         private AndroidJavaClass nativeHandle = null;
-        private ActionResponder runActionResponder;
+        internal override string Key { get; }
         public override string Id { get; }
         public override string Name { get; }
 
-        internal ActionContextAndroid(string key, string messageId)
+        internal ActionContextAndroid(string key, string actionName, string messageId)
         {
+            Key = key;
             Id = messageId;
-            Name = key;
+            Name = actionName;
             nativeHandle = new AndroidJavaClass("com.leanplum.UnityActionContextBridge");
         }
 
         public override void Track(string eventName, double value, IDictionary<string, object> param)
         {
             var paramJson = param != null ? Json.Serialize(param) : "";
-            nativeHandle.CallStatic("track", Name, eventName, value, paramJson);
+            nativeHandle.CallStatic("track", Key, eventName, value, paramJson);
         }
 
         public override void TrackMessageEvent(string eventName, double value, string info, IDictionary<string, object> param)
         {
             var paramJson = param != null ? Json.Serialize(param) : "";
-            nativeHandle.CallStatic("trackMessageEvent", Name, eventName, value, info, paramJson);
-        }
-
-        public override void SetActionNamedResponder(ActionResponder handler)
-        {
-            runActionResponder = handler;
-            nativeHandle.CallStatic("setActionNamedHandler", Name);
-        }
-
-        internal override void TriggerActionNamedResponder(ActionContext context)
-        {
-            if (runActionResponder != null)
-            {
-                runActionResponder.Invoke(context);
-            }
+            nativeHandle.CallStatic("trackMessageEvent", Key, eventName, value, info, paramJson);
         }
 
         public override void RunActionNamed(string name)
         {
-            nativeHandle.CallStatic("runActionNamed", Name, name);
+            nativeHandle.CallStatic("runActionNamed", Key, name);
         }
 
         public override void RunTrackedActionNamed(string name)
         {
-            nativeHandle.CallStatic("runTrackedActionNamed", Name, name);
+            nativeHandle.CallStatic("runTrackedActionNamed", Key, name);
         }
 
         public override string GetStringNamed(string name)
         {
-            return nativeHandle.CallStatic<string>("getStringNamed", Name, name);
+            return nativeHandle.CallStatic<string>("getStringNamed", Key, name);
         }
 
         public override bool? GetBooleanNamed(string name)
         {
-            return nativeHandle.CallStatic<bool>("getBooleanNamed", Name, name);
+            return nativeHandle.CallStatic<bool>("getBooleanNamed", Key, name);
         }
 
         public override T GetObjectNamed<T>(string name)
         {
-            var json = nativeHandle.CallStatic<string>("getObjectNamed", Name, name);
+            var json = nativeHandle.CallStatic<string>("getObjectNamed", Key, name);
             if (json != null)
             {
                 var value = Json.Deserialize(json);
@@ -87,7 +74,7 @@ namespace LeanplumSDK
 
         public override string GetFile(string name)
         {
-            return nativeHandle.CallStatic<string>("getFileNamed", Name, name);
+            return nativeHandle.CallStatic<string>("getFileNamed", Key, name);
         }
 
         public override T GetNumberNamed<T>(string name)
@@ -95,34 +82,34 @@ namespace LeanplumSDK
             Type t = typeof(T);
             if (t == typeof(int))
             {
-                return (T) (object) nativeHandle.CallStatic<int>("getIntNamed", Name, name);
+                return (T) (object) nativeHandle.CallStatic<int>("getIntNamed", Key, name);
             }
             else if (t == typeof(double))
             {
-                return (T) (object) nativeHandle.CallStatic<double>("getDoubleNamed", Name, name);
+                return (T) (object) nativeHandle.CallStatic<double>("getDoubleNamed", Key, name);
             }
             else if (t == typeof(float))
             {
-                return (T) (object) nativeHandle.CallStatic<float>("getFloatNamed", Name, name);
+                return (T) (object) nativeHandle.CallStatic<float>("getFloatNamed", Key, name);
             }
             else if (t == typeof(long))
             {
-                return (T) (object) nativeHandle.CallStatic<long>("getLongNamed", Name, name);
+                return (T) (object) nativeHandle.CallStatic<long>("getLongNamed", Key, name);
             }
             else if (t == typeof(short))
             {
-                return (T) (object) nativeHandle.CallStatic<short>("getShortNamed", Name, name);
+                return (T) (object) nativeHandle.CallStatic<short>("getShortNamed", Key, name);
             }
             else if (t == typeof(byte))
             {
-                return (T) (object) nativeHandle.CallStatic<byte>("getByteNamed", Name, name);
+                return (T) (object) nativeHandle.CallStatic<byte>("getByteNamed", Key, name);
             }
             return default(T);
         }
 
-        public override void MuteForFutureMessagesOfSameKind()
+        public override void Dismissed()
         {
-            nativeHandle.CallStatic("muteFutureMessagesOfSameKind", Name);
+            nativeHandle.CallStatic("dismiss", Key);
         }
     }
 }

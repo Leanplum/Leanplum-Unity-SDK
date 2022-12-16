@@ -26,6 +26,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using LeanplumSDK.Apple;
+using AOT;
+using System.Linq;
+using static LeanplumSDK.Leanplum;
 
 namespace LeanplumSDK
 {
@@ -33,7 +36,7 @@ namespace LeanplumSDK
     {
         private bool isDeveloper = false;
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void lp_setGameObject(string gameObject);
 
         [DllImport("__Internal")]
@@ -133,13 +136,28 @@ namespace LeanplumSDK
         internal static extern void lp_defineAction(string name, int kind, string argsJSON, string optionsJSON);
 
         [DllImport("__Internal")]
-        internal static extern void lp_onAction(string name);
-
-        [DllImport("__Internal")]
         internal static extern string lp_createActionContextForId(string actionId);
 
         [DllImport("__Internal")]
         internal static extern bool lp_triggerAction(string actionId);
+
+        [DllImport("__Internal")]
+        internal static extern bool lp_triggerDelayedMessages();
+
+        [DllImport("__Internal")]
+        internal static extern bool lp_onMessageDisplayed();
+
+        [DllImport("__Internal")]
+        internal static extern bool lp_onMessageDismissed();
+
+        [DllImport("__Internal")]
+        internal static extern bool lp_onMessageAction();
+
+        [DllImport("__Internal")]
+        internal static extern bool lp_setActionManagerPaused(bool paused);
+
+        [DllImport("__Internal")]
+        internal static extern bool lp_setActionManagerEnabled(bool enabled);
 
         [DllImport("__Internal")]
         internal static extern void lp_forceContentUpdateWithHandler(int key);
@@ -162,7 +180,6 @@ namespace LeanplumSDK
         [DllImport("__Internal")]
         internal static extern void lp_disableLocationCollection();
 
-
         private LeanplumInbox inbox;
         public override LeanplumInbox Inbox
         {
@@ -177,15 +194,17 @@ namespace LeanplumSDK
             }
         }
 
-        public LeanplumApple() { }
+        public LeanplumApple()
+        {
+        }
 
-        public override event Leanplum.VariableChangedHandler VariablesChanged;
-        public override event Leanplum.VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
+        public override event VariableChangedHandler VariablesChanged;
+        public override event VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
 
-        private event Leanplum.StartHandler started;
+        private event StartHandler started;
         private bool startSuccessful;
 
-        public override event Leanplum.StartHandler Started
+        public override event StartHandler Started
         {
             add
             {
@@ -203,10 +222,9 @@ namespace LeanplumSDK
             }
         }
 
-        private Dictionary<int, Leanplum.ForceContentUpdateHandler> ForceContentUpdateHandlersDictionary = new Dictionary<int, Leanplum.ForceContentUpdateHandler>();
+        private Dictionary<int, ForceContentUpdateHandler> ForceContentUpdateHandlersDictionary = new Dictionary<int, ForceContentUpdateHandler>();
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
-        private Dictionary<string, List<ActionContext.ActionResponder>> OnActionRespondersDictionary = new Dictionary<string, List<ActionContext.ActionResponder>>();
-        private Dictionary<string, ActionContext> ActionContextsDictionary = new Dictionary<string, ActionContext>();
+        private Dictionary<string, ActionContext.ActionResponder> DismissActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
 
         private Dictionary<int, Leanplum.VariablesChangedAndNoDownloadsPendingHandler> OnceVariablesChangedAndNoDownloadsPendingDict =
     new Dictionary<int, Leanplum.VariablesChangedAndNoDownloadsPendingHandler>();
@@ -485,6 +503,7 @@ namespace LeanplumSDK
             Leanplum.StartHandler startResponseAction)
         {
             lp_setGameObject(LeanplumUnityHelper.Instance.gameObject.name);
+
             // Invokes Started event through NativeCallback
             Started += startResponseAction;
             string attributesString = attributes == null ? null : Json.Serialize(attributes);
@@ -498,6 +517,12 @@ namespace LeanplumSDK
 
         public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
+            DefineAction(name, kind, args, options, responder, null);
+        }
+
+        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options,
+            ActionContext.ActionResponder responder, ActionContext.ActionResponder dismissResponder)
+        { 
             if (name == null)
             {
                 return;
@@ -506,11 +531,15 @@ namespace LeanplumSDK
             {
                 ActionRespondersDictionary.Add(name, responder);
             }
+            if (dismissResponder != null)
+            {
+                DismissActionRespondersDictionary.Add(name, dismissResponder);
+            }
 
             string argString = args == null ? null : args.ToJSON();
             string optionString = options == null ? null : Json.Serialize(options);
 
-            lp_defineAction(name, (int)kind, argString, optionString);
+            lp_defineAction(name, (int) kind, argString, optionString);
         }
 
         public override bool ShowMessage(string id)
@@ -707,8 +736,10 @@ namespace LeanplumSDK
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_HANDLER = "ForceContentUpdateWithHandler:";
             const string DEFINE_ACTION_RESPONDER = "ActionResponder:";
-            const string ON_ACTION_RESPONDER = "OnAction:";
-            const string RUN_ACTION_NAMED_RESPONDER = "OnRunActionNamed:";
+            const string ACTION_DISMISS = "ActionDismiss:";
+            const string ON_MESSAGE_DISPLAYED = "OnMessageDisplayed:";
+            const string ON_MESSAGE_DISMISSED = "OnMessageDismissed:";
+            const string ON_MESSAGE_ACTION = "OnMessageAction:";
 
             if (message.StartsWith(VARIABLES_CHANGED))
             {
@@ -761,51 +792,56 @@ namespace LeanplumSDK
                 ActionContext.ActionResponder callback;
                 if (ActionRespondersDictionary.TryGetValue(actionName, out callback))
                 {
-                    string messageId = GetMessageIdFromMessageKey(key);
-                    var context = new ActionContextApple(key, messageId);
-                    ActionContextsDictionary[key] = context;
+                    var context = CreateActionContextFromKey(key);
                     callback(context);
                 }
             }
-            else if (message.StartsWith(ON_ACTION_RESPONDER))
+            else if (message.StartsWith(ACTION_DISMISS))
             {
-                string key = message.Substring(ON_ACTION_RESPONDER.Length);
+                string key = message.Substring(ACTION_DISMISS.Length);
                 string actionName = GetActionNameFromMessageKey(key);
 
-                if (OnActionRespondersDictionary.TryGetValue(actionName, out List<ActionContext.ActionResponder> callbacks))
+                if (DismissActionRespondersDictionary.TryGetValue(actionName, out ActionContext.ActionResponder callback))
                 {
-                    if (!ActionContextsDictionary.ContainsKey(key))
-                    {
-                        string messageId = GetMessageIdFromMessageKey(key);
-                        var newContext = new ActionContextApple(key, messageId);
-                        ActionContextsDictionary[key] = newContext;
-                    }
-
-                    ActionContext context = ActionContextsDictionary[key];
-                    foreach (var callback in callbacks)
-                    {
-                        callback(context);
-                    }
+                    var context = CreateActionContextFromKey(key);
+                    callback(context);
                 }
             }
-            else if (message.StartsWith(RUN_ACTION_NAMED_RESPONDER))
+            else if (message.StartsWith(ON_MESSAGE_DISPLAYED))
             {
-                char keysSeparator = '|';
-                string data = message.Substring(RUN_ACTION_NAMED_RESPONDER.Length);
-
-                string[] keys = data.Split(new char[] { keysSeparator }, StringSplitOptions.RemoveEmptyEntries);
-                if (keys.Length != 2)
+                if (messageDisplayedHandler != null)
                 {
-                    return;
+                    string key = message.Substring(ON_MESSAGE_DISPLAYED.Length);
+                    var context = CreateActionContextFromKey(key);
+                    messageDisplayedHandler(context);
                 }
-
-                string parentKey = keys[0];
-                string actionKey = keys[1];
-
-                if (ActionContextsDictionary.TryGetValue(parentKey, out ActionContext parentContext))
+            }
+            else if (message.StartsWith(ON_MESSAGE_DISMISSED))
+            {
+                if (messageDismissedHandler != null)
                 {
-                    var context = new ActionContextApple(actionKey, GetMessageIdFromMessageKey(actionKey));
-                    parentContext.TriggerActionNamedResponder(context);
+                    string key = message.Substring(ON_MESSAGE_DISMISSED.Length);
+                    var context = CreateActionContextFromKey(key);
+                    messageDismissedHandler(context);
+                }
+            }
+            else if (message.StartsWith(ON_MESSAGE_ACTION))
+            {
+                if (messageActionHandler != null)
+                {
+                    string data = message.Substring(ON_MESSAGE_ACTION.Length);
+                    // {actionName|parentActionName:parentMessageId:...:actionName:messageId}
+                    char keysSeparator = '|';
+                    string[] keys = data.Split(new char[] { keysSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                    if (keys.Length != 2)
+                    {
+                        return;
+                    }
+
+                    string actionName = keys[0];
+                    string actionKey = keys[1];
+                    var context = CreateActionContextFromKey(actionKey);
+                    messageActionHandler.Invoke(actionName, context);
                 }
             }
 
@@ -815,18 +851,170 @@ namespace LeanplumSDK
             }
         }
 
-        private string GetActionNameFromMessageKey(string key)
+        #region Action Manager
+
+        private MessageHandler messageDisplayedHandler;
+        private MessageHandler messageDismissedHandler;
+        private MessageActionHandler messageActionHandler;
+
+        private static ShouldDisplayMessageHandler shouldDisplayMessageHandler;
+
+        [DllImport("__Internal")]
+        private static extern void lp_onShouldDisplayMessage(ShouldDisplayMessageDelegate callback);
+
+        private delegate int ShouldDisplayMessageDelegate(string key);
+
+        // Must be static: IL2CPP does not support marshaling delegates that point to instance methods to native code.
+        [MonoPInvokeCallback(typeof(ShouldDisplayMessageDelegate))]
+        public static int ShouldDisplayMessageInternal(string key)
         {
-            // {actionName:messageId}
-            return key.Split(':')[0];
+            if (shouldDisplayMessageHandler == null)
+            {
+                return (int)MessageDisplayChoice.DisplayChoice.SHOW;
+            }
+
+            var context = CreateActionContextFromKey(key);
+
+            var result = shouldDisplayMessageHandler(context);
+            if (result.Choice.Equals(MessageDisplayChoice.DisplayChoice.DELAY))
+            {
+                if (result.DelaySeconds <= -1)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return (int)MessageDisplayChoice.DisplayChoice.DELAY + result.DelaySeconds;
+                }
+            }
+            return (int)result.Choice;
         }
 
-        private string GetMessageIdFromMessageKey(string key)
+        // The method the customer will call
+        public override void ShouldDisplayMessage(ShouldDisplayMessageHandler handler)
+        {
+            shouldDisplayMessageHandler = handler;
+            lp_onShouldDisplayMessage(ShouldDisplayMessageInternal);
+        }
+
+        private static PrioritizeMessagesHandler prioritizeMessagesHandler;
+
+        [DllImport("__Internal")]
+        private static extern void lp_onPrioritizeMessages(PrioritizeMessagesDelegate callback);
+
+        private delegate string PrioritizeMessagesDelegate(string contexts, string actionTrigger);
+
+        // Must be static: IL2CPP does not support marshaling delegates that point to instance methods to native code.
+        [MonoPInvokeCallback(typeof(PrioritizeMessagesDelegate))]
+        public static string PrioritizeMessagesDelegateInternal(string contextsKeys, string actionTrigger)
+        {
+            if (prioritizeMessagesHandler == null)
+            {
+                return contextsKeys;
+            }
+
+            string[] keys = contextsKeys.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+
+            List<ActionContext> contexts = new List<ActionContext>();
+            foreach (string key in keys)
+            {
+                var context = CreateActionContextFromKey(key);
+                contexts.Add(context);
+            }
+
+            var eligibleContexts = prioritizeMessagesHandler(contexts.ToArray(), Json.Deserialize(actionTrigger) as Dictionary<string, object>);
+            return string.Join(",", eligibleContexts.Select(x => x.Key));
+        }
+
+        // The method the customer will call
+        public override void PrioritizeMessages(PrioritizeMessagesHandler handler)
+        {
+            prioritizeMessagesHandler = handler;
+            if (handler != null) { 
+                lp_onPrioritizeMessages(PrioritizeMessagesDelegateInternal);
+            }
+            else
+            {
+                lp_onPrioritizeMessages(null);
+            }
+        }
+
+        public override void TriggerDelayedMessages()
+        {
+            lp_triggerDelayedMessages();
+        }
+
+        public override void OnMessageDisplayed(MessageHandler handler)
+        {
+            messageDisplayedHandler = handler;
+            lp_onMessageDisplayed();
+        }
+
+        public override void OnMessageDismissed(MessageHandler handler)
+        {
+            messageDismissedHandler = handler;
+            lp_onMessageDismissed();
+        }
+
+        public override void OnMessageAction(MessageActionHandler handler)
+        {
+            messageActionHandler = handler;
+            lp_onMessageAction();
+        }
+
+        public override void SetActionManagerPaused(bool paused)
+        {
+            lp_setActionManagerPaused(paused);
+        }
+
+        public override void SetActionManagerEnabled(bool enabled)
+        {
+            lp_setActionManagerEnabled(enabled);
+        }
+
+        public override ActionContext CreateActionContextForId(string actionId)
+        {
+            if (!string.IsNullOrEmpty(actionId))
+            {
+                string key = lp_createActionContextForId(actionId);
+                return CreateActionContextFromKey(key);
+            }
+            return null;
+        }
+
+        public override bool TriggerActionForId(string actionId)
+        {
+            return lp_triggerAction(actionId);
+        }
+
+        private static string GetActionNameFromMessageKey(string key)
+        {
+            // {parentActionName:parentMessageId:...:actionName:messageId}
+            var keys = key.Split(':');
+            return keys[keys.Length - 2];
+        }
+
+        private static string GetActionIdFromMessageKey(string key)
+        {
+            // {parentActionName:parentMessageId:...:actionName:messageId}
+            var keys = key.Split(':');
+            return keys[keys.Length - 1];
+        }
+
+        private static Tuple<string, string> GetActionNameMessageIdFromMessageKey(string key)
         {
             string actionName = GetActionNameFromMessageKey(key);
-            string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
-            return messageId;
+            string messageId = GetActionIdFromMessageKey(key);
+            return new Tuple<string, string>(actionName, messageId);
         }
+
+        private static ActionContextApple CreateActionContextFromKey(string key)
+        {
+            Tuple<string, string> actionNameMessageId = GetActionNameMessageIdFromMessageKey(key);
+            return new ActionContextApple(key, actionNameMessageId.Item1, actionNameMessageId.Item2);
+        }
+
+        #endregion
 
         #region Dealing with Variables
 
@@ -1000,48 +1188,12 @@ namespace LeanplumSDK
             }
         }
 
-        public override void OnAction(string actionName, ActionContext.ActionResponder handler)
-        {
-            if (string.IsNullOrEmpty(actionName) || handler == null)
-            {
-                return;
-            }
-
-            if (!OnActionRespondersDictionary.ContainsKey(actionName))
-            {
-                OnActionRespondersDictionary[actionName] = new List<ActionContext.ActionResponder>();
-            }
-
-            OnActionRespondersDictionary[actionName].Add(handler);
-            lp_onAction(actionName);
-        }
-
-        public override ActionContext CreateActionContextForId(string actionId)
-        {
-            if (!string.IsNullOrEmpty(actionId))
-            {
-                string key = lp_createActionContextForId(actionId);
-                string messageId = GetMessageIdFromMessageKey(key);
-                var context = new ActionContextApple(key, messageId);
-                ActionContextsDictionary[key] = context;
-
-                return context;
-            }
-            return null;
-        }
-
-        public override bool TriggerActionForId(string actionId)
-        {
-            return lp_triggerAction(actionId);
-        }
-
         public override void AddOnceVariablesChangedAndNoDownloadsPendingHandler(Leanplum.VariablesChangedAndNoDownloadsPendingHandler handler)
         {
             int key = DictionaryKey++;
             OnceVariablesChangedAndNoDownloadsPendingDict.Add(key, handler);
             lp_addOnceVariablesChangedAndNoDownloadsPendingHandler(key);
         }
-
         #endregion
     }
 }

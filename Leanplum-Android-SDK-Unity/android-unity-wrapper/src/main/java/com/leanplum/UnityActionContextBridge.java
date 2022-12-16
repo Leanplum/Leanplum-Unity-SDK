@@ -41,27 +41,6 @@ public class UnityActionContextBridge {
         }
     }
 
-    public static void setActionNamedHandler(String contextId) {
-        ActionContext context = actionContexts.get(contextId);
-        if (context != null) {
-            context.setActionNamedHandler(new ActionCallback() {
-                @Override
-                public boolean onResponse(ActionContext context) {
-                    ActionContext parent = context.getParentContext();
-                    if (parent != null) {
-                        String key = String.format("%s:%s|%s:%s", parent.actionName(), parent.getMessageId(),
-                                context.actionName(), context.getMessageId());
-                        String actionNamedKey = String.format("%s:%s", context.actionName(), context.getMessageId());
-                        actionContexts.put(actionNamedKey, context);
-                        String callbackMessage = String.format("%s:%s", "OnRunActionNamed", key);
-                        UnityBridge.makeCallbackToUnity(callbackMessage);
-                    }
-                    return false;
-                }
-            });
-        }
-    }
-
     public static void runTrackedActionNamed(String contextId, String name) {
         ActionContext context = actionContexts.get(contextId);
         if (context != null) {
@@ -186,10 +165,10 @@ public class UnityActionContextBridge {
         return empty;
     }
 
-    public static void muteFutureMessagesOfSameKind(String contextId) {
+    public static void dismiss(String contextId) {
         ActionContext context = actionContexts.get(contextId);
         if (context != null) {
-            context.muteFutureMessagesOfSameKind();
+            context.actionDismissed();
         }
     }
 }

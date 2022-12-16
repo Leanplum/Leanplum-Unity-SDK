@@ -1,5 +1,5 @@
 //
-// Copyright 2014, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LeanplumSDK.MiniJSON;
 using UnityEngine;
+using static LeanplumSDK.Leanplum;
 
 namespace LeanplumSDK
 {
@@ -83,14 +84,14 @@ namespace LeanplumSDK
         }
 
         private Dictionary<int, Leanplum.ForceContentUpdateHandler> ForceContentUpdateCallbacksDictionary = new Dictionary<int, Leanplum.ForceContentUpdateHandler>();
-        private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
-        private Dictionary<string, List<ActionContext.ActionResponder>> OnActionRespondersDictionary = new Dictionary<string, List<ActionContext.ActionResponder>>();
-        private Dictionary<string, ActionContext> ActionContextsDictionary = new Dictionary<string, ActionContext>();
         private Dictionary<int, Leanplum.VariablesChangedAndNoDownloadsPendingHandler> OnceVariablesChangedAndNoDownloadsPendingDict =
             new Dictionary<int, Leanplum.VariablesChangedAndNoDownloadsPendingHandler>();
+        private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
+        private Dictionary<string, ActionContext.ActionResponder> DismissActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
 
         static private int DictionaryKey = 0;
         private string gameObjectName;
+        private JavaBridge javaBridge;
 
         public LeanplumAndroid()
         {
@@ -100,7 +101,10 @@ namespace LeanplumSDK
             // This also constructs LeanplumUnityHelper and the game object.
             gameObjectName = LeanplumUnityHelper.Instance.gameObject.name;
 
-            NativeSDK.CallStatic("initialize", gameObjectName, Constants.SDK_VERSION, null);
+            // Bridge is used to call C# from Java in a synchronous manner.
+            javaBridge = new JavaBridge(this);
+
+            NativeSDK.CallStatic("initialize", gameObjectName, Constants.SDK_VERSION, null, javaBridge);
         }
 
         #region Accessors and Mutators
@@ -380,6 +384,17 @@ namespace LeanplumSDK
 
         public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
+            DefineAction(name, kind, args, options, responder, null);
+        }
+
+        public override void DefineAction(
+            string name,
+            Constants.ActionKind kind,
+            ActionArgs args,
+            IDictionary<string, object> options,
+            ActionContext.ActionResponder responder,
+            ActionContext.ActionResponder dismissResponder)
+        {
             if (name == null)
             {
                 return;
@@ -388,12 +403,141 @@ namespace LeanplumSDK
             {
                 ActionRespondersDictionary.Add(name, responder);
             }
+            if (dismissResponder != null)
+            {
+                DismissActionRespondersDictionary.Add(name, dismissResponder);
+            }
 
             string argString = args == null ? null : args.ToJSON();
             string optionString = options == null ? null : Json.Serialize(options);
             int kindInt = (int)kind;
 
             NativeSDK.CallStatic("defineAction", name, kindInt, argString, optionString);
+        }
+
+        // IJavaBridge methods are called by Java.
+        private class JavaBridge : AndroidJavaProxy
+        {
+            private readonly LeanplumAndroid outer;
+
+            public JavaBridge(LeanplumAndroid outer) : base("com.leanplum.IJavaBridge")
+            {
+                this.outer = outer;
+            }
+
+            int shouldDisplayMessage(String key)
+            {
+                if (outer.shouldDisplayMessageHandler == null)
+                {
+                    return (int)MessageDisplayChoice.DisplayChoice.SHOW;
+                }
+                var context = CreateActionContextFromKey(key);
+                var result = outer.shouldDisplayMessageHandler(context);
+                if (result.Choice.Equals(MessageDisplayChoice.DisplayChoice.DELAY))
+                {
+                    if (result.DelaySeconds <= -1)
+                    {
+                        return -1;
+                    }
+                    else
+                    {
+                        return (int)MessageDisplayChoice.DisplayChoice.DELAY + result.DelaySeconds;
+                    }
+                }
+                return (int)result.Choice;
+            }
+
+            String prioritizeMessages(String contextsKeys, String actionsTrigger)
+            {
+                string[] keys = contextsKeys.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (outer.prioritizeMessagesHandler == null)
+                {
+                    // By default, add only one message to queue if `prioritizeMessages` is not implemented
+                    // This ensures backwards compatibility
+                    return keys[0];
+                }
+
+                List<ActionContext> contexts = new List<ActionContext>();
+                foreach (string key in keys)
+                {
+                    var context = CreateActionContextFromKey(key);
+                    contexts.Add(context);
+                }
+
+                var eligibleContexts = outer.prioritizeMessagesHandler(
+                    contexts.ToArray(),
+                    Json.Deserialize(actionsTrigger) as Dictionary<string, object>);
+                var resultCsv = string.Join(",", eligibleContexts.Select(x => x.Key));
+                return resultCsv;
+            }
+
+            void onMessageDisplayed(String key)
+            {
+                if (outer.messageDisplayedHandler != null)
+                {
+                    var context = CreateActionContextFromKey(key);
+                    outer.messageDisplayedHandler(context);
+                }
+            }
+
+            void onMessageDismissed(String key)
+            {
+                if (outer.messageDismissedHandler != null)
+                {
+                    var context = CreateActionContextFromKey(key);
+                    outer.messageDismissedHandler(context);
+                }
+            }
+
+            void onMessageAction(String name, String key)
+            {
+                if (outer.messageActionHandler != null)
+                {
+                    var context = CreateActionContextFromKey(key);
+                    outer.messageActionHandler(name, context);
+                }
+            }
+        }
+
+        public override void ShouldDisplayMessage(Leanplum.ShouldDisplayMessageHandler handler)
+        {
+            shouldDisplayMessageHandler = handler;
+        }
+
+        public override void PrioritizeMessages(Leanplum.PrioritizeMessagesHandler handler)
+        {
+            prioritizeMessagesHandler = handler;
+        }
+
+        public override void OnMessageDisplayed(MessageHandler handler)
+        {
+            messageDisplayedHandler = handler;
+        }
+
+        public override void OnMessageDismissed(MessageHandler handler)
+        {
+            messageDismissedHandler = handler;
+        }
+
+        public override void OnMessageAction(MessageActionHandler handler)
+        {
+            messageActionHandler = handler;
+        }
+
+        public override void TriggerDelayedMessages()
+        {
+            NativeSDK.CallStatic("triggerDelayedMessages");
+        }
+
+        public override void SetActionManagerPaused(bool paused)
+        {
+            NativeSDK.CallStatic("setActionManagerPaused", paused);
+        }
+
+        public override void SetActionManagerEnabled(bool enabled)
+        {
+            NativeSDK.CallStatic("setActionManagerEnabled", enabled);
         }
 
         public override bool ShowMessage(string id)
@@ -597,7 +741,7 @@ namespace LeanplumSDK
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_CALLBACK = "ForceContentUpdateWithCallback:";
             const string DEFINE_ACTION_RESPONDER = "ActionResponder:";
-            const string ON_ACTION_RESPONDER = "OnAction:";
+            const string ACTION_DISMISS = "ActionDismiss:";
             const string RUN_ACTION_NAMED_RESPONDER = "OnRunActionNamed:";
 
             if (message.StartsWith(VARIABLES_CHANGED))
@@ -646,57 +790,24 @@ namespace LeanplumSDK
             else if (message.StartsWith(DEFINE_ACTION_RESPONDER))
             {
                 string key = message.Substring(DEFINE_ACTION_RESPONDER.Length);
-                // {actionName:messageId}
-                string actionName = key.Split(':')[0];
+                string actionName = GetActionNameFromMessageKey(key);
 
                 ActionContext.ActionResponder callback;
                 if (ActionRespondersDictionary.TryGetValue(actionName, out callback))
                 {
-                    string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
-                    var context = new ActionContextAndroid(key, messageId);
-                    ActionContextsDictionary[key] = context;
+                    var context = CreateActionContextFromKey(key);
                     callback(context);
                 }
             }
-            else if (message.StartsWith(ON_ACTION_RESPONDER))
+            else if (message.StartsWith(ACTION_DISMISS))
             {
-                string key = message.Substring(ON_ACTION_RESPONDER.Length);
+                string key = message.Substring(ACTION_DISMISS.Length);
                 string actionName = GetActionNameFromMessageKey(key);
 
-                if (OnActionRespondersDictionary.TryGetValue(actionName, out List<ActionContext.ActionResponder> callbacks))
+                if (DismissActionRespondersDictionary.TryGetValue(actionName, out ActionContext.ActionResponder callback))
                 {
-                    if (!ActionContextsDictionary.ContainsKey(key))
-                    {
-                        string messageId = GetMessageIdFromMessageKey(key);
-                        var newContext = new ActionContextAndroid(key, messageId);
-                        ActionContextsDictionary[key] = newContext;
-                    }
-
-                    ActionContext context = ActionContextsDictionary[key];
-                    foreach (var callback in callbacks)
-                    {
-                        callback(context);
-                    }
-                }
-            }
-            else if (message.StartsWith(RUN_ACTION_NAMED_RESPONDER))
-            {
-                char keysSeparator = '|';
-                string data = message.Substring(RUN_ACTION_NAMED_RESPONDER.Length);
-
-                string[] keys = data.Split(new char[] { keysSeparator }, StringSplitOptions.RemoveEmptyEntries);
-                if (keys.Length != 2)
-                {
-                    return;
-                }
-
-                string parentKey = keys[0];
-                string actionKey = keys[1];
-
-                if (ActionContextsDictionary.TryGetValue(parentKey, out ActionContext parentContext))
-                {
-                    var context = new ActionContextAndroid(actionKey, GetMessageIdFromMessageKey(actionKey));
-                    parentContext.TriggerActionNamedResponder(context);
+                    var context = CreateActionContextFromKey(key);
+                    callback(context);
                 }
             }
 
@@ -705,6 +816,17 @@ namespace LeanplumSDK
                 Inbox.NativeCallback(message);
             }
         }
+
+        #region Action Manager
+
+        private MessageHandler messageDisplayedHandler;
+        private MessageHandler messageDismissedHandler;
+        private MessageActionHandler messageActionHandler;
+
+        private ShouldDisplayMessageHandler shouldDisplayMessageHandler;
+        private PrioritizeMessagesHandler prioritizeMessagesHandler;
+
+        #endregion
 
         #region Dealing with Variables
 
@@ -817,33 +939,27 @@ namespace LeanplumSDK
             }
         }
 
-        public override void OnAction(string actionName, ActionContext.ActionResponder handler)
-        {
-            if (string.IsNullOrEmpty(actionName) || handler == null)
-            {
-                return;
-            }
-
-            if (!OnActionRespondersDictionary.ContainsKey(actionName))
-            {
-                OnActionRespondersDictionary[actionName] = new List<ActionContext.ActionResponder>();
-            }
-
-            OnActionRespondersDictionary[actionName].Add(handler);
-            NativeSDK.CallStatic("onAction", actionName);
-        }
-
         public override ActionContext CreateActionContextForId(string actionId)
         {
             if (!string.IsNullOrEmpty(actionId))
             {
                 string key = NativeSDK.CallStatic<string>("createActionContextForId", actionId);
-                string messageId = GetMessageIdFromMessageKey(key);
-                var context = new ActionContextAndroid(key, messageId);
-                ActionContextsDictionary[key] = context;
-                return context;
+                return CreateActionContextFromKey(key);
             }
             return null;
+        }
+
+        private static Tuple<string, string> GetActionNameMessageIdFromMessageKey(string key)
+        {
+            string actionName = GetActionNameFromMessageKey(key);
+            string messageId = GetActionIdFromMessageKey(key);
+            return new Tuple<string, string>(actionName, messageId);
+        }
+
+        private static ActionContextAndroid CreateActionContextFromKey(string key)
+        {
+            Tuple<string, string> actionNameMessageId = GetActionNameMessageIdFromMessageKey(key);
+            return new ActionContextAndroid(key, actionNameMessageId.Item1, actionNameMessageId.Item2);
         }
 
         public override bool TriggerActionForId(string actionId)
@@ -851,17 +967,18 @@ namespace LeanplumSDK
             return NativeSDK.CallStatic<bool>("triggerAction", actionId);
         }
 
-        private string GetActionNameFromMessageKey(string key)
+        private static string GetActionNameFromMessageKey(string key)
         {
-            // {actionName:messageId}
-            return key.Split(':')[0];
+            // {parentActionName:parentMessageId:...:actionName:messageId}
+            var keys = key.Split(':');
+            return keys[keys.Length - 2];
         }
 
-        private string GetMessageIdFromMessageKey(string key)
+        private static string GetActionIdFromMessageKey(string key)
         {
-            string actionName = GetActionNameFromMessageKey(key);
-            string messageId = key.Length > actionName.Length ? key.Substring(actionName.Length + 1) : string.Empty;
-            return messageId;
+            // {parentActionName:parentMessageId:...:actionName:messageId}
+            var keys = key.Split(':');
+            return keys[keys.Length - 1];
         }
 
         public override void AddOnceVariablesChangedAndNoDownloadsPendingHandler(

@@ -1,36 +1,262 @@
-﻿using System;
+﻿//
+// Copyright 2022, Leanplum, Inc.
+//
+//  Licensed to the Apache Software Foundation (ASF) under one
+//  or more contributor license agreements.  See the NOTICE file
+//  distributed with this work for additional information
+//  regarding copyright ownership.  The ASF licenses this file
+//  to you under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing,
+//  software distributed under the License is distributed on an
+//  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+//  KIND, either express or implied.  See the License for the
+//  specific language governing permissions and limitations
+//  under the License.
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace LeanplumSDK
 {
     public class LeanplumActionManager
     {
-        private static IDictionary<string, List<ActionContext.ActionResponder>> onActionResponders = new Dictionary<string, List<ActionContext.ActionResponder>>();
+        internal enum Priority
+        {
+            DEFAULT,
+            HIGH
+        }
 
         internal static bool ShouldPerformActions { get; set; }
+
+        private Leanplum.ShouldDisplayMessageHandler shouldDisplay;
+        private Leanplum.PrioritizeMessagesHandler prioritizeHandler;
+
+        private Leanplum.MessageHandler displayMessageHandler;
+        private Leanplum.MessageHandler dismissMessageHandler;
+        private Leanplum.MessageActionHandler actionMessageHandler;
+
+        private bool enabled = true;
+        private bool paused = false;
+
+        private ActionContext currentAction;
+
+        private LinkedList<ActionContext> Queue = new LinkedList<ActionContext>();
+        private Queue<ActionContext> DelayedQueue = new Queue<ActionContext>();
 
         internal LeanplumActionManager()
         {
         }
 
-        internal static void MaybePerformActions(ActionTrigger actionTrigger, string eventName = null)
+        void PerformAvailableActions()
+        {
+            if (!enabled || paused || currentAction != null || Queue.Count == 0)
+                return;
+
+            currentAction = Queue.First();
+            if (currentAction == null)
+                return;
+
+            Queue.RemoveFirst();
+
+            LeanplumNative.CompatibilityLayer.LogDebug($"[ActionManager]: running action with name: {currentAction}");
+
+            MessageDisplayChoice messageDecision = shouldDisplay?.Invoke(currentAction) ?? MessageDisplayChoice.Show();
+
+            if (messageDecision.Choice == MessageDisplayChoice.DisplayChoice.DISCARD)
+            {
+                currentAction = null;
+                PerformAvailableActions();
+                return;
+            }
+
+            if (messageDecision.Choice == MessageDisplayChoice.DisplayChoice.DELAY)
+            {
+                LeanplumNative.CompatibilityLayer.LogDebug($"[ActionManager]: delaying action: {currentAction} for {messageDecision.DelaySeconds}s");
+                if (messageDecision.DelaySeconds < 0)
+                {
+                    DelayedQueue.Enqueue(currentAction);
+                }
+                else
+                {
+                    // Schedule
+                    LeanplumUnityHelper.Instance.StartCoroutine(Schedule(currentAction, messageDecision.DelaySeconds));
+                }
+
+                currentAction = null;
+                PerformAvailableActions();
+                return;
+            }
+
+            // ActionDidExecute
+            currentAction.ActionExecute += CurrentAction_ActionExecute;
+
+            // ActionDidDismiss
+            currentAction.Dismiss += LeanplumActionManager_Dismiss;
+
+            // Show message
+            if (VarCache.actionDefinitions.TryGetValue(currentAction.Name, out ActionDefinition actionDefinition))
+            {
+                LeanplumNative.CompatibilityLayer.LogDebug($"[ActionManager]: action presented: {currentAction}");
+                RecordImpression(currentAction);
+                displayMessageHandler?.Invoke(currentAction);
+                actionDefinition.Responder?.Invoke(currentAction);
+            }
+        }
+
+        private void RecordImpression(ActionContext context)
+        {
+            // The View event is tracked using the messageId only, without an event name
+            context?.TrackMessageEvent(null, 0, null, null);
+        }
+
+        private void CurrentAction_ActionExecute(string actionName, ActionContext context)
+        {
+            LeanplumNative.CompatibilityLayer.LogDebug($"[ActionManager]: actionDidExecute: {context}");
+            actionMessageHandler?.Invoke(actionName, context);
+        }
+
+        private void LeanplumActionManager_Dismiss(ActionContext context)
+        {
+            LeanplumNative.CompatibilityLayer.LogDebug($"[ActionManager]: actionDidDismiss: {context}");
+            dismissMessageHandler?.Invoke(context);
+            currentAction = null;
+            PerformAvailableActions();
+        }
+
+        IEnumerator Schedule(ActionContext context, int seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+
+            AppendActions(new ActionContext[] { context });
+        }
+
+        internal void SetEnabled(bool enabled)
+        {
+            this.enabled = enabled;
+        }
+
+        internal void SetPaused(bool paused)
+        {
+            this.paused = paused;
+        }
+
+        internal void SetShouldDisplayHandler(Leanplum.ShouldDisplayMessageHandler handler)
+        {
+            shouldDisplay = handler;
+        }
+
+        internal void SetPrioritizeMessagesHandler(Leanplum.PrioritizeMessagesHandler handler)
+        {
+            prioritizeHandler = handler;
+        }
+
+        internal void SetOnDisplayMessageHandler(Leanplum.MessageHandler handler)
+        {
+            displayMessageHandler = handler;
+        }
+
+        internal void SetOnDismissMessageHandler(Leanplum.MessageHandler handler)
+        {
+            dismissMessageHandler = handler;
+        }
+
+        internal void SetOnActionMessageHandler(Leanplum.MessageActionHandler handler)
+        {
+            actionMessageHandler = handler;
+        }
+
+        internal void TriggerContexts(ActionContext[] contexts, Priority priority, ActionTrigger trigger, string eventName)
+        {
+            if (contexts == null || contexts.Length == 0)
+                return;
+
+            var actionTrigger = new Dictionary<string, object>
+            {
+                { "eventName", eventName },
+                { "condition", trigger?.Value },
+                { "contextualValues", new Dictionary<string, object>() }
+            };
+
+            ActionContext[] filteredContexts = prioritizeHandler?.Invoke(contexts, actionTrigger);
+            if (filteredContexts == null)
+            {
+                filteredContexts = new[] { contexts.First() };
+            }
+
+            switch (priority)
+            {
+                case Priority.DEFAULT:
+                    AppendActions(filteredContexts);
+                    break;
+                case Priority.HIGH:
+                    InsertActions(filteredContexts);
+                    break;
+            }
+        }
+
+        void InsertActions(ActionContext[] actions)
+        {
+            if (!enabled)
+                return;
+
+            for (int i = actions.Length - 1; i >= 0; i--)
+            {
+                Queue.AddFirst(actions[i]);
+            }
+            PerformAvailableActions();
+        }
+
+        void AppendActions(ActionContext[] actions)
+        {
+            if (!enabled)
+                return;
+
+            foreach (var action in actions)
+            {
+                Queue.AddLast(action);
+            }
+            PerformAvailableActions();
+        }
+
+        internal void TriggerDelayedMessages()
+        {
+            // warning: not locked
+            var contexts = DelayedQueue.ToArray();
+            DelayedQueue = new Queue<ActionContext>();
+            AppendActions(contexts);
+        }
+
+        internal void MaybePerformActions(ActionTrigger actionTrigger, string eventName = null)
         {
             if (!ShouldPerformActions)
                 return;
 
-            var condition = VarCache.Messages.Select<KeyValuePair<string, object>, WhenTrigger>(WhenTrigger.FromKV)
+            var condition = VarCache.Messages.Select(WhenTrigger.FromKV)
                 .OrderBy(w => w.Priority)
-                .FirstOrDefault(w => w.Conditions.Any(x => actionTrigger.Value.Contains(x.Subject) && x.Noun == eventName));
+                .Where(w => w.Conditions.Any(x => actionTrigger.Value.Contains(x.Subject) && x.Noun == eventName))
+                .ToArray();
 
-            if (condition != null)
+            List<ActionContext> contexts = new List<ActionContext>(condition.Length);
+            for (int i = 0; i < condition.Length; i++)
             {
-                var msg = Util.GetValueOrDefault(VarCache.Messages, condition.Id) as IDictionary<string, object>;
-                TriggerAction(condition.Id, msg);
+                string id = condition[i].Id;
+                ActionContext actionContext = CreateActionContext(id);
+                if (actionContext != null)
+                {
+                    contexts.Add(actionContext);
+                }
             }
+
+            TriggerContexts(contexts.ToArray(), Priority.DEFAULT, actionTrigger, eventName);
         }
 
-        internal static void TriggerPreview(IDictionary<string, object> packetData)
+        internal void TriggerPreview(IDictionary<string, object> packetData)
         {
             var actionData = Util.GetValueOrDefault(packetData, Constants.Args.ACTION) as IDictionary<string, object>;
             if (actionData != null)
@@ -41,172 +267,42 @@ namespace LeanplumSDK
                 if (!string.IsNullOrWhiteSpace(actionName))
                 {
                     var newVars = VarCache.MergeMessage(actionData);
-                    NativeActionContext ac = new NativeActionContext(messageId, actionName, newVars);
-                    TriggerAction(ac, newVars);
+                    NativeActionContext context = new NativeActionContext(messageId, actionName, newVars);
+                    TriggerContexts(new ActionContext[] { context }, Priority.HIGH, null, null);
                 }
             }
         }
 
-        internal static void TriggerAction(string id, IDictionary<string, object> message)
+        /// <summary>
+        ///     Creates ActionContext.
+        ///     Ensures there is an action definition for the message action name.
+        ///     Uses the GENERIC_DEFINITION_NAME as a fallback, if such is registered.
+        /// </summary>
+        /// <param name="id">The action id.</param>
+        /// <returns>ActionContext otherwise null.</returns>
+        internal ActionContext CreateActionContext(string id)
         {
-            if (!ShouldPerformActions)
-                return;
-
+            var message = Util.GetValueOrDefault(VarCache.Messages, id) as IDictionary<string, object>;
             string actionName = Util.GetValueOrDefault(message, Constants.Args.ACTION) as string;
-            IDictionary<string, object> vars = Util.GetValueOrDefault(message, Constants.Args.VARS) as IDictionary<string, object>;
-            if (!string.IsNullOrEmpty(actionName) && vars != null)
+            if (!string.IsNullOrEmpty(actionName)
+                && Util.GetValueOrDefault(message, Constants.Args.VARS) is IDictionary<string, object> vars)
             {
-                NativeActionContext actionContext = new NativeActionContext(id, actionName, vars);
-                TriggerAction(actionContext, message);
-            }
-        }
-
-        internal static void TriggerAction(NativeActionContext context, IDictionary<string, object> messageConfig)
-        {
-            if (!ShouldPerformActions)
-                return;
-
-            ActionDefinition actionDefinition;
-
-            string originalActionName = context.Name;
-            NativeActionContext originalContext = context;
-
-            if (!VarCache.actionDefinitions.TryGetValue(context.Name, out actionDefinition))
-            {
+                if (VarCache.actionDefinitions.ContainsKey(actionName))
+                {
+                    return new NativeActionContext(id, actionName, vars);
+                }
                 // If no matching action definition is found, use the Generic one if such is registered 
-                if (VarCache.actionDefinitions.TryGetValue(Constants.Args.GENERIC_DEFINITION_NAME, out actionDefinition))
+                else if (VarCache.actionDefinitions.ContainsKey(Constants.Args.GENERIC_DEFINITION_NAME))
                 {
-                    IDictionary<string, object> args = new Dictionary<string, object>();
-                    args.Add(Constants.Args.GENERIC_DEFINITION_CONFIG, messageConfig);
-                    var genericActionContext = new NativeActionContext(context.Id, Constants.Args.GENERIC_DEFINITION_NAME, args);
-                    context = genericActionContext;
-                }
-            }
-
-            if (actionDefinition != null)
-            {
-                if (!string.IsNullOrEmpty(context.Id))
-                {
-                    // The View event is tracked using the messageId only, without an event name
-                    context.TrackMessageEvent(null, 0, null, null);
-                }
-                actionDefinition.Responder?.Invoke(context);
-            }
-
-            if (onActionResponders.ContainsKey(originalActionName))
-            {
-                var responders = onActionResponders[originalActionName];
-                foreach (var responder in responders)
-                {
-                    responder.Invoke(originalContext);
-                }
-            }
-        }
-
-        internal static void RegisterOnActionResponder(string actionName, ActionContext.ActionResponder responder)
-        {
-            if (string.IsNullOrEmpty(actionName) || responder == null)
-                return;
-
-            if (!onActionResponders.ContainsKey(actionName))
-            {
-                onActionResponders[actionName] = new List<ActionContext.ActionResponder>();
-            }
-            onActionResponders[actionName].Add(responder);
-        }
-
-        internal class WhenTrigger
-        {
-            /*
-              "whenTriggers": {
-                            "children": [
-                                {
-                                    "subject": "start",
-                                    "objects": [],
-                                    "verb": "",
-                                    "secondaryVerb": "="
-                                }
-                            ],
-                            "verb": "OR"
-                        },
-            */
-
-            /*
-              "whenTriggers": {
-                            "children": [
-                                {
-                                    "subject": "event",
-                                    "objects": [],
-                                    "verb": "triggers",
-                                    "noun": "myEvent",
-                                    "secondaryVerb": "="
-                                }
-                            ],
-                            "verb": "OR"
-                        },
-            */
-
-            internal int Priority { get; set; }
-            internal string Id { get; set; }
-            internal List<Condition> Conditions { get; set; }
-
-            private WhenTrigger()
-            {
-                Conditions = new List<Condition>();
-            }
-
-            internal static Func<KeyValuePair<string, object>, WhenTrigger> FromKV
-                => (x) =>
-                {
-                    WhenTrigger whenCon = new WhenTrigger();
-                    whenCon.Id = x.Key;
-                    var message = x.Value as IDictionary<string, object>;
-                    if (message != null)
-                    {
-                        object priority = Util.GetValueOrDefault(message, "priority", "1000");
-                        whenCon.Priority = int.Parse(priority.ToString());
-                        var whenTriggers = Util.GetValueOrDefault(message, "whenTriggers") as IDictionary<string, object>;
-                        if (whenTriggers != null)
+                    IDictionary<string, object> args = new Dictionary<string, object>
                         {
-                            var children = Util.GetValueOrDefault(whenTriggers, "children") as IList<object>;
-                            if (children != null && children.Count > 0)
-                            {
-                                foreach (var child in children)
-                                {
-                                    var childDict = child as IDictionary<string, object>;
-                                    childDict.TryGetValue("subject", out object subject);
-                                    childDict.TryGetValue("noun", out object noun);
-                                    whenCon.Conditions.Add(new Condition()
-                                    {
-                                        Subject = subject?.ToString(),
-                                        Noun = noun?.ToString(),
-                                    });
-                                }
-                            }
-                        }
-                    }
-                    return whenCon;
-                };
+                            { Constants.Args.GENERIC_DEFINITION_CONFIG, message }
+                        };
+                    return new NativeActionContext(id, Constants.Args.GENERIC_DEFINITION_NAME, args);
+                }
+            }
 
+            return null;
         }
-
-        internal class Condition
-        {
-            internal string Subject { get; set; }
-            internal string Noun { get; set; }
-        }
-    }
-
-    internal struct ActionTrigger
-    {
-        private ActionTrigger(string[] value) { Value = value; }
-
-        internal string[] Value { get; set; }
-
-        internal static ActionTrigger StartOrResume { get { return new ActionTrigger(new string[] { "start", "resume" }); } }
-        internal static ActionTrigger Resume { get { return new ActionTrigger(new string[] { "resume" }); } }
-        internal static ActionTrigger Event { get { return new ActionTrigger(new string[] { "event" }); } }
-        internal static ActionTrigger State { get { return new ActionTrigger(new string[] { "state" }); } }
-        internal static ActionTrigger UserAttribute { get { return new ActionTrigger(new string[] { "userAttribute" }); } }
     }
 }

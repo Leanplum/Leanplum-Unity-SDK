@@ -3,7 +3,6 @@
 buildscript {
     repositories {
         google()
-        jcenter()
         mavenCentral()
     }
 
@@ -12,14 +11,13 @@ buildscript {
         // Uncomment for FCM
         // classpath 'com.google.gms:google-services:4.3.3'
         // Uncomment for Huawei
-        // classpath 'com.huawei.agconnect:agcp:1.6.3.300'
+        // classpath 'com.huawei.agconnect:agcp:1.6.5.300'
 **BUILD_SCRIPT_DEPS**}
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
         mavenCentral()
         // Uncomment for Huawei
         // maven {
@@ -54,7 +52,7 @@ dependencies {
     // Uncomment for Huawei
     // implementation "com.leanplum:leanplum-hms:${LEANPLUM_SDK_VERSION}"
 
-    // Uncomment for MiPush
+    // Uncomment for MiPush. Note that leanplum-mipush package is deprecated. MiPush will be used through CleverTap SDK.
     // implementation "com.leanplum:leanplum-mipush:${LEANPLUM_SDK_VERSION}"
 
     implementation 'com.google.code.gson:gson:2.8.5'

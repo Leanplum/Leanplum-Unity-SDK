@@ -1,5 +1,5 @@
 //
-// Copyright 2013, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -240,7 +240,8 @@ namespace LeanplumSDK
                     {
                         if (!diffMap.Contains(lpVariable))
                         {
-                            merged[lpVariable] = MergeHelper(varsMap.Contains(lpVariable) ? varsMap[lpVariable] : null, null);
+                            var varsMapValue = varsMap != null && varsMap.Contains(lpVariable) ? varsMap[lpVariable] : null;
+                            merged[lpVariable] = MergeHelper(varsMapValue, null);
                         }
                     }
                 }

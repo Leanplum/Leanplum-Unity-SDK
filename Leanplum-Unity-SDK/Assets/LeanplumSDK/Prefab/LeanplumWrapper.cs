@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2020, Leanplum, Inc.
+// Copyright 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -51,7 +51,7 @@ public class LeanplumWrapper : MonoBehaviour
 
     void Start()
     {
-        DontDestroyOnLoad(this.gameObject);
+        DontDestroyOnLoad(gameObject);
 
 		SocketUtilsFactory.Utils = new SocketUtils();
         
@@ -59,7 +59,9 @@ public class LeanplumWrapper : MonoBehaviour
         {
             Leanplum.SetAppVersion(AppVersion);
         }
-        if (string.IsNullOrEmpty(AppID) || string.IsNullOrEmpty(ProductionKey) || string.IsNullOrEmpty(DevelopmentKey))
+        if (string.IsNullOrEmpty(AppID)
+            || string.IsNullOrEmpty(ProductionKey)
+            || string.IsNullOrEmpty(DevelopmentKey))
         {
             Debug.LogError("Please make sure to enter your AppID, Production Key, and " +
                            "Development Key in the Leanplum GameObject inspector before starting.");
@@ -67,6 +69,7 @@ public class LeanplumWrapper : MonoBehaviour
 
         if (Debug.isDebugBuild)
         {
+            LeanplumNative.CompatibilityLayer.LeanplumDeveloperMode = true;
             Leanplum.SetAppIdForDevelopmentMode(AppID, DevelopmentKey);
         }
         else
@@ -74,25 +77,27 @@ public class LeanplumWrapper : MonoBehaviour
             Leanplum.SetAppIdForProductionMode(AppID, ProductionKey);
         }
 
-        Leanplum.Inbox.InboxChanged += inboxChanged;
-        Leanplum.Inbox.ForceContentUpdate += forceContentUpdate;
+        Leanplum.Inbox.InboxChanged += InboxChanged;
+        Leanplum.Inbox.ForceContentUpdate += ForceContentUpdate;
 
 #if UNITY_EDITOR
-        EditorMessageTemplates.DefineConfirm();
-        EditorMessageTemplates.DefineOpenURL();
-        EditorMessageTemplates.DefineGenericDefinition();
+        MessageTemplates.DefineAlert();
+        MessageTemplates.DefineConfirm();
+        MessageTemplates.DefineCenterPopup();
+        MessageTemplates.DefineOpenURL();
+        MessageTemplates.DefineGenericDefinition();
         LeanplumNative.ShouldPerformActions(true);
 #endif
 
         Leanplum.Start();
     }
 
-    void inboxChanged()
+    void InboxChanged()
     {
         Debug.Log("Inbox changed delegate called");
     }
 
-    void forceContentUpdate(bool success)
+    void ForceContentUpdate(bool success)
     {
         Debug.Log("Inbox forceContentUpdate delegate called: " + success);
     }

@@ -50,9 +50,9 @@ download_ios_sdk() {
   # Download from offical git repo.
   local destination="/tmp/Leanplum-${version}.zip"
 
-  # Download the xcframework zip directly
+  # Download the framework zip
   wget --show-progress -O "$destination" \
-    "${repo}/releases/download/${version}/Leanplum.xcframework.zip"
+    "${repo}/releases/download/${version}/Leanplum.framework.zip"
 
   extract_ios_sdk $version
 
@@ -63,14 +63,16 @@ extract_ios_sdk()
 {
   local version=$1
   echo "Extracting AppleSDK ..."
-  rm -rf "/tmp/Leanplum.xcframework"
-  unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/"
-  mv "/tmp/Leanplum.xcframework" "/tmp/Leanplum-${version}.xcframework"
+  rm -rf "/tmp/Leanplum.framework"
+  # Use dynamic xcframework
+  unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/Leanplum-${version}"
+  mv "/tmp/Leanplum-${version}/dynamic/Leanplum.xcframework" "/tmp/Leanplum-${version}.xcframework"
   rm -rf "/tmp/Leanplum-${version}.zip"
+  rm -rf "/tmp/Leanplum-${version}"
 
   if [ "$REMOVE_SIMULATOR_ARCH" = true ] ; then
     echo "Removing x86_64 & i386 architecture from iOS library"
-    rm -rf "/tmp/Leanplum-${version}.xcframework/ios-x86_64-simulator"
+    rm -rf "/tmp/Leanplum-${version}.xcframework/ios-arm64_x86_64-simulator"
   fi
 }
 

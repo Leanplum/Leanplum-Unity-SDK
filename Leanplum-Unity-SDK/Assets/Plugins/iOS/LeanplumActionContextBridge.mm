@@ -36,8 +36,20 @@ static NSMutableDictionary<NSString *, LPActionContext *> *actionContexts;
 
 + (NSString *) addActionContext:(LPActionContext *) context
 {
-    NSString *key = [NSString stringWithFormat:@"%@:%@", [context actionName], [context messageId]];
+    NSString *key = [self generateActionContextKey:context];
     [LeanplumActionContextBridge sharedActionContexts][key] = context;
+    return key;
+}
+
++ (NSString *) generateActionContextKey:(LPActionContext *) context
+{
+    LPActionContext *parent = [context parentContext];
+    NSString *key = [NSString stringWithFormat:@"%@:%@", [context actionName], [context messageId]];
+    while (parent) {
+        NSString *parentKey = [NSString stringWithFormat:@"%@:%@:", [parent actionName], [parent messageId]];
+        key = [parentKey stringByAppendingString:key];
+        parent = [parent parentContext];
+    }
     return key;
 }
 
@@ -132,23 +144,6 @@ char *get_html_with_template_named(const char *contextId, const char *name)
     return lp::to_string([[context htmlWithTemplateNamed:lp::to_nsstring(name)] absoluteString]);
 }
 
-void set_action_named_responder(const char *contextId)
-{
-    LPActionContext *actionContext = [actionContexts objectForKey:lp::to_nsstring(contextId)];
-    if (actionContext) {
-        [actionContext setActionNamedResponder:^BOOL(LPActionContext * _Nonnull context) {
-            NSString *actionNamedContextkey = [LeanplumActionContextBridge addActionContext:context];
-            
-            LPActionContext *parent = [context parentContext];
-            // parentActionName:parentMessageId|actionNamedActionName:actionNamedMessageId
-            NSString *key = [NSString stringWithFormat:@"%@:%@|%@", [parent actionName], [parent messageId], actionNamedContextkey];
-            
-            [LeanplumIOSBridge sendMessageToUnity:@"OnRunActionNamed" withKey:key];
-            return NO;
-        }];
-    }
-}
-
 void run_action_named(const char *contextId, const char *actionName)
 {
     LPActionContext *context = [actionContexts objectForKey:lp::to_nsstring(contextId)];
@@ -164,31 +159,30 @@ void run_tracked_action_named(const char *contextId, const char *actionName)
 void track_event(const char *contextId, const char *event, double value, const char *params)
 {
     LPActionContext *context = [actionContexts objectForKey:lp::to_nsstring(contextId)];
-
+    
     NSData *paramData = [lp::to_nsstring(params) dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary *parameters = [NSJSONSerialization JSONObjectWithData:paramData
                                                                options:NSUTF8StringEncoding
                                                                  error:nil];
-
+    
     [context track:lp::to_nsstring(event) withValue:value andParameters:parameters];
 }
 
 void track_message_event(const char *contextId, const char *event, double value, const char *info, const char *params)
 {
     LPActionContext *context = [actionContexts objectForKey:lp::to_nsstring(contextId)];
-
+    
     NSData *paramData = [lp::to_nsstring(params) dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary *parameters = [NSJSONSerialization JSONObjectWithData:paramData
                                                                options:NSUTF8StringEncoding
                                                                  error:nil];
-
+    
     [context trackMessageEvent:lp::to_nsstring(event) withValue:value andInfo:lp::to_nsstring(info) andParameters:parameters];
 }
 
-void mute_future_messages_of_same_kind(const char *contextId)
+void dismiss(const char *contextId)
 {
     LPActionContext *context = [actionContexts objectForKey:lp::to_nsstring(contextId)];
-    [context muteFutureMessagesOfSameKind];
+    [context actionDismissed];
 }
-
 }

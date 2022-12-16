@@ -1,5 +1,5 @@
 //
-// Copryight 2014, Leanplum, Inc.
+// Copryight 2022, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -37,6 +37,8 @@ namespace LeanplumSDK
         internal virtual ApiConfig ApiConfig { get; }
         internal virtual RequestSender RequestSender { get; }
         internal virtual FileTransferManager FileTransferManager { get; }
+
+        internal virtual LeanplumActionManager LeanplumActionManager { get; }
 
         #endregion
 
@@ -432,17 +434,34 @@ namespace LeanplumSDK
         public abstract void DefineAction(string name, Constants.ActionKind kind, ActionArgs args,
             IDictionary<string, object> options, ActionContext.ActionResponder responder);
 
+        public abstract void DefineAction(string name, Constants.ActionKind kind, ActionArgs args,
+            IDictionary<string, object> options, ActionContext.ActionResponder responder, ActionContext.ActionResponder dismissResponder);
+
         /// <summary>
         ///     Manually Trigger an In-App Message. Supported in Unity only.
         ///     The user must be eligible for the message and the message must be present on the device (requires a Start call).
         /// </summary>
         /// <param name="id"> The message Id. </param>
         public abstract bool ShowMessage(string id);
+
+        public abstract void ShouldDisplayMessage(Leanplum.ShouldDisplayMessageHandler handler);
+
+        public abstract void PrioritizeMessages(Leanplum.PrioritizeMessagesHandler handler);
+
+        public abstract void TriggerDelayedMessages();
+
+        public abstract void OnMessageDisplayed(Leanplum.MessageHandler handler);
+
+        public abstract void OnMessageDismissed(Leanplum.MessageHandler handler);
+
+        public abstract void OnMessageAction(Leanplum.MessageActionHandler handler);
+
+        public abstract void SetActionManagerPaused(bool paused);
+
+        public abstract void SetActionManagerEnabled(bool enabled);
         #endregion
 
         public virtual void NativeCallback(string message) { }
-
-        public abstract void OnAction(string actionName, ActionContext.ActionResponder handler);
 
         public abstract ActionContext CreateActionContextForId(string actionId);
 

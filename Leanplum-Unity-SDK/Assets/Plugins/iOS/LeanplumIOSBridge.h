@@ -24,7 +24,6 @@
 #pragma once
 
 @interface LeanplumIOSBridge : NSObject
-+ (void) sendMessageToUnity:(NSString *) messageName withKey: (NSString *)key;
 @end
 
 #endif /* LeanplumIOSBridge_h */

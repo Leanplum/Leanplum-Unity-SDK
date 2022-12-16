@@ -21,8 +21,6 @@ using LeanplumSDK.MiniJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace LeanplumSDK
@@ -53,6 +51,20 @@ namespace LeanplumSDK
                     return inbox;
                 }
                 return inbox;
+            }
+        }
+
+        private LeanplumActionManager actionManager;
+        internal override LeanplumActionManager LeanplumActionManager
+        {
+            get
+            {
+                if (actionManager == null)
+                {
+                    actionManager = new LeanplumActionManager();
+                    return actionManager;
+                }
+                return actionManager;
             }
         }
 
@@ -718,6 +730,7 @@ namespace LeanplumSDK
             LeanplumActionManager.MaybePerformActions(ActionTrigger.StartOrResume);
             Leanplum.RequestSender.RequestSenderTimer.Start();
         }
+
 #if !UNITY_WEBGL
         private void InitializeSocket()
         {
@@ -744,6 +757,12 @@ namespace LeanplumSDK
 
         public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options, ActionContext.ActionResponder responder)
         {
+            DefineAction(name, kind, args, options, responder, null);
+        }
+
+        public override void DefineAction(string name, Constants.ActionKind kind, ActionArgs args, IDictionary<string, object> options,
+            ActionContext.ActionResponder responder, ActionContext.ActionResponder dismissResponder)
+        {
             if (string.IsNullOrWhiteSpace(name))
             {
                 CompatibilityLayer.LogError($"Empty name parameter.");
@@ -768,9 +787,44 @@ namespace LeanplumSDK
             VarCache.RegisterActionDefinition(ad);
         }
 
-        public override void OnAction(string actionName, ActionContext.ActionResponder handler)
+        public override void ShouldDisplayMessage(Leanplum.ShouldDisplayMessageHandler handler)
         {
-            LeanplumActionManager.RegisterOnActionResponder(actionName, handler);
+            LeanplumActionManager.SetShouldDisplayHandler(handler);
+        }
+
+        public override void PrioritizeMessages(Leanplum.PrioritizeMessagesHandler handler)
+        {
+            LeanplumActionManager.SetPrioritizeMessagesHandler(handler);
+        }
+
+        public override void TriggerDelayedMessages()
+        {
+            LeanplumActionManager.TriggerDelayedMessages();
+        }
+
+        public override void OnMessageAction(Leanplum.MessageActionHandler handler)
+        {
+            LeanplumActionManager.SetOnActionMessageHandler(handler);
+        }
+
+        public override void OnMessageDismissed(Leanplum.MessageHandler handler)
+        {
+            LeanplumActionManager.SetOnDismissMessageHandler(handler);
+        }
+
+        public override void OnMessageDisplayed(Leanplum.MessageHandler handler)
+        {
+            LeanplumActionManager.SetOnDisplayMessageHandler(handler);
+        }
+
+        public override void SetActionManagerEnabled(bool enabled)
+        {
+            LeanplumActionManager.SetEnabled(enabled);
+        }
+
+        public override void SetActionManagerPaused(bool paused)
+        {
+            LeanplumActionManager.SetPaused(paused);
         }
 
         /// <summary>
@@ -805,12 +859,13 @@ namespace LeanplumSDK
 
         public override bool ShowMessage(string id)
         {
-            var messageConfig = Util.GetValueOrDefault(VarCache.Messages, id) as IDictionary<string, object>;
-            if (messageConfig != null)
+            var context = LeanplumActionManager.CreateActionContext(id);
+            if (context != null)
             {
-                LeanplumActionManager.TriggerAction(id, messageConfig);
+                LeanplumActionManager.TriggerContexts(new ActionContext[] { context }, LeanplumActionManager.Priority.HIGH, null, null);
                 return true;
             }
+
             CompatibilityLayer.LogError($"Message not found. Message Id: {id}");
             return false;
         }

@@ -55,9 +55,6 @@ namespace LeanplumSDK.Apple
         internal static extern void run_action_named(string id, string name);
 
         [DllImport("__Internal")]
-        internal static extern void set_action_named_responder(string id);
-
-        [DllImport("__Internal")]
         internal static extern void run_tracked_action_named(string id, string name);
 
         [DllImport("__Internal")]
@@ -67,63 +64,49 @@ namespace LeanplumSDK.Apple
         internal static extern void track_message_event(string id, string eventName, double value, string info, string parameters);
 
         [DllImport("__Internal")]
-        internal static extern void mute_future_messages_of_same_kind(string id);
-        
-        public override string Name { get; }
+        internal static extern void dismiss(string id);
+
+        internal override string Key { get; }
         public override string Id { get; }
+        public override string Name { get; }
 
-        private ActionResponder runActionResponder;
-
-        internal ActionContextApple(string key, string messageId)
+        internal ActionContextApple(string key, string actionName, string messageId)
         {
-            Name = key;
+            Key = key;
             Id = messageId;
+            Name = actionName;
         }
 
         public override void TrackMessageEvent(string eventName, double value, string info, IDictionary<string, object> param)
         {
             var parameters = param != null ? Json.Serialize(param) : "";
-            track_message_event(Name, eventName, value, info, parameters);
+            track_message_event(Key, eventName, value, info, parameters);
         }
 
         public override void Track(string eventName, double value, IDictionary<string, object> param)
         {
             var parameters = param != null ? Json.Serialize(param) : "";
-            track_event(Name, eventName, value, parameters);
-        }
-
-        public override void SetActionNamedResponder(ActionResponder responder)
-        {
-            runActionResponder = responder;
-            set_action_named_responder(Name);
-        }
-
-        internal override void TriggerActionNamedResponder(ActionContext context)
-        {
-            if (runActionResponder != null)
-            {
-                runActionResponder.Invoke(context);
-            }
+            track_event(Key, eventName, value, parameters);
         }
 
         public override void RunActionNamed(string name)
         {
-            run_action_named(Name, name);
+            run_action_named(Key, name);
         }
 
         public override void RunTrackedActionNamed(string name)
         {
-            run_tracked_action_named(Name, name);
+            run_tracked_action_named(Key, name);
         }
 
         public override string GetStringNamed(string name)
         {
-            return get_string_named(Name, name);
+            return get_string_named(Key, name);
         }
 
         public override bool? GetBooleanNamed(string name)
         {
-            return get_bool_named(Name, name);
+            return get_bool_named(Key, name);
         }
 
         public override T GetObjectNamed<T>(string name)
@@ -132,11 +115,11 @@ namespace LeanplumSDK.Apple
             string json = null;
             if (typeof(IDictionary).IsAssignableFrom(t))
             {
-                json = get_dictionary_named(Name, name);
+                json = get_dictionary_named(Key, name);
             }
             else if (typeof(IList).IsAssignableFrom(t))
             {
-                json = get_array_named(Name, name);
+                json = get_array_named(Key, name);
             }
             if (json != null)
             {
@@ -149,13 +132,13 @@ namespace LeanplumSDK.Apple
 
         public override UnityEngine.Color GetColorNamed(string name)
         {
-            long color = get_color_named(Name, name);
+            long color = get_color_named(Key, name);
             return Util.IntToColor(color);
         }
 
         public override string GetFile(string name)
         {
-            return get_file_named(Name, name);
+            return get_file_named(Key, name);
         }
 
         public override T GetNumberNamed<T>(string name)
@@ -163,35 +146,40 @@ namespace LeanplumSDK.Apple
             Type t = typeof(T);
             if (t == typeof(int))
             {
-                return (T) (object) get_int_named(Name, name);
+                return (T) (object) get_int_named(Key, name);
             }
             else if (t == typeof(double))
             {
-                return (T) (object) get_double_named(Name, name);
+                return (T) (object) get_double_named(Key, name);
             }
             else if (t == typeof(float))
             {
-                return (T) (object) get_float_named(Name, name);
+                return (T) (object) get_float_named(Key, name);
             }
             else if (t == typeof(long))
             {
-                return (T) (object) get_long_named(Name, name);
+                return (T) (object) get_long_named(Key, name);
             }
             else if (t == typeof(short))
             {
-                return (T) (object) get_string_named(Name, name);
+                return (T) (object) get_string_named(Key, name);
             }
             else if (t == typeof(byte))
             {
-                return (T) (object) get_byte_named(Name, name);
+                return (T) (object) get_byte_named(Key, name);
             }
 
             return default(T);
         }
 
-        public override void MuteForFutureMessagesOfSameKind()
+        public override void Dismissed()
         {
-            mute_future_messages_of_same_kind(Name);
+            dismiss(Key);
+        }
+
+        public override string ToString()
+        {
+            return $"{Key}";
         }
     }
 }

@@ -1,4 +1,23 @@
-﻿using System;
+﻿//
+// Copyright 2022, Leanplum, Inc.
+//
+//  Licensed to the Apache Software Foundation (ASF) under one
+//  or more contributor license agreements.  See the NOTICE file
+//  distributed with this work for additional information
+//  regarding copyright ownership.  The ASF licenses this file
+//  to you under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing,
+//  software distributed under the License is distributed on an
+//  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+//  KIND, either express or implied.  See the License for the
+//  specific language governing permissions and limitations
+//  under the License.
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +29,9 @@ namespace LeanplumSDK
         private readonly string name;
         private readonly string id;
         private readonly IDictionary<string, object> vars;
-        private ActionResponder runActionResponder;
+
+        internal override event ActionDidDismiss Dismiss;
+        internal override event ActionDidExecute ActionExecute;
 
         public NativeActionContext(string id, string name, IDictionary<string, object> vars)
         {
@@ -122,71 +143,56 @@ namespace LeanplumSDK
             return value != null ? value.ToString() : string.Empty;
         }
 
-        public override void MuteForFutureMessagesOfSameKind()
-        {
-            throw new NotImplementedException();
-        }
-
-        internal override void TriggerActionNamedResponder(ActionContext context)
-        {
-            if (runActionResponder != null)
-            {
-                runActionResponder.Invoke(context);
-            }
-        }
-
-        public override void SetActionNamedResponder(ActionResponder handler)
-        {
-            runActionResponder = handler;
-        }
-
         public override void RunActionNamed(string name)
         {
             object actionObject = Traverse(name);
 
-            Dictionary<string, object> actionData = null;
-            if (actionObject != null)
+            Dictionary<string, object> actionData = actionObject as Dictionary<string, object>;
+            if (actionData == null && actionObject is IDictionary<object, object>)
             {
-                if (actionObject is IDictionary<object, object>)
-                {
-                    var actionDataObj = actionObject as IDictionary<object, object>;
-                    actionData = actionDataObj.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value);
-                }
-                else if (actionObject is IDictionary<string, object>)
-                {
-                    actionData = actionObject as Dictionary<string, object>;
-                }
+                var actionDataObj = actionObject as IDictionary<object, object>;
+                actionData = actionDataObj.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value);
             }
 
-            NativeActionContext runActionContext = new NativeActionContext(Id, name, actionData);
-            TriggerActionNamedResponder(runActionContext);
+            NativeActionContext actionDidExecuteContext = new NativeActionContext(Id, name, actionData);
+            ActionExecute?.Invoke(name, actionDidExecuteContext);
 
-            if (actionData != null)
+            if (actionData == null)
+                return;
+
+            var actionName = actionData[Constants.Args.ACTION_NAME];
+            if (!string.IsNullOrEmpty(actionName?.ToString()))
             {
-                var actionName = actionData[Constants.Args.ACTION_NAME];
-                if (!string.IsNullOrEmpty(actionName?.ToString()))
+                // Chain to Existing message
+                if (actionName.Equals(Constants.Args.CHAIN_TO_EXISTING) && actionData.ContainsKey(Constants.Args.CHAIN_MESSAGE))
                 {
-                    if (actionName.Equals(Constants.Args.CHAIN_TO_EXISTING) && actionData.ContainsKey(Constants.Args.CHAIN_MESSAGE))
+                    string messageId = actionData[Constants.Args.CHAIN_MESSAGE]?.ToString();
+                    ActionContext actionContext = Leanplum.LeanplumActionManager.CreateActionContext(messageId);
+                    if (actionContext == null)
                     {
-                        string messageId = actionData[Constants.Args.CHAIN_MESSAGE]?.ToString();
-                        if (!Leanplum.ShowMessage(messageId))
+                        // Try to fetch the chained message if not on the device
+                        Leanplum.ForceContentUpdate(() =>
                         {
-                            // Try to fetch the chained message if not on the device
-                            Leanplum.ForceContentUpdate(() =>
+                            ActionContext actionContext = Leanplum.LeanplumActionManager.CreateActionContext(messageId);
+                            if (actionContext != null)
                             {
-                                Leanplum.ShowMessage(messageId);
-                            });
-                        }
+                                Leanplum.LeanplumActionManager.TriggerContexts(new ActionContext[] { actionContext }, LeanplumActionManager.Priority.HIGH, null, null);
+                            }
+                        });
                     }
                     else
                     {
-                        // The Actions default values are not merged when the message is merged
-                        // Merge now when the action is to be triggered
-                        var mergedActions = VarCache.MergeMessage(actionData);
-
-                        NativeActionContext actionContext = new NativeActionContext(Id, actionName.ToString(), mergedActions);
-                        LeanplumActionManager.TriggerAction(actionContext, mergedActions);
+                        Leanplum.LeanplumActionManager.TriggerContexts(new ActionContext[] { actionContext }, LeanplumActionManager.Priority.HIGH, null, null);
                     }
+                }
+                // Action is embedded
+                else
+                {
+                    // The Actions default values are not merged when the message is merged
+                    // Merge now when the action is to be triggered
+                    var mergedActions = VarCache.MergeMessage(actionData);
+                    NativeActionContext actionContext = new NativeActionContext(Id, actionName.ToString(), mergedActions);
+                    Leanplum.LeanplumActionManager.TriggerContexts(new ActionContext[] { actionContext }, LeanplumActionManager.Priority.HIGH, null, null);
                 }
             }
         }
@@ -216,6 +222,11 @@ namespace LeanplumSDK
             }
         }
 
+        public override void Dismissed()
+        {
+            Dismiss?.Invoke(this);
+        }
+
         public static string GetFileURL(string fileName)
         {
             /*
@@ -240,6 +251,11 @@ namespace LeanplumSDK
             }
 
             return null;
+        }
+
+        public override string ToString()
+        {
+            return $"{Name}:{Id}";
         }
     }
 }
