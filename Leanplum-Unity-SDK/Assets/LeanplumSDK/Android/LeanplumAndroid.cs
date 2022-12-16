@@ -449,12 +449,14 @@ namespace LeanplumSDK
 
             String prioritizeMessages(String contextsKeys, String actionsTrigger)
             {
+                string[] keys = contextsKeys.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+
                 if (outer.prioritizeMessagesHandler == null)
                 {
-                    return contextsKeys;
+                    // By default, add only one message to queue if `prioritizeMessages` is not implemented
+                    // This ensures backwards compatibility
+                    return keys[0];
                 }
-
-                string[] keys = contextsKeys.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
 
                 List<ActionContext> contexts = new List<ActionContext>();
                 foreach (string key in keys)
