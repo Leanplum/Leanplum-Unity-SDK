@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using LeanplumSDK.MiniJSON;
 
 namespace LeanplumSDK
@@ -260,19 +261,13 @@ namespace LeanplumSDK
                         leanplumMessage.ImageURL = value;
                     }
                 }
-                if (dict.TryGetValue("deliveryTimestamp", out var deliveryTimestamp))
+                if (TryGetDateTime(dict, "deliveryTimestamp", out DateTime deliveryTimestamp))
                 {
-                    if (deliveryTimestamp is string value)
-                    {
-                        leanplumMessage.DeliveryTimestamp = DateTime.Parse(value);
-                    }
+                    leanplumMessage.DeliveryTimestamp = deliveryTimestamp;
                 }
-                if (dict.TryGetValue("expirationTimestamp", out var expirationTimestamp))
+                if (TryGetDateTime(dict, "expirationTimestamp", out DateTime expirationTimestamp))
                 {
-                    if (expirationTimestamp is string value)
-                    {
-                        leanplumMessage.ExpirationTimestamp = DateTime.Parse(value);
-                    }
+                    leanplumMessage.DeliveryTimestamp = expirationTimestamp;
                 }
                 if (dict.TryGetValue("isRead", out var isRead))
                 {
@@ -289,6 +284,29 @@ namespace LeanplumSDK
                 messages.Add(leanplumMessage);
             }
             return messages;
+        }
+
+        private static bool TryGetDateTime(Dictionary<string, object> dict, string key, out DateTime parsedTime)
+        {
+            parsedTime = DateTime.MinValue;
+            if (dict.TryGetValue(key, out var timestamp))
+            {
+                if (timestamp is string value)
+                {
+                    bool result = DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedTime);
+                    if (!result)
+                    {
+                        UnityEngine.Debug.Log($"Leanplum: Failed to parse DateTime for key: {key}.");
+                    }
+
+                    return result;
+                }
+                else if (timestamp != null)
+                {
+                    UnityEngine.Debug.Log($"Leanplum: Error getting DateTime string for key: {key}. Value is not a string.");
+                }
+            }
+            return false;
         }
     }
 }

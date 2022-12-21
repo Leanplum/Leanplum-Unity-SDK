@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2020 Leanplum. All rights reserved.
+//  Copyright (c) 2022 Leanplum. All rights reserved.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -136,6 +136,12 @@ char *get_array_named(const char *contextId, const char *name)
 {
     LPActionContext *context = [actionContexts objectForKey:lp::to_nsstring(contextId)];
     return lp::to_json_string([context arrayNamed:lp::to_nsstring(name)]);
+}
+
+char *get_object_named(const char *contextId, const char *name)
+{
+    LPActionContext *context = [actionContexts objectForKey:lp::to_nsstring(contextId)];
+    return lp::to_json_string([context objectNamed:lp::to_nsstring(name)]);
 }
 
 char *get_html_with_template_named(const char *contextId, const char *name)
