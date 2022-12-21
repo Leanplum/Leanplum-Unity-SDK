@@ -56,14 +56,21 @@ namespace LeanplumSDK
 
         public override T GetObjectNamed<T>(string name)
         {
-            var json = nativeHandle.CallStatic<string>("getObjectNamed", Key, name);
-            if (json != null)
+            try
             {
-                var value = Json.Deserialize(json);
-                return Util.ConvertCollectionToType<T>(value);
+                var json = nativeHandle.CallStatic<string>("getObjectNamed", Name, name);
+                if (json != null) 
+                {
+                    var value = Json.Deserialize(json);
+                    return Util.ConvertCollectionToType<T>(value);
+                }
+            }
+            catch
+            {
+                UnityEngine.Debug.Log($"Leanplum: Error getting object value for name: {name}. Exception: {ex.Message}");
             }
 
-            return default(T);
+            return default;
         }
 
         public override Color GetColorNamed(string name)

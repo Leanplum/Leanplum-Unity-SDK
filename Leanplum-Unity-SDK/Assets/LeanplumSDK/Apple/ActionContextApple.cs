@@ -52,6 +52,9 @@ namespace LeanplumSDK.Apple
         internal static extern string get_html_with_template_named(string id, string name);
 
         [DllImport("__Internal")]
+        internal static extern string get_object_named(string id, string name);
+
+        [DllImport("__Internal")]
         internal static extern void run_action_named(string id, string name);
 
         [DllImport("__Internal")]
@@ -111,23 +114,35 @@ namespace LeanplumSDK.Apple
 
         public override T GetObjectNamed<T>(string name)
         {
-            Type t = typeof(T);
-            string json = null;
-            if (typeof(IDictionary).IsAssignableFrom(t))
+            Type returnType = typeof(T);
+            string json;
+            if (typeof(IDictionary).IsAssignableFrom(returnType))
             {
                 json = get_dictionary_named(Key, name);
             }
-            else if (typeof(IList).IsAssignableFrom(t))
+            else if (typeof(IList).IsAssignableFrom(returnType))
             {
                 json = get_array_named(Key, name);
             }
-            if (json != null)
+            else
             {
-                var value = Json.Deserialize(json);
-                return Util.ConvertCollectionToType<T>(value);
+                json = get_object_named(Key, name);
             }
 
-            return default(T);
+            try
+            {
+                if (json != null)
+                {
+                    var value = Json.Deserialize(json);
+                    return Util.ConvertCollectionToType<T>(value);
+                }
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.Log($"Leanplum: Error getting object value for name: {name}. Exception: {ex.Message}");
+            }
+
+            return default;
         }
 
         public override UnityEngine.Color GetColorNamed(string name)

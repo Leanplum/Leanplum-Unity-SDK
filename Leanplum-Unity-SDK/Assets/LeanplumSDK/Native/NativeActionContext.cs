@@ -98,10 +98,9 @@ namespace LeanplumSDK
 
         public override T GetObjectNamed<T>(string name)
         {
-            var value = Traverse(name);
-
             try
             {
+                var value = Traverse(name);
                 if (value is IDictionary || value is IList)
                 {
                     // Collections come with elements of type object
@@ -110,10 +109,10 @@ namespace LeanplumSDK
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.Log($"Error casting value for name: {name}. Exception: {ex.Message}");
+                UnityEngine.Debug.Log($"Leanplum: Error getting object value for name: {name}. Exception: {ex.Message}");
             }
 
-            return (T)value;
+            return default;
         }
 
         public override UnityEngine.Color GetColorNamed(string name)
