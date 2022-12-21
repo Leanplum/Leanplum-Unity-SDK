@@ -289,9 +289,9 @@ namespace LeanplumSDK
         private static bool TryGetDateTime(Dictionary<string, object> dict, string key, out DateTime parsedTime)
         {
             parsedTime = DateTime.MinValue;
-            if (dict.TryGetValue(key, out var deliveryTimestamp))
+            if (dict.TryGetValue(key, out var timestamp))
             {
-                if (deliveryTimestamp is string value)
+                if (timestamp is string value)
                 {
                     bool result = DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedTime);
                     if (!result)
@@ -301,7 +301,7 @@ namespace LeanplumSDK
 
                     return result;
                 }
-                else
+                else if (timestamp != null)
                 {
                     UnityEngine.Debug.Log($"Leanplum: Error getting DateTime string for key: {key}. Value is not a string.");
                 }

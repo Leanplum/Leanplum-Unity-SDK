@@ -106,6 +106,7 @@ namespace LeanplumSDK
                     // Collections come with elements of type object
                     return Util.ConvertCollectionToType<T>(value);
                 }
+                return (T)value;
             }
             catch (Exception ex)
             {

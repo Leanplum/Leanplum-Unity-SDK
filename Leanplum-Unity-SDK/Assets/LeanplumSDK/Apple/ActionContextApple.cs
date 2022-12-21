@@ -134,6 +134,7 @@ namespace LeanplumSDK.Apple
                 if (json != null)
                 {
                     var value = Json.Deserialize(json);
+                    // Defaults to (T)value if not a collection
                     return Util.ConvertCollectionToType<T>(value);
                 }
             }

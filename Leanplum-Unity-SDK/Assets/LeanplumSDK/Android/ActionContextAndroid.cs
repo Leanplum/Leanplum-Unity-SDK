@@ -58,16 +58,17 @@ namespace LeanplumSDK
         {
             try
             {
-                var json = nativeHandle.CallStatic<string>("getObjectNamed", Name, name);
+                var json = nativeHandle.CallStatic<string>("getObjectNamed", Key, name);
                 if (json != null) 
                 {
                     var value = Json.Deserialize(json);
+                    // Defaults to (T)value if not a collection
                     return Util.ConvertCollectionToType<T>(value);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                UnityEngine.Debug.Log($"Leanplum: Error getting object value for name: {name}. Exception: {ex.Message}");
+                Debug.Log($"Leanplum: Error getting object value for name: {name}. Exception: {ex.Message}");
             }
 
             return default;
