@@ -630,6 +630,23 @@ extern "C"
         }
         return NULL;
     }
+
+    const char * lp_migrationConfig()
+    {
+        NSNumber *state = @([[MigrationManager shared] state]);
+        NSString *accountId = [[MigrationManager shared] cleverTapAccountId];
+        NSString *accountToken = [[MigrationManager shared] cleverTapAccountToken];
+        NSString *accountRegion = [[MigrationManager shared] cleverTapAccountRegion];
+        NSDictionary *attributeMappings = [[MigrationManager shared] cleverTapAttributeMappings];
+        NSDictionary *migrationDict = @{
+                @"state": state,
+                @"accountId": accountId,
+                @"accountToken": accountToken,
+                @"accountRegion": accountRegion,
+                @"attributeMappings": attributeMappings
+        };
+        return lp::to_json_string(migrationDict);
+    }
     
     const char * lp_vars()
     {

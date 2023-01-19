@@ -1,5 +1,5 @@
 //
-// Copyright 2022, Leanplum, Inc.
+// Copyright 2023, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -39,6 +39,7 @@ namespace LeanplumSDK
         public delegate void VariableChangedHandler();
         public delegate void VariablesChangedAndNoDownloadsPendingHandler();
         public delegate void NoPendingDownloadsHandler();
+        public delegate void CleverTapInstanceHandler();
 
         public delegate MessageDisplayChoice ShouldDisplayMessageHandler(ActionContext context);
         public delegate ActionContext[] PrioritizeMessagesHandler(ActionContext[] contexts, Dictionary<string, object> actionTrigger);
@@ -416,6 +417,23 @@ namespace LeanplumSDK
             remove
             {
                 LeanplumFactory.SDK.Started -= value;
+            }
+        }
+
+        /// <summary>
+        ///     Invoked once CleverTap instance is created and ready.
+        ///     The instance is initialized using Leanplum data.
+        ///     Must be registered before Leanplum.Start().
+        /// </summary>
+        public static event CleverTapInstanceHandler CleverTapInstanceReady
+        {
+            add
+            {
+                LeanplumFactory.SDK.CleverTapInstanceReady += value;
+            }
+            remove
+            {
+                LeanplumFactory.SDK.CleverTapInstanceReady -= value;
             }
         }
         #endregion
@@ -821,6 +839,17 @@ namespace LeanplumSDK
         public static LeanplumSecuredVars SecuredVars()
         {
             return LeanplumFactory.SDK.SecuredVars();
+        }
+
+        /// <summary>
+        ///     Returns current Migration Configuration.
+        ///     Recommended only for debugging purposes and advanced use cases.
+        /// </summary>
+        /// <returns> Returns <see cref="MigrationConfig"/> with CleverTap settings.
+        /// </returns>
+        public static MigrationConfig MigrationConfig()
+        {
+            return LeanplumFactory.SDK.MigrationConfig();
         }
 
         /// <summary>

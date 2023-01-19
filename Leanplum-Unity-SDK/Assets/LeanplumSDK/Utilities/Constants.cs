@@ -119,6 +119,11 @@ namespace LeanplumSDK
             internal const string VARS_SIGNATURE = "varsSignature";
             public const string SECURED_VARS_SIGNATURE_KEY = "signature";
             public const string SECURED_VARS_JSON_KEY = "json";
+            internal const string MIGRATION_STATE_KEY = "state";
+            internal const string MIGRATION_ID_KEY = "accountId";
+            internal const string MIGRATION_TOKEN_KEY = "accountToken";
+            internal const string MIGRATION_REGION_KEY = "accountRegion";
+            internal const string MIGRATION_ATTRIBUTES_KEY = "attributeMappings";
         }
 
         public class Kinds

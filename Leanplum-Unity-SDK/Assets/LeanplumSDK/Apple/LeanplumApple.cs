@@ -124,6 +124,9 @@ namespace LeanplumSDK
         internal static extern string lp_securedVars();
 
         [DllImport("__Internal")]
+        internal static extern string lp_migrationConfig();
+
+        [DllImport("__Internal")]
         internal static extern string lp_vars();
 
         [DllImport("__Internal")]
@@ -200,6 +203,7 @@ namespace LeanplumSDK
 
         public override event VariableChangedHandler VariablesChanged;
         public override event VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
+        public override event CleverTapInstanceHandler CleverTapInstanceReady;
 
         private event StartHandler started;
         private bool startSuccessful;
@@ -662,6 +666,17 @@ namespace LeanplumSDK
             return null;
         }
 
+        public override MigrationConfig MigrationConfig()
+        {
+            string jsonString = lp_migrationConfig();
+            if (!string.IsNullOrEmpty(jsonString))
+            {
+                var varsDict = (Dictionary<string, string>)Json.Deserialize(jsonString);
+                return new MigrationConfig(varsDict);
+            }
+            return null;
+        }
+
         public override IDictionary<string, object> Vars()
         {
             string jsonString = lp_vars();
@@ -733,6 +748,7 @@ namespace LeanplumSDK
             const string VARIABLES_CHANGED_NO_DOWNLOAD_PENDING = "VariablesChangedAndNoDownloadsPending:";
             const string ONCE_VARIABLES_CHANGED_NO_DOWNLOADS_PENDING = "OnceVariablesChangedAndNoDownloadsPending:";
             const string STARTED = "Started:";
+            const string CLEVERTAP_INSTANCE = "CleverTapInstance:";
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_HANDLER = "ForceContentUpdateWithHandler:";
             const string DEFINE_ACTION_RESPONDER = "ActionResponder:";
@@ -766,6 +782,12 @@ namespace LeanplumSDK
                     startSuccessful = message.EndsWith("1");
                     started(startSuccessful);
                 }
+            }
+            else if (message.StartsWith(CLEVERTAP_INSTANCE))
+            {
+                string accountId = message.Substring(CLEVERTAP_INSTANCE.Length);
+                // TODO: CleverTap set instance with account id
+                CleverTapInstanceReady?.Invoke();
             }
             else if (message.StartsWith(VARIABLE_VALUE_CHANGED))
             {

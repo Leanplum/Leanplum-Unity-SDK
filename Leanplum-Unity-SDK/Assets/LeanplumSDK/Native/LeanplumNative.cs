@@ -499,6 +499,18 @@ namespace LeanplumSDK
             }
         }
 
+        public override event Leanplum.CleverTapInstanceHandler CleverTapInstanceReady
+        {
+            add
+            {
+                CompatibilityLayer.LogWarning("CleverTapInstanceReady.add is not supported in Unity Native.");
+            }
+            remove
+            {
+                CompatibilityLayer.LogWarning("CleverTapInstanceReady.remove not supported in Unity Native.");
+            }
+        }
+
         private static void OnStarted(bool success)
         {
             started?.Invoke(success);
@@ -1165,6 +1177,12 @@ namespace LeanplumSDK
         public override LeanplumSecuredVars SecuredVars()
         {
             return VarCache.SecuredVars;
+        }
+
+        public override MigrationConfig MigrationConfig()
+        {
+            CompatibilityLayer.LogWarning("MigrationConfig not supported in Unity Native.");
+            return null;
         }
 
         /// <summary>
