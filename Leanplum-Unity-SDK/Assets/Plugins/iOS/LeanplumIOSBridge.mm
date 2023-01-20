@@ -106,6 +106,12 @@ extern "C"
         [Leanplum onVariablesChanged:^{
             UnitySendMessage(__LPgameObject, __NativeCallbackMethod, "VariablesChanged:");
         }];
+
+        CleverTapInstanceCallback *callback = [[CleverTapInstanceCallback alloc] initWithCallback:^(CleverTap * _Nonnull instance) {
+// TODO:           [LeanplumIOSBridge sendMessageToUnity:@"CleverTapInstance:" withKey:[instance accountId]];
+        }];
+        
+        [Leanplum addCleverTapInstanceCallback:callback];
         
         [Leanplum onVariablesChangedAndNoDownloadsPending:^{
             UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
@@ -640,9 +646,9 @@ extern "C"
         NSDictionary *attributeMappings = [[MigrationManager shared] cleverTapAttributeMappings];
         NSDictionary *migrationDict = @{
                 @"state": state,
-                @"accountId": accountId,
-                @"accountToken": accountToken,
-                @"accountRegion": accountRegion,
+                @"accountId": (accountId) ? accountId : @"",
+                @"accountToken": (accountToken) ? accountToken : @"",
+                @"accountRegion": (accountRegion) ? accountRegion : @"",
                 @"attributeMappings": attributeMappings
         };
         return lp::to_json_string(migrationDict);

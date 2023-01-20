@@ -203,7 +203,24 @@ namespace LeanplumSDK
 
         public override event VariableChangedHandler VariablesChanged;
         public override event VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
-        public override event CleverTapInstanceHandler CleverTapInstanceReady;
+
+        private event CleverTapInstanceHandler cleverTapInstanceReady;
+        private string accountId;
+        public override event CleverTapInstanceHandler CleverTapInstanceReady
+        {
+            add
+            {
+                cleverTapInstanceReady += value;
+                if (!string.IsNullOrEmpty(accountId))
+                {
+                    value?.Invoke();
+                }
+            }
+            remove
+            {
+                cleverTapInstanceReady -= value;
+            }
+        }
 
         private event StartHandler started;
         private bool startSuccessful;
@@ -230,8 +247,8 @@ namespace LeanplumSDK
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
         private Dictionary<string, ActionContext.ActionResponder> DismissActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
 
-        private Dictionary<int, Leanplum.VariablesChangedAndNoDownloadsPendingHandler> OnceVariablesChangedAndNoDownloadsPendingDict =
-    new Dictionary<int, Leanplum.VariablesChangedAndNoDownloadsPendingHandler>();
+        private Dictionary<int, VariablesChangedAndNoDownloadsPendingHandler> OnceVariablesChangedAndNoDownloadsPendingDict =
+    new Dictionary<int, VariablesChangedAndNoDownloadsPendingHandler>();
 
         static private int DictionaryKey = 0;
 
@@ -785,9 +802,13 @@ namespace LeanplumSDK
             }
             else if (message.StartsWith(CLEVERTAP_INSTANCE))
             {
-                string accountId = message.Substring(CLEVERTAP_INSTANCE.Length);
-                // TODO: CleverTap set instance with account id
-                CleverTapInstanceReady?.Invoke();
+                string id = message[CLEVERTAP_INSTANCE.Length..];
+                if (accountId != id)
+                {
+                    accountId = id;
+                    // TODO: CleverTap set instance with account id
+                    cleverTapInstanceReady?.Invoke();
+                }
             }
             else if (message.StartsWith(VARIABLE_VALUE_CHANGED))
             {
