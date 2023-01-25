@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LeanplumSDK.MiniJSON;
 using UnityEngine;
+using static LeanplumSDK.Constants;
 using static LeanplumSDK.Leanplum;
 
 namespace LeanplumSDK
@@ -80,6 +81,24 @@ namespace LeanplumSDK
             remove
             {
                 started -= value;
+            }
+        }
+
+        private event CleverTapInstanceHandler cleverTapInstanceReady;
+        private string accountId;
+        public override event CleverTapInstanceHandler CleverTapInstanceReady
+        {
+            add
+            {
+                cleverTapInstanceReady += value;
+                if (!string.IsNullOrEmpty(accountId))
+                {
+                    value?.Invoke();
+                }
+            }
+            remove
+            {
+                cleverTapInstanceReady -= value;
             }
         }
 
@@ -738,6 +757,7 @@ namespace LeanplumSDK
             const string VARIABLES_CHANGED_NO_DOWNLOAD_PENDING = "VariablesChangedAndNoDownloadsPending:";
             const string ONCE_VARIABLES_CHANGED_NO_DOWNLOADS_PENDING = "OnceVariablesChangedAndNoDownloadsPendingHandler:";
             const string STARTED = "Started:";
+            const string CLEVERTAP_INSTANCE = "CleverTapInstance:";
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_CALLBACK = "ForceContentUpdateWithCallback:";
             const string DEFINE_ACTION_RESPONDER = "ActionResponder:";
@@ -768,6 +788,16 @@ namespace LeanplumSDK
                 {
                     startSuccessful = message.EndsWith("true") || message.EndsWith("True");
                     started(startSuccessful);
+                }
+            }
+            else if (message.StartsWith(CLEVERTAP_INSTANCE))
+            {
+                string id = message[CLEVERTAP_INSTANCE.Length..];
+                if (accountId != id)
+                {
+                    accountId = id;
+                    // TODO: CleverTap set instance with account id
+                    cleverTapInstanceReady?.Invoke();
                 }
             }
             else if (message.StartsWith(VARIABLE_VALUE_CHANGED))
@@ -991,6 +1021,16 @@ namespace LeanplumSDK
 
         #endregion
 
+        public override MigrationConfig MigrationConfig()
+        {
+            string jsonString = NativeSDK.CallStatic<string>("getMigrationConfig");
+            if (!string.IsNullOrEmpty(jsonString))
+            {
+                var varsDict = (Dictionary<string, string>)Json.Deserialize(jsonString);
+                return new MigrationConfig(varsDict);
+            }
+            return null;
+        }
     }
 }
 
