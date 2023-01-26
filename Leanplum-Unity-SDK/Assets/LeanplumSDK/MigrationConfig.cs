@@ -41,9 +41,9 @@ namespace LeanplumSDK
             AttributeMappings = attributeMappings;
         }
 
-        public MigrationConfig(Dictionary<string, string> config)
+        public MigrationConfig(Dictionary<string, object> config)
         {
-            if (int.TryParse(Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_STATE_KEY), out int state))
+            if (int.TryParse((string)Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_STATE_KEY), out int state))
             {
                 State = (MigrationState)state;
             }
@@ -52,13 +52,20 @@ namespace LeanplumSDK
                 State = MigrationState.Undefined;
             }
 
-            AccountId = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_ID_KEY);
-            AccountToken = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_TOKEN_KEY);
-            AccountRegion = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_REGION_KEY);
+            AccountId = (string)Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_ID_KEY);
+            AccountToken = (string)Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_TOKEN_KEY);
+            AccountRegion = (string)Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_REGION_KEY);
 
-            string attributeMappingsJSON = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_ATTRIBUTES_KEY);
-            AttributeMappings = MiniJSON.Json.Deserialize(attributeMappingsJSON)
-                as Dictionary<string, string> ?? new Dictionary<string, string>();
+            object attributeValue = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_ATTRIBUTES_KEY);
+            if (attributeValue is string)
+            {
+                AttributeMappings = MiniJSON.Json.Deserialize((string)attributeValue)
+                    as Dictionary<string, string> ?? new Dictionary<string, string>();
+            }
+            else
+            {
+                AttributeMappings = attributeValue as Dictionary<string, string> ?? new Dictionary<string, string>();
+            }
         }
 
         public MigrationState State { get; }

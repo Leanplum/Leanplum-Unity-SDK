@@ -661,7 +661,7 @@ public class UnityBridge {
   }
 
   public static String getMigrationConfig() {
-    Map<String, String> config = new HashMap<>();
+    Map<String, Object> config = new HashMap<>();
     String state = "0";
     switch (MigrationManager.getState()) {
       case Undefined: state = "0"; break;
@@ -673,8 +673,7 @@ public class UnityBridge {
     config.put("accountId", MigrationConfig.INSTANCE.getAccountId());
     config.put("accountToken", MigrationConfig.INSTANCE.getAccountToken());
     config.put("accountRegion", MigrationConfig.INSTANCE.getAccountRegion());
-    config.put("attributeMappings",
-        JsonConverter.toJson(MigrationConfig.INSTANCE.getAttributeMap()));
+    config.put("attributeMappings", MigrationConfig.INSTANCE.getAttributeMap());
     return JsonConverter.toJson(config);
   }
 }

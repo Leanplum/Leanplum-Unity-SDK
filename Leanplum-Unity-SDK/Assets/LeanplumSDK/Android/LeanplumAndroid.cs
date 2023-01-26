@@ -797,6 +797,8 @@ namespace LeanplumSDK
                 {
                     accountId = id;
                     // TODO: CleverTap set instance with account id
+                    MigrationConfig config = MigrationConfig();
+                    CleverTap.CleverTapBinding.Initialize(config.AccountId, config.AccountToken, config.AccountRegion);
                     cleverTapInstanceReady?.Invoke();
                 }
             }
@@ -1026,7 +1028,8 @@ namespace LeanplumSDK
             string jsonString = NativeSDK.CallStatic<string>("getMigrationConfig");
             if (!string.IsNullOrEmpty(jsonString))
             {
-                var varsDict = (Dictionary<string, string>)Json.Deserialize(jsonString);
+                var dict = Json.Deserialize(jsonString);
+                var varsDict = (Dictionary<string, object>)Json.Deserialize(jsonString);
                 return new MigrationConfig(varsDict);
             }
             return null;
