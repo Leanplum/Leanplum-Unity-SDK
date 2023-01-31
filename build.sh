@@ -12,8 +12,6 @@ PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
 
 UNITY_EDITOR_VERSION=""
 
-REMOVE_SIMULATOR_ARCH=false
-
 XCFRAMEWORKS=("Leanplum" "CleverTapSDK" "SDWebImage")
 
 #######################################
@@ -84,11 +82,6 @@ extract_ios_sdk()
 
   rm -rf "/tmp/Leanplum-${version}.zip"
   rm -rf "/tmp/Leanplum-${version}"
-
-  if [ "$REMOVE_SIMULATOR_ARCH" = true ] ; then
-    echo "Removing x86_64 & i386 architecture from iOS library"
-    rm -rf "/tmp/Leanplum-${version}.xcframework/ios-arm64_x86_64-simulator"
-  fi
 }
 
 #######################################
@@ -271,10 +264,6 @@ main() {
       ;;
       --stacktrace)
       set -o xtrace
-      shift
-      ;;
-      --no-simulator)
-      REMOVE_SIMULATOR_ARCH=true
       shift
       ;;
     esac
