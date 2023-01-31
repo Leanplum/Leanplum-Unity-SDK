@@ -92,6 +92,34 @@ extract_ios_sdk()
 }
 
 #######################################
+# Copies Leanplum dynamic xcframework and its dependencies.
+# Globals:
+#   XCFRAMEWORKS
+# Arguments:
+#   The version to use, e.g. "1.2.3"
+# Returns:
+#   None
+#######################################
+prepare_ios()
+{
+  local version=$1
+  echo "Preparing iOS dependencies..."
+
+  # Remove all xcframeworks
+  find "Leanplum-Unity-SDK/Assets/Plugins/iOS" \
+  -name "*.xcframework" \
+  -type d \
+  -exec sh -c 'if [ -d {} ]; then rm -rf {};fi' \;
+
+  # Add all xcframeworks for specified version
+  for i in "${XCFRAMEWORKS[@]}"
+  do
+    cp -r "/tmp/Leanplum-$version-dynamic/$i.xcframework" \
+    "Leanplum-Unity-SDK/Assets/Plugins/iOS/"
+  done
+}
+
+#######################################
 # Copies the iOS SDK from project directory. Name should be in format Leanplum-${version}.zip
 # Globals:
 #   None
@@ -172,20 +200,7 @@ get_unity_from_hub() {
 #   None
 #######################################
 build() {
-  echo "Preparing dependencies..."
-
-  # Copy AppleSDK
-  find "Leanplum-Unity-SDK/Assets/Plugins/iOS" \
-  -name "*.xcframework" \
-  -type d \
-  -exec rm -rf {} \;
-
-  for i in "${XCFRAMEWORKS[@]}"
-  do
-    cp -r "/tmp/Leanplum-6.0.2-dynamic/$i.xcframework" \
-    "Leanplum-Unity-SDK/Assets/Plugins/iOS/"
-  done
-
+  echo "Building Android SDK..."
   # Build Android SDK
   cd Leanplum-Android-SDK-Unity/
   ./gradlew clean assembleRelease
@@ -296,6 +311,8 @@ main() {
 
   find Leanplum-Unity-Package -name '*.unitypackage' -delete
   find Leanplum-Unity-SDK/Assets/Plugins/ -name '*.aar' -delete
+
+  prepare_ios $APPLE_SDK_VERSION
 
   build
 
