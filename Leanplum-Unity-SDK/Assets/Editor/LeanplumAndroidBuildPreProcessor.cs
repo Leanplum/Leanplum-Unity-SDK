@@ -15,7 +15,7 @@ namespace Leanplum.Private
     /// This circumvents the need of the 'com.google.gms.google-services' gradle plugin
     /// and the json file to be in the project.
     /// This preprocessor is not needed if Google Unity package is used.
-    /// The googleservices.xml resource file is set into LeanplumGoogle.androidLib
+    /// The googleservices.xml resource file is set into LeanplumGoogle.androidlib
     /// so Unity can include it in the build project.
     /// </summary>
     class LeanplumAndroidBuildPreProcessor : IPreprocessBuildWithReport
@@ -66,7 +66,7 @@ namespace Leanplum.Private
         /// <summary>
         /// Android Library name for Android resources.
         /// </summary>
-        private static readonly string ANDROID_LIB = "LeanplumGoogle.androidLib";
+        private static readonly string ANDROID_LIB = "LeanplumGoogle.androidlib";
 
         public void OnPreprocessBuild(BuildReport report)
         {
