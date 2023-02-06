@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2020 Leanplum Inc. All rights reserved.
+# Copyright (c) 2023 Leanplum Inc. All rights reserved.
 #
 
 set -o noglob
@@ -12,7 +12,7 @@ PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
 
 UNITY_EDITOR_VERSION=""
 
-REMOVE_SIMULATOR_ARCH=false
+XCFRAMEWORKS=("Leanplum" "CleverTapSDK" "SDWebImage")
 
 #######################################
 # Gets the latest version of specified repo
@@ -30,7 +30,7 @@ get_latest_version() {
 }
 
 #######################################
-# Downloads the iOS SDK from internal repository.
+# Downloads the iOS SDK from GitHub releases.
 # Globals:
 #   None
 # Arguments:
@@ -52,33 +52,68 @@ download_ios_sdk() {
 
   # Download the framework zip
   wget --show-progress -O "$destination" \
-    "${repo}/releases/download/${version}/Leanplum.framework.zip"
+    "${repo}/releases/download/${version}/Leanplum.zip"
 
   extract_ios_sdk $version
 
   echo "Finished downloading iOS SDK."
 }
 
+
+
+#######################################
+# Extracts Leanplum dynamic xcframework and its dependencies.
+# Globals:
+#   None
+# Arguments:
+#   The version to use, e.g. "1.2.3"
+# Returns:
+#   None
+#######################################
 extract_ios_sdk()
 {
   local version=$1
   echo "Extracting AppleSDK ..."
-  rm -rf "/tmp/Leanplum.framework"
-  # Use dynamic xcframework
+  rm -rf "/tmp/Leanplum"
+  rm -rf "/tmp/Leanplum-${version}-dynamic"
+
   unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/Leanplum-${version}"
-  mv "/tmp/Leanplum-${version}/dynamic/Leanplum.xcframework" "/tmp/Leanplum-${version}.xcframework"
+  mv "/tmp/Leanplum-${version}/dynamic/" "/tmp/Leanplum-${version}-dynamic"
+
   rm -rf "/tmp/Leanplum-${version}.zip"
   rm -rf "/tmp/Leanplum-${version}"
-
-  if [ "$REMOVE_SIMULATOR_ARCH" = true ] ; then
-    echo "Removing x86_64 & i386 architecture from iOS library"
-    rm -rf "/tmp/Leanplum-${version}.xcframework/ios-arm64_x86_64-simulator"
-  fi
 }
 
+#######################################
+# Copies Leanplum dynamic xcframework and its dependencies.
+# Globals:
+#   XCFRAMEWORKS
+# Arguments:
+#   The version to use, e.g. "1.2.3"
+# Returns:
+#   None
+#######################################
+prepare_ios()
+{
+  local version=$1
+  echo "Preparing iOS dependencies..."
+
+  # Remove all xcframeworks
+  find "Leanplum-Unity-SDK/Assets/Plugins/iOS" \
+  -name "*.xcframework" \
+  -type d \
+  -exec sh -c 'if [ -d {} ]; then rm -rf {};fi' \;
+
+  # Add all xcframeworks for specified version
+  for i in "${XCFRAMEWORKS[@]}"
+  do
+    cp -r "/tmp/Leanplum-$version-dynamic/$i.xcframework" \
+    "Leanplum-Unity-SDK/Assets/Plugins/iOS/"
+  done
+}
 
 #######################################
-# Copies the iOS SDK from project directory. Name should be in format Leanplum-${version}.framework.zip
+# Copies the iOS SDK from project directory. Name should be in format Leanplum-${version}.zip
 # Globals:
 #   None
 # Arguments:
@@ -89,14 +124,14 @@ extract_ios_sdk()
 copy_ios_sdk() {
   local version=$1
 
-  echo "Copying AppleSDK ${version} (Leanplum-${version}.xcframework.zip)..."
+  echo "Copying AppleSDK ${version} (Leanplum-${version}.zip)..."
   local destination="/tmp/Leanplum-${version}.zip"
 
-  if [ -d "/tmp/Leanplum-${version}.xcframework" ]; then
-    rm -rf "/tmp/Leanplum-${version}.xcframework"
+  if [ -d "/tmp/Leanplum-${version}.zip" ]; then
+    rm -rf "/tmp/Leanplum-${version}.zip"
   fi
 
-  cp "Leanplum-${version}.xcframework.zip" $destination
+  cp "Leanplum-${version}.zip" $destination
 
   extract_ios_sdk $version
 
@@ -151,21 +186,14 @@ get_unity_from_hub() {
 #######################################
 # Builds the Unity SDK.
 # Globals:
-#   None
+#   XCFRAMEWORKS
 # Arguments:
 #   None
 # Returns:
 #   None
 #######################################
 build() {
-  echo "Preparing dependencies..."
-
-  # Copy AppleSDK
-  rm -rf "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.xcframework"
-
-  cp -r "/tmp/Leanplum-$APPLE_SDK_VERSION.xcframework" \
-    "Leanplum-Unity-SDK/Assets/Plugins/iOS/Leanplum.xcframework"
-
+  echo "Building Android SDK..."
   # Build Android SDK
   cd Leanplum-Android-SDK-Unity/
   ./gradlew clean assembleRelease
@@ -238,10 +266,6 @@ main() {
       set -o xtrace
       shift
       ;;
-      --no-simulator)
-      REMOVE_SIMULATOR_ARCH=true
-      shift
-      ;;
     esac
   done
 
@@ -276,6 +300,8 @@ main() {
 
   find Leanplum-Unity-Package -name '*.unitypackage' -delete
   find Leanplum-Unity-SDK/Assets/Plugins/ -name '*.aar' -delete
+
+  prepare_ios $APPLE_SDK_VERSION
 
   build
 
