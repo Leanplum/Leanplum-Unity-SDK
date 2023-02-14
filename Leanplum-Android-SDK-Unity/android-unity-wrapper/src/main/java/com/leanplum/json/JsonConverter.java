@@ -32,6 +32,8 @@ import java.util.*;
  * @author Andrew First
  */
 public class JsonConverter {
+  private static final String DATE_PREFIX = "lp_date_";
+
   public static String toJson(Map<String, ?> map) {
     try {
       return mapToJsonObject(map).toString();
@@ -39,6 +41,32 @@ public class JsonConverter {
       Log.e("Leanplum", "Error converting " + map + " to JSON", e);
       return null;
     }
+  }
+
+  public static Map<String, Object> fromJsonWithConvertedDateValues(String json) {
+    Map<String, Object> jsonMap = JsonConverter.fromJson(json);
+    if (jsonMap == null) {
+      return null;
+    }
+
+    for (String key : jsonMap.keySet()) {
+      Object value = jsonMap.get(key);
+      if (value instanceof String) {
+        String str = (String) value;
+        int index = str.indexOf(DATE_PREFIX);
+        if (index != -1) {
+          try {
+            String tsSubstring = str.substring(index + DATE_PREFIX.length());
+            long ts = Long.parseLong(tsSubstring);
+            Date date = new Date(ts);
+            jsonMap.put(key, date);
+          } catch (Exception e) {
+            Log.e("Leanplum", "Failed to parse date: " + str, e);
+          }
+        }
+      }
+    }
+    return jsonMap;
   }
 
   public static Map<String, Object> fromJson(String json) {

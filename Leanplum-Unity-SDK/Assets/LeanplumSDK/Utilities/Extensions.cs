@@ -35,5 +35,27 @@ namespace LeanplumSDK
                 }
             }
         }
+
+        private static string GetUnixTimestamp(System.DateTime dateTime)
+        {
+            // Get the offset from current time in UTC time
+            System.DateTimeOffset dto = new System.DateTimeOffset(dateTime);
+            // Get the unix timestamp in seconds, and add the milliseconds
+            return dto.ToUnixTimeMilliseconds().ToString();
+        }
+
+        public static IDictionary<string, object> ConvertDateObjects(this IDictionary<string, object> a)
+        {
+            IDictionary<string, object> converted = new Dictionary<string, object>(a);
+
+            foreach (KeyValuePair<string, object> entry in a)
+            {
+                if (entry.Value is System.DateTime)
+                {
+                    converted[entry.Key] = "lp_date_" + GetUnixTimestamp((System.DateTime) entry.Value);
+                }
+            }
+            return converted;
+        }
     }
 }

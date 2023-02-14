@@ -634,7 +634,8 @@ namespace LeanplumSDK
         /// <param name="value">User attributes.</param>
         public override void SetUserAttributes(string newUserId, IDictionary<string, object> value)
         {
-            NativeSDK.CallStatic("setUserAttributes", newUserId, Json.Serialize(value));
+            IDictionary<string, object> valueDict = value.ConvertDateObjects();
+            NativeSDK.CallStatic("setUserAttributes", newUserId, Json.Serialize(valueDict));
         }
 
         /// <summary>

@@ -295,7 +295,8 @@ public class UnityBridge {
   }
 
   public static void setUserAttributes(String userId, String jsonAttributes) {
-    Leanplum.setUserAttributes(userId, JsonConverter.fromJson(jsonAttributes));
+    Map<String, Object> attributesMap = JsonConverter.fromJsonWithConvertedDateValues(jsonAttributes);
+    Leanplum.setUserAttributes(userId, attributesMap);
   }
 
   public static void pauseState() {
