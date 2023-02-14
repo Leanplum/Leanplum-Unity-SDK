@@ -1028,9 +1028,8 @@ namespace LeanplumSDK
             string jsonString = NativeSDK.CallStatic<string>("getMigrationConfig");
             if (!string.IsNullOrEmpty(jsonString))
             {
-                var dict = Json.Deserialize(jsonString);
-                var varsDict = (Dictionary<string, object>)Json.Deserialize(jsonString);
-                return new MigrationConfig(varsDict);
+                var dict = (Dictionary<string, object>)Json.Deserialize(jsonString);
+                return new MigrationConfig(dict);
             }
             return null;
         }

@@ -57,14 +57,19 @@ namespace LeanplumSDK
             AccountRegion = (string)Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_REGION_KEY);
 
             object attributeValue = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_ATTRIBUTES_KEY);
-            if (attributeValue is string)
+            if (attributeValue is Dictionary<string, object>)
             {
-                AttributeMappings = MiniJSON.Json.Deserialize((string)attributeValue)
-                    as Dictionary<string, string> ?? new Dictionary<string, string>();
+                AttributeMappings = new Dictionary<string, string>();
+                foreach (KeyValuePair<string, object> entry in (attributeValue as Dictionary<string, object>)) {
+                    if (entry.Value is string)
+                    {
+                        AttributeMappings.Add(entry.Key, entry.Value as string);
+                    }
+                }
             }
-            else
+            else if (attributeValue != null)
             {
-                AttributeMappings = attributeValue as Dictionary<string, string> ?? new Dictionary<string, string>();
+                UnityEngine.Debug.Log($"MigrationConfig: expected Dictionary<string,object> but got {attributeValue.GetType()}");
             }
         }
 
