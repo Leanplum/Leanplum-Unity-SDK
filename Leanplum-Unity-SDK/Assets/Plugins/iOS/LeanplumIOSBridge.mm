@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2022 Leanplum. All rights reserved.
+//  Copyright (c) 2023 Leanplum. All rights reserved.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -27,6 +27,7 @@
 #import "LeanplumIOSBridge.h"
 #import "LeanplumUnityConstants.h"
 #import <Leanplum/Leanplum-Swift.h>
+#import <CleverTapSDK/CleverTap.h>
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
 
@@ -108,9 +109,8 @@ extern "C"
         }];
 
         CleverTapInstanceCallback *callback = [[CleverTapInstanceCallback alloc] initWithCallback:^(CleverTap * _Nonnull instance) {
-// TODO:           [LeanplumIOSBridge sendMessageToUnity:@"CleverTapInstance:" withKey:[instance accountId]];
+            [LeanplumIOSBridge sendMessageToUnity:@"CleverTapInstance:" withKey:[instance getAccountID]];
         }];
-        
         [Leanplum addCleverTapInstanceCallback:callback];
         
         [Leanplum onVariablesChangedAndNoDownloadsPending:^{
@@ -342,6 +342,23 @@ extern "C"
 
         [Leanplum track:lp::to_nsstring(event) withValue:value andInfo:lp::to_nsstring(info)
           andParameters:dictionary];
+    }
+
+    const char * lp_migrationConfig()
+    {
+        NSNumber *state = @([[MigrationManager shared] state]);
+        NSString *accountId = [[MigrationManager shared] cleverTapAccountId];
+        NSString *accountToken = [[MigrationManager shared] cleverTapAccountToken];
+        NSString *accountRegion = [[MigrationManager shared] cleverTapAccountRegion];
+        NSDictionary *attributeMappings = [[MigrationManager shared] cleverTapAttributeMappings];
+        NSDictionary *migrationDict = @{
+            @"state": state,
+            @"accountId": (accountId) ? accountId : @"",
+            @"accountToken": (accountToken) ? accountToken : @"",
+            @"accountRegion": (accountRegion) ? accountRegion : @"",
+            @"attributeMappings": attributeMappings
+        };
+        return lp::to_json_string(migrationDict);
     }
 
 #pragma mark Actions
@@ -635,23 +652,6 @@ extern "C"
             return lp::to_json_string(securedVarsDict);
         }
         return NULL;
-    }
-
-    const char * lp_migrationConfig()
-    {
-        NSNumber *state = @([[MigrationManager shared] state]);
-        NSString *accountId = [[MigrationManager shared] cleverTapAccountId];
-        NSString *accountToken = [[MigrationManager shared] cleverTapAccountToken];
-        NSString *accountRegion = [[MigrationManager shared] cleverTapAccountRegion];
-        NSDictionary *attributeMappings = [[MigrationManager shared] cleverTapAttributeMappings];
-        NSDictionary *migrationDict = @{
-                @"state": state,
-                @"accountId": (accountId) ? accountId : @"",
-                @"accountToken": (accountToken) ? accountToken : @"",
-                @"accountRegion": (accountRegion) ? accountRegion : @"",
-                @"attributeMappings": attributeMappings
-        };
-        return lp::to_json_string(migrationDict);
     }
     
     const char * lp_vars()

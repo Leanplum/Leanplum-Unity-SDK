@@ -18,6 +18,7 @@
 //  specific language governing permissions and limitations
 //  under the License.
 using System.Collections.Generic;
+using System.Text;
 
 namespace LeanplumSDK
 {
@@ -43,7 +44,7 @@ namespace LeanplumSDK
 
         public MigrationConfig(Dictionary<string, object> config)
         {
-            if (int.TryParse((string)Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_STATE_KEY), out int state))
+            if (int.TryParse(Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_STATE_KEY)?.ToString(), out int state))
             {
                 State = (MigrationState)state;
             }
@@ -52,9 +53,9 @@ namespace LeanplumSDK
                 State = MigrationState.Undefined;
             }
 
-            AccountId = (string)Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_ID_KEY);
-            AccountToken = (string)Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_TOKEN_KEY);
-            AccountRegion = (string)Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_REGION_KEY);
+            AccountId = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_ID_KEY)?.ToString();
+            AccountToken = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_TOKEN_KEY)?.ToString();
+            AccountRegion = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_REGION_KEY)?.ToString();
 
             object attributeValue = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_ATTRIBUTES_KEY);
             if (attributeValue is Dictionary<string, object>)
@@ -78,5 +79,19 @@ namespace LeanplumSDK
         public string AccountToken { get; }
         public string AccountRegion { get; }
         public Dictionary<string, string> AttributeMappings { get; }
+        // TODO: Implement IdentityKeys
+        public string[] IdentityKeys { get; }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine($"State: {State}");
+            builder.AppendLine($"AccountId: {AccountId}");
+            builder.AppendLine($"AccountToken: {AccountToken}");
+            builder.AppendLine($"AccountRegion: {AccountRegion}");
+            builder.AppendLine($"AttributeMappings: {MiniJSON.Json.Serialize(AttributeMappings)}");
+            builder.AppendLine($"IdentityKeys: {string.Join(",", IdentityKeys)}");
+            return builder.ToString();
+        }
     }
 }

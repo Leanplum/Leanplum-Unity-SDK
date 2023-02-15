@@ -1,5 +1,5 @@
 //
-// Copyright 2022, Leanplum, Inc.
+// Copyright 2023, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -688,7 +688,7 @@ namespace LeanplumSDK
             string jsonString = lp_migrationConfig();
             if (!string.IsNullOrEmpty(jsonString))
             {
-                var varsDict = (Dictionary<string, string>)Json.Deserialize(jsonString);
+                var varsDict = (Dictionary<string, object>)Json.Deserialize(jsonString);
                 return new MigrationConfig(varsDict);
             }
             return null;
