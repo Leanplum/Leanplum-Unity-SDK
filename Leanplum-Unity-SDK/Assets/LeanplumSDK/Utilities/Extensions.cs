@@ -44,15 +44,18 @@ namespace LeanplumSDK
             return dto.ToUnixTimeMilliseconds().ToString();
         }
 
-        public static IDictionary<string, object> ConvertDateObjects(this IDictionary<string, object> a)
+        public static IDictionary<string, object> ConvertDateObjects(this IDictionary<string, object> dictionary)
         {
-            IDictionary<string, object> converted = new Dictionary<string, object>(a);
+            if (dictionary == null || dictionary.Count == 0)
+                return dictionary;
 
-            foreach (KeyValuePair<string, object> entry in a)
+            IDictionary<string, object> converted = new Dictionary<string, object>(dictionary);
+
+            foreach (KeyValuePair<string, object> entry in dictionary)
             {
-                if (entry.Value is System.DateTime)
+                if (entry.Value is System.DateTime time)
                 {
-                    converted[entry.Key] = "lp_date_" + GetUnixTimestamp((System.DateTime) entry.Value);
+                    converted[entry.Key] = "lp_date_" + GetUnixTimestamp(time);
                 }
             }
             return converted;
