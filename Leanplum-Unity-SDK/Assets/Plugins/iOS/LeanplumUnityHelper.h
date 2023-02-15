@@ -32,4 +32,6 @@ namespace lp
     // Copied from the iOS SDK otherwise cannot be linked
     long long leanplum_colorToInt(UIColor *value);
     UIColor *leanplum_intToColor(long long value);
+
+    NSDictionary *convertDateValues(NSDictionary *dictionary);
 }

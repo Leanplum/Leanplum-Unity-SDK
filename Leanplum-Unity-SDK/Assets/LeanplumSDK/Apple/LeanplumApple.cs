@@ -527,7 +527,10 @@ namespace LeanplumSDK
 
             // Invokes Started event through NativeCallback
             Started += startResponseAction;
-            string attributesString = attributes == null ? null : Json.Serialize(attributes);
+
+            IDictionary<string, object> valueDict = attributes.ConvertDateObjects();
+            string attributesString = valueDict == null ? null : Json.Serialize(valueDict);
+
             lp_start(Constants.SDK_VERSION, userId, attributesString);
         }
 
@@ -632,7 +635,8 @@ namespace LeanplumSDK
         public override void SetUserAttributes(string newUserId,
             IDictionary<string, object> attributes)
         {
-            string attributesString = attributes == null ? null : Json.Serialize(attributes);
+            IDictionary<string, object> valueDict = attributes.ConvertDateObjects();
+            string attributesString = valueDict == null ? null : Json.Serialize(valueDict);
             lp_setUserAttributes(newUserId, attributesString);
         }
 

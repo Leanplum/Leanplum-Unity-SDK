@@ -88,4 +88,27 @@ namespace lp
         int a = (value >> 24) & 0XFF;
         return [UIColor colorWithRed:r / 255.0 green:g / 255.0 blue:b / 255.0   alpha:a / 255.0];
     }
+
+    NSDictionary *convertDateValues(NSDictionary *dictionary)
+    {
+        if (dictionary == nil) {
+            return dictionary;
+        }
+        
+        NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithDictionary:dictionary];
+        for (id key in dictionary) {
+            id value = [dict objectForKey:key];
+            if ([value isKindOfClass:[NSString class]]) {
+                NSString *strVal = value;
+                NSRange range = [strVal rangeOfString:@"lp_date_"];
+                if(range.location != NSNotFound)
+                {
+                    NSString *dateStr = [strVal substringWithRange:NSMakeRange(range.length, strVal.length - range.length)];
+                    NSDate *date = [[NSDate alloc] initWithTimeIntervalSince1970:[dateStr longLongValue]/1000];
+                    dict[key] = date;
+                }
+            }
+        }
+        return dict;
+    }
 }

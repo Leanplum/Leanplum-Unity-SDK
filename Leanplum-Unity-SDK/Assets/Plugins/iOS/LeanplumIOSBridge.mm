@@ -246,7 +246,9 @@ extern "C"
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
-        [Leanplum setUserId:lp::to_nsstring(newUserId) withUserAttributes:dictionary];
+        
+        NSDictionary *attributes = lp::convertDateValues(dictionary);
+        [Leanplum setUserId:lp::to_nsstring(newUserId) withUserAttributes:attributes];
     }
 
     void lp_pauseState()
@@ -306,9 +308,10 @@ extern "C"
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
-        
+
+        NSDictionary *attributes = lp::convertDateValues(dictionary);
         NSString *userIdString = userId != NULL ? [NSString stringWithUTF8String:userId] : nil;
-        [Leanplum startWithUserId:userIdString userAttributes:dictionary
+        [Leanplum startWithUserId:userIdString userAttributes:attributes
                   responseHandler:^(BOOL success) {
                       int res = [@(success) intValue];
                       UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
