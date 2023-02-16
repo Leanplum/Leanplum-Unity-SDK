@@ -249,6 +249,15 @@ namespace LeanplumSDK
         }
 
         /// <summary>
+        ///   For internal purposes only.
+        /// </summary>
+        /// <param name="deviceId">Device identifier.</param>
+        public void ForceNewDeviceId(string deviceId)
+        {
+            NativeSDK.CallStatic("forceNewDeviceId", deviceId);
+        }
+
+        /// <summary>
         ///     Get device id.
         /// </summary>
         public override string GetDeviceId()

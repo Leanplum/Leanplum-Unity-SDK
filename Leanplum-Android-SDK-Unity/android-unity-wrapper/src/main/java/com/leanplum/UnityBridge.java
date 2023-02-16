@@ -167,6 +167,13 @@ public class UnityBridge {
     Leanplum.setDeviceId(deviceId);
   }
 
+  /**
+   * For internal purposes only.
+   */
+  public static void forceNewDeviceId(String deviceId) {
+    Leanplum.forceNewDeviceId(deviceId);
+  }
+
   public static String getDeviceId() {
     return Leanplum.getDeviceId();
   }
