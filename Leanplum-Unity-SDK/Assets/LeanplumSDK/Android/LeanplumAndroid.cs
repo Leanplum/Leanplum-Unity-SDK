@@ -383,7 +383,9 @@ namespace LeanplumSDK
             // Invokes Started event through NativeCallback
             Started += startResponseAction;
 
-            NativeSDK.CallStatic("start", userId, Json.Serialize(attributes));
+            IDictionary<string, object> attributesDict = attributes != null ? attributes.ConvertDateObjects() : null;
+
+            NativeSDK.CallStatic("start", userId, Json.Serialize(attributesDict));
         }
 
         public override void SetMiPushApplication(string miAppId, string miAppKey)
@@ -634,7 +636,7 @@ namespace LeanplumSDK
         /// <param name="value">User attributes.</param>
         public override void SetUserAttributes(string newUserId, IDictionary<string, object> value)
         {
-            IDictionary<string, object> valueDict = value.ConvertDateObjects();
+            IDictionary<string, object> valueDict = value != null ? value.ConvertDateObjects() : null;
             NativeSDK.CallStatic("setUserAttributes", newUserId, Json.Serialize(valueDict));
         }
 
