@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 def LP_VERSION = "%LP_VERSION%"
-def CT_SDK_VERSION = "4.6.6" // TODO extract as build variable?
+def CT_VERSION = "%CT_VERSION%"
 def LP_UNITY_VERSION = "%LP_UNITY_VERSION%"
 
 android {
