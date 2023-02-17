@@ -30,7 +30,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
 
     implementation "com.leanplum:leanplum-core:${LP_VERSION}"
-    implementation "com.clevertap.android:clevertap-android-sdk:${CT_SDK_VERSION}"
+    implementation "com.clevertap.android:clevertap-android-sdk:${CT_VERSION}"
 }
 
 task copyAAR(type: Copy) {
