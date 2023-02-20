@@ -808,7 +808,6 @@ namespace LeanplumSDK
                 if (accountId != id)
                 {
                     accountId = id;
-                    // TODO: CleverTap set instance with account id
                     MigrationConfig config = MigrationConfig();
                     CleverTap.CleverTapBinding.Initialize(config.AccountId, config.AccountToken, config.AccountRegion);
                     cleverTapInstanceReady?.Invoke();

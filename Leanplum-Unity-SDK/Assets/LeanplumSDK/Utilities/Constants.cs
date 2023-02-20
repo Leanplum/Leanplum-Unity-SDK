@@ -24,7 +24,7 @@ namespace LeanplumSDK
     /// </summary>
     public class Constants
     {
-        public const string SDK_VERSION = "5.0.0";
+        public const string SDK_VERSION = "4.6.0-beta7";
 
         internal const string CLIENT_PREFIX = "unity";
         internal const string EVENT_EXCEPTION = "__exception";
@@ -124,6 +124,7 @@ namespace LeanplumSDK
             internal const string MIGRATION_TOKEN_KEY = "accountToken";
             internal const string MIGRATION_REGION_KEY = "accountRegion";
             internal const string MIGRATION_ATTRIBUTES_KEY = "attributeMappings";
+            internal const string MIGRATION_IDENTITYKEYS_KEY = "identityKeys";
         }
 
         public class Kinds

@@ -33,13 +33,14 @@ namespace LeanplumSDK
     public class MigrationConfig
     {
         public MigrationConfig(MigrationState state, string accountId, string accountToken,
-            string accountRegion, Dictionary<string, string> attributeMappings)
+            string accountRegion, Dictionary<string, string> attributeMappings, string[] identityKeys)
         {
             State = state;
             AccountId = accountId;
             AccountToken = accountToken;
             AccountRegion = accountRegion;
             AttributeMappings = attributeMappings;
+            IdentityKeys = identityKeys;
         }
 
         public MigrationConfig(Dictionary<string, object> config)
@@ -72,6 +73,24 @@ namespace LeanplumSDK
             {
                 UnityEngine.Debug.Log($"MigrationConfig: expected Dictionary<string,object> but got {attributeValue.GetType()}");
             }
+
+            IdentityKeys = new string[] { };
+            var identityKeysFromConfig = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_IDENTITYKEYS_KEY);
+            if (identityKeysFromConfig != null && identityKeysFromConfig is List<object> keysList)
+            {
+                IdentityKeys = new string[keysList.Count];
+                for (int i = 0; i < keysList.Count; i++)
+                {
+                    if (keysList[i] is string str)
+                    {
+                        IdentityKeys[i] = str;
+                    }
+                }
+            }
+            else if (identityKeysFromConfig != null)
+            {
+                UnityEngine.Debug.Log($"MigrationConfig: expected List<object> but got {identityKeysFromConfig.GetType()}");
+            }
         }
 
         public MigrationState State { get; }
@@ -79,7 +98,6 @@ namespace LeanplumSDK
         public string AccountToken { get; }
         public string AccountRegion { get; }
         public Dictionary<string, string> AttributeMappings { get; }
-        // TODO: Implement IdentityKeys
         public string[] IdentityKeys { get; }
 
         public override string ToString()
@@ -90,7 +108,7 @@ namespace LeanplumSDK
             builder.AppendLine($"AccountToken: {AccountToken}");
             builder.AppendLine($"AccountRegion: {AccountRegion}");
             builder.AppendLine($"AttributeMappings: {MiniJSON.Json.Serialize(AttributeMappings)}");
-            builder.AppendLine($"IdentityKeys: {string.Join(",", IdentityKeys)}");
+            builder.AppendLine($"IdentityKeys: [{string.Join(",", IdentityKeys)}]");
             return builder.ToString();
         }
     }
