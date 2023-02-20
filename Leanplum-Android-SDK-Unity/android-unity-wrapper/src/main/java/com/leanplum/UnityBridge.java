@@ -682,6 +682,7 @@ public class UnityBridge {
     config.put("accountToken", MigrationConfig.INSTANCE.getAccountToken());
     config.put("accountRegion", MigrationConfig.INSTANCE.getAccountRegion());
     config.put("attributeMappings", MigrationConfig.INSTANCE.getAttributeMap());
+    config.put("identityKeys", MigrationConfig.INSTANCE.getIdentityList());
     return JsonConverter.toJson(config);
   }
 }
