@@ -117,10 +117,10 @@ namespace LeanplumSDK
             {
                 foreach (object value in attributes.Values)
                 {
-                    if (!(Util.IsNumber(value)) && !(value is string) && !(value is bool?))
+                    if (!Util.IsNumber(value) && !(value is string) && !(value is bool?) && !(value is DateTime))
                     {
                         Util.MaybeThrow(new LeanplumException(
-                            "userAttributes values must be of type string, number type, or bool."));
+                            "User Attributes values must be of type string, number type, bool, or DateTime."));
                     }
                 }
             }
