@@ -59,13 +59,13 @@ namespace LeanplumSDK
             AccountRegion = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_REGION_KEY)?.ToString();
 
             object attributeValue = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_ATTRIBUTES_KEY);
-            if (attributeValue is Dictionary<string, object>)
+            if (attributeValue is Dictionary<string, object> attributesDictionary)
             {
                 AttributeMappings = new Dictionary<string, string>();
-                foreach (KeyValuePair<string, object> entry in (attributeValue as Dictionary<string, object>)) {
-                    if (entry.Value is string)
+                foreach (KeyValuePair<string, object> entry in attributesDictionary) {
+                    if (entry.Value is string strValue)
                     {
-                        AttributeMappings.Add(entry.Key, entry.Value as string);
+                        AttributeMappings.Add(entry.Key, strValue);
                     }
                 }
             }
@@ -74,16 +74,16 @@ namespace LeanplumSDK
                 UnityEngine.Debug.Log($"MigrationConfig: expected Dictionary<string,object> but got {attributeValue.GetType()}");
             }
 
-            IdentityKeys = new string[] { };
-            var identityKeysFromConfig = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_IDENTITYKEYS_KEY);
-            if (identityKeysFromConfig != null && identityKeysFromConfig is List<object> keysList)
+            IdentityKeys = new string[0];
+            var identityKeysFromConfig = Util.GetValueOrDefault(config, Constants.Keys.MIGRATION_IDENTITY_KEYS_KEY);
+            if (identityKeysFromConfig is List<object> keysList)
             {
                 IdentityKeys = new string[keysList.Count];
                 for (int i = 0; i < keysList.Count; i++)
                 {
-                    if (keysList[i] is string str)
+                    if (keysList[i] is string identityKey)
                     {
-                        IdentityKeys[i] = str;
+                        IdentityKeys[i] = identityKey;
                     }
                 }
             }
