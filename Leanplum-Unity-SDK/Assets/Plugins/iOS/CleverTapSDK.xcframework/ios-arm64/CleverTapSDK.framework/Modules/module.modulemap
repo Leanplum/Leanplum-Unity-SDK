@@ -1,0 +1,6 @@
+framework module CleverTapSDK {
+  umbrella header "CleverTap-iOS-SDK-framework-umbrella.h"
+
+  export *
+  module * { export * }
+}
