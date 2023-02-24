@@ -5,11 +5,11 @@ def CT_VERSION = "%CT_VERSION%"
 def LP_UNITY_VERSION = "%LP_UNITY_VERSION%"
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 31
+        minSdkVersion 19 // CT SDK 4.7.2 has minSDK set as 19
+        targetSdkVersion 33
         versionCode 1
         versionName "${LP_UNITY_VERSION}"
 
