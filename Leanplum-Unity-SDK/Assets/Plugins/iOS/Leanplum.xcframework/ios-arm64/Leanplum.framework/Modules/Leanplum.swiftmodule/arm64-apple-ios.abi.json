@@ -8642,8 +8642,7 @@
             "moduleName": "Leanplum",
             "declAttributes": [
               "AccessControl",
-              "ObjC",
-              "RawDocComment"
+              "ObjC"
             ],
             "funcSelfKind": "NonMutating"
           },
@@ -8973,6 +8972,69 @@
                 "declKind": "Accessor",
                 "usr": "c:@CM@Leanplum@objc(cs)MigrationManager(im)cleverTapAttributeMappings",
                 "mangledName": "$s8Leanplum16MigrationManagerC26cleverTapAttributeMappingsSDyS2SGvg",
+                "moduleName": "Leanplum",
+                "declAttributes": [
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "isFromExtension": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "cleverTapIdentityKeys",
+            "printedName": "cleverTapIdentityKeys",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@CM@Leanplum@objc(cs)MigrationManager(py)cleverTapIdentityKeys",
+            "mangledName": "$s8Leanplum16MigrationManagerC21cleverTapIdentityKeysSaySSGvp",
+            "moduleName": "Leanplum",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC"
+            ],
+            "isFromExtension": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@CM@Leanplum@objc(cs)MigrationManager(im)cleverTapIdentityKeys",
+                "mangledName": "$s8Leanplum16MigrationManagerC21cleverTapIdentityKeysSaySSGvg",
                 "moduleName": "Leanplum",
                 "declAttributes": [
                   "Dynamic",
@@ -9675,6 +9737,261 @@
             ],
             "isFromExtension": true,
             "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "TypeDecl",
+            "name": "ResponseParams",
+            "printedName": "ResponseParams",
+            "declKind": "Enum",
+            "usr": "s:8Leanplum16MigrationManagerC14ResponseParamsO",
+            "mangledName": "$s8Leanplum16MigrationManagerC14ResponseParamsO",
+            "moduleName": "Leanplum",
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "isFromExtension": true
+          },
+          {
+            "kind": "TypeDecl",
+            "name": "MigrationData",
+            "printedName": "MigrationData",
+            "children": [
+              {
+                "kind": "Constructor",
+                "name": "init",
+                "printedName": "init(from:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "MigrationData",
+                    "printedName": "Leanplum.MigrationManager.MigrationData",
+                    "usr": "s:8Leanplum16MigrationManagerC0B4DataV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Decoder",
+                    "printedName": "Swift.Decoder",
+                    "usr": "s:s7DecoderP"
+                  }
+                ],
+                "declKind": "Constructor",
+                "usr": "s:8Leanplum16MigrationManagerC0B4DataV4fromAEs7Decoder_p_tKcfc",
+                "mangledName": "$s8Leanplum16MigrationManagerC0B4DataV4fromAEs7Decoder_p_tKcfc",
+                "moduleName": "Leanplum",
+                "implicit": true,
+                "throwing": true,
+                "init_kind": "Designated"
+              },
+              {
+                "kind": "Function",
+                "name": "encode",
+                "printedName": "encode(to:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Encoder",
+                    "printedName": "Swift.Encoder",
+                    "usr": "s:s7EncoderP"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:8Leanplum16MigrationManagerC0B4DataV6encode2toys7Encoder_p_tKF",
+                "mangledName": "$s8Leanplum16MigrationManagerC0B4DataV6encode2toys7Encoder_p_tKF",
+                "moduleName": "Leanplum",
+                "implicit": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "MigrationData",
+                    "printedName": "Leanplum.MigrationManager.MigrationData",
+                    "usr": "s:8Leanplum16MigrationManagerC0B4DataV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "MigrationData",
+                    "printedName": "Leanplum.MigrationManager.MigrationData",
+                    "usr": "s:8Leanplum16MigrationManagerC0B4DataV"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:8Leanplum16MigrationManagerC0B4DataV2eeoiySbAE_AEtFZ",
+                "mangledName": "$s8Leanplum16MigrationManagerC0B4DataV2eeoiySbAE_AEtFZ",
+                "moduleName": "Leanplum",
+                "static": true,
+                "implicit": true,
+                "funcSelfKind": "NonMutating"
+              }
+            ],
+            "declKind": "Struct",
+            "usr": "s:8Leanplum16MigrationManagerC0B4DataV",
+            "mangledName": "$s8Leanplum16MigrationManagerC0B4DataV",
+            "moduleName": "Leanplum",
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "Decodable",
+                "printedName": "Decodable",
+                "usr": "s:Se",
+                "mangledName": "$sSe"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Encodable",
+                "printedName": "Encodable",
+                "usr": "s:SE",
+                "mangledName": "$sSE"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ",
+                "mangledName": "$sSQ"
+              }
+            ]
+          },
+          {
+            "kind": "TypeDecl",
+            "name": "CTConfig",
+            "printedName": "CTConfig",
+            "children": [
+              {
+                "kind": "Constructor",
+                "name": "init",
+                "printedName": "init(from:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CTConfig",
+                    "printedName": "Leanplum.MigrationManager.CTConfig",
+                    "usr": "s:8Leanplum16MigrationManagerC8CTConfigV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Decoder",
+                    "printedName": "Swift.Decoder",
+                    "usr": "s:s7DecoderP"
+                  }
+                ],
+                "declKind": "Constructor",
+                "usr": "s:8Leanplum16MigrationManagerC8CTConfigV4fromAEs7Decoder_p_tKcfc",
+                "mangledName": "$s8Leanplum16MigrationManagerC8CTConfigV4fromAEs7Decoder_p_tKcfc",
+                "moduleName": "Leanplum",
+                "implicit": true,
+                "throwing": true,
+                "init_kind": "Designated"
+              },
+              {
+                "kind": "Function",
+                "name": "encode",
+                "printedName": "encode(to:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Encoder",
+                    "printedName": "Swift.Encoder",
+                    "usr": "s:s7EncoderP"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:8Leanplum16MigrationManagerC8CTConfigV6encode2toys7Encoder_p_tKF",
+                "mangledName": "$s8Leanplum16MigrationManagerC8CTConfigV6encode2toys7Encoder_p_tKF",
+                "moduleName": "Leanplum",
+                "implicit": true,
+                "throwing": true,
+                "funcSelfKind": "NonMutating"
+              },
+              {
+                "kind": "Function",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CTConfig",
+                    "printedName": "Leanplum.MigrationManager.CTConfig",
+                    "usr": "s:8Leanplum16MigrationManagerC8CTConfigV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CTConfig",
+                    "printedName": "Leanplum.MigrationManager.CTConfig",
+                    "usr": "s:8Leanplum16MigrationManagerC8CTConfigV"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:8Leanplum16MigrationManagerC8CTConfigV2eeoiySbAE_AEtFZ",
+                "mangledName": "$s8Leanplum16MigrationManagerC8CTConfigV2eeoiySbAE_AEtFZ",
+                "moduleName": "Leanplum",
+                "static": true,
+                "implicit": true,
+                "funcSelfKind": "NonMutating"
+              }
+            ],
+            "declKind": "Struct",
+            "usr": "s:8Leanplum16MigrationManagerC8CTConfigV",
+            "mangledName": "$s8Leanplum16MigrationManagerC8CTConfigV",
+            "moduleName": "Leanplum",
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "Decodable",
+                "printedName": "Decodable",
+                "usr": "s:Se",
+                "mangledName": "$sSe"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Encodable",
+                "printedName": "Encodable",
+                "usr": "s:SE",
+                "mangledName": "$sSE"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ",
+                "mangledName": "$sSQ"
+              }
+            ]
           },
           {
             "kind": "Function",
@@ -11481,63 +11798,14 @@
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
       "kind": "StringLiteral",
-      "offset": 673,
-      "length": 14,
-      "value": "\"migrateState\""
-    },
-    {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
-      "kind": "StringLiteral",
-      "offset": 726,
-      "length": 5,
-      "value": "\"sdk\""
-    },
-    {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
-      "kind": "StringLiteral",
-      "offset": 769,
-      "length": 4,
-      "value": "\"ct\""
+      "offset": 654,
+      "length": 26,
+      "value": "\"__leanplum_identity_keys\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
       "kind": "StringLiteral",
       "offset": 818,
-      "length": 11,
-      "value": "\"accountId\""
-    },
-    {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
-      "kind": "StringLiteral",
-      "offset": 877,
-      "length": 7,
-      "value": "\"token\""
-    },
-    {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
-      "kind": "StringLiteral",
-      "offset": 930,
-      "length": 12,
-      "value": "\"regionCode\""
-    },
-    {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
-      "kind": "StringLiteral",
-      "offset": 995,
-      "length": 19,
-      "value": "\"attributeMappings\""
-    },
-    {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
-      "kind": "StringLiteral",
-      "offset": 1054,
-      "length": 8,
-      "value": "\"sha256\""
-    },
-    {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
-      "kind": "StringLiteral",
-      "offset": 1114,
       "length": 4,
       "value": "\"ct\""
     },
@@ -12025,20 +12293,6 @@
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager.swift",
-      "kind": "IntegerLiteral",
-      "offset": 4793,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager.swift",
-      "kind": "Array",
-      "offset": 4584,
-      "length": 2,
-      "value": "[]"
-    },
-    {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Extensions\/LPRequestSender+UUID.swift",
       "kind": "StringLiteral",
       "offset": 226,
@@ -12065,6 +12319,62 @@
       "offset": 350,
       "length": 2,
       "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "kind": "StringLiteral",
+      "offset": 319,
+      "length": 14,
+      "value": "\"migrateState\""
+    },
+    {
+      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "kind": "StringLiteral",
+      "offset": 360,
+      "length": 8,
+      "value": "\"sha256\""
+    },
+    {
+      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "kind": "StringLiteral",
+      "offset": 623,
+      "length": 8,
+      "value": "\"sha256\""
+    },
+    {
+      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "kind": "StringLiteral",
+      "offset": 666,
+      "length": 5,
+      "value": "\"sdk\""
+    },
+    {
+      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "kind": "StringLiteral",
+      "offset": 623,
+      "length": 8,
+      "value": "\"sha256\""
+    },
+    {
+      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "kind": "StringLiteral",
+      "offset": 666,
+      "length": 5,
+      "value": "\"sdk\""
+    },
+    {
+      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "kind": "StringLiteral",
+      "offset": 1025,
+      "length": 11,
+      "value": "\"accountId\""
+    },
+    {
+      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "kind": "StringLiteral",
+      "offset": 1025,
+      "length": 11,
+      "value": "\"accountId\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionsTrigger.swift",
