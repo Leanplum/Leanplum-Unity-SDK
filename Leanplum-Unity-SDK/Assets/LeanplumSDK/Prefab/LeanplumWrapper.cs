@@ -89,16 +89,8 @@ public class LeanplumWrapper : MonoBehaviour
         LeanplumNative.ShouldPerformActions(true);
 #endif
 
-        // TODO: Decide to Remove before release
-        Leanplum.CleverTapInstanceReady += Leanplum_CleverTapInstanceReady;
-
+        Leanplum.SetLogLevel(Constants.LogLevel.DEBUG);
         Leanplum.Start();
-    }
-
-    private void Leanplum_CleverTapInstanceReady()
-    {
-        var config = Leanplum.MigrationConfig();
-        Debug.Log("MigrationConfig: " + config);
     }
 
     void InboxChanged()
