@@ -1,0 +1,24 @@
+<dependencies>
+    <!--declare the dependencies here which the app will need to run
+    Clevertap features viz InApp, AppInbox, Notification etc.-->
+
+    <androidPackages>
+        <androidPackage spec="com.google.android.gms:play-services-base:17.4.0" />
+
+        <androidPackage spec="androidx.annotation:annotation:1.1.0" />
+
+        <androidPackage spec="androidx.core:core:1.3.2" />
+
+        <androidPackage spec="androidx.viewpager:viewpager:1.0.0" />
+
+        <androidPackage spec="androidx.fragment:fragment:1.2.5" />
+
+        <androidPackage spec="com.google.android.material:material:1.2.1" />
+
+        <androidPackage spec="androidx.appcompat:appcompat:1.2.0" />
+
+        <androidPackage spec="androidx.recyclerview:recyclerview:1.1.0" />
+
+        <androidPackage spec="com.android.installreferrer:installreferrer:2.1" />
+    </androidPackages>
+</dependencies>
