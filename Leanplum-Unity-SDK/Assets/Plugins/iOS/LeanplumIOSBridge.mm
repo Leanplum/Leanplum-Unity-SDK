@@ -354,12 +354,14 @@ extern "C"
         NSString *accountToken = [[MigrationManager shared] cleverTapAccountToken];
         NSString *accountRegion = [[MigrationManager shared] cleverTapAccountRegion];
         NSDictionary *attributeMappings = [[MigrationManager shared] cleverTapAttributeMappings];
+        NSArray *identityKeys = [[MigrationManager shared] cleverTapIdentityKeys];
         NSDictionary *migrationDict = @{
             @"state": state,
             @"accountId": (accountId) ? accountId : @"",
             @"accountToken": (accountToken) ? accountToken : @"",
             @"accountRegion": (accountRegion) ? accountRegion : @"",
-            @"attributeMappings": attributeMappings
+            @"attributeMappings": attributeMappings,
+            @"identityKeys": identityKeys
         };
         return lp::to_json_string(migrationDict);
     }
