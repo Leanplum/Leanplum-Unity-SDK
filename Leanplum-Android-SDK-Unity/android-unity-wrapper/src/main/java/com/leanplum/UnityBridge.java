@@ -81,22 +81,12 @@ public class UnityBridge {
   public static void initialize(
       String gameObject,
       String sdkVersion,
-      String defaultDeviceId,
-      IJavaBridge bridge) {
+      String defaultDeviceId) {
     if (bridgeContext != null) {
       return;
     }
     unityGameObject = gameObject;
     bridgeContext = UnityPlayer.currentActivity;
-    javaBridge = bridge;
-    if (javaBridge != null) {
-      messageController = new MessageDisplayControllerImpl(javaBridge);
-      LeanplumActions.setMessageDisplayController(messageController);
-      messageListener = new MessageDisplayListenerImpl(javaBridge);
-      LeanplumActions.setMessageDisplayListener(messageListener);
-    } else {
-      Log.e("Leanplum", "IJavaBridge instance is null");
-    }
     try {
       final Method setClient = Leanplum.class.getDeclaredMethod(
           "setClient", String.class, String.class, String.class);
@@ -108,6 +98,7 @@ public class UnityBridge {
     Leanplum.setApplicationContext(bridgeContext.getApplicationContext());
     LeanplumActivityHelper.enableLifecycleCallbacks(UnityPlayer.currentActivity
         .getApplication());
+    LeanplumActions.setUseWorkerThreadForDecisionHandlers(true);
   }
 
   public static boolean hasStarted() {
@@ -633,6 +624,21 @@ public class UnityBridge {
         makeCallbackToUnity(message);
       }
     });
+  }
+
+  public static void setJavaBridge(IJavaBridge bridge) {
+    javaBridge = bridge;
+    if (javaBridge != null) {
+      messageController = new MessageDisplayControllerImpl(javaBridge);
+      LeanplumActions.setMessageDisplayController(messageController);
+      messageListener = new MessageDisplayListenerImpl(javaBridge);
+      LeanplumActions.setMessageDisplayListener(messageListener);
+    } else {
+      Log.e("Leanplum", "IJavaBridge instance is null");
+      javaBridge = null;
+      messageController = null;
+      messageListener = null;
+    }
   }
 
   public static void triggerDelayedMessages() {
