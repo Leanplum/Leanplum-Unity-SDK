@@ -296,6 +296,8 @@ extern "C"
     {
         [Leanplum setClient:LEANPLUM_CLIENT withVersion:lp::to_nsstring(sdkVersion)];
 
+        [[Leanplum actionManager] setUseAsyncDecisionHandlers:YES];
+
         NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
