@@ -2576,8 +2576,8 @@
           },
           {
             "kind": "Var",
-            "name": "useAsyncDecisionHandlers",
-            "printedName": "useAsyncDecisionHandlers",
+            "name": "useAsyncHandlers",
+            "printedName": "useAsyncHandlers",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -2587,8 +2587,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "c:@M@Leanplum@objc(cs)LPActionManager(py)useAsyncDecisionHandlers",
-            "mangledName": "$s8Leanplum13ActionManagerC24useAsyncDecisionHandlersSbvp",
+            "usr": "c:@M@Leanplum@objc(cs)LPActionManager(py)useAsyncHandlers",
+            "mangledName": "$s8Leanplum13ActionManagerC16useAsyncHandlersSbvp",
             "moduleName": "Leanplum",
             "declAttributes": [
               "HasInitialValue",
@@ -2611,8 +2611,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:@M@Leanplum@objc(cs)LPActionManager(im)useAsyncDecisionHandlers",
-                "mangledName": "$s8Leanplum13ActionManagerC24useAsyncDecisionHandlersSbvg",
+                "usr": "c:@M@Leanplum@objc(cs)LPActionManager(im)useAsyncHandlers",
+                "mangledName": "$s8Leanplum13ActionManagerC16useAsyncHandlersSbvg",
                 "moduleName": "Leanplum",
                 "implicit": true,
                 "declAttributes": [
@@ -2638,8 +2638,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:@M@Leanplum@objc(cs)LPActionManager(im)setUseAsyncDecisionHandlers:",
-                "mangledName": "$s8Leanplum13ActionManagerC24useAsyncDecisionHandlersSbvs",
+                "usr": "c:@M@Leanplum@objc(cs)LPActionManager(im)setUseAsyncHandlers:",
+                "mangledName": "$s8Leanplum13ActionManagerC16useAsyncHandlersSbvs",
                 "moduleName": "Leanplum",
                 "implicit": true,
                 "declAttributes": [
@@ -2659,11 +2659,62 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:8Leanplum13ActionManagerC24useAsyncDecisionHandlersSbvM",
-                "mangledName": "$s8Leanplum13ActionManagerC24useAsyncDecisionHandlersSbvM",
+                "usr": "s:8Leanplum13ActionManagerC16useAsyncHandlersSbvM",
+                "mangledName": "$s8Leanplum13ActionManagerC16useAsyncHandlersSbvM",
                 "moduleName": "Leanplum",
                 "implicit": true,
                 "accessorKind": "_modify"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "actionQueue",
+            "printedName": "actionQueue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "DispatchQueue",
+                "printedName": "Dispatch.DispatchQueue",
+                "usr": "c:objc(cs)OS_dispatch_queue"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@Leanplum@objc(cs)LPActionManager(py)actionQueue",
+            "mangledName": "$s8Leanplum13ActionManagerC11actionQueueSo17OS_dispatch_queueCvp",
+            "moduleName": "Leanplum",
+            "declAttributes": [
+              "HasInitialValue",
+              "Final",
+              "HasStorage",
+              "AccessControl",
+              "ObjC"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "DispatchQueue",
+                    "printedName": "Dispatch.DispatchQueue",
+                    "usr": "c:objc(cs)OS_dispatch_queue"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Leanplum@objc(cs)LPActionManager(im)actionQueue",
+                "mangledName": "$s8Leanplum13ActionManagerC11actionQueueSo17OS_dispatch_queueCvg",
+                "moduleName": "Leanplum",
+                "implicit": true,
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "accessorKind": "get"
               }
             ]
           },
@@ -10839,6 +10890,16 @@
       },
       {
         "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "Leanplum",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
         "name": "CleverTapSDK",
         "printedName": "CleverTapSDK",
         "declKind": "Import",
@@ -12143,84 +12204,91 @@
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 521,
+      "offset": 513,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "kind": "StringLiteral",
+      "offset": 569,
+      "length": 34,
+      "value": "\"leanplum.background_action_queue\""
+    },
+    {
+      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Array",
-      "offset": 738,
+      "offset": 866,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Dictionary",
-      "offset": 787,
+      "offset": 915,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Dictionary",
-      "offset": 899,
+      "offset": 1027,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Dictionary",
-      "offset": 968,
+      "offset": 1096,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
-      "offset": 1245,
+      "offset": 1373,
       "length": 41,
       "value": "\"[ActionManager] isEnabled: \""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
-      "offset": 1285,
+      "offset": 1413,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 1104,
+      "offset": 1232,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 1604,
+      "offset": 1732,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
-      "offset": 1689,
+      "offset": 1817,
       "length": 39,
       "value": "\"[ActionManager] isPaused: \""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
-      "offset": 1727,
+      "offset": 1855,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 1552,
+      "offset": 1680,
       "length": 5,
       "value": "false"
     },
@@ -12374,7 +12442,7 @@
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+Triggering.swift",
       "kind": "StringLiteral",
-      "offset": 2688,
+      "offset": 2653,
       "length": 20,
       "value": "\"Leanplum.MessageDisplayChoice\""
     },

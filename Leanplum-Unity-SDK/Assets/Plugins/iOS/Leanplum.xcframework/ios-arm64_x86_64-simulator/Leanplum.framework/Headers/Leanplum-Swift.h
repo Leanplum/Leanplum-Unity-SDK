@@ -230,6 +230,7 @@ using UInt = size_t;
 #if __has_warning("-Watimport-in-framework-header")
 #pragma clang diagnostic ignored "-Watimport-in-framework-header"
 #endif
+@import Dispatch;
 @import Foundation;
 @import ObjectiveC;
 @import UIKit;
@@ -286,7 +287,8 @@ SWIFT_CLASS_NAMED("ActionManager")
 @interface LPActionManager : NSObject
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) LPActionManager * _Nonnull shared;)
 + (LPActionManager * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
-@property (nonatomic) BOOL useAsyncDecisionHandlers;
+@property (nonatomic) BOOL useAsyncHandlers;
+@property (nonatomic, readonly, strong) dispatch_queue_t _Nonnull actionQueue;
 @property (nonatomic, copy) NSArray<ActionDefinition *> * _Nonnull definitions;
 @property (nonatomic, copy) NSDictionary * _Nonnull messages;
 /// Raw messages data received from the API
@@ -324,6 +326,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) LPActionMana
 
 
 
+
 @interface LPActionManager (SWIFT_EXTENSION(Leanplum))
 /// Merges in-app messages and actions arguments with default ones from ActionDefinition
 /// Downloads files for action arguments
@@ -352,8 +355,6 @@ SWIFT_CLASS("_TtCC8Leanplum13ActionManager14ActionsTrigger")
 
 @interface LPActionManager (SWIFT_EXTENSION(Leanplum))
 @end
-
-
 
 
 
@@ -392,6 +393,7 @@ typedef SWIFT_ENUM(NSInteger, Priority, open) {
   PriorityHigh = 0,
   PriorityDefault = 1,
 };
+
 
 
 @interface LPActionManager (SWIFT_EXTENSION(Leanplum))
@@ -597,6 +599,7 @@ SWIFT_CLASS("_TtC8Leanplum18NotificationsProxy")
 - (void)handleActionWithIdentifier:(NSString * _Nonnull)identifier forRemoteNotification:(NSDictionary * _Nonnull)notification;
 - (void)handleActionWithIdentifier:(NSString * _Nonnull)identifier forLocalNotification:(UILocalNotification * _Nonnull)notification SWIFT_AVAILABILITY(ios,deprecated=10.0);
 @end
+
 
 
 SWIFT_CLASS("_TtC8Leanplum7UIAlert")
@@ -878,6 +881,7 @@ using UInt = size_t;
 #if __has_warning("-Watimport-in-framework-header")
 #pragma clang diagnostic ignored "-Watimport-in-framework-header"
 #endif
+@import Dispatch;
 @import Foundation;
 @import ObjectiveC;
 @import UIKit;
@@ -934,7 +938,8 @@ SWIFT_CLASS_NAMED("ActionManager")
 @interface LPActionManager : NSObject
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) LPActionManager * _Nonnull shared;)
 + (LPActionManager * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
-@property (nonatomic) BOOL useAsyncDecisionHandlers;
+@property (nonatomic) BOOL useAsyncHandlers;
+@property (nonatomic, readonly, strong) dispatch_queue_t _Nonnull actionQueue;
 @property (nonatomic, copy) NSArray<ActionDefinition *> * _Nonnull definitions;
 @property (nonatomic, copy) NSDictionary * _Nonnull messages;
 /// Raw messages data received from the API
@@ -972,6 +977,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) LPActionMana
 
 
 
+
 @interface LPActionManager (SWIFT_EXTENSION(Leanplum))
 /// Merges in-app messages and actions arguments with default ones from ActionDefinition
 /// Downloads files for action arguments
@@ -1000,8 +1006,6 @@ SWIFT_CLASS("_TtCC8Leanplum13ActionManager14ActionsTrigger")
 
 @interface LPActionManager (SWIFT_EXTENSION(Leanplum))
 @end
-
-
 
 
 
@@ -1040,6 +1044,7 @@ typedef SWIFT_ENUM(NSInteger, Priority, open) {
   PriorityHigh = 0,
   PriorityDefault = 1,
 };
+
 
 
 @interface LPActionManager (SWIFT_EXTENSION(Leanplum))
@@ -1245,6 +1250,7 @@ SWIFT_CLASS("_TtC8Leanplum18NotificationsProxy")
 - (void)handleActionWithIdentifier:(NSString * _Nonnull)identifier forRemoteNotification:(NSDictionary * _Nonnull)notification;
 - (void)handleActionWithIdentifier:(NSString * _Nonnull)identifier forLocalNotification:(UILocalNotification * _Nonnull)notification SWIFT_AVAILABILITY(ios,deprecated=10.0);
 @end
+
 
 
 SWIFT_CLASS("_TtC8Leanplum7UIAlert")
