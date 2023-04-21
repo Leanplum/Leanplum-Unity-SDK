@@ -98,7 +98,6 @@ public class UnityBridge {
     Leanplum.setApplicationContext(bridgeContext.getApplicationContext());
     LeanplumActivityHelper.enableLifecycleCallbacks(UnityPlayer.currentActivity
         .getApplication());
-    LeanplumActions.setUseWorkerThreadForDecisionHandlers(true);
   }
 
   public static boolean hasStarted() {
@@ -651,5 +650,10 @@ public class UnityBridge {
 
   public static void setActionManagerEnabled(boolean enabled) {
     LeanplumActions.setQueueEnabled(enabled);
+  }
+
+  public static void useWorkerThreadForDecisionHandlers(boolean useAsyncHandlers) {
+    Log.i("Leanplum", "Using worker thread for decision handlers: " + useAsyncHandlers);
+    LeanplumActions.setUseWorkerThreadForDecisionHandlers(useAsyncHandlers);
   }
 }

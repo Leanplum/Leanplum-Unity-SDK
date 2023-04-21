@@ -567,7 +567,7 @@ namespace LeanplumSDK
 
         public override void SetActionManagerUseAsyncHandlers(bool enabled)
         {
-         // TODO: implement in Android
+            NativeSDK.CallStatic("useWorkerThreadForDecisionHandlers", true);
         }
 
         public override bool ShowMessage(string id)

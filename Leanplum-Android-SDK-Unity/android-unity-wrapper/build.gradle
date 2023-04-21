@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 
-def LP_VERSION = "7.1.2-beta1"//"%LP_VERSION%"
+def LP_VERSION = "7.1.2-beta3"//"%LP_VERSION%"
 def LP_UNITY_VERSION = "%LP_UNITY_VERSION%"
 
 rootProject.allprojects {
