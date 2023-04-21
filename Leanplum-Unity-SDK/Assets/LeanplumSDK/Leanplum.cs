@@ -980,6 +980,17 @@ namespace LeanplumSDK
         {
             LeanplumFactory.SDK.SetActionManagerEnabled(enabled);
         }
+
+        /// <summary>
+        ///     Use this method to enable executing Action Manager handlers in the background asynchronously.
+        ///     Default value is false (disabled) - handlers are called on the main thread.
+        ///     This affects behaviour of native mobile SDKs only.
+        /// </summary>
+        /// <param name="enabled">True to call the handlers in the background, otherwise true.</param>
+        public static void SetActionManagerUseAsyncHandlers(bool enabled)
+        {
+            LeanplumFactory.SDK.SetActionManagerUseAsyncHandlers(enabled);
+        }
         #endregion
     }
 }

@@ -972,6 +972,11 @@ namespace LeanplumSDK
             lp_setActionManagerEnabled(enabled);
         }
 
+        public override void SetActionManagerUseAsyncHandlers(bool enabled)
+        {
+         // TODO: implement in iOS
+        }
+
         public override ActionContext CreateActionContextForId(string actionId)
         {
             if (!string.IsNullOrEmpty(actionId))

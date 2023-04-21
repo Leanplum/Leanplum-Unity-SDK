@@ -565,6 +565,11 @@ namespace LeanplumSDK
             NativeSDK.CallStatic("setActionManagerEnabled", enabled);
         }
 
+        public override void SetActionManagerUseAsyncHandlers(bool enabled)
+        {
+         // TODO: implement in Android
+        }
+
         public override bool ShowMessage(string id)
         {
             // The Android SDK does not support this.

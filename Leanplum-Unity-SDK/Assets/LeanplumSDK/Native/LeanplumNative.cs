@@ -827,6 +827,11 @@ namespace LeanplumSDK
             LeanplumActionManager.SetPaused(paused);
         }
 
+        public override void SetActionManagerUseAsyncHandlers(bool enabled)
+        {
+            // NOOP in Unity Native
+        }
+
         /// <summary>
         ///     Whether In-app Messages and Actions should be triggered and executed.
         /// </summary>
