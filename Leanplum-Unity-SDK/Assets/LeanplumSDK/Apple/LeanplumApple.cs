@@ -160,6 +160,9 @@ namespace LeanplumSDK
         internal static extern bool lp_setActionManagerEnabled(bool enabled);
 
         [DllImport("__Internal")]
+        internal static extern bool lp_setActionManagerUseAsyncHandlers(bool enabled);
+
+        [DllImport("__Internal")]
         internal static extern void lp_forceContentUpdateWithHandler(int key);
 
         [DllImport("__Internal")]
@@ -974,7 +977,7 @@ namespace LeanplumSDK
 
         public override void SetActionManagerUseAsyncHandlers(bool enabled)
         {
-         // TODO: implement in iOS
+            lp_setActionManagerUseAsyncHandlers(enabled);
         }
 
         public override ActionContext CreateActionContextForId(string actionId)

@@ -296,8 +296,6 @@ extern "C"
     {
         [Leanplum setClient:LEANPLUM_CLIENT withVersion:lp::to_nsstring(sdkVersion)];
 
-        [[Leanplum actionManager] setUseAsyncHandlers:YES];
-
         NSData *data = [lp::to_nsstring(dictStringJSON) dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
@@ -568,6 +566,13 @@ extern "C"
     const void lp_setActionManagerEnabled(bool enabled)
     {
         [[LPActionManager shared] setIsEnabled:enabled];
+    }
+
+    const void lp_setActionManagerUseAsyncHandlers(bool enabled)
+    {
+        NSLog(@"[Leanplum][ActionManager][Unity]: Setting use async handlers:%@",
+              enabled ? @"YES" : @"NO");
+        [[Leanplum actionManager] setUseAsyncHandlers:enabled];
     }
 
     const char * lp_createActionContextForId(const char *actionId)
