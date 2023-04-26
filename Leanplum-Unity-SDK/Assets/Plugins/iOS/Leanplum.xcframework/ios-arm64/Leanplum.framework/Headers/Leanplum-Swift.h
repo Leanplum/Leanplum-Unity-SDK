@@ -287,6 +287,11 @@ SWIFT_CLASS_NAMED("ActionManager")
 @interface LPActionManager : NSObject
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) LPActionManager * _Nonnull shared;)
 + (LPActionManager * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
+/// Setting <code>useAsyncHandlers</code> to <code>true</code> will have <code>prioritizeMessages</code> and
+/// <code>shouldDisplayMessage</code> handlers to be invoked in a background dispatch queue.
+/// OnMessage handlers will also be invoked in that background queue.
+/// Enabling <code>useAsyncHandlers</code> disables <code>ActionManager.Configuration.dismissOnPushArrival</code> and
+/// push notification open action will not dismiss currently shown message.
 @property (nonatomic) BOOL useAsyncHandlers;
 @property (nonatomic, readonly, strong) dispatch_queue_t _Nonnull actionQueue;
 @property (nonatomic, copy) NSArray<ActionDefinition *> * _Nonnull definitions;

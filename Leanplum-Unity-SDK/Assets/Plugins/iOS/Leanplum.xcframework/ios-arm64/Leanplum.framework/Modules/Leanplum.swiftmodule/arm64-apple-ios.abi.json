@@ -2594,6 +2594,7 @@
               "HasInitialValue",
               "HasStorage",
               "AccessControl",
+              "RawDocComment",
               "ObjC"
             ],
             "hasStorage": true,
@@ -12204,91 +12205,91 @@
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 513,
+      "offset": 937,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
-      "offset": 569,
+      "offset": 993,
       "length": 34,
       "value": "\"leanplum.background_action_queue\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Array",
-      "offset": 866,
+      "offset": 1290,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Dictionary",
-      "offset": 915,
+      "offset": 1339,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Dictionary",
-      "offset": 1027,
+      "offset": 1451,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Dictionary",
-      "offset": 1096,
+      "offset": 1520,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
-      "offset": 1373,
+      "offset": 1797,
       "length": 41,
       "value": "\"[ActionManager] isEnabled: \""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
-      "offset": 1413,
+      "offset": 1837,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 1232,
+      "offset": 1656,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 1732,
+      "offset": 2156,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
-      "offset": 1817,
+      "offset": 2241,
       "length": 39,
       "value": "\"[ActionManager] isPaused: \""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
-      "offset": 1855,
+      "offset": 2279,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 1680,
+      "offset": 2104,
       "length": 5,
       "value": "false"
     },
