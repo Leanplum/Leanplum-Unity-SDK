@@ -82,6 +82,9 @@ public class UnityBridge {
       String gameObject,
       String sdkVersion,
       String defaultDeviceId) {
+    if (Leanplum.getContext() == null) {
+      Log.e("Leanplum", "It is mandatory to use LeanplumUnityApplication as base class for your Application class or call LeanplumActivityHelper.enableLifecycleCallbacks(this) from your Application.onCreate() method.");
+    }
     if (bridgeContext != null) {
       return;
     }
@@ -95,9 +98,6 @@ public class UnityBridge {
     } catch (Exception e) {
       Log.e("Leanplum", "Unable to set SDK version", e);
     }
-    Leanplum.setApplicationContext(bridgeContext.getApplicationContext());
-    LeanplumActivityHelper.enableLifecycleCallbacks(UnityPlayer.currentActivity
-        .getApplication());
   }
 
   public static boolean hasStarted() {
