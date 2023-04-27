@@ -47,10 +47,10 @@ download_ios_sdk() {
     rm -rf "/tmp/Leanplum-${version}.xcframework"
   fi
 
-  # Download from offical git repo.
+  # Download from official git repo.
   local destination="/tmp/Leanplum-${version}.zip"
 
-  # Download the framework zip
+  # Download the framework zip.
   wget --show-progress -O "$destination" \
     "${repo}/releases/download/${version}/Leanplum.zip"
 
