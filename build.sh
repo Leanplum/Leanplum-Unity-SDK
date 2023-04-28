@@ -47,10 +47,10 @@ download_ios_sdk() {
     rm -rf "/tmp/Leanplum-${version}.xcframework"
   fi
 
-  # Download from offical git repo.
+  # Download from official git repo.
   local destination="/tmp/Leanplum-${version}.zip"
 
-  # Download the framework zip
+  # Download the framework zip.
   wget --show-progress -O "$destination" \
     "${repo}/releases/download/${version}/Leanplum.zip"
 
@@ -99,9 +99,13 @@ prepare_ios()
   echo "Preparing iOS dependencies..."
 
   # Remove all xcframeworks
+  ## Find and remove all xcframework directories in the iOS Plugins folder.
+  ## Use -depth option to process each directory's contents before 
+  ## the directory itself. This prevents errors when deleting the directory.
   find "Leanplum-Unity-SDK/Assets/Plugins/iOS" \
   -name "*.xcframework" \
   -type d \
+  -depth \
   -exec sh -c 'if [ -d {} ]; then rm -rf {};fi' \;
 
   # Add all xcframeworks for specified version

@@ -91,6 +91,7 @@ namespace LeanplumSDK
 
         static private int DictionaryKey = 0;
         private string gameObjectName;
+        // Bridge is used to call C# from Java in a synchronous manner.
         private JavaBridge javaBridge;
 
         public LeanplumAndroid()
@@ -101,10 +102,7 @@ namespace LeanplumSDK
             // This also constructs LeanplumUnityHelper and the game object.
             gameObjectName = LeanplumUnityHelper.Instance.gameObject.name;
 
-            // Bridge is used to call C# from Java in a synchronous manner.
-            javaBridge = new JavaBridge(this);
-
-            NativeSDK.CallStatic("initialize", gameObjectName, Constants.SDK_VERSION, null, javaBridge);
+            NativeSDK.CallStatic("initialize", gameObjectName, Constants.SDK_VERSION, null);
         }
 
         #region Accessors and Mutators
@@ -500,28 +498,55 @@ namespace LeanplumSDK
             }
         }
 
+        private void initJavaBridge()
+        {
+            javaBridge = new JavaBridge(this);
+            // This will register action controller and action listener objects in the native code.
+            NativeSDK.CallStatic("setJavaBridge", javaBridge);
+        }
+
         public override void ShouldDisplayMessage(Leanplum.ShouldDisplayMessageHandler handler)
         {
+            if (javaBridge == null)
+            {
+                initJavaBridge();
+            }
             shouldDisplayMessageHandler = handler;
         }
 
         public override void PrioritizeMessages(Leanplum.PrioritizeMessagesHandler handler)
         {
+            if (javaBridge == null)
+            {
+                initJavaBridge();
+            }
             prioritizeMessagesHandler = handler;
         }
 
         public override void OnMessageDisplayed(MessageHandler handler)
         {
+            if (javaBridge == null)
+            {
+                initJavaBridge();
+            }
             messageDisplayedHandler = handler;
         }
 
         public override void OnMessageDismissed(MessageHandler handler)
         {
+            if (javaBridge == null)
+            {
+                initJavaBridge();
+            }
             messageDismissedHandler = handler;
         }
 
         public override void OnMessageAction(MessageActionHandler handler)
         {
+            if (javaBridge == null)
+            {
+                initJavaBridge();
+            }
             messageActionHandler = handler;
         }
 
@@ -538,6 +563,11 @@ namespace LeanplumSDK
         public override void SetActionManagerEnabled(bool enabled)
         {
             NativeSDK.CallStatic("setActionManagerEnabled", enabled);
+        }
+
+        public override void SetActionManagerUseAsyncHandlers(bool enabled)
+        {
+            NativeSDK.CallStatic("useWorkerThreadForDecisionHandlers", enabled);
         }
 
         public override bool ShowMessage(string id)

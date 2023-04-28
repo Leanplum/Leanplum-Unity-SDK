@@ -459,6 +459,8 @@ namespace LeanplumSDK
         public abstract void SetActionManagerPaused(bool paused);
 
         public abstract void SetActionManagerEnabled(bool enabled);
+
+        public abstract void SetActionManagerUseAsyncHandlers(bool enabled);
         #endregion
 
         public virtual void NativeCallback(string message) { }
