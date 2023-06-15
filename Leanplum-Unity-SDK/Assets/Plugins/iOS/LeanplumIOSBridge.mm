@@ -596,6 +596,13 @@ extern "C"
         [[LPActionManager shared] setIsEnabled:enabled];
     }
 
+    const void lp_setActionManagerUseAsyncHandlers(bool enabled)
+    {
+        NSLog(@"[Leanplum][ActionManager][Unity]: Setting use async handlers:%@",
+              enabled ? @"YES" : @"NO");
+        [[Leanplum actionManager] setUseAsyncHandlers:enabled];
+    }
+
     const char * lp_createActionContextForId(const char *actionId)
     {
         NSString *mId = lp::to_nsstring(actionId);

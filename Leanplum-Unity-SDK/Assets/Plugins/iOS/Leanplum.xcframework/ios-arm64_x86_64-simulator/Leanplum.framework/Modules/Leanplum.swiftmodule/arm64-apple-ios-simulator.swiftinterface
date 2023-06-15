@@ -110,6 +110,8 @@ extension ActionManager.Configuration {
 @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc(LPActionManager) @objcMembers public class ActionManager : NSObject {
   @objc public static let shared: ActionManager
   public var configuration: Configuration
+  @objc public var useAsyncHandlers: Swift.Bool
+  @objc final public let actionQueue: Dispatch.DispatchQueue
   @objc public var definitions: [ActionDefinition]
   @objc public var messages: [AnyHashable : Any]
   @objc public var messagesDataFromServer: [AnyHashable : Any]

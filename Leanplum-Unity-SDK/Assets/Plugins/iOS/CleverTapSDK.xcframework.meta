@@ -1,5 +1,9 @@
 fileFormatVersion: 2
-guid: 321e28edfe6cd45e1ad1631ac20154b7
+<<<<<<< HEAD:Leanplum-Unity-SDK/Assets/CleverTapUnity/Android.meta
+guid: 3cfc3bea966da4fdb80e6aeddf5c4b49
+=======
+guid: f080e56d96b0c46ebb97627c8f33a985
+>>>>>>> origin/master:Leanplum-Unity-SDK/Assets/Plugins/iOS/CleverTapSDK.xcframework.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

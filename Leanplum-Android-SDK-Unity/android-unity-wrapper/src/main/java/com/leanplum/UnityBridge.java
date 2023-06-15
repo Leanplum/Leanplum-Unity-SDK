@@ -86,22 +86,15 @@ public class UnityBridge {
   public static void initialize(
       String gameObject,
       String sdkVersion,
-      String defaultDeviceId,
-      IJavaBridge bridge) {
+      String defaultDeviceId) {
+    if (Leanplum.getContext() == null) {
+      Log.e("Leanplum", "It is mandatory to use LeanplumUnityApplication as base class for your Application class or call LeanplumActivityHelper.enableLifecycleCallbacks(this) from your Application.onCreate() method.");
+    }
     if (bridgeContext != null) {
       return;
     }
     unityGameObject = gameObject;
     bridgeContext = UnityPlayer.currentActivity;
-    javaBridge = bridge;
-    if (javaBridge != null) {
-      messageController = new MessageDisplayControllerImpl(javaBridge);
-      LeanplumActions.setMessageDisplayController(messageController);
-      messageListener = new MessageDisplayListenerImpl(javaBridge);
-      LeanplumActions.setMessageDisplayListener(messageListener);
-    } else {
-      Log.e("Leanplum", "IJavaBridge instance is null");
-    }
     try {
       final Method setClient = Leanplum.class.getDeclaredMethod(
           "setClient", String.class, String.class, String.class);
@@ -110,9 +103,6 @@ public class UnityBridge {
     } catch (Exception e) {
       Log.e("Leanplum", "Unable to set SDK version", e);
     }
-    Leanplum.setApplicationContext(bridgeContext.getApplicationContext());
-    LeanplumActivityHelper.enableLifecycleCallbacks(UnityPlayer.currentActivity
-        .getApplication());
   }
 
   public static boolean hasStarted() {
@@ -656,6 +646,21 @@ public class UnityBridge {
     });
   }
 
+  public static void setJavaBridge(IJavaBridge bridge) {
+    javaBridge = bridge;
+    if (javaBridge != null) {
+      messageController = new MessageDisplayControllerImpl(javaBridge);
+      LeanplumActions.setMessageDisplayController(messageController);
+      messageListener = new MessageDisplayListenerImpl(javaBridge);
+      LeanplumActions.setMessageDisplayListener(messageListener);
+    } else {
+      Log.e("Leanplum", "IJavaBridge instance is null");
+      javaBridge = null;
+      messageController = null;
+      messageListener = null;
+    }
+  }
+
   public static void triggerDelayedMessages() {
     LeanplumActions.triggerDelayedMessages();
   }
@@ -666,6 +671,11 @@ public class UnityBridge {
 
   public static void setActionManagerEnabled(boolean enabled) {
     LeanplumActions.setQueueEnabled(enabled);
+  }
+
+  public static void useWorkerThreadForDecisionHandlers(boolean useAsyncHandlers) {
+    Log.i("Leanplum", "Using worker thread for decision handlers: " + useAsyncHandlers);
+    LeanplumActions.setUseWorkerThreadForDecisionHandlers(useAsyncHandlers);
   }
 
   public static String getMigrationConfig() {
