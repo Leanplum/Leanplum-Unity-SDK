@@ -13,37 +13,14 @@ using UnityEditor;
 
 public class CleverTapUnity: MonoBehaviour {
 
-    /*
-     * CleverTap credentials are handled automatically by the Leanplum Wrapper.
     public String CLEVERTAP_ACCOUNT_ID = "YOUR_CLEVERTAP_ACCOUNT_ID";
     public String CLEVERTAP_ACCOUNT_TOKEN = "YOUR_CLEVERTAP_ACCOUNT_TOKEN";
     public String CLEVERTAP_ACCOUNT_REGION = "";
-    */
-
-    /// <summary>
-    /// Use Leanplum.SetLogLevel instead
-    /// </summary>
-    [HideInInspector]
     public int CLEVERTAP_DEBUG_LEVEL = 0;
-
-    /// <summary>
-    /// This configuration needs to be set after CleverTap instance is initialiazed.
-    /// Use Leanplum.CleverTapInstanceReady callback to do so.
-    /// </summary>
-    [HideInInspector]
     public bool CLEVERTAP_ENABLE_PERSONALIZATION = true;
-
-    /// <summary>
-    /// Leanplum Wrapper handles the Identity based on the Leanplum setup.
-    /// </summary>
-    [HideInInspector]
     public bool CLEVERTAP_DISABLE_IDFV;
 
     void Awake(){
-        DontDestroyOnLoad(gameObject);
-
-        /*
-         * Initialization is done by the Leanplum Wrapper in native mobile SDKs.
         #if (UNITY_IPHONE && !UNITY_EDITOR)
         DontDestroyOnLoad(gameObject);
         CleverTapBinding.SetDebugLevel(CLEVERTAP_DEBUG_LEVEL);
@@ -51,18 +28,121 @@ public class CleverTapUnity: MonoBehaviour {
         if (CLEVERTAP_ENABLE_PERSONALIZATION) {
             CleverTapBinding.EnablePersonalization();
         }
-        
         #endif
 
         #if (UNITY_ANDROID && !UNITY_EDITOR)
         DontDestroyOnLoad(gameObject);
         CleverTapBinding.SetDebugLevel(CLEVERTAP_DEBUG_LEVEL);
         CleverTapBinding.Initialize(CLEVERTAP_ACCOUNT_ID, CLEVERTAP_ACCOUNT_TOKEN, CLEVERTAP_ACCOUNT_REGION);
+        //==========[Testing Newly added Clevertap APIs]============================================
+            CleverTapBinding.GetCleverTapId();
+        //    CleverTapBinding.ProfileIncrementValueForKey("add_int",2);
+        //    CleverTapBinding.ProfileIncrementValueForKey("add_double",3.5);
+        //    CleverTapBinding.ProfileDecrementValueForKey("minus_int",2);
+        //    CleverTapBinding.ProfileDecrementValueForKey("minus_double",3.5);
+        //    CleverTapBinding.SuspendInAppNotifications();
+        //    CleverTapBinding.DiscardInAppNotifications();
+        //    CleverTapBinding.ResumeInAppNotifications();
+
+        // record special Charged event
+        // Dictionary<string, object> chargeDetails = new Dictionary<string, object>();
+        // chargeDetails.Add("Amount", 500);
+        // chargeDetails.Add("Currency", "USD");
+        // chargeDetails.Add("Payment Mode", "Credit card");
+        //
+        // Dictionary<string, object> item = new Dictionary<string, object>();
+        // item.Add("price", 50);
+        // item.Add("Product category", "books");
+        // item.Add("Quantity", 1);
+        //
+        // Dictionary<string, object> item2 = new Dictionary<string, object>();
+        // item2.Add("price", 100);
+        // item2.Add("Product category", "plants");
+        // item2.Add("Quantity", 10);
+        //
+        // List<Dictionary<string, object>> items = new List<Dictionary<string, object>>();
+        // items.Add(item);
+        // items.Add(item2);
+        //
+        // CleverTapBinding.RecordChargedEventWithDetailsAndItems(chargeDetails, items);
+
+        // CleverTapBinding.RecordEvent("testEventPushAmp");
+        //Push Primer APIs usages
+
+        // CleverTapBinding.IsPushPermissionGranted();
+        // Debug.Log("isPushPermissionGranted"+ isPushPermissionGranted);
+
+        //   Dictionary<string, object> item = new Dictionary<string, object>();
+        //   item.Add("inAppType", "half-interstitial");
+        //   item.Add("titleText", "Get Notified");
+        //   item.Add("messageText", "Please enable notifications on your device to use Push Notifications.");
+        //   item.Add("followDeviceOrientation", true);
+        //   item.Add("positiveBtnText", "Allow");
+        //   item.Add("negativeBtnText", "Cancel");
+        //   item.Add("backgroundColor", "#FFFFFF");
+        //   item.Add("btnBorderColor", "#0000FF");
+        //   item.Add("titleTextColor", "#0000FF");
+        //   item.Add("messageTextColor", "#000000");
+        //   item.Add("btnTextColor", "#FFFFFF");
+        //   item.Add("btnBackgroundColor", "#0000FF");
+        //   item.Add("imageUrl", "https://icons.iconarchive.com/icons/treetog/junior/64/camera-icon.png");
+        //   item.Add("btnBorderRadius", "2");
+        //   item.Add("fallbackToSettings", true);
+        //   CleverTapBinding.PromptPushPrimer(item);
+
+        // CleverTapBinding.PromptForPushPermission(false);
+
+        //Push Primer APIs usages
+
+        // bool isPushPermissionGranted = CleverTapBinding.IsPushPermissionGranted();
+        // Debug.Log("isPushPermissionGranted"+ isPushPermissionGranted);
+
+        // Dictionary<string, object> item = new Dictionary<string, object>();
+        //   item.Add("inAppType", "half-interstitial");
+        //   item.Add("titleText", "Get Notified");
+        //   item.Add("messageText", "Please enable notifications on your device to use Push Notifications.");
+        //   item.Add("followDeviceOrientation", true);
+        //   item.Add("positiveBtnText", "Allow");
+        //   item.Add("negativeBtnText", "Cancel");
+        //   item.Add("backgroundColor", "#FFFFFF");
+        //   item.Add("btnBorderColor", "#0000FF");
+        //   item.Add("titleTextColor", "#0000FF");
+        //   item.Add("messageTextColor", "#000000");
+        //   item.Add("btnTextColor", "#FFFFFF");
+        //   item.Add("btnBackgroundColor", "#0000FF");
+        //   item.Add("imageUrl", "https://icons.iconarchive.com/icons/treetog/junior/64/camera-icon.png");
+        //   item.Add("btnBorderRadius", "2");
+        //   item.Add("fallbackToSettings", true);
+        //   CleverTapBinding.PromptPushPrimer(item);
+
+        // CleverTapBinding.PromptForPushPermission(false);
+
+        //    Push Templates APIs usages
+        //    CleverTapBinding.RecordEvent("Send Basic Push");
+        //    CleverTapBinding.RecordEvent("Send Carousel Push");
+        //    CleverTapBinding.RecordEvent("Send Manual Carousel Push");
+        //    CleverTapBinding.RecordEvent("Send Filmstrip Carousel Push");
+        //    CleverTapBinding.RecordEvent("Send Rating Push");
+        //    CleverTapBinding.RecordEvent("Send Product Display Notification");
+        //    CleverTapBinding.RecordEvent("Send Linear Product Display Push");
+        //    CleverTapBinding.RecordEvent("Send CTA Notification");
+        //    CleverTapBinding.RecordEvent("Send Zero Bezel Notification");
+        //    CleverTapBinding.RecordEvent("Send Zero Bezel Text Only Notification");
+        //    CleverTapBinding.RecordEvent("Send Timer Notification");
+        //    CleverTapBinding.RecordEvent("Send Input Box Notification");
+        //    CleverTapBinding.RecordEvent("Send Input Box Reply with Event Notification");
+        //    CleverTapBinding.RecordEvent("Send Input Box Reply with Auto Open Notification");
+        //    CleverTapBinding.RecordEvent("Send Input Box Remind Notification DOC FALSE");
+        //    CleverTapBinding.RecordEvent("Send Input Box CTA DOC true");
+        //    CleverTapBinding.RecordEvent("Send Input Box CTA DOC false");
+        //    CleverTapBinding.RecordEvent("Send Input Box Reminder DOC true");
+        //    CleverTapBinding.RecordEvent("Send Input Box Reminder DOC false");
+
+        //==========[Testing Newly added Clevertap APIs]============================================
         if (CLEVERTAP_ENABLE_PERSONALIZATION) {
             CleverTapBinding.EnablePersonalization();
         }
         #endif
-        */
     }
 
     void Start() {}
@@ -90,7 +170,7 @@ public class CleverTapUnity: MonoBehaviour {
     }
 
     // called when the user profile is updated as a result of a server sync
-    /** 
+    /**
         returns dict in the form:
         {
             "profile":{"<property1>":{"oldValue":<value>, "newValue":<value>}, ...},
@@ -118,8 +198,8 @@ public class CleverTapUnity: MonoBehaviour {
         } catch {
             Debug.LogError("unable to parse json");
         }
-    }	
-		
+    }
+
     // returns the data associated with the push notification
     void CleverTapPushOpenedCallback(string message) {
         Debug.Log("unity received push opened: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
@@ -136,9 +216,25 @@ public class CleverTapUnity: MonoBehaviour {
         }
     }
 
+    // returns a unique CleverTap identifier suitable for use with install attribution providers.
+    void CleverTapInitCleverTapIdCallback(string message) {
+        Debug.Log("unity received clevertap id: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
+    }
+
     // returns the custom data associated with an in-app notification click
     void CleverTapInAppNotificationDismissedCallback(string message) {
         Debug.Log("unity received inapp notification dismissed: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
+    }
+
+    // returns the custom data associated with an in-app notification click
+    void CleverTapInAppNotificationShowCallback(string message) {
+        Debug.Log("unity received inapp notification onShow(): " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
+    }
+
+    // returns the status of push permission response after it's granted/denied
+    void CleverTapOnPushPermissionResponseCallback(string message) {
+         //Ensure to create call the `CreateNotificationChannel` once notification permission is granted to register for receiving push notifications for Android 13+ devices.
+        Debug.Log("unity received push permission response: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
     }
 
     // returns when an in-app notification is dismissed by a call to action with custom extras
@@ -158,6 +254,12 @@ public class CleverTapUnity: MonoBehaviour {
     // returns on the click of app inbox message with a map of custom Key-Value pairs
     void CleverTapInboxCustomExtrasButtonSelect(string message) {
         Debug.Log("unity received inbox message button with custom extras select: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
+    }
+
+    // returns on the click of app inbox message with a string of the inbox payload along with page index and button index
+    void CleverTapInboxItemClicked(string message)
+    {
+        Debug.Log("unity received inbox message clicked callback: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
     }
 
     // returns native display units data
@@ -186,8 +288,7 @@ public class CleverTapUnity: MonoBehaviour {
     }
 
     #if UNITY_EDITOR
-    private void OnValidate()
-    {
+    private void OnValidate() {
         EditorPrefs.SetBool("CLEVERTAP_DISABLE_IDFV", CLEVERTAP_DISABLE_IDFV);
     }
     #endif

@@ -415,6 +415,10 @@ void CleverTap_showAppInbox(const char* styleConfig) {
     [[CleverTapUnityManager sharedInstance] showAppInbox: styleConfigDict];
 }
 
+void CleverTap_dismissAppInbox() {
+    [[CleverTapUnityManager sharedInstance] dismissAppInbox];
+}
+
 char* CleverTap_getAllInboxMessages() {
     id ret = [[CleverTapUnityManager sharedInstance] getAllInboxMessages];
     NSString *jsonString = clevertap_toJsonString(ret);
@@ -446,8 +450,16 @@ void CleverTap_deleteInboxMessageForID(const char* messageId) {
     [[CleverTapUnityManager sharedInstance] deleteInboxMessageForID:clevertap_stringToNSString(messageId)];
 }
 
+void CleverTap_deleteInboxMessagesForIDs(const char* messageIds[], int size) {
+    [[CleverTapUnityManager sharedInstance] deleteInboxMessagesForIDs:clevertap_NSArrayFromArray(messageIds, size)];
+}
+
 void CleverTap_markReadInboxMessageForID(const char* messageId) {
     [[CleverTapUnityManager sharedInstance] markReadInboxMessageForID:clevertap_stringToNSString(messageId)];
+}
+
+void CleverTap_markReadInboxMessagesForIDs(const char* messageIds[], int size) {
+    [[CleverTapUnityManager sharedInstance] markReadInboxMessagesForIDs:clevertap_NSArrayFromArray(messageIds, size)];
 }
 
 void CleverTap_recordInboxNotificationViewedEventForID(const char* messageId) {
@@ -557,4 +569,18 @@ void CleverTap_discardInAppNotifications() {
 
 void CleverTap_resumeInAppNotifications() {
     [[CleverTapUnityManager sharedInstance] resumeInAppNotifications];
+}
+
+#pragma mark - Push Primer
+void CleverTap_promptPushPrimer(const char* json) {
+    NSMutableDictionary *jsonDict = clevertap_dictFromJsonString(json);
+    [[CleverTapUnityManager sharedInstance] promptPushPrimer: jsonDict];
+}
+
+void CleverTap_promptForPushPermission(const BOOL showFallbackSettings) {
+    [[CleverTapUnityManager sharedInstance] promptForPushPermission: showFallbackSettings];
+}
+
+void CleverTap_isPushPermissionGranted() {
+    return [[CleverTapUnityManager sharedInstance] isPushPermissionGranted];
 }

@@ -11,7 +11,7 @@ using CleverTap.Utilities;
 namespace CleverTap {
   public class CleverTapBinding : MonoBehaviour {
       
-    public const string Version = "2.2.0";
+  public const string Version = "2.4.0";
 
 #if UNITY_IOS
     void Start() {
@@ -154,6 +154,9 @@ namespace CleverTap {
     private static extern void CleverTap_showAppInbox(string styleConfig);
 
     [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void CleverTap_dismissAppInbox();
+
+    [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern int CleverTap_getInboxMessageCount();
 
     [System.Runtime.InteropServices.DllImport("__Internal")]
@@ -175,7 +178,13 @@ namespace CleverTap {
     private static extern void CleverTap_deleteInboxMessageForID(string messageId);
 
     [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void CleverTap_deleteInboxMessagesForIDs(string[] messageIds,int arrLength);
+
+    [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void CleverTap_markReadInboxMessageForID(string messageId);
+
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void CleverTap_markReadInboxMessagesForIDs(string[] messageIds,int arrLength);
 
     [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void CleverTap_recordInboxNotificationViewedEventForID(string messageId);
@@ -227,6 +236,15 @@ namespace CleverTap {
 
     [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern bool CleverTap_getFeatureFlag(string key, bool defaultValue);
+
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void CleverTap_promptForPushPermission(bool showFallbackSettings);
+
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void CleverTap_promptPushPrimer(string json);
+
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern void CleverTap_isPushPermissionGranted();
 
     public static void LaunchWithCredentials(string accountID, string token) {
         CleverTap_launchWithCredentials(accountID, token);
@@ -450,6 +468,10 @@ namespace CleverTap {
         CleverTap_showAppInbox(styleConfigString);
     }
 
+    public static void DismissAppInbox() {
+        CleverTap_dismissAppInbox();
+    }
+
     public static int GetInboxMessageCount() {
         return CleverTap_getInboxMessageCount();
     }
@@ -498,8 +520,18 @@ namespace CleverTap {
         CleverTap_deleteInboxMessageForID(messageId);   
     }
 
+    public static void DeleteInboxMessagesForIDs(string[] messageIds) {
+        int arrLength = messageIds.Length;
+        CleverTap_deleteInboxMessagesForIDs(messageIds, arrLength);
+    }
+
     public static void MarkReadInboxMessageForID(string messageId) {
         CleverTap_markReadInboxMessageForID(messageId);
+    }
+
+    public static void MarkReadInboxMessagesForIDs(string[] messageIds) {
+        int arrLength = messageIds.Length;
+        CleverTap_markReadInboxMessagesForIDs(messageIds, arrLength);
     }
 
     public static void RecordInboxNotificationViewedEventForID(string messageId) {
@@ -595,6 +627,20 @@ namespace CleverTap {
         return CleverTap_getFeatureFlag(key, defaultValue);
     }
 
+    public static void PromptPushPrimer(Dictionary<string, object> json) {
+        var jsonString = Json.Serialize(json);
+        CleverTap_promptPushPrimer(jsonString);
+    }
+
+
+    public static void PromptForPushPermission(bool showFallbackSettings) {
+        CleverTap_promptForPushPermission(showFallbackSettings);
+    }
+
+    public static void IsPushPermissionGranted() {
+        CleverTap_isPushPermissionGranted();
+    }
+
 #elif UNITY_ANDROID
     private static AndroidJavaObject unityActivity;
     private static AndroidJavaObject clevertap;
@@ -667,17 +713,17 @@ namespace CleverTap {
 
     public static void CreateNotificationChannelWithSound(string channelId,string channelName, string channelDescription, int importance, bool showBadge, string sound){
         AndroidJavaObject context = unityCurrentActivity.Call<AndroidJavaObject>("getApplicationContext");
-        CleverTapAPI.CallStatic("createNotificationChannel",context,channelId,channelName,channelDescription,importance,showBadge,sound);
+        CleverTapAPI.CallStatic("createNotificationChannelWithSound",context,channelId,channelName,channelDescription,importance,showBadge,sound);
     }
 
     public static void CreateNotificationChannelWithGroup(string channelId,string channelName, string channelDescription, int importance, string groupId, bool showBadge){
         AndroidJavaObject context = unityCurrentActivity.Call<AndroidJavaObject>("getApplicationContext");
-        CleverTapAPI.CallStatic("createNotificationChannelwithGroup",context,channelId,channelName,channelDescription,importance,groupId,showBadge);
+        CleverTapAPI.CallStatic("createNotificationChannelWithGroup",context,channelId,channelName,channelDescription,importance,groupId,showBadge);
     }
 
     public static void CreateNotificationChannelWithGroupAndSound(string channelId,string channelName, string channelDescription, int importance, string groupId, bool showBadge, string sound){
         AndroidJavaObject context = unityCurrentActivity.Call<AndroidJavaObject>("getApplicationContext");
-        CleverTapAPI.CallStatic("createNotificationChannelwithGroup",context,channelId,channelName,channelDescription,importance,groupId,showBadge,sound);
+        CleverTapAPI.CallStatic("createNotificationChannelWithGroupAndSound",context,channelId,channelName,channelDescription,importance,groupId,showBadge,sound);
     }
 
     public static void CreateNotificationChannelGroup(string groupId, string groupName){
@@ -731,12 +777,98 @@ namespace CleverTap {
         return CleverTap.Call<string>("profileGet", key);
     }
 
+  /**
+   * Returns a unique CleverTap identifier suitable for use with install attribution providers.
+   * @return The attribution identifier currently being used to identify this user.
+   *
+   * Disclaimer: this method may take a long time to return, so you should not call it from the
+   * application main thread
+   *
+   * NOTE: Deprecated as of clevertap android core sdk version 4.2.0 and will be removed
+   *  in future versions .
+   * instead listen for the id via CleverTapUnity#CleverTapInitCleverTapIdCallback() function
+   */
     public static string ProfileGetCleverTapAttributionIdentifier() {
         return CleverTap.Call<string>("profileGetCleverTapAttributionIdentifier");
     }
 
+   /**
+    * Returns a unique CleverTap identifier suitable for use with install attribution providers.
+    * @return The attribution identifier currently being used to identify this user.
+    *
+    * Disclaimer: this method may take a long time to return, so you should not call it from the
+    * application main thread
+    *
+    * NOTE: Deprecated as of clevertap android core sdk version 4.2.0 and will be removed
+    *  in future versions .
+    * instead request for clevertapId via getCleverTapId() call and  listen for response
+    * via CleverTapUnity#CleverTapInitCleverTapIdCallback() function
+    */
     public static string ProfileGetCleverTapID() {
         return CleverTap.Call<string>("profileGetCleverTapID");
+    }
+
+    /*
+     * requests for a unique, asynchronous CleverTap identifier. The value will be available as json {"cleverTapID" : <value> } via 
+     * CleverTapUnity#CleverTapInitCleverTapIdCallback() function
+     */
+    public static void GetCleverTapId(){
+        CleverTap.Call("getCleverTapID");
+    }
+
+    /**
+     * This method is used to increment the given value.Number should be in positive range
+     */
+    public static void ProfileIncrementValueForKey(string key, double val) {
+        CleverTap.Call("profileIncrementValueForKey",key, val);
+    }
+
+    /**
+     * This method is used to increment the given value.Number should be in positive range
+     */
+    public static void ProfileIncrementValueForKey(string key, int val) {
+        CleverTap.Call("profileIncrementValueForKey",key, val);
+    }
+
+    /**
+     * This method is used to decrement the given value.Number should be in positive range
+     */
+    public static void ProfileDecrementValueForKey(string key, double val) {
+        CleverTap.Call("profileDecrementValueForKey",key, val);
+    }
+
+    /**
+     * This method is used to decrement the given value.Number should be in positive range
+     */
+    public static void ProfileDecrementValueForKey(string key, int val) {
+        CleverTap.Call("profileDecrementValueForKey",key, val);
+    }
+
+    /**
+     * Suspends display of InApp Notifications.
+     * The InApp Notifications are queued once this method is called
+     * and will be displayed once resumeInAppNotifications() is called.
+     */
+    public static void SuspendInAppNotifications() {
+        CleverTap.Call("suspendInAppNotifications");
+    }
+
+    /**
+     * Suspends the display of InApp Notifications and discards any new InApp Notifications to be shown
+     * after this method is called.
+     * The InApp Notifications will be displayed only once resumeInAppNotifications() is called.
+     */
+    public static void DiscardInAppNotifications() {
+        CleverTap.Call("discardInAppNotifications");
+    }
+
+    /**
+     * Suspends the display of InApp Notifications and discards any new InApp Notifications to be shown
+     * after this method is called.
+     * The InApp Notifications will be displayed only once resumeInAppNotifications() is called.
+     */
+    public static void ResumeInAppNotifications() {
+        CleverTap.Call("resumeInAppNotifications");
     }
 
     public static void ProfileRemoveValueForKey(string key) {
@@ -761,18 +893,6 @@ namespace CleverTap {
 
     public static void ProfileRemoveMultiValueForKey(string key, string val) {
         CleverTap.Call("profileRemoveMultiValueForKey", key, val);
-    }
-
-    public static void SuspendInAppNotifications() {
-        CleverTap.Call("suspendInAppNotifications");
-    }
-
-    public static void DiscardInAppNotifications() {
-        CleverTap.Call("discardInAppNotifications");
-    }
-
-    public static void ResumeInAppNotifications() {
-        CleverTap.Call("resumeInAppNotifications");
     }
 
     public static void RecordScreenView(string screenName) {
@@ -871,14 +991,45 @@ namespace CleverTap {
          CleverTap.Call("showAppInbox", styleConfig);
     }
 
+    public static void DismissAppInbox(){
+         CleverTap.Call("dismissAppInbox");
+    }
+
     public static int GetInboxMessageCount(){
         return CleverTap.Call<int>("getInboxMessageCount");
+    }
+
+    public static void DeleteInboxMessagesForIDs(string[] messageIds) {
+        CleverTap.Call("deleteInboxMessagesForIDs", messageIds);
+    }
+
+    public static void DeleteInboxMessageForID(string messageId) {
+        CleverTap.Call("deleteInboxMessageForId", messageId);
+    }
+
+    public static void MarkReadInboxMessagesForIDs(string[] messageIds) {
+        CleverTap.Call("markReadInboxMessagesForIDs", messageIds);
+    }
+
+    public static void MarkReadInboxMessageForID(string messageId) {
+        CleverTap.Call("markReadInboxMessageForId", messageId);
     }
 
     public static int GetInboxMessageUnreadCount(){
         return CleverTap.Call<int>("getInboxMessageUnreadCount");
     }
 
+    public static void PromptPushPrimer(Dictionary<string, object> details){
+         CleverTap.Call("promptPushPrimer", Json.Serialize(details));
+    }
+
+    public static void PromptForPushPermission(bool showFallbackSettings){
+         CleverTap.Call("promptForPushPermission", showFallbackSettings);
+    }
+
+    public static bool IsPushPermissionGranted(){
+        return CleverTap.Call<bool>("isPushPermissionGranted");
+    }
 #else
 
    // Empty implementations of the API, in case the application is being compiled for a platform other than iOS or Android.
@@ -1058,12 +1209,36 @@ namespace CleverTap {
     public static void ShowAppInbox(string styleConfig){
     }
 
+    public static void DismissAppInbox(){
+    }
+
     public static int GetInboxMessageCount(){
         return -1;
     }
 
     public static int GetInboxMessageUnreadCount(){
         return -1;
+    }
+
+    public static void DeleteInboxMessagesForIDs(string[] messageIds) {
+    }
+
+    public static void DeleteInboxMessageForID(string messageId) {
+    }
+
+    public static void MarkReadInboxMessagesForIDs(string[] messageIds) {
+    }
+
+    public static void MarkReadInboxMessageForID(string messageId) {
+    }
+
+    public static void PromptPushPrimer(string json){
+    }
+
+    public static void PromptForPushPermission(bool showFallbackSettings){
+    }
+
+    public static void IsPushPermissionGranted(){
     }
 #endif
     }

@@ -87,13 +87,16 @@
 
 - (void)initializeInbox;
 - (void)showAppInbox:(NSDictionary *)styleConfig;
+- (void)dismissAppInbox;
 - (int)getInboxMessageUnreadCount;
 - (int)getInboxMessageCount;
 - (NSArray *)getAllInboxMessages;
 - (NSArray *)getUnreadInboxMessages;
 - (NSDictionary *)getInboxMessageForId:(NSString *)messageId;
 - (void)deleteInboxMessageForID:(NSString *)messageId;
+- (void)deleteInboxMessagesForIDs:(NSArray *)messageIds;
 - (void)markReadInboxMessageForID:(NSString *)messageId;
+- (void)markReadInboxMessagesForIDs:(NSArray *)messageIds;
 - (void)recordInboxNotificationViewedEventForID:(NSString *)messageId;
 - (void)recordInboxNotificationClickedEventForID:(NSString *)messageId;
 
@@ -129,5 +132,10 @@
 - (void)suspendInAppNotifications;
 - (void)discardInAppNotifications;
 - (void)resumeInAppNotifications;
+
+#pragma mark - Push Primer
+- (void)promptForPushPermission:(BOOL)showFallbackSettings;
+- (void)promptPushPrimer:(NSDictionary *)json;
+- (void)isPushPermissionGranted;
 
 @end
