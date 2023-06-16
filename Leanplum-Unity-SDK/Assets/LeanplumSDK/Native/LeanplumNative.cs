@@ -594,18 +594,19 @@ namespace LeanplumSDK
             }
             ApiConfig.DeviceId = deviceId;
 
-            // load saved inbox messages
+            // Load saved inbox messages
             if (Inbox is LeanplumInboxNative native)
             {
                 native.Load();
             }
 
-            // Don't overwrite UserID if it was set previously if Start()
-            // was called without a new UserID.
-            if (!string.IsNullOrEmpty(ApiConfig.UserId))
+            // Do not overwrite UserID if it was previously set (and loaded from cache)
+            // Set only if Start() was called with a UserID.
+            if (!string.IsNullOrEmpty(userId))
             {
                 ApiConfig.UserId = userId;
             }
+            // Fallback to DeviceId
             if (string.IsNullOrEmpty(ApiConfig.UserId))
             {
                 ApiConfig.UserId = deviceId;
@@ -1096,7 +1097,9 @@ namespace LeanplumSDK
             }
             if (!string.IsNullOrEmpty(newUserId))
             {
+                parameters[Constants.Params.USER_ID] = Leanplum.ApiConfig.UserId;
                 parameters[Constants.Params.NEW_USER_ID] = newUserId;
+                ApiConfig.UserId = newUserId;
                 VarCache.SaveDiffs();
             }
 
@@ -1104,15 +1107,6 @@ namespace LeanplumSDK
                 .AndParameters(parameters)
                 .Create();
             Leanplum.RequestSender.Send(request);
-
-            if (!string.IsNullOrEmpty(newUserId))
-            {
-                ApiConfig.UserId = newUserId;
-                if (_hasStarted)
-                {
-                    VarCache.SaveDiffs();
-                }
-            }
         }
 
         /// <summary>

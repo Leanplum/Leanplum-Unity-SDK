@@ -1,5 +1,5 @@
 //
-// Copyright 2022, Leanplum, Inc.
+// Copyright 2023, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -318,9 +318,19 @@ namespace LeanplumSDK
 
         private static IDictionary<string, object> DeserializeEncryptedData(string dataCipher)
         {
-            return Json.Deserialize(dataCipher == "{}" ? dataCipher :
-                                   AESCrypt.Decrypt(dataCipher, Leanplum.ApiConfig.Token))
-                                 as IDictionary<string, object>;
+            if (dataCipher == "{}")
+            {
+                return new Dictionary<string, object>();
+            }
+
+            string dataJson = AESCrypt.Decrypt(dataCipher, Leanplum.ApiConfig.Token);
+            if (string.IsNullOrEmpty(dataJson))
+            {
+                return new Dictionary<string, object>();
+            }
+
+            object data = Json.Deserialize(dataJson);
+            return data as IDictionary<string, object>;
         }
 
         private static void StoreEncrypted(string key, object data)
