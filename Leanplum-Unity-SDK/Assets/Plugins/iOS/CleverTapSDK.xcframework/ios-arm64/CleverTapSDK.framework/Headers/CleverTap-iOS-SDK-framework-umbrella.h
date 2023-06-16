@@ -30,6 +30,8 @@
 #import "CleverTap+SCDomain.h"
 #import "CleverTap+PushPermission.h"
 #import "CTLocalInApp.h"
+#import "CleverTap+CTVar.h"
+#import "CTVar.h"
 
 FOUNDATION_EXPORT double CleverTapSDKVersionNumber;
 FOUNDATION_EXPORT const unsigned char CleverTapSDKVersionString[];

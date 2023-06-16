@@ -10916,6 +10916,384 @@
         "printedName": "LPCTNotificationsManager",
         "children": [
           {
+            "kind": "Var",
+            "name": "openDeepLinksInForeground",
+            "printedName": "openDeepLinksInForeground",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@Leanplum@objc(cs)LPCTNotificationsManager(py)openDeepLinksInForeground",
+            "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSbvp",
+            "moduleName": "Leanplum",
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl",
+              "ObjC"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Leanplum@objc(cs)LPCTNotificationsManager(im)openDeepLinksInForeground",
+                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSbvg",
+                "moduleName": "Leanplum",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Leanplum@objc(cs)LPCTNotificationsManager(im)setOpenDeepLinksInForeground:",
+                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSbvs",
+                "moduleName": "Leanplum",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSbvM",
+                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSbvM",
+                "moduleName": "Leanplum",
+                "implicit": true,
+                "accessorKind": "_modify"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "handleCleverTapNotificationBlock",
+            "printedName": "handleCleverTapNotificationBlock",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(([Swift.AnyHashable : Any], Swift.Bool, @escaping (Swift.Bool) -> ()) -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "([Swift.AnyHashable : Any], Swift.Bool, @escaping (Swift.Bool) -> ()) -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Tuple",
+                        "printedName": "([Swift.AnyHashable : Any], Swift.Bool, (Swift.Bool) -> ())",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Dictionary",
+                            "printedName": "[Swift.AnyHashable : Any]",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "AnyHashable",
+                                "printedName": "Swift.AnyHashable",
+                                "usr": "s:s11AnyHashableV"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "ProtocolComposition",
+                                "printedName": "Any"
+                              }
+                            ],
+                            "usr": "s:SD"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Bool",
+                            "printedName": "Swift.Bool",
+                            "usr": "s:Sb"
+                          },
+                          {
+                            "kind": "TypeFunc",
+                            "name": "Function",
+                            "printedName": "(Swift.Bool) -> ()",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Bool",
+                                "printedName": "Swift.Bool",
+                                "usr": "s:Sb"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@Leanplum@objc(cs)LPCTNotificationsManager(py)handleCleverTapNotificationBlock",
+            "mangledName": "$s8Leanplum24LPCTNotificationsManagerC32handleCleverTapNotificationBlockySDys11AnyHashableVypG_SbySbctcSgvp",
+            "moduleName": "Leanplum",
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl",
+              "ObjC"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "(([Swift.AnyHashable : Any], Swift.Bool, @escaping (Swift.Bool) -> ()) -> ())?",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "([Swift.AnyHashable : Any], Swift.Bool, @escaping (Swift.Bool) -> ()) -> ()",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "([Swift.AnyHashable : Any], Swift.Bool, (Swift.Bool) -> ())",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Dictionary",
+                                "printedName": "[Swift.AnyHashable : Any]",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "AnyHashable",
+                                    "printedName": "Swift.AnyHashable",
+                                    "usr": "s:s11AnyHashableV"
+                                  },
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "ProtocolComposition",
+                                    "printedName": "Any"
+                                  }
+                                ],
+                                "usr": "s:SD"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Bool",
+                                "printedName": "Swift.Bool",
+                                "usr": "s:Sb"
+                              },
+                              {
+                                "kind": "TypeFunc",
+                                "name": "Function",
+                                "printedName": "(Swift.Bool) -> ()",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "Void",
+                                    "printedName": "()"
+                                  },
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "Bool",
+                                    "printedName": "Swift.Bool",
+                                    "usr": "s:Sb"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Leanplum@objc(cs)LPCTNotificationsManager(im)handleCleverTapNotificationBlock",
+                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC32handleCleverTapNotificationBlockySDys11AnyHashableVypG_SbySbctcSgvg",
+                "moduleName": "Leanplum",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "(([Swift.AnyHashable : Any], Swift.Bool, @escaping (Swift.Bool) -> ()) -> ())?",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "([Swift.AnyHashable : Any], Swift.Bool, @escaping (Swift.Bool) -> ()) -> ()",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "([Swift.AnyHashable : Any], Swift.Bool, (Swift.Bool) -> ())",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Dictionary",
+                                "printedName": "[Swift.AnyHashable : Any]",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "AnyHashable",
+                                    "printedName": "Swift.AnyHashable",
+                                    "usr": "s:s11AnyHashableV"
+                                  },
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "ProtocolComposition",
+                                    "printedName": "Any"
+                                  }
+                                ],
+                                "usr": "s:SD"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Bool",
+                                "printedName": "Swift.Bool",
+                                "usr": "s:Sb"
+                              },
+                              {
+                                "kind": "TypeFunc",
+                                "name": "Function",
+                                "printedName": "(Swift.Bool) -> ()",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "Void",
+                                    "printedName": "()"
+                                  },
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "Bool",
+                                    "printedName": "Swift.Bool",
+                                    "usr": "s:Sb"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Leanplum@objc(cs)LPCTNotificationsManager(im)setHandleCleverTapNotificationBlock:",
+                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC32handleCleverTapNotificationBlockySDys11AnyHashableVypG_SbySbctcSgvs",
+                "moduleName": "Leanplum",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:8Leanplum24LPCTNotificationsManagerC32handleCleverTapNotificationBlockySDys11AnyHashableVypG_SbySbctcSgvM",
+                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC32handleCleverTapNotificationBlockySDys11AnyHashableVypG_SbySbctcSgvM",
+                "moduleName": "Leanplum",
+                "implicit": true,
+                "accessorKind": "_modify"
+              }
+            ]
+          },
+          {
             "kind": "Function",
             "name": "didRegisterForRemoteNotificationsWithDeviceToken",
             "printedName": "didRegisterForRemoteNotificationsWithDeviceToken(_:)",
@@ -10942,6 +11320,45 @@
               "ObjC",
               "Override",
               "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "handleWithCleverTapInstance",
+            "printedName": "handleWithCleverTapInstance(action:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() -> ()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Leanplum@objc(cs)LPCTNotificationsManager(im)handleWithCleverTapInstanceWithAction:",
+            "mangledName": "$s8Leanplum24LPCTNotificationsManagerC27handleWithCleverTapInstance6actionyyyc_tF",
+            "moduleName": "Leanplum",
+            "objc_name": "handleWithCleverTapInstanceWithAction:",
+            "declAttributes": [
+              "AccessControl",
+              "ObjC"
             ],
             "funcSelfKind": "NonMutating"
           },
@@ -12653,42 +13070,42 @@
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 440,
-      "length": 4,
-      "value": "true"
+      "offset": 419,
+      "length": 5,
+      "value": "false"
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
-      "offset": 540,
+      "offset": 612,
       "length": 6,
       "value": "\"Open\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
-      "offset": 571,
+      "offset": 643,
       "length": 9,
       "value": "\"Receive\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
-      "offset": 540,
+      "offset": 612,
       "length": 6,
       "value": "\"Open\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
-      "offset": 571,
+      "offset": 643,
       "length": 9,
       "value": "\"Receive\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 800,
+      "offset": 872,
       "length": 5,
       "value": "false"
     }

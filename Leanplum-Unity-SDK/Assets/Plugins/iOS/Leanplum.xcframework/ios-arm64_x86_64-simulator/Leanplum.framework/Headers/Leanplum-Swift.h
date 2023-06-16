@@ -485,7 +485,10 @@ SWIFT_CLASS("_TtC8Leanplum20NotificationsManager")
 
 SWIFT_CLASS("_TtC8Leanplum24LPCTNotificationsManager")
 @interface LPCTNotificationsManager : NotificationsManager
+@property (nonatomic) BOOL openDeepLinksInForeground;
+@property (nonatomic, copy) LeanplumHandleCleverTapNotificationBlock _Nullable handleCleverTapNotificationBlock;
 - (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData * _Nonnull)deviceToken;
+- (void)handleWithCleverTapInstanceWithAction:(void (^ _Nonnull)(void))action;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
@@ -1141,7 +1144,10 @@ SWIFT_CLASS("_TtC8Leanplum20NotificationsManager")
 
 SWIFT_CLASS("_TtC8Leanplum24LPCTNotificationsManager")
 @interface LPCTNotificationsManager : NotificationsManager
+@property (nonatomic) BOOL openDeepLinksInForeground;
+@property (nonatomic, copy) LeanplumHandleCleverTapNotificationBlock _Nullable handleCleverTapNotificationBlock;
 - (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData * _Nonnull)deviceToken;
+- (void)handleWithCleverTapInstanceWithAction:(void (^ _Nonnull)(void))action;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 

@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<< HEAD:Leanplum-Unity-SDK/Assets/Plugins/iOS/CleverTapSDK.xcframework/ios-arm64/CleverTapSDK.framework/CleverTapSDK.bundle/ct_default_video.png.meta
 guid: 804ba952126dd4753a2519483e753ba4
-=======
-guid: 4fa64b5b2e8b0462fa72de66ec805c60
->>>>>>> origin/master:Leanplum-Unity-SDK/Assets/Plugins/iOS/CleverTapSDK.xcframework/ios-arm64_x86_64-simulator/CleverTapSDK.framework/CleverTapSDK.bundle/ct_default_video.png.meta
 DefaultImporter:
   externalObjects: {}
   userData: 
