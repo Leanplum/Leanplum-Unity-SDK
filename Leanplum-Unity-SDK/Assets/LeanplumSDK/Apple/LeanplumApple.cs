@@ -813,7 +813,8 @@ namespace LeanplumSDK
                 if (accountId != id)
                 {
                     accountId = id;
-                    // TODO: CleverTap set instance with account id
+                    MigrationConfig config = MigrationConfig();
+                    CleverTap.CleverTapBinding.LaunchWithCredentialsForRegion(config.AccountId, config.AccountToken, config.AccountRegion);
                     cleverTapInstanceReady?.Invoke();
                 }
             }
@@ -1230,7 +1231,7 @@ namespace LeanplumSDK
             bool realtimeUpdating = true, string iosBundleName = "", string androidBundleName = "",
             string standaloneBundleName = "")
         {
-            // TODO: Not implemented.
+            Debug.LogError("Leanplum Error: Asset Bundles not supported on iOS.");
             return null;
         }
 
