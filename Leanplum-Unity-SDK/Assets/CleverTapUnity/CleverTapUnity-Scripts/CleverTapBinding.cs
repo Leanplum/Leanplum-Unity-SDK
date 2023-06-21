@@ -1098,6 +1098,7 @@ namespace CleverTap {
     }
 
     public static string GetCleverTapID() {
+        return "emptyID";
     }
 
     public static void RecordScreenView(string screenName) {
