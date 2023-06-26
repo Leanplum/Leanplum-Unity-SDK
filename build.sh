@@ -291,7 +291,14 @@ main() {
   fi
 
   export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION"}
-  echo "Building unitypackage with version ${UNITY_VERSION_STRING}, using iOS ${APPLE_SDK_VERSION} and Android ${ANDROID_SDK_VERSION}"
+
+  PACKAGE_IMPORTER_PATH="Leanplum-Unity-SDK/Assets/Editor/PackageImporter.cs"
+  CLEVERTAP_UNITY_VERSION=$(sed -n 's/.*CLEVERTAP_UNITY_VERSION = "\(.*\)";/\1/p' "$PACKAGE_IMPORTER_PATH")
+  INFO="Building unitypackage with version ${UNITY_VERSION_STRING},
+including CleverTapUnity version ${CLEVERTAP_UNITY_VERSION},
+using Leanplum iOS ${APPLE_SDK_VERSION} and Leanplum Android ${ANDROID_SDK_VERSION}."
+  echo "$INFO"
+  sleep 3
 
   if [ "$APPLE_COPY" = true ]; then
       copy_ios_sdk $APPLE_SDK_VERSION
@@ -319,6 +326,7 @@ main() {
   git checkout Leanplum-Unity-SDK/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml
   git checkout Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle
 
+  echo "Completed ${INFO}"
   echo "Done."
 }
 
