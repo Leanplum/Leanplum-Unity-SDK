@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2022, Leanplum, Inc.
+// Copyright 2023, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -63,117 +63,117 @@ namespace LeanplumSDK
             this.apiMethod = apiMethod;
         }
 
-        internal static RequestBuilder withStartAction()
+        internal static RequestBuilder WithStartAction()
         {
             return new RequestBuilder(POST, ApiMethods.START);
         }
 
-        public static RequestBuilder withGetVarsAction()
+        public static RequestBuilder WithGetVarsAction()
         {
             return new RequestBuilder(POST, ApiMethods.GET_VARS);
         }
 
-        public static RequestBuilder withSetVarsAction()
+        public static RequestBuilder WithSetVarsAction()
         {
             return new RequestBuilder(POST, ApiMethods.SET_VARS);
         }
 
-        public static RequestBuilder withStopAction()
+        public static RequestBuilder WithStopAction()
         {
             return new RequestBuilder(POST, ApiMethods.STOP);
         }
 
-        public static RequestBuilder withTrackAction()
+        public static RequestBuilder WithTrackAction()
         {
             return new RequestBuilder(POST, ApiMethods.TRACK);
         }
 
-        public static RequestBuilder withAdvanceAction()
+        public static RequestBuilder WithAdvanceAction()
         {
             return new RequestBuilder(POST, ApiMethods.ADVANCE);
         }
 
-        public static RequestBuilder withPauseSessionAction()
+        public static RequestBuilder WithPauseSessionAction()
         {
             return new RequestBuilder(POST, ApiMethods.PAUSE_SESSION);
         }
 
-        public static RequestBuilder withPauseStateAction()
+        public static RequestBuilder WithPauseStateAction()
         {
             return new RequestBuilder(POST, ApiMethods.PAUSE_STATE);
         }
 
-        public static RequestBuilder withResumeSessionAction()
+        public static RequestBuilder WithResumeSessionAction()
         {
             return new RequestBuilder(POST, ApiMethods.RESUME_SESSION);
         }
 
-        public static RequestBuilder withResumeStateAction()
+        public static RequestBuilder WithResumeStateAction()
         {
             return new RequestBuilder(POST, ApiMethods.RESUME_STATE);
         }
 
-        public static RequestBuilder withMultiAction()
+        public static RequestBuilder WithMultiAction()
         {
             return new RequestBuilder(POST, ApiMethods.MULTI);
         }
 
-        public static RequestBuilder withRegisterForDevelopmentAction()
+        public static RequestBuilder WithRegisterForDevelopmentAction()
         {
             return new RequestBuilder(POST, ApiMethods.REGISTER_FOR_DEVELOPMENT);
         }
 
-        public static RequestBuilder withSetUserAttributesAction()
+        public static RequestBuilder WithSetUserAttributesAction()
         {
             return new RequestBuilder(POST, ApiMethods.SET_USER_ATTRIBUTES);
         }
 
-        public static RequestBuilder withSetDeviceAttributesAction()
+        public static RequestBuilder WithSetDeviceAttributesAction()
         {
             return new RequestBuilder(POST, ApiMethods.SET_DEVICE_ATTRIBUTES);
         }
 
-        public static RequestBuilder withSetTrafficSourceInfoAction()
+        public static RequestBuilder WithSetTrafficSourceInfoAction()
         {
             return new RequestBuilder(POST, ApiMethods.SET_TRAFFIC_SOURCE_INFO);
         }
 
-        public static RequestBuilder withUploadFileAction()
+        public static RequestBuilder WithUploadFileAction()
         {
             return new RequestBuilder(POST, ApiMethods.UPLOAD_FILE);
         }
 
-        public static RequestBuilder withDownloadFileAction()
+        public static RequestBuilder WithDownloadFileAction()
         {
             return new RequestBuilder(GET, ApiMethods.DOWNLOAD_FILE);
         }
 
-        public static RequestBuilder withHeartbeatAction()
+        public static RequestBuilder WithHeartbeatAction()
         {
             return new RequestBuilder(POST, ApiMethods.HEARTBEAT);
         }
 
-        public static RequestBuilder withLogAction()
+        public static RequestBuilder WithLogAction()
         {
             return new RequestBuilder(POST, ApiMethods.LOG);
         }
 
-        public static RequestBuilder withGetInboxMessagesAction()
+        public static RequestBuilder WithGetInboxMessagesAction()
         {
             return new RequestBuilder(POST, ApiMethods.GET_INBOX_MESSAGES);
         }
 
-        public static RequestBuilder withMarkInboxMessageAsReadAction()
+        public static RequestBuilder WithMarkInboxMessageAsReadAction()
         {
             return new RequestBuilder(POST, ApiMethods.MARK_INBOX_MESSAGE_AS_READ);
         }
 
-        public static RequestBuilder withDeleteInboxMessageAction()
+        public static RequestBuilder WithDeleteInboxMessageAction()
         {
             return new RequestBuilder(POST, ApiMethods.DELETE_INBOX_MESSAGE);
         }
 
-        public static RequestBuilder withFileResource(string resourceUrl)
+        public static RequestBuilder WithFileResource(string resourceUrl)
         {
             return new RequestBuilder(GET, resourceUrl);
         }

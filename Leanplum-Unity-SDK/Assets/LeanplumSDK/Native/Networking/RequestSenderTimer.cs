@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2022, Leanplum, Inc.
+// Copyright 2023, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -49,7 +49,7 @@ namespace LeanplumSDK
 
         private void SendRequestsHeartbeat()
         {
-            Request request = RequestBuilder.withHeartbeatAction().CreateImmediate();
+            Request request = RequestBuilder.WithHeartbeatAction().CreateImmediate();
             Leanplum.RequestSender.Send(request);
         }
 

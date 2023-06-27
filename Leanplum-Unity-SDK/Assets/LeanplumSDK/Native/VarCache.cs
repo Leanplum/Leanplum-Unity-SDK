@@ -496,7 +496,7 @@ namespace LeanplumSDK
             };
             LeanplumUnityHelper.QueueOnMainThread(() => {
 
-                Request request = RequestBuilder.withSetVarsAction().AndParameters(parameters).CreateImmediate();
+                Request request = RequestBuilder.WithSetVarsAction().AndParameters(parameters).CreateImmediate();
                 request.Response += delegate (object response)
                 {
                     completedHandler?.Invoke(true);

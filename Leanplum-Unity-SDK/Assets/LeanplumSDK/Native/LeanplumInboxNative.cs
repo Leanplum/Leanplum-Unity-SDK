@@ -120,7 +120,7 @@ namespace LeanplumSDK
             if (message != null)
             {
                 message.IsRead = true;
-                Request request = RequestBuilder.withMarkInboxMessageAsReadAction()
+                Request request = RequestBuilder.WithMarkInboxMessageAsReadAction()
                     .AndParam(Constants.Params.INBOX_MESSAGE_ID, message.Id)
                     .Create();
                 Leanplum.RequestSender.Send(request);
@@ -137,7 +137,7 @@ namespace LeanplumSDK
 
                 UpdateMessages(msgs);
 
-                Request request = RequestBuilder.withDeleteInboxMessageAction()
+                Request request = RequestBuilder.WithDeleteInboxMessageAction()
                     .AndParam(Constants.Params.INBOX_MESSAGE_ID, messageId)
                     .Create();
                 Leanplum.RequestSender.Send(request);
@@ -169,7 +169,7 @@ namespace LeanplumSDK
 
         public override void DownloadMessages(OnForceContentUpdate completedHandler)
         {
-            Request request = RequestBuilder.withGetInboxMessagesAction().CreateImmediate();
+            Request request = RequestBuilder.WithGetInboxMessagesAction().CreateImmediate();
             request.Response += delegate (object data)
             {
                 try
