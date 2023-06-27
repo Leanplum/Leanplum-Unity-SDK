@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2022, Leanplum, Inc.
+// Copyright 2023, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -125,6 +125,7 @@ namespace LeanplumSDK
                     .Create();
                 Leanplum.RequestSender.Send(request);
             }
+            Save();
             InboxChanged?.Invoke();
         }
 
@@ -160,7 +161,6 @@ namespace LeanplumSDK
         {
             // ignored
         }
-
 
         public override void DownloadMessages()
         {
