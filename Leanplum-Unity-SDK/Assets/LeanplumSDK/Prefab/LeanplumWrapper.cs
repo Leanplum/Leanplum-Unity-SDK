@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2022, Leanplum, Inc.
+// Copyright 2023, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -65,7 +65,7 @@ public class LeanplumWrapper : MonoBehaviour
         {
             Debug.LogError("Please make sure to enter your AppID, Production Key, and " +
                            "Development Key in the Leanplum GameObject inspector before starting.");
-        }   
+        }
 
         if (Debug.isDebugBuild)
         {
@@ -77,10 +77,9 @@ public class LeanplumWrapper : MonoBehaviour
             Leanplum.SetAppIdForProductionMode(AppID, ProductionKey);
         }
 
-        Leanplum.Inbox.InboxChanged += InboxChanged;
-        Leanplum.Inbox.ForceContentUpdate += ForceContentUpdate;
-
 #if UNITY_EDITOR
+        Leanplum.SetLogLevel(Constants.LogLevel.DEBUG);
+
         MessageTemplates.DefineAlert();
         MessageTemplates.DefineConfirm();
         MessageTemplates.DefineCenterPopup();
@@ -89,17 +88,6 @@ public class LeanplumWrapper : MonoBehaviour
         LeanplumNative.ShouldPerformActions(true);
 #endif
 
-        Leanplum.SetLogLevel(Constants.LogLevel.DEBUG);
         Leanplum.Start();
-    }
-
-    void InboxChanged()
-    {
-        Debug.Log("Inbox changed delegate called");
-    }
-
-    void ForceContentUpdate(bool success)
-    {
-        Debug.Log("Inbox forceContentUpdate delegate called: " + success);
     }
 }
