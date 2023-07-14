@@ -68,6 +68,8 @@ static NSString * kCleverTapPushNotificationPermissionStatus = @"CleverTapPushNo
 
 + (void)launchWithAccountID:(NSString*)accountID token:(NSString *)token region:(NSString *)region {
     [CleverTap setCredentialsWithAccountID:accountID token:token region:region];
+    // Initialize CleverTapUnityManager to register listeners and set delegates
+    [CleverTapUnityManager sharedInstance];
     [[CleverTap sharedInstance] notifyApplicationLaunchedWithOptions:nil];
 }
 
