@@ -1,10 +1,10 @@
-IOS_SDK_VERSION?=6.1.0
+IOS_SDK_VERSION?=6.1.1
 
 ANDROID_SDK_VERSION?=7.2.0
 # CT version must be the same as in the Leanplum Android SDK and the module clevertapsdk-unity-x.x.x
 CT_ANDROID_SDK_VERSION?=5.0.0
 
-UNITY_VERSION?=6.0.0-beta1
+UNITY_VERSION?=6.0.0-beta2
 
 UNITY_EDITOR_VERSION?=2021.3.15f1
 

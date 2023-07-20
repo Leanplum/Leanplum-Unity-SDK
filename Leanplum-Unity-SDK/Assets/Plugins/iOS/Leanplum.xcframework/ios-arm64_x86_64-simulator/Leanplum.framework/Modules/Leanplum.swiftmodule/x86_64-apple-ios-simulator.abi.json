@@ -10922,20 +10922,29 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
+                "name": "Optional",
+                "printedName": "Foundation.NSNumber?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSNumber",
+                    "printedName": "Foundation.NSNumber",
+                    "usr": "c:objc(cs)NSNumber"
+                  }
+                ],
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Var",
             "usr": "c:@M@Leanplum@objc(cs)LPCTNotificationsManager(py)openDeepLinksInForeground",
-            "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSbvp",
+            "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSo8NSNumberCSgvp",
             "moduleName": "Leanplum",
             "declAttributes": [
               "HasInitialValue",
               "HasStorage",
               "AccessControl",
-              "ObjC"
+              "ObjC",
+              "RawDocComment"
             ],
             "hasStorage": true,
             "accessors": [
@@ -10946,14 +10955,22 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
+                    "name": "Optional",
+                    "printedName": "Foundation.NSNumber?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSNumber",
+                        "printedName": "Foundation.NSNumber",
+                        "usr": "c:objc(cs)NSNumber"
+                      }
+                    ],
+                    "usr": "s:Sq"
                   }
                 ],
                 "declKind": "Accessor",
                 "usr": "c:@M@Leanplum@objc(cs)LPCTNotificationsManager(im)openDeepLinksInForeground",
-                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSbvg",
+                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSo8NSNumberCSgvg",
                 "moduleName": "Leanplum",
                 "implicit": true,
                 "declAttributes": [
@@ -10973,14 +10990,22 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
+                    "name": "Optional",
+                    "printedName": "Foundation.NSNumber?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSNumber",
+                        "printedName": "Foundation.NSNumber",
+                        "usr": "c:objc(cs)NSNumber"
+                      }
+                    ],
+                    "usr": "s:Sq"
                   }
                 ],
                 "declKind": "Accessor",
                 "usr": "c:@M@Leanplum@objc(cs)LPCTNotificationsManager(im)setOpenDeepLinksInForeground:",
-                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSbvs",
+                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSo8NSNumberCSgvs",
                 "moduleName": "Leanplum",
                 "implicit": true,
                 "declAttributes": [
@@ -11000,8 +11025,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSbvM",
-                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSbvM",
+                "usr": "s:8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSo8NSNumberCSgvM",
+                "mangledName": "$s8Leanplum24LPCTNotificationsManagerC25openDeepLinksInForegroundSo8NSNumberCSgvM",
                 "moduleName": "Leanplum",
                 "implicit": true,
                 "accessorKind": "_modify"
@@ -13069,43 +13094,36 @@
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
-      "kind": "BooleanLiteral",
-      "offset": 419,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
-      "offset": 612,
+      "offset": 694,
       "length": 6,
       "value": "\"Open\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
-      "offset": 643,
+      "offset": 725,
       "length": 9,
       "value": "\"Receive\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
-      "offset": 612,
+      "offset": 694,
       "length": 6,
       "value": "\"Open\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
-      "offset": 643,
+      "offset": 725,
       "length": 9,
       "value": "\"Receive\""
     },
     {
       "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 872,
+      "offset": 954,
       "length": 5,
       "value": "false"
     }
