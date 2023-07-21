@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2022, Leanplum, Inc.
+// Copyright 2023, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -55,7 +55,7 @@ namespace LeanplumSDK
         /// <param name="error">Error handler</param>
         public void DownloadAssetResource(string resourceUrl, Action<object> response, Action<Exception> error)
         {
-            Request request = RequestBuilder.withFileResource(resourceUrl)
+            Request request = RequestBuilder.WithFileResource(resourceUrl)
                 .CreateImmediate();
 
             request.Response += response;

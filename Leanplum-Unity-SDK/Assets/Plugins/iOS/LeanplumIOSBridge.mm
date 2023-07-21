@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2022 Leanplum. All rights reserved.
+//  Copyright (c) 2023 Leanplum. All rights reserved.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -27,6 +27,7 @@
 #import "LeanplumIOSBridge.h"
 #import "LeanplumUnityConstants.h"
 #import <Leanplum/Leanplum-Swift.h>
+#import <CleverTapSDK/CleverTap.h>
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
 
@@ -106,6 +107,11 @@ extern "C"
         [Leanplum onVariablesChanged:^{
             UnitySendMessage(__LPgameObject, __NativeCallbackMethod, "VariablesChanged:");
         }];
+
+        CleverTapInstanceCallback *callback = [[CleverTapInstanceCallback alloc] initWithCallback:^(CleverTap * _Nonnull instance) {
+            [LeanplumIOSBridge sendMessageToUnity:@"CleverTapInstance:" withKey:[instance getAccountID]];
+        }];
+        [Leanplum addCleverTapInstanceCallback:callback];
         
         [Leanplum onVariablesChangedAndNoDownloadsPending:^{
             UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
@@ -240,7 +246,9 @@ extern "C"
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
-        [Leanplum setUserId:lp::to_nsstring(newUserId) withUserAttributes:dictionary];
+        
+        NSDictionary *attributes = lp::convertDateValues(dictionary);
+        [Leanplum setUserId:lp::to_nsstring(newUserId) withUserAttributes:attributes];
     }
 
     void lp_pauseState()
@@ -300,9 +308,10 @@ extern "C"
         NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                    options:NSUTF8StringEncoding
                                                                      error:nil];
-        
+
+        NSDictionary *attributes = lp::convertDateValues(dictionary);
         NSString *userIdString = userId != NULL ? [NSString stringWithUTF8String:userId] : nil;
-        [Leanplum startWithUserId:userIdString userAttributes:dictionary
+        [Leanplum startWithUserId:userIdString userAttributes:attributes
                   responseHandler:^(BOOL success) {
                       int res = [@(success) intValue];
                       UnitySendMessage(__LPgameObject, __NativeCallbackMethod,
@@ -336,6 +345,25 @@ extern "C"
 
         [Leanplum track:lp::to_nsstring(event) withValue:value andInfo:lp::to_nsstring(info)
           andParameters:dictionary];
+    }
+
+    const char * lp_migrationConfig()
+    {
+        NSNumber *state = @([[MigrationManager shared] state]);
+        NSString *accountId = [[MigrationManager shared] cleverTapAccountId];
+        NSString *accountToken = [[MigrationManager shared] cleverTapAccountToken];
+        NSString *accountRegion = [[MigrationManager shared] cleverTapAccountRegion];
+        NSDictionary *attributeMappings = [[MigrationManager shared] cleverTapAttributeMappings];
+        NSArray *identityKeys = [[MigrationManager shared] cleverTapIdentityKeys];
+        NSDictionary *migrationDict = @{
+            @"state": state,
+            @"accountId": (accountId) ? accountId : @"",
+            @"accountToken": (accountToken) ? accountToken : @"",
+            @"accountRegion": (accountRegion) ? accountRegion : @"",
+            @"attributeMappings": attributeMappings,
+            @"identityKeys": identityKeys
+        };
+        return lp::to_json_string(migrationDict);
     }
 
 #pragma mark Actions

@@ -145,6 +145,10 @@ typedef void (^LeanplumSetLocationBlock)(BOOL success);
 typedef BOOL (^LeanplumActionBlock)(LPActionContext* context);
 typedef void (^LeanplumHandleNotificationBlock)(void);
 typedef void (^LeanplumShouldHandleNotificationBlock)(NSDictionary *userInfo, LeanplumHandleNotificationBlock response);
+typedef void (^LeanplumCleverTapNotificationBlock)(BOOL openDeeplink);
+typedef void (^LeanplumHandleCleverTapNotificationBlock)(NSDictionary *userInfo,
+                                                         BOOL isNotificationOpen,
+                                                         LeanplumCleverTapNotificationBlock response);
 typedef void (^LeanplumPushSetupBlock)(void);
 /**@}*/
 
@@ -435,6 +439,22 @@ NS_SWIFT_NAME(defineAction(name:kind:args:options:present:dismiss:));
  * Overrides the default behavior of showing an alert view with the notification message.
  */
 + (void)setShouldOpenNotificationHandler:(LeanplumShouldHandleNotificationBlock)block;
+
+/**
+ * CleverTap push notifications specific.
+ * Sets whether a notification's deeplink should be opened when push notification is recevied while the app is on the foreground.
+ * Default value is false.
+ */
++ (void)setCleverTapOpenDeepLinksInForeground:(BOOL)openDeepLinksInForeground;
+
+/**
+ * CleverTap push notifications specific.
+ * Block to call that decides how to handle a CleverTap push notification.
+ * received while the app is running, and the notification is not muted.
+ * The block provides the notification userInfo, a bool if the push is received or opened, and a block with the default implementation.
+ * @see LeanplumHandleCleverTapNotificationBlock for details.
+ */
++ (void)setHandleCleverTapNotification:(_Nullable LeanplumHandleCleverTapNotificationBlock)block;
 
 /**
  * Sets if a Deliver event should be tracked when a Push Notification is received.

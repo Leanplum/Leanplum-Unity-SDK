@@ -254,6 +254,10 @@ main() {
       ANDROID_SDK_VERSION="${i#*=}"
       shift # past argument=value
       ;;
+      --ct-android-sdk-version=*)
+      CT_ANDROID_SDK_VERSION="${i#*=}"
+      shift # past argument=value
+      ;;
       --version=*)
       UNITY_VERSION="${i#*=}"
       shift # past argument=value
@@ -287,7 +291,14 @@ main() {
   fi
 
   export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION"}
-  echo "Building unitypackage with version ${UNITY_VERSION_STRING}, using iOS ${APPLE_SDK_VERSION} and Android ${ANDROID_SDK_VERSION}"
+
+  PACKAGE_IMPORTER_PATH="Leanplum-Unity-SDK/Assets/Editor/PackageImporter.cs"
+  CLEVERTAP_UNITY_VERSION=$(sed -n 's/.*CLEVERTAP_UNITY_VERSION = "\(.*\)";/\1/p' "$PACKAGE_IMPORTER_PATH")
+  INFO="Building unitypackage with version ${UNITY_VERSION_STRING},
+including CleverTapUnity version ${CLEVERTAP_UNITY_VERSION},
+using Leanplum iOS ${APPLE_SDK_VERSION} and Leanplum Android ${ANDROID_SDK_VERSION}."
+  echo "$INFO"
+  sleep 3
 
   if [ "$APPLE_COPY" = true ]; then
       copy_ios_sdk $APPLE_SDK_VERSION
@@ -298,6 +309,8 @@ main() {
   replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
   replace "Leanplum-Unity-SDK/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml" "%LP_VERSION%" $ANDROID_SDK_VERSION
   replace "Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
+  replace "Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle" "%CT_VERSION%" $CT_ANDROID_SDK_VERSION
+  replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%CT_VERSION%" $CT_ANDROID_SDK_VERSION
   replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_UNITY_VERSION%" $UNITY_VERSION
   awk -v value="\"$UNITY_VERSION\";" '!x{x=sub(/SDK_VERSION =.*/, "SDK_VERSION = "value)}1' "Leanplum-Unity-SDK/Assets/LeanplumSDK/Utilities/Constants.cs" > Constants_tmp.cs \
     && mv -v Constants_tmp.cs "Leanplum-Unity-SDK/Assets/LeanplumSDK/Utilities/Constants.cs"
@@ -313,6 +326,7 @@ main() {
   git checkout Leanplum-Unity-SDK/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml
   git checkout Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle
 
+  echo "Completed ${INFO}"
   echo "Done."
 }
 

@@ -356,7 +356,10 @@ extension ActionManager {
   @objc dynamic public func definition(withName name: String) -> ActionDefinition?
 }
 @_inheritsConvenienceInitializers @objc public class LPCTNotificationsManager : NotificationsManager {
+  @objc public var openDeepLinksInForeground: NSNumber?
+  @objc public var handleCleverTapNotificationBlock: LeanplumHandleCleverTapNotificationBlock?
   @objc override public func didRegisterForRemoteNotificationsWithDeviceToken(_ deviceToken: Data)
+  @objc public func handleWithCleverTapInstance(action: @escaping () -> ())
   @objc override dynamic public init()
   @objc deinit
 }

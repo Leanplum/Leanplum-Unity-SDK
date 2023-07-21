@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2022 Leanplum. All rights reserved.
+//  Copyright (c) 2023 Leanplum. All rights reserved.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -19,6 +19,8 @@
 //  under the License.
 package com.leanplum;
 
+import androidx.annotation.NonNull;
+import com.clevertap.android.sdk.CleverTapAPI;
 import com.leanplum.actions.LeanplumActions;
 import com.leanplum.actions.MessageDisplayController;
 import com.leanplum.actions.MessageDisplayControllerImpl;
@@ -27,7 +29,10 @@ import com.leanplum.actions.MessageDisplayListenerImpl;
 import com.leanplum.actions.internal.ActionManagerTriggeringKt;
 import com.leanplum.actions.internal.ActionsTrigger;
 import com.leanplum.actions.internal.Priority;
+import com.leanplum.callbacks.CleverTapInstanceCallback;
 import com.leanplum.internal.ActionManager;
+import com.leanplum.migration.MigrationManager;
+import com.leanplum.migration.model.MigrationConfig;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -152,6 +157,13 @@ public class UnityBridge {
     Leanplum.setDeviceId(deviceId);
   }
 
+  /**
+   * For internal purposes only.
+   */
+  public static void forceNewDeviceId(String deviceId) {
+    Leanplum.forceNewDeviceId(deviceId);
+  }
+
   public static String getDeviceId() {
     return Leanplum.getDeviceId();
   }
@@ -217,6 +229,14 @@ public class UnityBridge {
       }
     });
 
+    Leanplum.addCleverTapInstanceCallback(new CleverTapInstanceCallback() {
+      @Override
+      public void onInstance(@NonNull CleverTapAPI cleverTapInstance) {
+        String accountId = MigrationConfig.INSTANCE.getAccountId();
+        makeCallbackToUnity("CleverTapInstance:" + accountId);
+      }
+    });
+
     final Map<String, Object> attributes = JsonConverter.fromJson(jsonAttributes);
 
     Leanplum.start(bridgeContext, userId, attributes);
@@ -272,7 +292,8 @@ public class UnityBridge {
   }
 
   public static void setUserAttributes(String userId, String jsonAttributes) {
-    Leanplum.setUserAttributes(userId, JsonConverter.fromJson(jsonAttributes));
+    Map<String, Object> attributesMap = JsonConverter.fromJsonWithConvertedDateValues(jsonAttributes);
+    Leanplum.setUserAttributes(userId, attributesMap);
   }
 
   public static void pauseState() {
@@ -655,5 +676,23 @@ public class UnityBridge {
   public static void useWorkerThreadForDecisionHandlers(boolean useAsyncHandlers) {
     Log.i("Leanplum", "Using worker thread for decision handlers: " + useAsyncHandlers);
     LeanplumActions.setUseWorkerThreadForDecisionHandlers(useAsyncHandlers);
+  }
+
+  public static String getMigrationConfig() {
+    Map<String, Object> config = new HashMap<>();
+    String state = "0";
+    switch (MigrationManager.getState()) {
+      case Undefined: state = "0"; break;
+      case LeanplumOnly: state = "1"; break;
+      case CleverTapOnly: state = "3"; break;
+      case Duplicate: state = "2"; break;
+    }
+    config.put("state", state);
+    config.put("accountId", MigrationConfig.INSTANCE.getAccountId());
+    config.put("accountToken", MigrationConfig.INSTANCE.getAccountToken());
+    config.put("accountRegion", MigrationConfig.INSTANCE.getAccountRegion());
+    config.put("attributeMappings", MigrationConfig.INSTANCE.getAttributeMap());
+    config.put("identityKeys", MigrationConfig.INSTANCE.getIdentityList());
+    return JsonConverter.toJson(config);
   }
 }

@@ -1,5 +1,5 @@
 //
-// Copyright 2022, Leanplum, Inc.
+// Copyright 2023, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -124,6 +124,9 @@ namespace LeanplumSDK
         internal static extern string lp_securedVars();
 
         [DllImport("__Internal")]
+        internal static extern string lp_migrationConfig();
+
+        [DllImport("__Internal")]
         internal static extern string lp_vars();
 
         [DllImport("__Internal")]
@@ -204,6 +207,24 @@ namespace LeanplumSDK
         public override event VariableChangedHandler VariablesChanged;
         public override event VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
 
+        private event CleverTapInstanceHandler cleverTapInstanceReady;
+        private string accountId;
+        public override event CleverTapInstanceHandler CleverTapInstanceReady
+        {
+            add
+            {
+                cleverTapInstanceReady += value;
+                if (!string.IsNullOrEmpty(accountId))
+                {
+                    value?.Invoke();
+                }
+            }
+            remove
+            {
+                cleverTapInstanceReady -= value;
+            }
+        }
+
         private event StartHandler started;
         private bool startSuccessful;
 
@@ -229,8 +250,8 @@ namespace LeanplumSDK
         private Dictionary<string, ActionContext.ActionResponder> ActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
         private Dictionary<string, ActionContext.ActionResponder> DismissActionRespondersDictionary = new Dictionary<string, ActionContext.ActionResponder>();
 
-        private Dictionary<int, Leanplum.VariablesChangedAndNoDownloadsPendingHandler> OnceVariablesChangedAndNoDownloadsPendingDict =
-    new Dictionary<int, Leanplum.VariablesChangedAndNoDownloadsPendingHandler>();
+        private Dictionary<int, VariablesChangedAndNoDownloadsPendingHandler> OnceVariablesChangedAndNoDownloadsPendingDict =
+    new Dictionary<int, VariablesChangedAndNoDownloadsPendingHandler>();
 
         static private int DictionaryKey = 0;
 
@@ -509,7 +530,10 @@ namespace LeanplumSDK
 
             // Invokes Started event through NativeCallback
             Started += startResponseAction;
-            string attributesString = attributes == null ? null : Json.Serialize(attributes);
+
+            IDictionary<string, object> valueDict = attributes.ConvertDateObjects();
+            string attributesString = valueDict == null ? null : Json.Serialize(valueDict);
+
             lp_start(Constants.SDK_VERSION, userId, attributesString);
         }
 
@@ -614,7 +638,8 @@ namespace LeanplumSDK
         public override void SetUserAttributes(string newUserId,
             IDictionary<string, object> attributes)
         {
-            string attributesString = attributes == null ? null : Json.Serialize(attributes);
+            IDictionary<string, object> valueDict = attributes.ConvertDateObjects();
+            string attributesString = valueDict == null ? null : Json.Serialize(valueDict);
             lp_setUserAttributes(newUserId, attributesString);
         }
 
@@ -661,6 +686,17 @@ namespace LeanplumSDK
             {
                 var varsDict = (Dictionary<string, object>)Json.Deserialize(jsonString);
                 return LeanplumSecuredVars.FromDictionary(varsDict);
+            }
+            return null;
+        }
+
+        public override MigrationConfig MigrationConfig()
+        {
+            string jsonString = lp_migrationConfig();
+            if (!string.IsNullOrEmpty(jsonString))
+            {
+                var varsDict = (Dictionary<string, object>)Json.Deserialize(jsonString);
+                return new MigrationConfig(varsDict);
             }
             return null;
         }
@@ -736,6 +772,7 @@ namespace LeanplumSDK
             const string VARIABLES_CHANGED_NO_DOWNLOAD_PENDING = "VariablesChangedAndNoDownloadsPending:";
             const string ONCE_VARIABLES_CHANGED_NO_DOWNLOADS_PENDING = "OnceVariablesChangedAndNoDownloadsPending:";
             const string STARTED = "Started:";
+            const string CLEVERTAP_INSTANCE = "CleverTapInstance:";
             const string VARIABLE_VALUE_CHANGED = "VariableValueChanged:";
             const string FORCE_CONTENT_UPDATE_WITH_HANDLER = "ForceContentUpdateWithHandler:";
             const string DEFINE_ACTION_RESPONDER = "ActionResponder:";
@@ -768,6 +805,17 @@ namespace LeanplumSDK
                 {
                     startSuccessful = message.EndsWith("1");
                     started(startSuccessful);
+                }
+            }
+            else if (message.StartsWith(CLEVERTAP_INSTANCE))
+            {
+                string id = message[CLEVERTAP_INSTANCE.Length..];
+                if (accountId != id)
+                {
+                    accountId = id;
+                    MigrationConfig config = MigrationConfig();
+                    CleverTap.CleverTapBinding.LaunchWithCredentialsForRegion(config.AccountId, config.AccountToken, config.AccountRegion);
+                    cleverTapInstanceReady?.Invoke();
                 }
             }
             else if (message.StartsWith(VARIABLE_VALUE_CHANGED))
@@ -1183,7 +1231,7 @@ namespace LeanplumSDK
             bool realtimeUpdating = true, string iosBundleName = "", string androidBundleName = "",
             string standaloneBundleName = "")
         {
-            // TODO: Not implemented.
+            Debug.LogError("Leanplum Error: Asset Bundles not supported on iOS.");
             return null;
         }
 

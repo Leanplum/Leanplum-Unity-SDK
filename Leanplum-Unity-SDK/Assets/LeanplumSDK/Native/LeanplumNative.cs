@@ -117,10 +117,10 @@ namespace LeanplumSDK
             {
                 foreach (object value in attributes.Values)
                 {
-                    if (!(Util.IsNumber(value)) && !(value is string) && !(value is bool?))
+                    if (!Util.IsNumber(value) && !(value is string) && !(value is bool?) && !(value is DateTime))
                     {
                         Util.MaybeThrow(new LeanplumException(
-                            "userAttributes values must be of type string, number type, or bool."));
+                            "User Attributes values must be of type string, number type, bool, or DateTime."));
                     }
                 }
             }
@@ -396,7 +396,7 @@ namespace LeanplumSDK
                 [Constants.Keys.CITY] = country
             };
 
-            Request request = RequestBuilder.withSetUserAttributesAction()
+            Request request = RequestBuilder.WithSetUserAttributesAction()
                 .AndParameters(parameters)
                 .Create();
             Leanplum.RequestSender.Send(request);
@@ -415,7 +415,7 @@ namespace LeanplumSDK
                 parameters[Constants.Keys.LOCATION_ACCURACY_TYPE] = LocationAccuracyTypeToString(type.Value);
             }
 
-            Request request = RequestBuilder.withSetUserAttributesAction()
+            Request request = RequestBuilder.WithSetUserAttributesAction()
                 .AndParameters(parameters)
                 .Create();
             Leanplum.RequestSender.Send(request);
@@ -496,6 +496,18 @@ namespace LeanplumSDK
             remove
             {
                 started -= value;
+            }
+        }
+
+        public override event Leanplum.CleverTapInstanceHandler CleverTapInstanceReady
+        {
+            add
+            {
+                CompatibilityLayer.LogWarning("CleverTapInstanceReady.add is not supported in Unity Native.");
+            }
+            remove
+            {
+                CompatibilityLayer.LogWarning("CleverTapInstanceReady.remove not supported in Unity Native.");
             }
         }
 
@@ -643,7 +655,7 @@ namespace LeanplumSDK
 
 
             // Issue start API call
-            Request startRequest = RequestBuilder.withStartAction()
+            Request startRequest = RequestBuilder.WithStartAction()
                 .AndParameters(parameters)
                 .CreateImmediate();
 
@@ -985,7 +997,7 @@ namespace LeanplumSDK
                 }
             }
 
-            Request request = RequestBuilder.withTrackAction()
+            Request request = RequestBuilder.WithTrackAction()
                 .AndParameters(requestParams)
                 .Create();
             Leanplum.RequestSender.Send(request);
@@ -1016,7 +1028,7 @@ namespace LeanplumSDK
                 [Constants.Params.TRAFFIC_SOURCE] = Json.Serialize(info)
             };
 
-            Request request = RequestBuilder.withSetTrafficSourceInfoAction()
+            Request request = RequestBuilder.WithSetTrafficSourceInfoAction()
                 .AndParameters(requestParams)
                 .Create();
             Leanplum.RequestSender.Send(request);
@@ -1051,7 +1063,7 @@ namespace LeanplumSDK
                 requestParams[Constants.Params.PARAMS] = Json.Serialize(parameters);
             }
 
-            Request request = RequestBuilder.withAdvanceAction()
+            Request request = RequestBuilder.WithAdvanceAction()
                 .AndParameters(requestParams)
                 .Create();
             Leanplum.RequestSender.Send(request);
@@ -1091,7 +1103,7 @@ namespace LeanplumSDK
                 VarCache.SaveDiffs();
             }
 
-            Request request = RequestBuilder.withSetUserAttributesAction()
+            Request request = RequestBuilder.WithSetUserAttributesAction()
                 .AndParameters(parameters)
                 .Create();
             Leanplum.RequestSender.Send(request);
@@ -1122,7 +1134,7 @@ namespace LeanplumSDK
                 CompatibilityLayer.LogError("You cannot call PauseState before calling start.");
                 return;
             }
-            Request request = RequestBuilder.withPauseStateAction().Create();
+            Request request = RequestBuilder.WithPauseStateAction().Create();
             Leanplum.RequestSender.Send(request);
         }
 
@@ -1141,7 +1153,7 @@ namespace LeanplumSDK
                 return;
             }
 
-            Request request = RequestBuilder.withResumeStateAction().Create();
+            Request request = RequestBuilder.WithResumeStateAction().Create();
             Leanplum.RequestSender.Send(request);
         }
 
@@ -1164,6 +1176,12 @@ namespace LeanplumSDK
         public override LeanplumSecuredVars SecuredVars()
         {
             return VarCache.SecuredVars;
+        }
+
+        public override MigrationConfig MigrationConfig()
+        {
+            CompatibilityLayer.LogWarning("MigrationConfig not supported in Unity Native.");
+            return null;
         }
 
         /// <summary>
@@ -1223,7 +1241,7 @@ namespace LeanplumSDK
             // The Inbox is loaded on Start
             updateVarsParams[Constants.Keys.INBOX_MESSAGES] = Json.Serialize(Inbox.MessageIds);
 
-            Request updateVarsRequest = RequestBuilder.withGetVarsAction()
+            Request updateVarsRequest = RequestBuilder.WithGetVarsAction()
                 .AndParameters(updateVarsParams)
                 .CreateImmediate();
 
@@ -1283,7 +1301,7 @@ namespace LeanplumSDK
             {
                 isPaused = true;
                 Leanplum.RequestSender.RequestSenderTimer.Stop();
-                Request request = RequestBuilder.withStopAction().CreateImmediate();
+                Request request = RequestBuilder.WithStopAction().CreateImmediate();
                 request.Response += (object obj) =>
                 {
                     CompatibilityLayer.FlushSavedSettings();
@@ -1315,7 +1333,7 @@ namespace LeanplumSDK
                 isPaused = false;
                 Leanplum.RequestSender.RequestSenderTimer.Start();
                 Request request = RequestBuilder
-                    .withResumeSessionAction()
+                    .WithResumeSessionAction()
                     .CreateImmediate();
                 Leanplum.RequestSender.Send(request);
             }
@@ -1342,7 +1360,7 @@ namespace LeanplumSDK
             }
 #endif
             Leanplum.RequestSender.RequestSenderTimer.Stop();
-            Request request = RequestBuilder.withStopAction().CreateImmediate();
+            Request request = RequestBuilder.WithStopAction().CreateImmediate();
             Leanplum.RequestSender.Send(request);
         }
 

@@ -1,7 +1,5 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
 using UnityEditor;
-using System;
 
 namespace Leanplum.Private
 {
@@ -12,12 +10,13 @@ namespace Leanplum.Private
             "Assets/Sample",
             "Assets/Plugins",
             "Assets/LeanplumSDK",
+            "Assets/CleverTapUnity",
             "Assets/Editor/LeanplumAndroidBuildPreProcessor.cs",
             "Assets/Editor/LeanplumAndroidGradleBuildProcessor.cs",
             "Assets/Editor/LeanplumApplePostProcessor.cs",
         };
 
-        [MenuItem("Tools/Leanplum/Export Package")]
+        [MenuItem(MenuConstants.LEANPLUM_TOOLS_MENU + "Export Package")]
         public static void ExportPackage()
         {
             string packageName = Environment.GetEnvironmentVariable("OUT_PKG");
@@ -32,4 +31,3 @@ namespace Leanplum.Private
         }
     }
 }
-

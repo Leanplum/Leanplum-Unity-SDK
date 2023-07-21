@@ -1,5 +1,5 @@
 //
-// Copryight 2022, Leanplum, Inc.
+// Copryight 2023, Leanplum, Inc.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -31,6 +31,7 @@ namespace LeanplumSDK
         public abstract event Leanplum.VariablesChangedAndNoDownloadsPendingHandler
             VariablesChangedAndNoDownloadsPending;
         public abstract event Leanplum.StartHandler Started;
+        public abstract event Leanplum.CleverTapInstanceHandler CleverTapInstanceReady;
 
         #region Networking
 
@@ -373,15 +374,23 @@ namespace LeanplumSDK
         public abstract IDictionary<string, object> Vars();
 
         /// <summary>
-        /// Returns the last received signed variables.
-        /// If signature was not provided from server the
-        /// result of this method will be null.
+        ///     Returns the last received signed variables.
+        ///     If signature was not provided from server the
+        ///     result of this method will be null.
         /// </summary>
         /// <returns> Returns <see cref="LeanplumSecuredVars"/> instance containing
-        /// variable's JSON and signature.
-        /// If signature was not downloaded from server, returns null.
+        ///     variable's JSON and signature.
+        ///     If signature was not downloaded from server, returns null.
         /// </returns>
         public abstract LeanplumSecuredVars SecuredVars();
+
+        /// <summary>
+        ///     Returns current Migration Configuration.
+        ///     Recommended only for debugging purposes and advanced use cases.
+        /// </summary>
+        /// <returns> Returns <see cref="MigrationConfig"/> with CleverTap settings.
+        /// </returns>
+        public abstract MigrationConfig MigrationConfig();
 
         /// <summary>
         ///     Returns metadata for all active in-app messages.
