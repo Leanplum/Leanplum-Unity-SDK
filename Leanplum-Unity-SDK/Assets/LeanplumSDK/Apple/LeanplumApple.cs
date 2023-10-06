@@ -792,11 +792,17 @@ namespace LeanplumSDK
             else if (message.StartsWith(ONCE_VARIABLES_CHANGED_NO_DOWNLOADS_PENDING))
             {
                 string[] values = message.Substring(ONCE_VARIABLES_CHANGED_NO_DOWNLOADS_PENDING.Length).Split(':');
-                int key = Convert.ToInt32(values[0]);
-                if (OnceVariablesChangedAndNoDownloadsPendingDict.TryGetValue(key, out Leanplum.VariablesChangedAndNoDownloadsPendingHandler callback))
+                if (int.TryParse(values[0], out int key))
                 {
-                    callback?.Invoke();
-                    OnceVariablesChangedAndNoDownloadsPendingDict.Remove(key);
+                    if (OnceVariablesChangedAndNoDownloadsPendingDict.TryGetValue(key, out Leanplum.VariablesChangedAndNoDownloadsPendingHandler callback))
+                    {
+                        callback?.Invoke();
+                        OnceVariablesChangedAndNoDownloadsPendingDict.Remove(key);
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"Leanplum Error: Cannot parse key for OnceVariablesChangedAndNoDownloadsPending callback. Message: {message}");
                 }
             }
             else if (message.StartsWith(STARTED))
@@ -827,12 +833,18 @@ namespace LeanplumSDK
             else if (message.StartsWith(FORCE_CONTENT_UPDATE_WITH_HANDLER))
             {
                 string[] values = message.Substring(FORCE_CONTENT_UPDATE_WITH_HANDLER.Length).Split(':');
-                int key = Convert.ToInt32(values[0]);
-                bool success = values[1] == "1";
-                if (ForceContentUpdateHandlersDictionary.TryGetValue(key, out Leanplum.ForceContentUpdateHandler handler))
+                if (int.TryParse(values[0], out int key))
                 {
-                    handler(success);
-                    ForceContentUpdateHandlersDictionary.Remove(key);
+                    bool success = values[1] == "1";
+                    if (ForceContentUpdateHandlersDictionary.TryGetValue(key, out Leanplum.ForceContentUpdateHandler handler))
+                    {
+                        handler(success);
+                        ForceContentUpdateHandlersDictionary.Remove(key);
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"Leanplum Error: Cannot parse key for ForceContentUpdate callback. Message: {message}");
                 }
             }
             else if (message.StartsWith(DEFINE_ACTION_RESPONDER))
