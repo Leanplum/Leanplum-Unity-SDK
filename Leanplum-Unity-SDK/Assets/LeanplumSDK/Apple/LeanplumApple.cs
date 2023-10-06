@@ -1078,6 +1078,11 @@ namespace LeanplumSDK
 
         private static ActionContextApple CreateActionContextFromKey(string key)
         {
+            if (string.IsNullOrEmpty(key))
+            {
+                return null;
+            }
+
             Tuple<string, string> actionNameMessageId = GetActionNameMessageIdFromMessageKey(key);
             return new ActionContextApple(key, actionNameMessageId.Item1, actionNameMessageId.Item2);
         }

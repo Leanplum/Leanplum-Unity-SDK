@@ -1042,6 +1042,11 @@ namespace LeanplumSDK
 
         private static ActionContextAndroid CreateActionContextFromKey(string key)
         {
+            if (string.IsNullOrEmpty(key))
+            {
+                return null;
+            }
+
             Tuple<string, string> actionNameMessageId = GetActionNameMessageIdFromMessageKey(key);
             return new ActionContextAndroid(key, actionNameMessageId.Item1, actionNameMessageId.Item2);
         }

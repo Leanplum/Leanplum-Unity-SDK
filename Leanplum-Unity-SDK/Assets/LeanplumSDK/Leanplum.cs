@@ -914,6 +914,14 @@ namespace LeanplumSDK
             LeanplumFactory.SDK.AddOnceVariablesChangedAndNoDownloadsPendingHandler(handler);
         }
 
+        /// <summary>
+        ///     Creates a new ActionContext using the action Id.
+        ///     The action with that Id should already be fetched by the SDK and present locally.
+        ///     Do NOT call this method for ActionContext handled in a custom action, defined through DefineAction.
+        ///     Use the same ActionContext instance returned by this method for each action instance created.
+        /// </summary>
+        /// <param name="actionId">The action Id.</param>
+        /// <returns>Returns new <see cref="ActionContext"/> instance. </returns>
         public static ActionContext CreateActionContextForId(string actionId)
         {
             return LeanplumFactory.SDK.CreateActionContextForId(actionId);
