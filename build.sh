@@ -9,13 +9,19 @@ set -o pipefail
 set -o errexit
 
 PATH_TO_UNITY_ROOT="/Applications/Unity/Unity.app"
+UNITY_HUB="$HOME/Applications/Unity Hub.app/Contents/MacOS/Unity Hub"
 
+# Unity Editor version to be used for building the package. 
+# It should be passed as an argument.
 UNITY_EDITOR_VERSION=""
+
+# Path to JDK to be used by the Android gradle build. Set to "" to use default.
+JAVA_VERSION_PATH="/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Home"
 
 XCFRAMEWORKS=("Leanplum" "CleverTapSDK" "SDWebImage")
 
 #######################################
-# Gets the latest version of specified repo
+# Gets the latest version of specified repo.
 # Globals:
 #   None
 # Arguments:
@@ -164,19 +170,17 @@ replace() {
 }
 
 #######################################
-# Tries to find Unity installation path through Unity Hub
+# Tries to find Unity installation path through Unity Hub.
 # Globals:
 #   None
 # Returns:
 #   None
 #######################################
 get_unity_from_hub() {
-  UNITY_HUB="/Applications/Unity Hub.app/Contents/MacOS/Unity Hub"
-
-  local path=$("${UNITY_HUB}" -- --headless editors -i | head -1 | awk '{print $NF}')
-  if [[ $UNITY_EDITOR_VERSION != "" ]]; then
-    delimiter="/"
-    declare -a array=($(echo $path | tr "$delimiter" " "))
+  local path=$("${UNITY_HUB}" -- --headless editors -i | grep "$UNITY_EDITOR_VERSION" | awk '{print $NF}')
+  if [[ $UNITY_EDITOR_VERSION != "" && $path != "" ]]; then
+    local delimiter="/"
+    local array=($(echo $path | tr "$delimiter" " "))
     local count=${#array[@]}
     # the version is second to last element
     array[count-2]=$UNITY_EDITOR_VERSION
@@ -186,6 +190,7 @@ get_unity_from_hub() {
   fi
   echo ${path}
 }
+
 
 #######################################
 # Builds the Unity SDK.
@@ -200,7 +205,11 @@ build() {
   echo "Building Android SDK..."
   # Build Android SDK
   cd Leanplum-Android-SDK-Unity/
-  ./gradlew clean assembleRelease
+  if [[ $JAVA_VERSION_PATH != "" ]]; then
+    ./gradlew clean assembleRelease -Dorg.gradle.java.home=$JAVA_VERSION_PATH
+  else
+    ./gradlew clean assembleRelease
+  fi
 
   CLASSES_JAR=android-unity-wrapper/build/outputs/aar/android-unity-wrapper-release.aar
   UNITY_DIR=Leanplum-Unity-SDK/Assets/Plugins/Android
@@ -222,6 +231,8 @@ build() {
   PATH_TO_UNITY="$PATH_TO_UNITY_ROOT/Contents/MacOS/Unity"
   PATH_TO_PROJECT="$(pwd)/Leanplum-Unity-SDK"
   PATH_TO_EXPORT="$(pwd)/Leanplum-Unity-Package"
+
+  echo $PATH_TO_UNITY
 
   export OUT_PKG="Leanplum_Unity-$UNITY_VERSION_STRING.unitypackage"
   $PATH_TO_UNITY -gvh_disable -quit -nographics -batchmode -projectPath "$PATH_TO_PROJECT" -executeMethod Leanplum.Private.PackageExporter.ExportPackage -logfile
