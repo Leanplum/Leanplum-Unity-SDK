@@ -1,0 +1,46 @@
+apply plugin: 'com.android.library'
+
+ext {
+
+    libraryName = 'CleverTapAndroidWrapper'
+    artifact = 'clevertap-android-wrapper'
+    libraryDescription = 'The CleverTap Android Wrapper for Unity SDK'
+
+    mindSdkVersionVal = 19
+    compileSdkVersionVal = 33
+    targetSdkVersionVal = compileSdkVersionVal
+    buildToolsVersionVal = "33.0.0"
+
+    libraryVersion = "2.4.2"
+}
+
+android {
+    compileSdkVersion compileSdkVersionVal
+    buildToolsVersion buildToolsVersionVal
+
+    defaultConfig {
+        minSdkVersion mindSdkVersionVal
+        targetSdkVersion targetSdkVersionVal
+
+        versionCode libraryVersion.replaceAll('\\.', '').toInteger()
+        versionName libraryVersion
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly fileTree('libs')
+
+    implementation 'com.clevertap.android:clevertap-android-sdk:6.0.0'
+    implementation 'com.google.firebase:firebase-messaging:23.0.6'
+    implementation 'androidx.core:core:1.9.0'
+}

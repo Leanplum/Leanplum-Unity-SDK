@@ -10,9 +10,9 @@ namespace Leanplum.Private
 {
     public static class PackageImporter
     {
-        private const string CLEVERTAP_UNITY_VERSION = "2.4.0";
+        private const string CLEVERTAP_UNITY_VERSION = "3.0.0";
 
-        private static readonly string CLEVERTAP_UNITY_PACKAGE = "CleverTapUnityPlugin.unitypackage";
+        private static readonly string CLEVERTAP_UNITY_PACKAGE = "CleverTapSDK.unitypackage";
         private static readonly string CLEVERTAP_UNITY_PACKAGE_URL =
             $"https://github.com/CleverTap/clevertap-unity-sdk/raw/{CLEVERTAP_UNITY_VERSION}/{CLEVERTAP_UNITY_PACKAGE}";
 
