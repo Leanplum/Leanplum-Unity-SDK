@@ -612,7 +612,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "Error",
-                "printedName": "Swift.Error",
+                "printedName": "any Swift.Error",
                 "usr": "s:s5ErrorP"
               }
             ],
@@ -2010,7 +2010,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "UIApplicationDelegate",
-                "printedName": "UIKit.UIApplicationDelegate",
+                "printedName": "any UIKit.UIApplicationDelegate",
                 "usr": "c:objc(pl)UIApplicationDelegate"
               }
             ],
@@ -9915,7 +9915,7 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Decoder",
-                    "printedName": "Swift.Decoder",
+                    "printedName": "any Swift.Decoder",
                     "usr": "s:s7DecoderP"
                   }
                 ],
@@ -9940,7 +9940,7 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Encoder",
-                    "printedName": "Swift.Encoder",
+                    "printedName": "any Swift.Encoder",
                     "usr": "s:s7EncoderP"
                   }
                 ],
@@ -10036,7 +10036,7 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Decoder",
-                    "printedName": "Swift.Decoder",
+                    "printedName": "any Swift.Decoder",
                     "usr": "s:s7DecoderP"
                   }
                 ],
@@ -10061,7 +10061,7 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Encoder",
-                    "printedName": "Swift.Encoder",
+                    "printedName": "any Swift.Encoder",
                     "usr": "s:s7EncoderP"
                   }
                 ],
@@ -11772,6 +11772,7 @@
         "genericSig": "<τ_0_0, τ_0_1 where τ_0_0 : Swift.Hashable>",
         "sugared_genericSig": "<Key, Value where Key : Swift.Hashable>",
         "declAttributes": [
+          "EagerMove",
           "Frozen"
         ],
         "isExternal": true,
@@ -12351,777 +12352,791 @@
   },
   "ConstValues": [
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
       "kind": "StringLiteral",
       "offset": 266,
       "length": 27,
       "value": "\"__leanplum_ct_account_key\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
       "kind": "StringLiteral",
       "offset": 323,
       "length": 24,
       "value": "\"__leanplum_ct_hash_key\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
       "kind": "StringLiteral",
       "offset": 385,
       "length": 29,
       "value": "\"__leanplum_ct_account_token\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
       "kind": "StringLiteral",
       "offset": 454,
       "length": 28,
       "value": "\"__leanplum_migration_state\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
       "kind": "StringLiteral",
       "offset": 518,
       "length": 24,
       "value": "\"__leanplum_region_code\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
       "kind": "StringLiteral",
       "offset": 585,
       "length": 31,
       "value": "\"__leanplum_attribute_mappings\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
       "kind": "StringLiteral",
       "offset": 654,
       "length": 26,
       "value": "\"__leanplum_identity_keys\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
       "kind": "StringLiteral",
-      "offset": 818,
+      "offset": 720,
+      "length": 30,
+      "value": "\"__leanplum_logged_in_user_id\""
+    },
+    {
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+Constants.swift",
+      "kind": "StringLiteral",
+      "offset": 888,
       "length": 4,
       "value": "\"ct\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/NotificationsManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/NotificationsManager.swift",
       "kind": "BooleanLiteral",
       "offset": 565,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/NotificationsManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/NotificationsManager.swift",
       "kind": "BooleanLiteral",
       "offset": 3484,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
       "kind": "StringLiteral",
       "offset": 390,
       "length": 8,
       "value": "\"state_\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
       "kind": "StringLiteral",
       "offset": 444,
       "length": 7,
       "value": "\"value\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
       "kind": "StringLiteral",
       "offset": 487,
       "length": 6,
       "value": "\"info\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
       "kind": "StringLiteral",
       "offset": 533,
       "length": 7,
       "value": "\"event\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
       "kind": "StringLiteral",
       "offset": 580,
       "length": 14,
       "value": "\"currencyCode\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
       "kind": "StringLiteral",
       "offset": 646,
       "length": 26,
       "value": "\"iOSTransactionIdentifier\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
       "kind": "StringLiteral",
       "offset": 714,
       "length": 16,
       "value": "\"iOSReceiptData\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
       "kind": "StringLiteral",
       "offset": 768,
       "length": 12,
       "value": "\"iOSSandbox\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
       "kind": "StringLiteral",
       "offset": 831,
       "length": 12,
       "value": "\"lp_devices\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/CTWrapper.swift",
       "kind": "StringLiteral",
       "offset": 893,
       "length": 11,
       "value": "\"lp_device\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
       "kind": "Dictionary",
       "offset": 640,
       "length": 3,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
       "kind": "Dictionary",
       "offset": 752,
       "length": 3,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
       "kind": "Array",
       "offset": 837,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
       "kind": "StringLiteral",
       "offset": 227,
       "length": 16,
       "value": "\"Leanplum.ActionDefinition\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
       "kind": "Array",
       "offset": 2462,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionDefinition.swift",
       "kind": "Array",
       "offset": 3033,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Extensions\/Dictionary+ValueKeyPath.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Extensions\/Dictionary+ValueKeyPath.swift",
       "kind": "StringLiteral",
       "offset": 271,
       "length": 3,
       "value": "\".\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
       "kind": "BooleanLiteral",
       "offset": 253,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
       "kind": "BooleanLiteral",
       "offset": 324,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
       "kind": "BooleanLiteral",
       "offset": 404,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
       "kind": "BooleanLiteral",
       "offset": 494,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
       "kind": "BooleanLiteral",
       "offset": 597,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
       "kind": "BooleanLiteral",
       "offset": 684,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
       "kind": "BooleanLiteral",
       "offset": 752,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
       "kind": "BooleanLiteral",
       "offset": 828,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy+Swizzling.swift",
       "kind": "BooleanLiteral",
       "offset": 2371,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
       "kind": "IntegerLiteral",
       "offset": 479,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
       "kind": "BooleanLiteral",
       "offset": 815,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
       "kind": "StringLiteral",
       "offset": 1372,
       "length": 34,
       "value": "\"UNUserNotificationCenterDelegate\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
       "kind": "BooleanLiteral",
       "offset": 1493,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
       "kind": "BooleanLiteral",
       "offset": 1552,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/Proxy\/NotificationsProxy.swift",
       "kind": "BooleanLiteral",
       "offset": 1614,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
       "offset": 937,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
       "offset": 993,
       "length": 34,
       "value": "\"leanplum.background_action_queue\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Array",
       "offset": 1290,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Dictionary",
       "offset": 1339,
       "length": 3,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Dictionary",
       "offset": 1451,
       "length": 3,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "Dictionary",
       "offset": 1520,
       "length": 3,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
       "offset": 1797,
       "length": 41,
       "value": "\"[ActionManager] isEnabled: \""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
       "offset": 1837,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
       "offset": 1656,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
       "offset": 2156,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
       "offset": 2241,
       "length": 39,
       "value": "\"[ActionManager] isPaused: \""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "StringLiteral",
       "offset": 2279,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager.swift",
       "kind": "BooleanLiteral",
       "offset": 2104,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
       "kind": "IntegerLiteral",
       "offset": 269,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
       "kind": "IntegerLiteral",
       "offset": 281,
       "length": 8,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
       "kind": "IntegerLiteral",
       "offset": 300,
       "length": 9,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
       "kind": "IntegerLiteral",
       "offset": 320,
       "length": 9,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
       "kind": "IntegerLiteral",
       "offset": 269,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
       "kind": "IntegerLiteral",
       "offset": 281,
       "length": 8,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
       "kind": "IntegerLiteral",
       "offset": 300,
       "length": 9,
       "value": "2"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationState.swift",
       "kind": "IntegerLiteral",
       "offset": 320,
       "length": 9,
       "value": "3"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
       "kind": "StringLiteral",
       "offset": 254,
       "length": 21,
       "value": "\"__leanplum_api_host\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
       "kind": "StringLiteral",
       "offset": 311,
       "length": 24,
       "value": "\"__leanplum_api_servlet\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
       "kind": "StringLiteral",
       "offset": 371,
       "length": 24,
       "value": "\"__leanplum_socket_host\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
       "kind": "StringLiteral",
       "offset": 482,
       "length": 22,
       "value": "\"com.leanplum.storage\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
       "kind": "StringLiteral",
       "offset": 576,
       "length": 13,
       "value": "\"defaultUser\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
       "kind": "StringLiteral",
       "offset": 633,
       "length": 18,
       "value": "\"api.leanplum.com\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
       "kind": "StringLiteral",
       "offset": 682,
       "length": 5,
       "value": "\"api\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
       "kind": "BooleanLiteral",
       "offset": 717,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
       "kind": "StringLiteral",
       "offset": 754,
       "length": 18,
       "value": "\"dev.leanplum.com\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/ApiConfig.swift",
       "kind": "IntegerLiteral",
       "offset": 806,
       "length": 3,
       "value": "443"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/NotificationSettings.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Notifications\/NotificationSettings.swift",
       "kind": "BooleanLiteral",
       "offset": 209,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+Triggering.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+Triggering.swift",
       "kind": "IntegerLiteral",
       "offset": 311,
       "length": 9,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+Triggering.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+Triggering.swift",
       "kind": "IntegerLiteral",
       "offset": 311,
       "length": 9,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+Triggering.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+Triggering.swift",
       "kind": "StringLiteral",
       "offset": 2653,
       "length": 20,
       "value": "\"Leanplum.MessageDisplayChoice\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager.swift",
       "kind": "Array",
       "offset": 433,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager.swift",
       "kind": "Dictionary",
       "offset": 893,
       "length": 3,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Extensions\/LPRequestSender+UUID.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Extensions\/LPRequestSender+UUID.swift",
       "kind": "StringLiteral",
       "offset": 226,
       "length": 17,
       "value": "\"__leanplum_uuid\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Extensions\/Data+EncodedString.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Extensions\/Data+EncodedString.swift",
       "kind": "IntegerLiteral",
       "offset": 279,
       "length": 1,
       "value": "1"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Extensions\/Data+EncodedString.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Extensions\/Data+EncodedString.swift",
       "kind": "IntegerLiteral",
       "offset": 284,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Extensions\/Data+EncodedString.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Extensions\/Data+EncodedString.swift",
       "kind": "Array",
       "offset": 350,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
       "kind": "StringLiteral",
       "offset": 319,
       "length": 14,
       "value": "\"migrateState\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
       "kind": "StringLiteral",
       "offset": 360,
       "length": 8,
       "value": "\"sha256\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
       "kind": "StringLiteral",
-      "offset": 623,
+      "offset": 659,
       "length": 8,
       "value": "\"sha256\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
       "kind": "StringLiteral",
-      "offset": 666,
+      "offset": 702,
       "length": 5,
       "value": "\"sdk\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
       "kind": "StringLiteral",
-      "offset": 623,
+      "offset": 659,
       "length": 8,
       "value": "\"sha256\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
       "kind": "StringLiteral",
-      "offset": 666,
+      "offset": 702,
       "length": 5,
       "value": "\"sdk\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
       "kind": "StringLiteral",
-      "offset": 1025,
+      "offset": 1093,
       "length": 11,
       "value": "\"accountId\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/MigrationManager+ResponseHandler.swift",
       "kind": "StringLiteral",
-      "offset": 1025,
+      "offset": 1093,
       "length": 11,
       "value": "\"accountId\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionsTrigger.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/Models\/ActionManager+ActionsTrigger.swift",
       "kind": "StringLiteral",
       "offset": 225,
       "length": 14,
       "value": "\"Leanplum.ActionsTrigger\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+Queue.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+Queue.swift",
       "kind": "StringLiteral",
       "offset": 257,
       "length": 32,
       "value": "\"leanplum.access_dispatch_queue\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+Queue.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+Queue.swift",
       "kind": "Array",
       "offset": 346,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
       "kind": "StringLiteral",
-      "offset": 1503,
+      "offset": 2465,
       "length": 10,
       "value": "\"Identity\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
       "kind": "StringLiteral",
-      "offset": 1559,
+      "offset": 2521,
       "length": 36,
       "value": "\"__leanplum_anonymous_login_user_id\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
       "kind": "StringLiteral",
-      "offset": 1634,
+      "offset": 2596,
       "length": 27,
       "value": "\"__leanplum_identity_state\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
+      "kind": "StringLiteral",
+      "offset": 2661,
+      "length": 27,
+      "value": "\"__leanplum_logged_in_user\""
+    },
+    {
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
       "kind": "IntegerLiteral",
-      "offset": 1712,
+      "offset": 2739,
       "length": 2,
       "value": "50"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
       "kind": "IntegerLiteral",
-      "offset": 1755,
+      "offset": 2782,
       "length": 2,
       "value": "10"
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
       "kind": "StringLiteral",
-      "offset": 1828,
+      "offset": 2855,
       "length": 11,
       "value": "\"anonymous\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
       "kind": "StringLiteral",
-      "offset": 1866,
+      "offset": 2893,
       "length": 12,
       "value": "\"identified\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
       "kind": "StringLiteral",
-      "offset": 1828,
+      "offset": 2855,
       "length": 11,
       "value": "\"anonymous\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/Wrapper\/IdentityManager.swift",
       "kind": "StringLiteral",
-      "offset": 1866,
+      "offset": 2893,
       "length": 12,
       "value": "\"identified\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+FileDownload.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+FileDownload.swift",
       "kind": "StringLiteral",
       "offset": 253,
       "length": 10,
       "value": "\"__file__\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+FileDownload.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Actions\/ActionManager+FileDownload.swift",
       "kind": "StringLiteral",
       "offset": 2979,
       "length": 2,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Utilities\/WeakTimer.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Utilities\/WeakTimer.swift",
       "kind": "StringLiteral",
       "offset": 192,
       "length": 9,
       "value": "\"Leanplum.WeakTimer\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
       "offset": 694,
       "length": 6,
       "value": "\"Open\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
       "offset": 725,
       "length": 9,
       "value": "\"Receive\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
       "offset": 694,
       "length": 6,
       "value": "\"Open\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "StringLiteral",
       "offset": 725,
       "length": 9,
       "value": "\"Receive\""
     },
     {
-      "filePath": "\/Users\/nikolazagorchev\/Developer\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
+      "filePath": "\/Users\/nikola.zagorchev\/Developer\/tmp\/Leanplum-iOS-SDK\/LeanplumSDK\/LeanplumSDK\/ClassesSwift\/Migration\/LPCTNotificationsManager.swift",
       "kind": "BooleanLiteral",
       "offset": 954,
       "length": 5,
