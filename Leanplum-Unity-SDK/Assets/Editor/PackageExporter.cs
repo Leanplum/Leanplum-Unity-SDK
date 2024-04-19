@@ -10,7 +10,7 @@ namespace Leanplum.Private
             "Assets/Sample",
             "Assets/Plugins",
             "Assets/LeanplumSDK",
-            "Assets/CleverTapUnity",
+            "Assets/CleverTap",
             "Assets/Editor/LeanplumAndroidBuildPreProcessor.cs",
             "Assets/Editor/LeanplumAndroidGradleBuildProcessor.cs",
             "Assets/Editor/LeanplumApplePostProcessor.cs",
