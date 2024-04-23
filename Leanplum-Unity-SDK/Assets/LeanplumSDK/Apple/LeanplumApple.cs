@@ -820,7 +820,7 @@ namespace LeanplumSDK
                 {
                     accountId = id;
                     MigrationConfig config = MigrationConfig();
-                    CleverTap.CleverTapBinding.LaunchWithCredentialsForRegion(config.AccountId, config.AccountToken, config.AccountRegion);
+                    CleverTapSDK.CleverTap.LaunchWithCredentialsForRegion(config.AccountId, config.AccountToken, config.AccountRegion);
                     cleverTapInstanceReady?.Invoke();
                 }
             }

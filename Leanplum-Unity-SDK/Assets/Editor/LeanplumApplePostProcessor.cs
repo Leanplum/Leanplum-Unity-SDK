@@ -20,6 +20,13 @@ namespace Leanplum.Private
         const string ENABLE_BITCODE = "ENABLE_BITCODE";
         const string NO = "NO";
 
+        /// <summary>
+        /// Unity 2021 and Unity 2022 export projects in a different way.
+        /// Flag if the older project format is used where xcframeworks slices
+        /// are added separately and unused architectures need to be removed.
+        /// </summary>
+        private static bool isOlderProjectFormat = false;
+
         [PostProcessBuild]
         public static void OnPostprocessBuild(BuildTarget buildTarget, string path)
         {
@@ -44,11 +51,22 @@ namespace Leanplum.Private
 
             PBXProject project = GetPBXProject(path, out string pbxProjectPath);
 
-            string frameworkPath = Path.Combine(DEFAULT_LOCATION_IN_PROJECT, xcFrameworkDevicePath);
+            string frameworkPath = Path.Combine(DEFAULT_LOCATION_IN_PROJECT, xcframeworkName);
             string fileGuid = project.FindFileGuidByProjectPath(frameworkPath);
 
-            string frameworkPathSim = Path.Combine(DEFAULT_LOCATION_IN_PROJECT, xcFrameworkSimulatorPath);
-            string fileGuidSim = project.FindFileGuidByProjectPath(frameworkPathSim);
+            string frameworkPathSim = frameworkPath;
+            string fileGuidSim = fileGuid;
+
+            if (string.IsNullOrEmpty(fileGuid))
+            {
+                isOlderProjectFormat = true;
+                Debug.Log($"Using xcframeworks separate paths for device and simulator.");
+                frameworkPath = Path.Combine(DEFAULT_LOCATION_IN_PROJECT, xcFrameworkDevicePath);
+                fileGuid = project.FindFileGuidByProjectPath(frameworkPath);
+
+                frameworkPathSim = Path.Combine(DEFAULT_LOCATION_IN_PROJECT, xcFrameworkSimulatorPath);
+                fileGuidSim = project.FindFileGuidByProjectPath(frameworkPathSim);
+            }
 
             if (useDevice)
             {
@@ -86,17 +104,20 @@ namespace Leanplum.Private
         {
             string targetGuid = project.GetUnityMainTargetGuid();
 
-            // Remove simulator/device framework
-            if (!string.IsNullOrEmpty(fileGuidToRemove))
+            if (isOlderProjectFormat)
             {
-                project.RemoveFrameworkFromProject(fileGuidToRemove, frameworkName);
-                project.RemoveFile(fileGuidToRemove);
-            }
+                // Remove simulator/device framework
+                if (!string.IsNullOrEmpty(fileGuidToRemove))
+                {
+                    project.RemoveFrameworkFromProject(fileGuidToRemove, frameworkName);
+                    project.RemoveFile(fileGuidToRemove);
+                }
 
-            // Delete simulator/device framework
-            if (Directory.Exists(pathToRemove))
-            {
-                Directory.Delete(pathToRemove, true);
+                // Delete simulator/device framework
+                if (Directory.Exists(pathToRemove))
+                {
+                    Directory.Delete(pathToRemove, true);
+                }
             }
 
             // Add device/simulator framework
