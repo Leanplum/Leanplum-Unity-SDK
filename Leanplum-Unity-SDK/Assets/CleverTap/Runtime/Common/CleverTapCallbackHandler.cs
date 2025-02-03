@@ -5,57 +5,535 @@ using UnityEngine;
 namespace CleverTapSDK.Common {
     public abstract class CleverTapCallbackHandler : MonoBehaviour {
 
+        private readonly object CallbackLock = new();
+
+        internal virtual void OnCallbackAdded(Action<string> callbackMethod) { }
+
         #region Callback Events
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapDeepLinkCallback;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapDeepLinkCallback;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapDeepLinkCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapDeepLinkCallback += value;
+                    OnCallbackAdded(CleverTapDeepLinkCallback);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapDeepLinkCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapProfileInitializedCallback;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapProfileInitializedCallback;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapProfileInitializedCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapProfileInitializedCallback += value;
+                    OnCallbackAdded(CleverTapProfileInitializedCallback);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapProfileInitializedCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapProfileUpdatesCallback;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapProfileUpdatesCallback;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapProfileUpdatesCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapProfileUpdatesCallback += value;
+                    OnCallbackAdded(CleverTapProfileUpdatesCallback);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapProfileUpdatesCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapPushOpenedCallback;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapPushOpenedCallback;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapPushOpenedCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapPushOpenedCallback += value;
+                    OnCallbackAdded(CleverTapPushOpenedCallback);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapPushOpenedCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapInitCleverTapIdCallback;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapPushNotificationTappedWithCustomExtrasCallback;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapPushNotificationTappedWithCustomExtrasCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapPushNotificationTappedWithCustomExtrasCallback += value;
+                    OnCallbackAdded(CleverTapPushNotificationTappedWithCustomExtrasCallback);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapPushNotificationTappedWithCustomExtrasCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapInAppNotificationDismissedCallback;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapInitCleverTapIdCallback;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapInitCleverTapIdCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInitCleverTapIdCallback += value;
+                    OnCallbackAdded(CleverTapInitCleverTapIdCallback);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInitCleverTapIdCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapInAppNotificationShowCallback;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapInAppNotificationDismissedCallback;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapInAppNotificationDismissedCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInAppNotificationDismissedCallback += value;
+                    OnCallbackAdded(CleverTapInAppNotificationDismissedCallback);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInAppNotificationDismissedCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapOnPushPermissionResponseCallback;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapInAppNotificationShowCallback;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapInAppNotificationShowCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInAppNotificationShowCallback += value;
+                    OnCallbackAdded(CleverTapInAppNotificationShowCallback);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInAppNotificationShowCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapInAppNotificationButtonTapped;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapOnPushPermissionResponseCallback;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapOnPushPermissionResponseCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapOnPushPermissionResponseCallback += value;
+                    OnCallbackAdded(CleverTapOnPushPermissionResponseCallback);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapOnPushPermissionResponseCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackDelegate OnCleverTapInboxDidInitializeCallback;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapPushNotificationPermissionStatusCallback;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapPushNotificationPermissionStatusCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapPushNotificationPermissionStatusCallback += value;
+                    OnCallbackAdded(CleverTapPushNotificationPermissionStatus);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapPushNotificationPermissionStatusCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackDelegate OnCleverTapInboxMessagesDidUpdateCallback;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapInAppNotificationButtonTapped;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapInAppNotificationButtonTapped
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInAppNotificationButtonTapped += value;
+                    OnCallbackAdded(CleverTapInAppNotificationButtonTapped);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInAppNotificationButtonTapped -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapInboxCustomExtrasButtonSelect;
+        private CleverTapCallbackDelegate _OnCleverTapInboxDidInitializeCallback;
+        public event CleverTapCallbackDelegate OnCleverTapInboxDidInitializeCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInboxDidInitializeCallback += value;
+                    OnCallbackAdded(CleverTapInboxDidInitializeCallback);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInboxDidInitializeCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapInboxItemClicked;
+        private CleverTapCallbackDelegate _OnCleverTapInboxMessagesDidUpdateCallback;
+        public event CleverTapCallbackDelegate OnCleverTapInboxMessagesDidUpdateCallback
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInboxMessagesDidUpdateCallback += value;
+                    OnCallbackAdded(CleverTapInboxMessagesDidUpdateCallback);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInboxMessagesDidUpdateCallback -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapNativeDisplayUnitsUpdated;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapInboxCustomExtrasButtonSelect;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapInboxCustomExtrasButtonSelect
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInboxCustomExtrasButtonSelect += value;
+                    OnCallbackAdded(CleverTapInboxCustomExtrasButtonSelect);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInboxCustomExtrasButtonSelect -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapProductConfigFetched;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapInboxItemClicked;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapInboxItemClicked
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInboxItemClicked += value;
+                    OnCallbackAdded(CleverTapInboxItemClicked);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapInboxItemClicked -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapProductConfigActivated;
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapNativeDisplayUnitsUpdated;
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapNativeDisplayUnitsUpdated
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapNativeDisplayUnitsUpdated += value;
+                    OnCallbackAdded(CleverTapNativeDisplayUnitsUpdated);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapNativeDisplayUnitsUpdated -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapProductConfigInitialized;
+        [Obsolete]
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapProductConfigFetched;
 
-        public event CleverTapCallbackWithMessageDelegate OnCleverTapFeatureFlagsUpdated;
+        [Obsolete]
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapProductConfigFetched
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapProductConfigFetched += value;
+                    OnCallbackAdded(CleverTapProductConfigFetched);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapProductConfigFetched -= value;
+                }
+            }
+        }
 
-        public event CleverTapCallbackDelegate OnVariablesChanged;
+        [Obsolete]
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapProductConfigActivated;
 
+        [Obsolete]
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapProductConfigActivated
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapProductConfigActivated += value;
+                    OnCallbackAdded(CleverTapProductConfigActivated);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapProductConfigActivated -= value;
+                }
+            }
+        }
+
+        [Obsolete]
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapProductConfigInitialized;
+
+        [Obsolete]
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapProductConfigInitialized
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapProductConfigInitialized += value;
+                    OnCallbackAdded(CleverTapProductConfigInitialized);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapProductConfigInitialized -= value;
+                }
+            }
+        }
+
+        private CleverTapCallbackWithMessageDelegate _OnCleverTapFeatureFlagsUpdated;
+
+        [Obsolete("Feature Flags are deprecated, use variables instead.")]
+        public event CleverTapCallbackWithMessageDelegate OnCleverTapFeatureFlagsUpdated
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapFeatureFlagsUpdated += value;
+                    OnCallbackAdded(CleverTapFeatureFlagsUpdated);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCleverTapFeatureFlagsUpdated -= value;
+                }
+            }
+        }
+
+        private CleverTapCallbackDelegate _OnVariablesChanged;
+        public event CleverTapCallbackDelegate OnVariablesChanged
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnVariablesChanged += value;
+                    OnCallbackAdded(CleverTapVariablesChanged);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnVariablesChanged -= value;
+                }
+            }
+        }
+
+        // This event is handled by this class, no corresponding callback is needed
         public event CleverTapCallbackDelegate OnOneTimeVariablesChanged;
 
+        // This event is handled by this class, no corresponding callback is needed
+        public event CleverTapCallbackDelegate OnOneTimeVariablesChangedAndNoDownloadsPending;
+
+        private CleverTapCallbackDelegate _OnVariablesChangedAndNoDownloadsPending;
+        public event CleverTapCallbackDelegate OnVariablesChangedAndNoDownloadsPending
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnVariablesChangedAndNoDownloadsPending += value;
+                    OnCallbackAdded(CleverTapVariablesChangedAndNoDownloadsPending);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnVariablesChangedAndNoDownloadsPending -= value;
+                }
+            }
+        }
+
+        private CleverTapCallbackWithTemplateContext _OnCustomTemplatePresent;
+        public event CleverTapCallbackWithTemplateContext OnCustomTemplatePresent
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCustomTemplatePresent += value;
+                    OnCallbackAdded(CleverTapCustomTemplatePresent);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCustomTemplatePresent -= value;
+                }
+            }
+        }
+
+        private CleverTapCallbackWithTemplateContext _OnCustomTemplateClose;
+        public event CleverTapCallbackWithTemplateContext OnCustomTemplateClose
+        {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCustomTemplateClose += value;
+                    OnCallbackAdded(CleverTapCustomTemplateClose);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCustomTemplateClose -= value;
+                }
+            }
+        }
+
+        private CleverTapCallbackWithTemplateContext _OnCustomFunctionPresent;
+        public event CleverTapCallbackWithTemplateContext OnCustomFunctionPresent
+      {
+            add
+            {
+                lock (CallbackLock)
+                {
+                    _OnCustomFunctionPresent += value;
+                    OnCallbackAdded(CleverTapCustomFunctionPresent);
+                }
+            }
+            remove
+            {
+                lock (CallbackLock)
+                {
+                    _OnCustomFunctionPresent -= value;
+                }
+            }
+        }
         #endregion
 
         #region Default - Callback Methods
 
         public virtual void CleverTapDeepLinkCallback(string url) {
             CleverTapLogger.Log("unity received deep link: " + (!String.IsNullOrEmpty(url) ? url : "NULL"));
-            if (OnCleverTapDeepLinkCallback != null) {
-                OnCleverTapDeepLinkCallback(url);
-            }
+            _OnCleverTapDeepLinkCallback?.Invoke(url);
         }
 
         // called when then the CleverTap user profile is initialized
@@ -70,9 +548,7 @@ namespace CleverTapSDK.Common {
             try {
                 JSONClass json = (JSONClass)JSON.Parse(message);
                 CleverTapLogger.Log(String.Format("unity parsed profile initialized {0}", json));
-                if (OnCleverTapProfileInitializedCallback != null) {
-                    OnCleverTapProfileInitializedCallback(message);
-                }
+                _OnCleverTapProfileInitializedCallback?.Invoke(message);
             } catch {
                 CleverTapLogger.LogError("unable to parse json");
             }
@@ -103,28 +579,59 @@ namespace CleverTapSDK.Common {
             try {
                 JSONClass json = (JSONClass)JSON.Parse(message);
                 CleverTapLogger.Log(String.Format("unity parsed profile updates {0}", json));
-                if (OnCleverTapProfileUpdatesCallback != null) {
-                    OnCleverTapProfileUpdatesCallback(message);
-                }
+                _OnCleverTapProfileUpdatesCallback?.Invoke(message);
             } catch {
                 CleverTapLogger.LogError("unable to parse json");
             }
         }
 
-        // returns the data associated with the push notification
-        public virtual void CleverTapPushOpenedCallback(string message) {
-            CleverTapLogger.Log("unity received push opened: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (String.IsNullOrEmpty(message)) {
+        /// <summary>
+        /// Callback when a push notitication is opened.
+        /// </summary>
+        /// <param name="message">The data associated with the push notification message.</param>
+        public virtual void CleverTapPushOpenedCallback(string message)
+        {
+            CleverTapLogger.Log("unity received push opened: " + (!string.IsNullOrEmpty(message) ? message : "NULL"));
+            if (string.IsNullOrEmpty(message))
+            {
                 return;
             }
 
-            try {
+            try
+            {
                 JSONClass json = (JSONClass)JSON.Parse(message);
-                CleverTapLogger.Log(String.Format("push notification data is {0}", json));
-                if (OnCleverTapPushOpenedCallback != null) {
-                    OnCleverTapPushOpenedCallback(message);
-                }
-            } catch {
+                CleverTapLogger.Log(string.Format("push notification data is {0}", json));
+                _OnCleverTapPushOpenedCallback?.Invoke(message);
+            }
+            catch
+            {
+                CleverTapLogger.LogError("unable to parse json");
+            }
+        }
+
+        /// <summary>
+        /// IOS only callback. Called when a push notitication is opened.
+        /// </summary>
+        /// <param name="message">
+        /// The push notification user info without the "aps" param.
+        /// It contains extra key/value pairs set in the CleverTap dashboard for this notification
+        /// </param>
+        public virtual void CleverTapPushNotificationTappedWithCustomExtrasCallback(string message)
+        {
+            CleverTapLogger.Log("unity received push tapped with custom extras: " + (!string.IsNullOrEmpty(message) ? message : "NULL"));
+            if (string.IsNullOrEmpty(message))
+            {
+                return;
+            }
+
+            try
+            {
+                JSONClass json = (JSONClass)JSON.Parse(message);
+                CleverTapLogger.Log(string.Format("push notification data is {0}", json));
+                _OnCleverTapPushNotificationTappedWithCustomExtrasCallback?.Invoke(message);
+            }
+            catch
+            {
                 CleverTapLogger.LogError("unable to parse json");
             }
         }
@@ -132,113 +639,98 @@ namespace CleverTapSDK.Common {
         // returns a unique CleverTap identifier suitable for use with install attribution providers.
         public virtual void CleverTapInitCleverTapIdCallback(string message) {
             CleverTapLogger.Log("unity received clevertap id: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapInitCleverTapIdCallback != null) {
-                OnCleverTapInitCleverTapIdCallback(message);
-            }
+            _OnCleverTapInitCleverTapIdCallback?.Invoke(message);
         }
 
         // returns the custom data associated with an in-app notification click
         public virtual void CleverTapInAppNotificationDismissedCallback(string message) {
             CleverTapLogger.Log("unity received inapp notification dismissed: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapInAppNotificationDismissedCallback != null) {
-                OnCleverTapInAppNotificationDismissedCallback(message);
-            }
+            _OnCleverTapInAppNotificationDismissedCallback?.Invoke(message);
         }
 
         // returns the custom data associated with an in-app notification click
         public virtual void CleverTapInAppNotificationShowCallback(string message) {
             CleverTapLogger.Log("unity received inapp notification onShow(): " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapInAppNotificationShowCallback != null) {
-                OnCleverTapInAppNotificationShowCallback(message);
-            }
+            _OnCleverTapInAppNotificationShowCallback?.Invoke(message);
         }
 
-        // returns the status of push permission response after it's granted/denied
+        /// <summary>
+        /// Returns the status of push permission response after it's granted/denied
+        /// </summary>
+        /// <param name="message">String boolean if permission is accepted.</param>
         public virtual void CleverTapOnPushPermissionResponseCallback(string message) {
-            //Ensure to create call the `CreateNotificationChannel` once notification permission is granted to register for receiving push notifications for Android 13+ devices.
-            CleverTapLogger.Log("unity received push permission response: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapOnPushPermissionResponseCallback != null) {
-                OnCleverTapOnPushPermissionResponseCallback(message);
-            }
+            // Ensure to create call the `CreateNotificationChannel` once notification permission is granted to register for receiving push notifications for Android 13+ devices.
+            CleverTapLogger.Log("unity received push permission response: " + (!string.IsNullOrEmpty(message) ? message : "NULL"));
+            _OnCleverTapOnPushPermissionResponseCallback?.Invoke(message);
+        }
+
+        /// <summary>
+        /// IOS Only callback. Use when checking if push permission is granted.
+        /// </summary>
+        /// <param name="message">String boolean if status is enabled.</param>
+        public virtual void CleverTapPushNotificationPermissionStatus(string message)
+        {
+            CleverTapLogger.Log("unity received push status response: " + (!string.IsNullOrEmpty(message) ? message : "NULL"));
+            _OnCleverTapPushNotificationPermissionStatusCallback?.Invoke(message);
         }
 
         // returns when an in-app notification is dismissed by a call to action with custom extras
         public virtual void CleverTapInAppNotificationButtonTapped(string message) {
             CleverTapLogger.Log("unity received inapp notification button tapped: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapInAppNotificationButtonTapped != null) {
-                OnCleverTapInAppNotificationButtonTapped(message);
-            }
+            _OnCleverTapInAppNotificationButtonTapped?.Invoke(message);
         }
 
         // returns callback for InitializeInbox
-        public virtual void CleverTapInboxDidInitializeCallback() {
+        public virtual void CleverTapInboxDidInitializeCallback(string message) {
             CleverTapLogger.Log("unity received inbox initialized");
-            if (OnCleverTapInboxDidInitializeCallback != null) {
-                OnCleverTapInboxDidInitializeCallback();
-            }
+            _OnCleverTapInboxDidInitializeCallback?.Invoke();
         }
 
-        public virtual void CleverTapInboxMessagesDidUpdateCallback() {
+        public virtual void CleverTapInboxMessagesDidUpdateCallback(string message) {
             CleverTapLogger.Log("unity received inbox messages updated");
-            if (OnCleverTapInboxMessagesDidUpdateCallback != null) {
-                OnCleverTapInboxMessagesDidUpdateCallback();
-            }
+            _OnCleverTapInboxMessagesDidUpdateCallback?.Invoke();
         }
 
         // returns on the click of app inbox message with a map of custom Key-Value pairs
         public virtual void CleverTapInboxCustomExtrasButtonSelect(string message) {
             CleverTapLogger.Log("unity received inbox message button with custom extras select: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapInboxCustomExtrasButtonSelect != null) {
-                OnCleverTapInboxCustomExtrasButtonSelect(message);
-            }
+            _OnCleverTapInboxCustomExtrasButtonSelect?.Invoke(message);
         }
 
         // returns on the click of app inbox message with a string of the inbox payload along with page index and button index
         public virtual void CleverTapInboxItemClicked(string message) {
             CleverTapLogger.Log("unity received inbox message clicked callback: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapInboxItemClicked != null) {
-                OnCleverTapInboxItemClicked(message);
-            }
+            _OnCleverTapInboxItemClicked?.Invoke(message);
         }
 
         // returns native display units data
         public virtual void CleverTapNativeDisplayUnitsUpdated(string message) {
             CleverTapLogger.Log("unity received native display units updated: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapNativeDisplayUnitsUpdated != null) {
-                OnCleverTapNativeDisplayUnitsUpdated(message);
-            }
+            _OnCleverTapNativeDisplayUnitsUpdated?.Invoke(message);
         }
 
-        // invoked when Product Experiences - Product Config are fetched 
+        [Obsolete("Product config is deprecated, use variables instead.")]
         public virtual void CleverTapProductConfigFetched(string message) {
             CleverTapLogger.Log("unity received product config fetched: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapProductConfigFetched != null) {
-                OnCleverTapProductConfigFetched(message);
-            }
+            _OnCleverTapProductConfigFetched?.Invoke(message);
         }
 
-        // invoked when Product Experiences - Product Config are activated
+        [Obsolete("Product config is deprecated, use variables instead.")]
         public virtual void CleverTapProductConfigActivated(string message) {
             CleverTapLogger.Log("unity received product config activated: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapProductConfigActivated != null) {
-                OnCleverTapProductConfigActivated(message);
-            }
+            _OnCleverTapProductConfigActivated?.Invoke(message);
         }
 
-        // invoked when Product Experiences - Product Config are initialized
+        [Obsolete("Product config is deprecated, use variables instead.")]
         public virtual void CleverTapProductConfigInitialized(string message) {
             CleverTapLogger.Log("unity received product config initialized: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapProductConfigInitialized != null) {
-                OnCleverTapProductConfigInitialized(message);
-            }
+            _OnCleverTapProductConfigInitialized?.Invoke(message);
         }
 
-        // invoked when Product Experiences - Feature Flags are updated 
+        [Obsolete("Feature Flags are deprecated, use variables instead.")]
         public virtual void CleverTapFeatureFlagsUpdated(string message) {
             CleverTapLogger.Log("unity received feature flags updated: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
-            if (OnCleverTapFeatureFlagsUpdated != null) {
-                OnCleverTapFeatureFlagsUpdated(message);
-            }
+            _OnCleverTapFeatureFlagsUpdated?.Invoke(message);
         }
 
         #endregion
@@ -246,21 +738,35 @@ namespace CleverTapSDK.Common {
         #region Default - Variables Callbacks
 
         // invoked when any variable changed
-        public virtual void CleverTapVariablesChanged() {
+        public virtual void CleverTapVariablesChanged(string message) {
             CleverTapLogger.Log("Unity received variables changed");
-            if (OnVariablesChanged != null) {
-                OnVariablesChanged();
-            }
+            _OnVariablesChanged?.Invoke();
 
             if (OnOneTimeVariablesChanged != null) {
                 OnOneTimeVariablesChanged();
                 OnOneTimeVariablesChanged = null;
             }
         }
+        
+        //invoked when variable values are changed and the files associated with them are downloaded and ready to be used.
+        public virtual void CleverTapVariablesChangedAndNoDownloadsPending(string message) {
+            CleverTapLogger.Log("Unity received variables changed and no downloads pending ");
+            _OnVariablesChangedAndNoDownloadsPending?.Invoke();
 
+            if (OnOneTimeVariablesChangedAndNoDownloadsPending != null) {
+                OnOneTimeVariablesChangedAndNoDownloadsPending();
+                OnOneTimeVariablesChangedAndNoDownloadsPending = null;
+            }
+        }
+        
+        public virtual void CleverTapVariableFileIsReady(string variableName) {
+            CleverTapLogger.Log("Unity received file is ready: " + (!string.IsNullOrEmpty(variableName) ? variableName : "NULL"));
+            VariableFactory.CleverTapVariable.VariableFileIsReady(variableName);
+        }
+        
         // invoked when an variable value changed
         public virtual void CleverTapVariableValueChanged(string variableName) {
-            CleverTapLogger.Log("Unity received variables changed: " + (!String.IsNullOrEmpty(variableName) ? variableName : "NULL"));
+            CleverTapLogger.Log("Unity received variable changed: " + (!String.IsNullOrEmpty(variableName) ? variableName : "NULL"));
             VariableFactory.CleverTapVariable.VariableChanged(variableName);
         }
 
@@ -276,7 +782,7 @@ namespace CleverTapSDK.Common {
 
         #endregion
 
-        #region Default - Variables Callbacks
+        #region Default - InApps Callbacks
 
         public virtual void CleverTapInAppsFetched(string message) {
             CleverTapLogger.Log("unity received InApps fetched response: " + (!String.IsNullOrEmpty(message) ? message : "NULL"));
@@ -288,6 +794,29 @@ namespace CleverTapSDK.Common {
             }
         }
 
+        #endregion
+
+        #region Default - Custom Templates Callbacks
+        public virtual void CleverTapCustomTemplatePresent(string templateName)
+        {
+            CleverTapLogger.Log($"Unity received template present: {templateName}");
+            CleverTapTemplateContext context = CustomTemplatesFactory.CleverTapCustomTemplates.CreateContext(templateName);
+            _OnCustomTemplatePresent?.Invoke(context);
+        }
+
+        public virtual void CleverTapCustomTemplateClose(string templateName)
+        {
+            CleverTapLogger.Log($"Unity received template close: {templateName}");
+            CleverTapTemplateContext context = CustomTemplatesFactory.CleverTapCustomTemplates.CreateContext(templateName);
+            _OnCustomTemplateClose?.Invoke(context);
+        }
+
+        public virtual void CleverTapCustomFunctionPresent(string templateName)
+        {
+            CleverTapLogger.Log($"Unity received function present: {templateName}");
+            CleverTapTemplateContext context = CustomTemplatesFactory.CleverTapCustomTemplates.CreateContext(templateName);
+            _OnCustomFunctionPresent?.Invoke(context);
+        }
         #endregion
     }
 }

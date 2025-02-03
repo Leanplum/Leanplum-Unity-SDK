@@ -1,4 +1,7 @@
 #import "CleverTapUnityManager.h"
+#import "CleverTapUnityCallbackHandler.h"
+#import "CleverTapUnityCallbackInfo.h"
+#import "CleverTapMessageSender.h"
 #import <CleverTapSDK/CleverTap.h>
 #import <CleverTapSDK/CleverTap+Inbox.h>
 #import <CleverTapSDK/CleverTapSyncDelegate.h>
@@ -11,34 +14,12 @@
 #import <CleverTapSDK/Clevertap+PushPermission.h>
 #import <CleverTapSDK/CTVar.h>
 #import <CleverTapSDK/CleverTap+CTVar.h>
+#import <CleverTapSDK/CTTemplateContext.h>
 
-static CleverTap *clevertap;
+@interface CleverTapUnityManager ()
 
-static NSString * kCleverTapGameObjectName = @"IOSCallbackHandler";
-static NSString * kCleverTapGameObjectProfileInitializedCallback = @"CleverTapProfileInitializedCallback";
-static NSString * kCleverTapGameObjectProfileUpdatesCallback = @"CleverTapProfileUpdatesCallback";
-static NSString * kCleverTapDeepLinkCallback = @"CleverTapDeepLinkCallback";
-static NSString * kCleverTapPushReceivedCallback = @"CleverTapPushReceivedCallback";
-static NSString * kCleverTapPushOpenedCallback = @"CleverTapPushOpenedCallback";
-static NSString * kCleverTapInAppNotificationDismissedCallback = @"CleverTapInAppNotificationDismissedCallback";
-static NSString * kCleverTapInAppNotificationButtonTapped = @"CleverTapInAppNotificationButtonTapped";
-static NSString * kCleverTapInboxDidInitializeCallback = @"CleverTapInboxDidInitializeCallback";
-static NSString * kCleverTapInboxMessagesDidUpdateCallback = @"CleverTapInboxMessagesDidUpdateCallback";
-static NSString * kCleverTapInboxCustomExtrasButtonSelect = @"CleverTapInboxCustomExtrasButtonSelect";
-static NSString * kCleverTapInboxItemClicked = @"CleverTapInboxItemClicked";
-static NSString * kCleverTapNativeDisplayUnitsUpdated = @"CleverTapNativeDisplayUnitsUpdated";
-static NSString * kCleverTapProductConfigFetched = @"CleverTapProductConfigFetched";
-static NSString * kCleverTapProductConfigActivated = @"CleverTapProductConfigActivated";
-static NSString * kCleverTapProductConfigInitialized = @"CleverTapProductConfigInitialized";
-static NSString * kCleverTapFeatureFlagsUpdated = @"CleverTapFeatureFlagsUpdated";
-static NSString * kCleverTapPushPermissionResponseReceived = @"CleverTapPushPermissionResponseReceived";
-static NSString * kCleverTapPushNotificationPermissionStatus = @"CleverTapPushNotificationPermissionStatus";
-static NSString * kCleverTapVariablesChanged = @"CleverTapVariablesChanged";
-static NSString * kCleverTapVariableValueChanged = @"CleverTapVariableValueChanged";
-static NSString * kCleverTapVariablesFetched = @"CleverTapVariablesFetched";
-static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
-
-@interface CleverTapUnityManager () < CleverTapInAppNotificationDelegate, CleverTapDisplayUnitDelegate, CleverTapInboxViewControllerDelegate, CleverTapProductConfigDelegate, CleverTapFeatureFlagsDelegate, CleverTapPushPermissionDelegate >
+@property (nonatomic, strong) CleverTap *cleverTap;
+@property (nonatomic, strong) CleverTapUnityCallbackHandler *callbackHandler;
 
 @end
 
@@ -49,37 +30,51 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
     
     if(!sharedInstance) {
         sharedInstance = [[CleverTapUnityManager alloc] init];
-        [sharedInstance registerListeners];
-        
-        clevertap = [CleverTap sharedInstance];
-        [clevertap setLibrary:@"Unity"];
-        
-        [clevertap setInAppNotificationDelegate:sharedInstance];
-        [clevertap setDisplayUnitDelegate:sharedInstance];
-        [[clevertap productConfig] setDelegate:sharedInstance];
-        [[clevertap featureFlags] setDelegate:sharedInstance];
-        [clevertap setPushPermissionDelegate:sharedInstance];
-        [clevertap onVariablesChanged:^{
-            [sharedInstance callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapVariablesChanged withMessage:@"VariablesChanged"];
-        }];
     }
     
     return sharedInstance;
 }
 
+- (instancetype)init {
+    if (self = [super init]) {
+        self.cleverTap = [CleverTap sharedInstance];
+        NSLog(@"CleverTap default instance: %@", self.cleverTap);
+        [self.cleverTap setLibrary:@"Unity"];
+        self.callbackHandler = [CleverTapUnityCallbackHandler sharedInstance];
+        [self.callbackHandler attachInstance:self.cleverTap];
+    }
+    return self;
+}
+
+const double PENDING_EVENTS_TIME_OUT = 10.0;
+
+- (void)onPlatformInit {
+    NSLog(@"CleverTap Platform Init");
+    [self disableMessageBuffers];
+}
+
+- (void)onCallbackAdded:(NSString *)callbackName {
+    CleverTapUnityCallbackInfo *callback = [CleverTapUnityCallbackInfo callbackFromName:callbackName];
+    if (!callback) {
+        NSLog(@"Unsupported callback added: %@", callbackName);
+        return;
+    }
+    
+    [[CleverTapMessageSender sharedInstance] disableBuffer:callback];
+    [[CleverTapMessageSender sharedInstance] flushBuffer:callback];
+}
+
+- (void)disableMessageBuffers {
+    // disable buffers after a delay in order to give some time for callback delegates to attach
+    // and receive initially buffered messages. After that all buffers will be cleared and disabled
+    // and messages will continue to be sent immediately.
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(PENDING_EVENTS_TIME_OUT * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"CleverTap resetting all buffers.");
+        [[CleverTapMessageSender sharedInstance] resetAllBuffers];
+    });
+}
 
 #pragma mark - Admin
-
-+ (void)launchWithAccountID:(NSString*)accountID andToken:(NSString *)token {
-    [self launchWithAccountID:accountID token:token region:nil];
-}
-
-+ (void)launchWithAccountID:(NSString*)accountID token:(NSString *)token region:(NSString *)region {
-    [CleverTap setCredentialsWithAccountID:accountID token:token region:region];
-    // Initialize CleverTapUnityManager to register listeners and set delegates
-    [CleverTapUnityManager sharedInstance];
-    [[CleverTap sharedInstance] notifyApplicationLaunchedWithOptions:nil];
-}
 
 + (void)setApplicationIconBadgeNumber:(int)num {
     [UIApplication sharedApplication].applicationIconBadgeNumber = num;
@@ -90,7 +85,7 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
 }
 
 - (void)setSyncDelegate:(id <CleverTapSyncDelegate>)delegate {
-    [clevertap setSyncDelegate:delegate];
+    [self.cleverTap setSyncDelegate:delegate];
 }
 
 + (void)enablePersonalization {
@@ -105,48 +100,19 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
     [CleverTap setLocation:location];
 }
 
-
-#pragma mark - CleverTapSyncDelegate/Listener
-
-- (void)registerListeners {
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didReceiveCleverTapProfileDidChangeNotification:)
-                                                 name:CleverTapProfileDidChangeNotification object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didReceiveCleverTapProfileDidInitializeNotification:)
-                                                 name:CleverTapProfileDidInitializeNotification object:nil];
-}
-
-- (void)didReceiveCleverTapProfileDidInitializeNotification:(NSNotification*)notification {
-    NSString *jsonString = [self dictToJson:notification.userInfo];
-    if (jsonString != nil) {
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapGameObjectProfileInitializedCallback withMessage:jsonString];
-    }
-}
-
-
-- (void)didReceiveCleverTapProfileDidChangeNotification:(NSNotification*)notification {
-    NSString *jsonString = [self dictToJson:notification.userInfo];
-    if (jsonString != nil) {
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapGameObjectProfileUpdatesCallback withMessage:jsonString];
-    }
-}
-
-
 #pragma mark - Offline API
 
 - (void)setOffline:(BOOL)enabled{
-    [clevertap setOffline:enabled];
+    [self.cleverTap setOffline:enabled];
 }
 
 #pragma mark - Opt-out API
 
 - (void)setOptOut:(BOOL)enabled{
-    [clevertap setOptOut:enabled];
+    [self.cleverTap setOptOut:enabled];
 }
 - (void)enableDeviceNetworkInfoReporting:(BOOL)enabled{
-    [clevertap enableDeviceNetworkInfoReporting:enabled];
+    [self.cleverTap enableDeviceNetworkInfoReporting:enabled];
 }
 
 
@@ -154,56 +120,56 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
 
 - (void)onUserLogin:(NSDictionary *)properties {
     NSDictionary *attributes = cleverTap_convertDateValues(properties);
-    [clevertap onUserLogin:attributes];
+    [self.cleverTap onUserLogin:attributes];
 }
 
 - (void)profilePush:(NSDictionary *)properties {
     NSDictionary *attributes = cleverTap_convertDateValues(properties);
-    [clevertap profilePush:attributes];
+    [self.cleverTap profilePush:attributes];
 }
 
 - (id)profileGet:(NSString *)propertyName {
-    return [clevertap profileGet:propertyName];
+    return [self.cleverTap profileGet:propertyName];
 }
 
 - (void)profileRemoveValueForKey:(NSString *)key {
-    [clevertap profileRemoveValueForKey:key];
+    [self.cleverTap profileRemoveValueForKey:key];
 }
 
 - (void)profileSetMultiValues:(NSArray<NSString *> *)values forKey:(NSString *)key {
-    [clevertap profileSetMultiValues:values forKey:key];
+    [self.cleverTap profileSetMultiValues:values forKey:key];
 }
 
 - (void)profileAddMultiValue:(NSString *)value forKey:(NSString *)key {
-    [clevertap profileAddMultiValue:value forKey:key];
+    [self.cleverTap profileAddMultiValue:value forKey:key];
 }
 
 - (void)profileAddMultiValues:(NSArray<NSString *> *)values forKey:(NSString *)key {
-    [clevertap profileAddMultiValues:values forKey:key];
+    [self.cleverTap profileAddMultiValues:values forKey:key];
 }
 
 - (void)profileRemoveMultiValue:(NSString *)value forKey:(NSString *)key {
-    [clevertap profileRemoveMultiValue:value forKey:key];
+    [self.cleverTap profileRemoveMultiValue:value forKey:key];
 }
 
 - (void)profileRemoveMultiValues:(NSArray<NSString *> *)values forKey:(NSString *)key {
-    [clevertap profileRemoveMultiValues:values forKey:key];
+    [self.cleverTap profileRemoveMultiValues:values forKey:key];
 }
 
 - (void)profileIncrementValueBy:(NSNumber* _Nonnull)value forKey:(NSString *_Nonnull)key {
-    [clevertap profileIncrementValueBy:value forKey:key];
+    [self.cleverTap profileIncrementValueBy:value forKey:key];
 }
 
 - (void)profileDecrementValueBy:(NSNumber* _Nonnull)value forKey:(NSString *_Nonnull)key {
-    [clevertap profileDecrementValueBy:value forKey:key];
+    [self.cleverTap profileDecrementValueBy:value forKey:key];
 }
 
 - (NSString *)profileGetCleverTapID {
-    return [clevertap profileGetCleverTapID];
+    return [self.cleverTap profileGetCleverTapID];
 }
 
 - (NSString*)profileGetCleverTapAttributionIdentifier {
-    return [clevertap profileGetCleverTapAttributionIdentifier];
+    return [self.cleverTap profileGetCleverTapAttributionIdentifier];
 }
 
 #pragma mark - User Action Events
@@ -212,68 +178,164 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
     if (!screenName) {
         return;
     }
-    [clevertap recordScreenView:screenName];
+    [self.cleverTap recordScreenView:screenName];
 }
 
 - (void)recordEvent:(NSString *)event {
-    [clevertap recordEvent:event];
+    [self.cleverTap recordEvent:event];
 }
 
 - (void)recordEvent:(NSString *)event withProps:(NSDictionary *)properties {
-	NSDictionary *attributes = cleverTap_convertDateValues(properties);
-    [clevertap recordEvent:event withProps:attributes];
+    NSDictionary *attributes = cleverTap_convertDateValues(properties);
+    [self.cleverTap recordEvent:event withProps:attributes];
 }
 
 - (void)recordChargedEventWithDetails:(NSDictionary *)chargeDetails andItems:(NSArray *)items {
-	NSDictionary *details = cleverTap_convertDateValues(chargeDetails);
-    [clevertap recordChargedEventWithDetails:details andItems:items];
+    NSDictionary *details = cleverTap_convertDateValues(chargeDetails);
+    [self.cleverTap recordChargedEventWithDetails:details andItems:items];
 }
 
 - (void)recordErrorWithMessage:(NSString *)message andErrorCode:(int)code {
-    [clevertap recordErrorWithMessage:message andErrorCode:code];
+    [self.cleverTap recordErrorWithMessage:message andErrorCode:code];
 }
 
 - (NSTimeInterval)eventGetFirstTime:(NSString *)event {
-    return [clevertap eventGetFirstTime:event];
+    return [self.cleverTap eventGetFirstTime:event];
 }
 
 - (NSTimeInterval)eventGetLastTime:(NSString *)event {
-    return [clevertap eventGetLastTime:event];
+    return [self.cleverTap eventGetLastTime:event];
 }
 
 - (int)eventGetOccurrences:(NSString *)event {
-    return [clevertap eventGetOccurrences:event];
+    return [self.cleverTap eventGetOccurrences:event];
 }
 
 - (NSDictionary *)userGetEventHistory {
-    return [clevertap userGetEventHistory];
+    return [self.cleverTap userGetEventHistory];
 }
 
 - (CleverTapEventDetail *)eventGetDetail:(NSString *)event {
-    return [clevertap eventGetDetail:event];
+    return [self.cleverTap eventGetDetail:event];
 }
 
+- (void)getUserEventLog:(NSString *)eventName forKey:(NSString *)key withCallback:(UserEventLogCallback)callback {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        CleverTapEventDetail *event = [[CleverTap sharedInstance] getUserEventLog:eventName];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!event) {
+                callback([key UTF8String], [@"{}" UTF8String]);
+                return;
+            }
+            
+            NSDictionary *json = [CleverTapUnityManager userEventLogToDictionary:event];
+            callback([key UTF8String], [[CleverTapUnityManager idToJsonString:json] UTF8String]);
+        });
+    });
+}
+
+- (void)getUserEventLogCount:(nonnull NSString *)eventName forKey:(nonnull NSString *)key withCallback:(nonnull UserEventLogCallback)callback {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        int count = [[CleverTap sharedInstance] getUserEventLogCount:eventName];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *countString = [NSString stringWithFormat:@"%d", count];
+            callback([key UTF8String], [countString UTF8String]);
+        });
+    });
+}
+
+- (void)getUserEventLogHistory:(nonnull NSString *)key withCallback:(nonnull UserEventLogCallback)callback {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSDictionary *history = [[CleverTap sharedInstance] getUserEventLogHistory];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!history) {
+                callback([key UTF8String], [@"{}" UTF8String]);
+                return;
+            }
+            
+            NSMutableDictionary *result = [NSMutableDictionary new];
+            for (NSString *key in history) {
+                CleverTapEventDetail *event = history[key];
+                result[key] = [CleverTapUnityManager userEventLogToDictionary:event];
+            }
+            
+            NSString *json = [CleverTapUnityManager idToJsonString:result];
+            callback([key UTF8String], [json UTF8String]);
+        });
+    });
+}
+
+- (void)getUserAppLaunchCount:(nonnull NSString *)key withCallback:(nonnull UserEventLogCallback)callback {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        int count = [[CleverTap sharedInstance] getUserAppLaunchCount];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *countString = [NSString stringWithFormat:@"%d", count];
+            callback([key UTF8String], [countString UTF8String]);
+        });
+    });
+}
+
+- (long)getUserLastVisitTs {
+    return [self.cleverTap getUserLastVisitTs];
+}
+
+// Serializes object to JSON string.
+// Uses the same logic as clevertap_toJsonString(val).
+// consider keeping only one of the methods/functions in the future.
++ (NSString *)idToJsonString:(id)val {
+    NSString *jsonString;
+    
+    if (val == nil) {
+        return nil;
+    }
+    
+    if ([val isKindOfClass:[NSArray class]] || [val isKindOfClass:[NSDictionary class]]) {
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:val options:NSJSONWritingPrettyPrinted error:&error];
+        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        
+        if (error != nil) {
+            jsonString = nil;
+        }
+    } else {
+        jsonString = [NSString stringWithFormat:@"%@", val];
+    }
+    
+    return jsonString;
+}
+
++ (NSDictionary *)userEventLogToDictionary:(CleverTapEventDetail *)event {
+    NSDictionary *json = @{
+        @"countOfEvents": @(event.count),
+        @"eventName": event.eventName,
+        @"normalizedEventName": event.normalizedEventName,
+        @"firstTS": @(event.firstTime),
+        @"lastTS": @(event.lastTime),
+        @"deviceID": event.deviceID
+    };
+    return json;
+}
 
 #pragma mark - Session API
 
 - (NSTimeInterval)sessionGetTimeElapsed {
-    return [clevertap sessionGetTimeElapsed];
+    return [self.cleverTap sessionGetTimeElapsed];
 }
 
 - (CleverTapUTMDetail *)sessionGetUTMDetails {
-    return [clevertap sessionGetUTMDetails];
+    return [self.cleverTap sessionGetUTMDetails];
 }
 
 - (int)userGetTotalVisits {
-    return [clevertap userGetTotalVisits];
+    return [self.cleverTap userGetTotalVisits];
 }
 
 - (int)userGetScreenCount {
-    return [clevertap userGetScreenCount];
+    return [self.cleverTap userGetScreenCount];
 }
 
 - (NSTimeInterval)userGetPreviousVisitTime {
-    return [clevertap userGetPreviousVisitTime];
+    return [self.cleverTap userGetPreviousVisitTime];
 }
 
 #pragma mark - Push Notifications
@@ -281,6 +343,8 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
 + (void)registerPush {
     UIApplication *application = [UIApplication sharedApplication];
     if ([application respondsToSelector:@selector(isRegisteredForRemoteNotifications)]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         UIUserNotificationSettings *settings = [UIUserNotificationSettings
                                                 settingsForTypes:UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound
                                                 categories:nil];
@@ -288,6 +352,7 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
         
         [application registerUserNotificationSettings:settings];
         [application registerForRemoteNotifications];
+#pragma clang diagnostic pop
     }
     else {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED < 80000
@@ -298,24 +363,30 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
 }
 
 - (void)setPushToken:(NSData *)pushToken {
-    [clevertap setPushToken:pushToken];
+    [self.cleverTap setPushToken:pushToken];
 }
 
 - (void)setPushTokenAsString:(NSString *)pushTokenString {
-    [clevertap setPushTokenAsString:pushTokenString];
+    [self.cleverTap setPushTokenAsString:pushTokenString];
 }
 
-- (void)handleNotificationWithData:(id)data {
-    [clevertap handleNotificationWithData:data];
+- (void)didReceiveRemoteNotification:(NSDictionary *)notification isOpen:(BOOL)isOpen {
+    [self didReceiveRemoteNotification:notification isOpen:isOpen openInForeground:NO];
 }
 
-- (void)showInAppNotificationIfAny {
-    [clevertap showInAppNotificationIfAny];
+- (void)didReceiveRemoteNotification:(NSDictionary *)notification
+                              isOpen:(BOOL)isOpen
+           openInForeground:(BOOL)openInForeground {
+    if (openInForeground) {
+        [self.cleverTap handleNotificationWithData:notification openDeepLinksInForeground:YES];
+    } else {
+        [self.cleverTap handleNotificationWithData:notification];
+    }
+
+    [self sendRemoteNotificationCallbackToUnity:notification isOpen:isOpen];
 }
 
-- (void)registerApplication:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)notification {
-    [self handleNotificationWithData:notification];
-    
+- (void)sendRemoteNotificationCallbackToUnity:(NSDictionary *)notification isOpen:(BOOL)isOpen {
     // generate a new dictionary that rearrange the notification elements
     NSMutableDictionary *aps = [NSMutableDictionary dictionaryWithDictionary:[notification objectForKey:@"aps"]];
     
@@ -338,23 +409,17 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
         NSData *data = [NSJSONSerialization dataWithJSONObject:aps options:0 error:&pushParsingError];
         
         if (pushParsingError == nil) {
-            NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            
-            NSString *methodName = (application.applicationState == UIApplicationStateActive) ? kCleverTapPushReceivedCallback : kCleverTapPushOpenedCallback;
-            
-            [self callUnityObject:kCleverTapGameObjectName forMethod:methodName withMessage:dataString];
+            [[CleverTapUnityCallbackHandler sharedInstance]
+             didReceiveRemoteNotification:data isOpen:isOpen];
         }
     }
 }
 
-
 #pragma mark - DeepLink Handling
 
-- (void)handleOpenURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication {
-    
-    [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapDeepLinkCallback withMessage:[url absoluteString]];
+- (void)handleOpenURL:(NSURL *)url {
+    [[CleverTapUnityCallbackHandler sharedInstance] deepLinkCallback:[url absoluteString]];
 }
-
 
 #pragma mark - Referrer Tracking
 
@@ -362,66 +427,25 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
                            medium:(NSString *)medium
                          campaign:(NSString *)campaign {
     
-    [clevertap pushInstallReferrerSource:source medium:medium campaign:campaign];
+    [self.cleverTap pushInstallReferrerSource:source medium:medium campaign:campaign];
 }
-
-
-#pragma mark - InApp Notification Delegates
-
-- (void)inAppNotificationDismissedWithExtras:(NSDictionary *)extras andActionExtras:(NSDictionary *)actionExtras {
-    
-    NSMutableDictionary *jsonDict = [NSMutableDictionary new];
-    
-    if (extras != nil) {
-        jsonDict[@"extras"] = extras;
-    }
-    
-    if (actionExtras != nil) {
-        jsonDict[@"actionExtras"] = actionExtras;
-    }
-    
-    NSString *jsonString = [self dictToJson:jsonDict];
-    
-    if (jsonString != nil) {
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapInAppNotificationDismissedCallback withMessage:jsonString];
-    }
-}
-
-- (void)inAppNotificationButtonTappedWithCustomExtras:(NSDictionary *)customExtras {
-    
-    NSMutableDictionary *jsonDict = [NSMutableDictionary new];
-    
-    if (customExtras != nil) {
-        jsonDict[@"customExtras"] = customExtras;
-    }
-    
-    NSString *jsonString = [self dictToJson:jsonDict];
-    
-    if (jsonString != nil) {
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapInAppNotificationButtonTapped withMessage:jsonString];
-    }
-}
-
 
 #pragma mark - App Inbox
 
 - (void)initializeInbox {
-    [clevertap initializeInboxWithCallback:^(BOOL success) {
-        NSLog(@"Inbox initialized %d", success);
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapInboxDidInitializeCallback withMessage:[NSString stringWithFormat:@"%@", success? @"YES": @"NO"]];
+    [self.cleverTap initializeInboxWithCallback:^(BOOL success) {
+        void(^block)(BOOL success) = [[CleverTapUnityCallbackHandler sharedInstance] initializeInboxBlock];
+        block(success);
         [self inboxMessagesDidUpdate];
     }];
 }
 
 - (void)inboxMessagesDidUpdate {
-    [clevertap registerInboxUpdatedBlock:^{
-        NSLog(@"Inbox Messages updated");
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapInboxMessagesDidUpdateCallback withMessage:@"inbox updated."];
-    }];
+    [self.cleverTap registerInboxUpdatedBlock:[[CleverTapUnityCallbackHandler sharedInstance] inboxUpdatedBlock]];
 }
 
 - (void)showAppInbox:(NSDictionary *)styleConfig {
-    CleverTapInboxViewController *inboxController = [clevertap newInboxViewControllerWithConfig:[self _dictToInboxStyleConfig:styleConfig? styleConfig : nil] andDelegate:self];
+    CleverTapInboxViewController *inboxController = [self.cleverTap newInboxViewControllerWithConfig:[self _dictToInboxStyleConfig:styleConfig? styleConfig : nil] andDelegate:self.callbackHandler];
     if (inboxController) {
         UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:inboxController];
         [UnityGetGLViewController() presentViewController:navigationController animated:YES completion:nil];
@@ -429,7 +453,7 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
 }
 
 - (void)dismissAppInbox {
-    [clevertap dismissAppInbox];
+    [self.cleverTap dismissAppInbox];
 }
 
 - (CleverTapInboxStyleConfig *)_dictToInboxStyleConfig: (NSDictionary *)dict {
@@ -499,16 +523,16 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
 }
 
 - (int)getInboxMessageUnreadCount {
-    return (int)[clevertap getInboxMessageUnreadCount];
+    return (int)[self.cleverTap getInboxMessageUnreadCount];
 }
 
 - (int)getInboxMessageCount {
-    return (int)[clevertap getInboxMessageCount];
+    return (int)[self.cleverTap getInboxMessageCount];
 }
 
 - (NSArray *)getAllInboxMessages {
     
-    NSArray *inboxMessages = [clevertap getAllInboxMessages];
+    NSArray *inboxMessages = [self.cleverTap getAllInboxMessages];
     
     NSMutableArray <NSDictionary *> *jsonArray = [NSMutableArray new];
     
@@ -524,7 +548,7 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
 
 - (NSArray *)getUnreadInboxMessages {
     
-    NSArray *inboxMessages = [clevertap getUnreadInboxMessages];
+    NSArray *inboxMessages = [self.cleverTap getUnreadInboxMessages];
     
     NSMutableArray <NSDictionary *> *jsonArray = [NSMutableArray new];
     
@@ -540,97 +564,42 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
 
 - (NSDictionary *)getInboxMessageForId:(NSString *)messageId {
     
-    CleverTapInboxMessage *message = [clevertap getInboxMessageForId:messageId];
+    CleverTapInboxMessage *message = [self.cleverTap getInboxMessageForId:messageId];
     
     return message.json;
 }
 
 - (void)deleteInboxMessageForID:(NSString *)messageId {
-    [clevertap deleteInboxMessageForID:messageId];
+    [self.cleverTap deleteInboxMessageForID:messageId];
 }
 
 - (void)deleteInboxMessagesForIDs:(NSArray *)messageIds {
-    [clevertap deleteInboxMessagesForIDs:messageIds];
+    [self.cleverTap deleteInboxMessagesForIDs:messageIds];
 }
 
 - (void)markReadInboxMessageForID:(NSString *)messageId {
-    [clevertap markReadInboxMessageForID:messageId];
+    [self.cleverTap markReadInboxMessageForID:messageId];
 }
 
 - (void)markReadInboxMessagesForIDs:(NSArray *)messageIds {
-    [clevertap markReadInboxMessagesForIDs:messageIds];
+    [self.cleverTap markReadInboxMessagesForIDs:messageIds];
 }
 
 - (void)recordInboxNotificationViewedEventForID:(NSString *)messageId {
     
-    [clevertap recordInboxNotificationViewedEventForID:messageId];
+    [self.cleverTap recordInboxNotificationViewedEventForID:messageId];
 }
 
 - (void)recordInboxNotificationClickedEventForID:(NSString *)messageId {
-    [clevertap recordInboxNotificationClickedEventForID:messageId];
-}
-
-- (void)messageButtonTappedWithCustomExtras:(NSDictionary *)customExtras {
-    
-    NSMutableDictionary *jsonDict = [NSMutableDictionary new];
-    
-    if (customExtras != nil) {
-        jsonDict[@"customExtras"] = customExtras;
-    }
-    
-    NSString *jsonString = [self dictToJson:jsonDict];
-    
-    if (jsonString != nil) {
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapInboxCustomExtrasButtonSelect withMessage:jsonString];
-    }
-}
-
-- (void)messageDidSelect:(CleverTapInboxMessage *_Nonnull)message atIndex:(int)index withButtonIndex:(int)buttonIndex {
-    NSMutableDictionary *body = [NSMutableDictionary new];
-    if ([message json] != nil) {
-        NSError *error;
-        if ([message json] != nil) {
-            body[@"CTInboxMessagePayload"] = [NSMutableDictionary dictionaryWithDictionary:[message json]];
-        }
-        body[@"ContentPageIndex"] = @(index);
-        body[@"ButtonIndex"] = @(buttonIndex);
-        NSString *jsonString = [self dictToJson:body];
-        if (jsonString != nil) {
-            [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapInboxItemClicked withMessage:jsonString];
-        }
-    }
+    [self.cleverTap recordInboxNotificationClickedEventForID:messageId];
 }
 
 
 #pragma mark - Native Display
 
-- (void)displayUnitsUpdated:(NSArray<CleverTapDisplayUnit *>*)displayUnits {
-    
-    NSMutableArray *jsonArray = [NSMutableArray new];
-    
-    for (id object in displayUnits) {
-        if ([object isKindOfClass:[CleverTapDisplayUnit class]]) {
-            CleverTapDisplayUnit *unit = object;
-            [jsonArray addObject:unit.json];
-        }
-    }
-    
-    NSMutableDictionary *jsonDict = [NSMutableDictionary new];
-    
-    if (jsonArray != nil) {
-        jsonDict[@"displayUnits"] = jsonArray;
-    }
-    
-    NSString *jsonString = [self dictToJson:jsonDict];
-    
-    if (jsonString != nil) {
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapNativeDisplayUnitsUpdated withMessage:jsonString];
-    }
-}
-
 - (NSArray *)getAllDisplayUnits {
     
-    NSArray *displayUnits = [clevertap getAllDisplayUnits];
+    NSArray *displayUnits = [self.cleverTap getAllDisplayUnits];
     
     NSMutableArray <NSDictionary *> *jsonArray = [NSMutableArray new];
     
@@ -646,95 +615,84 @@ static NSString * kCleverTapInAppsFetched = @"CleverTapInAppsFetched";
 
 - (NSDictionary *)getDisplayUnitForID:(NSString *)unitID {
     
-    CleverTapDisplayUnit *unit = [clevertap getDisplayUnitForID:unitID];
+    CleverTapDisplayUnit *unit = [self.cleverTap getDisplayUnitForID:unitID];
     
     return unit.json;
 }
 
 - (void)recordDisplayUnitViewedEventForID:(NSString *)unitID {
-    [clevertap recordDisplayUnitViewedEventForID:unitID];
+    [self.cleverTap recordDisplayUnitViewedEventForID:unitID];
 }
 
 - (void)recordDisplayUnitClickedEventForID:(NSString *)unitID {
-    [clevertap recordDisplayUnitClickedEventForID:unitID];
+    [self.cleverTap recordDisplayUnitClickedEventForID:unitID];
 }
 
 
 #pragma mark - Product Config
 
-- (void)ctProductConfigFetched {
-    [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapProductConfigFetched withMessage:@"Product Config Fetched"];
-}
-
-- (void)ctProductConfigActivated {
-    [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapProductConfigActivated withMessage:@"Product Config Activated"];
-}
-
-- (void)ctProductConfigInitialized {
-    [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapProductConfigInitialized withMessage:@"Product Config Initialized"];
-}
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)fetchProductConfig {
-    [[clevertap productConfig] fetch];
+    [[self.cleverTap productConfig] fetch];
 }
 
 - (void)fetchProductConfigWithMinimumInterval:(NSTimeInterval)minimumInterval {
-    [[clevertap productConfig] fetchWithMinimumInterval:minimumInterval];
+    [[self.cleverTap productConfig] fetchWithMinimumInterval:minimumInterval];
 }
 
 - (void)setProductConfigMinimumFetchInterval:(NSTimeInterval)minimumFetchInterval {
-    [[clevertap productConfig] setMinimumFetchInterval:minimumFetchInterval];
+    [[self.cleverTap productConfig] setMinimumFetchInterval:minimumFetchInterval];
 }
 
 - (void)activateProductConfig {
-    [[clevertap productConfig] activate];
+    [[self.cleverTap productConfig] activate];
 }
 
 - (void)fetchAndActivateProductConfig {
-    [[clevertap productConfig] fetchAndActivate];
+    [[self.cleverTap productConfig] fetchAndActivate];
 }
 
 - (void)setProductConfigDefaults:(NSDictionary *)defaults {
-    [[clevertap productConfig] setDefaults:defaults];
+    [[self.cleverTap productConfig] setDefaults:defaults];
 }
 
 - (void)setProductConfigDefaultsFromPlistFileName:(NSString *)fileName {
-    [[clevertap productConfig] setDefaultsFromPlistFileName:fileName];
+    [[self.cleverTap productConfig] setDefaultsFromPlistFileName:fileName];
 }
 
 - (NSDictionary *)getProductConfigValueFor:(NSString *)key {
-    CleverTapConfigValue *value = [[clevertap productConfig] get:key];
+    CleverTapConfigValue *value = [[self.cleverTap productConfig] get:key];
     NSDictionary *jsonDict;
     if ([value.jsonValue isKindOfClass:[NSDictionary class]]) {
         jsonDict = value.jsonValue;
     }
     else {
         jsonDict = @{ key: value.jsonValue };
-}
-
-return jsonDict;
+    }
+    
+    return jsonDict;
 }
 
 - (double)getProductConfigLastFetchTimeStamp {
-    NSDate *date = [[clevertap productConfig] getLastFetchTimeStamp];
+    NSDate *date = [[self.cleverTap productConfig] getLastFetchTimeStamp];
     double interval = date.timeIntervalSince1970;
     return interval;
 }
 
 - (void)resetProductConfig {
-    [[clevertap productConfig] reset];
+    [[self.cleverTap productConfig] reset];
 }
-
+#pragma clang diagnostic pop
 
 #pragma mark - Feature Flags
 
-- (void)ctFeatureFlagsUpdated {
-    [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapFeatureFlagsUpdated withMessage:@"Feature Flags updated"];
-}
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (BOOL)get:(NSString *)key withDefaultValue:(BOOL)defaultValue {
-    return [[clevertap featureFlags] get:key withDefaultValue:defaultValue];
+    return [[self.cleverTap featureFlags] get:key withDefaultValue:defaultValue];
 }
+#pragma clang diagnostic pop
 
 #pragma mark - Push Primer
 
@@ -818,23 +776,23 @@ return jsonDict;
 }  
 
 - (void)promptForPushPermission:(BOOL)showFallbackSettings {
-    [clevertap promptForPushPermission:showFallbackSettings];
+    [self.cleverTap promptForPushPermission:showFallbackSettings];
 }
 
 - (void)promptPushPrimer:(NSDictionary *)json {
     CTLocalInApp *localInAppBuilder = [self _localInAppConfigFromReadableMap:json];
-    [clevertap promptPushPrimer:localInAppBuilder.getLocalInAppSettings];
+    [self.cleverTap promptPushPrimer:localInAppBuilder.getLocalInAppSettings];
 }
 
 - (void)isPushPermissionGranted {
     if (@available(iOS 10.0, *)) {
-        [clevertap getNotificationPermissionStatusWithCompletionHandler:^(UNAuthorizationStatus status) {
+        [self.cleverTap getNotificationPermissionStatusWithCompletionHandler:^(UNAuthorizationStatus status) {
             BOOL isPushEnabled = YES;
                     if (status == UNAuthorizationStatusNotDetermined || status == UNAuthorizationStatusDenied) {
                         isPushEnabled = NO;
                     }
             NSLog(@"[CleverTap isPushPermissionGranted: %d]", isPushEnabled);
-            [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapPushNotificationPermissionStatus withMessage:[NSString stringWithFormat:@"%@", isPushEnabled? @"True": @"False"]];
+            [[CleverTapUnityCallbackHandler sharedInstance] pushPermissionCallback:isPushEnabled];
             }];
     }
     else {
@@ -843,25 +801,7 @@ return jsonDict;
     }
 }
 
-#pragma mark - Push Permission Delegate
-
-- (void)onPushPermissionResponse:(BOOL)accepted {
-    NSMutableDictionary *jsonDict = [NSMutableDictionary new];
-   
-    jsonDict[@"accepted"] = [NSNumber numberWithBool:accepted];
-    
-    NSString *jsonString = [self dictToJson:jsonDict];
-
-    if (jsonString != nil) {
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapPushPermissionResponseReceived withMessage:jsonString];
-    }
-}
-
 #pragma mark - Private Helpers
-
-- (void)callUnityObject:(NSString *)objectName forMethod:(NSString *)method withMessage:(NSString *)message {
-    UnitySendMessage([objectName UTF8String], [method UTF8String], [message UTF8String]);
-}
 
 - (NSString *)dictToJson:(NSDictionary *)dict {
     NSError *err;
@@ -877,39 +817,31 @@ return jsonDict;
 #pragma mark - In-App Controls
 
 - (void)suspendInAppNotifications {
-    [clevertap suspendInAppNotifications];
+    [self.cleverTap suspendInAppNotifications];
 }
 
 - (void)discardInAppNotifications {
-    [clevertap discardInAppNotifications];
+    [self.cleverTap discardInAppNotifications];
 }
 
 - (void)resumeInAppNotifications {
-    [clevertap resumeInAppNotifications];
+    [self.cleverTap resumeInAppNotifications];
 }
 
 #pragma mark - Variables
 
 - (void)syncVariables
 {
-    [clevertap syncVariables];
+    [self.cleverTap syncVariables];
 }
 
 - (void)syncVariables:(BOOL)isProduction {
-	[clevertap syncVariables:isProduction];
+	[self.cleverTap syncVariables:isProduction];
 }
 
 - (void)fetchVariables:(int) callbackId
 {
-    [clevertap fetchVariables:^(BOOL success) {
-        NSDictionary* response = @{
-            @"callbackId": @(callbackId),
-            @"isSuccess": @(success)
-        };
-        
-        NSString* json = [self dictToJson:response];
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapVariablesFetched withMessage:json];
-    }];
+    [self.cleverTap fetchVariables:[[CleverTapUnityCallbackHandler sharedInstance] fetchVariablesBlock:callbackId]];
 }
 
 - (void)defineVar:(NSString *)name kind:(NSString *)kind andDefaultValue:(NSString *)defaultValue
@@ -921,15 +853,15 @@ return jsonDict;
 
     if ([kind isEqualToString:@"integer"])
     {
-        var = [clevertap defineVar:name withInt:[defaultValue intValue]];
+        var = [self.cleverTap defineVar:name withInt:[defaultValue intValue]];
     }
     else if ([kind isEqualToString:@"float"])
     {
-        var = [clevertap defineVar:name withDouble:[defaultValue doubleValue]];
+        var = [self.cleverTap defineVar:name withDouble:[defaultValue doubleValue]];
     }
     else if ([kind isEqualToString:@"bool"])
     {
-        var = [clevertap defineVar:name withBool:[defaultValue boolValue]];
+        var = [self.cleverTap defineVar:name withBool:[defaultValue boolValue]];
     }
     else if ([kind isEqualToString:@"group"])
     {
@@ -938,12 +870,12 @@ return jsonDict;
             NSLog(@"CleverTap: Error parsing JSON: %@", error);
             return;
         }
-        var = [clevertap defineVar:name withDictionary:json];
+        var = [self.cleverTap defineVar:name withDictionary:json];
     }
     else if ([kind isEqualToString:@"string"])
     {
         NSString *value = [defaultValue substringWithRange:NSMakeRange(1, [defaultValue length] - 2)];
-        var = [clevertap defineVar:name withString:value];
+        var = [self.cleverTap defineVar:name withString:value];
     }
     else
     {
@@ -951,14 +883,21 @@ return jsonDict;
         return;
     }
     
-    [var onValueChanged:^{
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapVariableValueChanged withMessage:[var name]];
-    }];
+    [var onValueChanged:[[CleverTapUnityCallbackHandler sharedInstance] variableValueChanged:var.name]];
+}
+
+- (void)defineFileVar:(NSString *)name
+{
+    CTVar *var = [self.cleverTap defineFileVar:name];
+    
+    [var onValueChanged:[[CleverTapUnityCallbackHandler sharedInstance] variableValueChanged:var.name]];
+    
+    [var onFileIsReady:[[CleverTapUnityCallbackHandler sharedInstance] variableFileIsReady:var.name]];
 }
 
 - (NSString *)getVariableValue:(NSString *)name
 {
-    id value = [clevertap getVariableValue:name];
+    id value = [self.cleverTap getVariableValue:name];
     
     // Check if value is not nil and is serializable to JSON
     if (value) {
@@ -976,6 +915,22 @@ return jsonDict;
         NSLog(@"Value is nil or not a valid JSON object");
         return nil;
     }
+}
+
+- (NSString *)getFileVariableValue:(NSString *)name
+{
+    CTVar *var = [self.cleverTap getVariable:name];
+    if (!var) {
+        NSLog(@"Variable %@ not found.", name);
+        return nil;
+    }
+    
+    if (![var.kind isEqualToString:@"file"]) {
+        NSLog(@"Variable %@ is not a file variable.", name);
+        return nil;
+    }
+    
+    return [var fileValue];
 }
 
 NSDictionary *cleverTap_convertDateValues(NSDictionary *dictionary) {
@@ -1001,22 +956,148 @@ NSDictionary *cleverTap_convertDateValues(NSDictionary *dictionary) {
 }
 
 #pragma mark - Client-side In-Apps
-- (void)fetchInApps:(int) callbackId
-{
-    [clevertap fetchInApps:^(BOOL success) {
-        NSDictionary* response = @{
-            @"callbackId": @(callbackId),
-            @"isSuccess": @(success)
-        };
-        
-        NSString* json = [self dictToJson:response];
-        [self callUnityObject:kCleverTapGameObjectName forMethod:kCleverTapInAppsFetched withMessage:json];
-    }];
+
+- (void)fetchInApps:(int) callbackId {
+    [self.cleverTap fetchInApps:[[CleverTapUnityCallbackHandler sharedInstance] fetchInAppsBlock:callbackId]];
 }
 
-- (void)clearInAppResources:(BOOL)expiredOnly 
-{
-    [clevertap clearInAppResources:expiredOnly];
+- (void)clearInAppResources:(BOOL)expiredOnly {
+    [self.cleverTap clearInAppResources:expiredOnly];
+}
+
+- (NSString *)customTemplateContextToString:(NSString *)name {
+    CTTemplateContext *context = [self contextNamed:name];
+    if (context) {
+        return [context debugDescription];
+    }
+    return nil;
+}
+
+- (void)customTemplateSetDismissed:(NSString *)name {
+    CTTemplateContext *context = [self contextNamed:name];
+    if (context) {
+        [context dismissed];
+    }
+}
+
+- (void)customTemplateSetPresented:(NSString *)name {
+    CTTemplateContext *context = [self contextNamed:name];
+    if (context) {
+        [context presented];
+    }
+}
+
+- (void)customTemplateTriggerAction:(NSString *)templateName named:(NSString *)argumentName {
+    CTTemplateContext *context = [self contextNamed:templateName];
+    if (context) {
+        [context triggerActionNamed:argumentName];
+    }
+}
+
+- (NSString *)customTemplateGetStringArg:(NSString *)templateName named:(NSString *)argumentName {
+    CTTemplateContext *context = [self contextNamed:templateName];
+    if (context) {
+        return [context stringNamed:argumentName];
+    }
+    return nil;
+}
+
+- (BOOL)customTemplateGetBooleanArg:(NSString *)templateName named:(NSString *)argumentName {
+    CTTemplateContext *context = [self contextNamed:templateName];
+    if (context) {
+        return [context boolNamed:argumentName];
+    }
+    
+    return NO;
+}
+
+- (int8_t)customTemplateGetByteArg:(NSString *)templateName named:(NSString *)argumentName {
+    CTTemplateContext *context = [self contextNamed:templateName];
+    if (context) {
+        return (int8_t)[[context numberNamed:argumentName] charValue];
+    }
+    
+    return 0;
+}
+
+- (NSDictionary *)customTemplateGetDictionaryArg:(NSString *)templateName named:(NSString *)argumentName {
+    CTTemplateContext *context = [self contextNamed:templateName];
+    if (context) {
+        return [context dictionaryNamed:argumentName];
+    }
+    return nil;
+}
+
+- (double)customTemplateGetDoubleArg:(NSString *)templateName named:(NSString *)argumentName {
+    CTTemplateContext *context = [self contextNamed:templateName];
+    if (context) {
+        return [context doubleNamed:argumentName];
+    }
+    
+    return 0;
+}
+
+- (NSString *)customTemplateGetFileArg:(NSString *)templateName named:(NSString *)argumentName {
+    CTTemplateContext *context = [self contextNamed:templateName];
+    if (context) {
+        return [context fileNamed:argumentName];
+    }
+    return nil;
+}
+
+- (float)customTemplateGetFloatArg:(NSString *)templateName named:(NSString *)argumentName {
+    CTTemplateContext *context = [self contextNamed:templateName];
+    if (context) {
+        return [context floatNamed:argumentName];
+    }
+    
+    return 0;
+}
+
+- (int)customTemplateGetIntArg:(NSString *)templateName named:(NSString *)argumentName {
+    CTTemplateContext *context = [self contextNamed:templateName];
+    if (context) {
+        return [context intNamed:argumentName];
+    }
+    
+    return 0;
+}
+
+- (int64_t)customTemplateGetLongArg:(NSString *)templateName named:(NSString *)argumentName {
+    CTTemplateContext *context = [self contextNamed:templateName];
+    if (context) {
+        return [context longLongNamed:argumentName];
+    }
+    
+    return 0;
+}
+
+- (int16_t)customTemplateGetShortArg:(NSString *)templateName named:(NSString *)argumentName {
+    CTTemplateContext *context = [self contextNamed:templateName];
+    if (context) {
+        return (int16_t)[[context numberNamed:argumentName] shortValue];
+    }
+    
+    return 0;
+}
+
+- (CTTemplateContext *)contextNamed:(NSString *)templateName {
+    if (!self.cleverTap) {
+        NSLog(@"CleverTap is not initialized");
+        return nil;
+    }
+    
+    CTTemplateContext *context  = [self.cleverTap activeContextForTemplate:templateName];
+    if (!context) {
+        NSLog(@"Custom template: %@ is not currently being presented", templateName);
+        return nil;
+    }
+
+    return context;
+}
+
+- (void)syncCustomTemplates:(BOOL)isProduction {
+    [self.cleverTap syncCustomTemplates:isProduction];
 }
 
 @end

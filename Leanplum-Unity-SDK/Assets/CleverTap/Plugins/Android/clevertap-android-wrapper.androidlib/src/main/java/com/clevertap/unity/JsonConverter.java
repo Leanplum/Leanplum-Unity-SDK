@@ -1,10 +1,23 @@
 package com.clevertap.unity;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
+import com.clevertap.android.sdk.displayunits.model.CleverTapDisplayUnit;
+import com.clevertap.android.sdk.usereventlogs.UserEventLog;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.util.Log;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class JsonConverter {
     private static final String DATE_PREFIX = "ct_date_";
 
@@ -54,6 +67,26 @@ public class JsonConverter {
             return null;
         }
     }
+
+    @NonNull
+    public static <T> JSONObject mapToJson(Map<String, T> map, @NonNull Function.Transformer<T, Object> mapper) {
+        JSONObject json = new JSONObject();
+        if (map == null) {
+            return json;
+        }
+
+        for (String key : map.keySet()) {
+            Object value = mapper.apply(map.get(key));
+            try {
+                json.put(key, value);
+            } catch (JSONException e) {
+                Log.e("CleverTap", "Error converting map to JSON. key: " + key + " value: " + value, e);
+            }
+        }
+
+        return json;
+    }
+
     @SuppressWarnings("unchecked")
     public static JSONObject mapToJsonObject(Map<String, ?> map) throws JSONException {
         JSONObject obj = new JSONObject();
@@ -68,6 +101,7 @@ public class JsonConverter {
         }
         return obj;
     }
+
     @SuppressWarnings("unchecked")
     public static JSONArray listToJsonArray(Iterable<?> list) throws JSONException {
         JSONArray obj = new JSONArray();
@@ -81,8 +115,9 @@ public class JsonConverter {
         }
         return obj;
     }
+
     @SuppressWarnings("unchecked")
-    public static <T>Map<String, T> mapFromJson(JSONObject object) {
+    public static <T> Map<String, T> mapFromJson(JSONObject object) {
         if (object == null) {
             return null;
         }
@@ -102,6 +137,7 @@ public class JsonConverter {
         }
         return result;
     }
+
     public static List<Object> listFromJson(JSONArray json) {
         if (json == null) {
             return null;
@@ -119,5 +155,36 @@ public class JsonConverter {
             result.add(value);
         }
         return result;
+    }
+
+    public static JSONArray displayUnitListToJSONArray(ArrayList<CleverTapDisplayUnit> displayUnits)
+            throws JSONException {
+        JSONArray array = new JSONArray();
+
+        for (int i = 0; i < displayUnits.size(); i++) {
+            array.put(displayUnits.get(i).getJsonObject());
+        }
+
+        return array;
+    }
+
+    @NonNull
+    public static JSONObject userEventLogToJSON(UserEventLog eventLog) {
+        JSONObject json = new JSONObject();
+        if (eventLog == null) {
+            return json;
+        }
+
+        try {
+            json.put("eventName", eventLog.getEventName());
+            json.put("normalizedEventName", eventLog.getNormalizedEventName());
+            json.put("firstTs", eventLog.getFirstTs());
+            json.put("lastTs", eventLog.getLastTs());
+            json.put("countOfEvents", eventLog.getCountOfEvents());
+            json.put("deviceID", eventLog.getDeviceID());
+        } catch (JSONException e) {
+            Log.e("CleverTap", "Error converting eventLog to JSON: " + eventLog, e);
+        }
+        return json;
     }
 }

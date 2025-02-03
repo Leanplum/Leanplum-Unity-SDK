@@ -13,6 +13,9 @@ namespace CleverTapSDK.Android {
         private static AndroidJavaObject _cleverTapJNI;
         private static AndroidJavaObject _cleverTapClass;
 
+        internal delegate void OnInitCleverTapJNI(AndroidJavaObject cleverTapInstance);
+        internal static OnInitCleverTapJNI OnInitCleverTapInstanceDelegate;
+
         internal static AndroidJavaObject UnityActivity {
             get {
                 if (_unityActivity == null) {
@@ -40,6 +43,7 @@ namespace CleverTapSDK.Android {
             get {
                 if (_cleverTapJNI == null) {
                     _cleverTapJNI = CleverTapJNIStatic.CallStatic<AndroidJavaObject>(GET_INSTANCE_METHOD, ApplicationContext);
+                    OnInitCleverTapInstanceDelegate?.Invoke(_cleverTapJNI);
                 }
                 return _cleverTapJNI;
             }

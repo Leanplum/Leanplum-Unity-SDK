@@ -1,4 +1,4 @@
-﻿#if !UNITY_IOS && !UNITY_ANDROID
+﻿#if (!UNITY_IOS && !UNITY_ANDROID) || UNITY_EDITOR
 using CleverTapSDK.Common;
 using CleverTapSDK.Utilities;
 
