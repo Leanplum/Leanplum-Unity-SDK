@@ -2,12 +2,22 @@
 using CleverTapSDK.Common;
 using CleverTapSDK.Constants;
 using CleverTapSDK.Utilities;
+using System;
 using System.Collections.Generic;
 
 namespace CleverTapSDK.Android {
     internal class AndroidPlatformBinding : CleverTapPlatformBindings {
-        internal AndroidPlatformBinding() {
+        internal AndroidPlatformBinding()
+        {
             CallbackHandler = CreateGameObjectAndAttachCallbackHandler<AndroidCallbackHandler>(CleverTapGameObjectName.ANDROID_CALLBACK_HANDLER);
+            CleverTapAndroidJNI.OnInitCleverTapInstanceDelegate = cleverTapJniInstance =>
+            {
+                cleverTapJniInstance.Call("setInAppNotificationOnShowCallback",
+                 new AndroidPluginCallback(message => { CallbackHandler.CleverTapInAppNotificationShowCallback(message); }
+                 ));
+                cleverTapJniInstance.Call("setInAppNotificationOnButtonTappedCallback",
+                 new AndroidPluginCallback(message => { CallbackHandler.CleverTapInAppNotificationButtonTapped(message); }));
+            };
             CleverTapLogger.Log("Start: CleverTap binding for Android.");
         }
 
@@ -72,6 +82,7 @@ namespace CleverTapSDK.Android {
             CleverTapAndroidJNI.CleverTapJNIInstance.Call("enablePersonalization");
         }
 
+        [Obsolete]
         internal override JSONClass EventGetDetail(string eventName) {
             string jsonString = CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("eventGetDetail", eventName);
             JSONClass json;
@@ -84,25 +95,121 @@ namespace CleverTapSDK.Android {
             return json;
         }
 
+        [Obsolete]
         internal override int EventGetFirstTime(string eventName) {
             return CleverTapAndroidJNI.CleverTapJNIInstance.Call<int>("eventGetFirstTime", eventName);
         }
 
+        [Obsolete]
         internal override int EventGetLastTime(string eventName) {
             return CleverTapAndroidJNI.CleverTapJNIInstance.Call<int>("eventGetLastTime", eventName);
         }
 
+        [Obsolete]
         internal override int EventGetOccurrences(string eventName) {
             return CleverTapAndroidJNI.CleverTapJNIInstance.Call<int>("eventGetOccurrences", eventName);
         }
 
         /**
-        * requests for a unique, asynchronous CleverTap identifier. The value will be available as json {"cleverTapID" : <value> } via
+        * requests for a unique, asynchronous CleverTap identifier. The value will be available as json {"CleverTapID" : <value> } via
         * CleverTapUnity#CleverTapInitCleverTapIdCallback() function
         */
         internal override string GetCleverTapID() {
             CleverTapAndroidJNI.CleverTapJNIInstance.Call("getCleverTapID");
             return string.Empty;
+        }
+
+        internal override JSONArray GetAllInboxMessages()
+        {
+            string jsonString = CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("getAllInboxMessages");
+            JSONArray json;
+            try
+            {
+                json = (JSONArray)JSON.Parse(jsonString);
+            }
+            catch (Exception ex)
+            {
+                CleverTapLogger.LogError($"Unable to parse inbox messages JSON: {ex}.");
+                json = new JSONArray();
+            }
+
+            return json;
+        }
+
+        internal override List<CleverTapInboxMessage> GetAllInboxMessagesParsed()
+        {
+            string jsonString = CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("getAllInboxMessages");
+            try
+            {
+                return CleverTapInboxMessageJSONParser.ParseJsonArray(jsonString);
+            }
+            catch (Exception ex)
+            {
+                CleverTapLogger.LogError($"Unable to parse inbox messages to CleverTapInboxMessage list: {ex}.");
+                return new List<CleverTapInboxMessage>();
+            }
+        }
+
+        internal override JSONClass GetInboxMessageForId(string messageId)
+        {
+            string jsonString = CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("getInboxMessageForId", messageId);
+            JSONClass json;
+            try
+            {
+                json = (JSONClass)JSON.Parse(jsonString);
+            }
+            catch (Exception ex)
+            {
+                CleverTapLogger.LogError($"Unable to parse inbox message for id: {messageId}. Exception: {ex}.");
+                json = new JSONClass();
+            }
+
+            return json;
+        }
+
+        internal override CleverTapInboxMessage GetInboxMessageForIdParsed(string messageId)
+        {
+            string jsonString = CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("getInboxMessageForId", messageId);
+            try
+            {
+                return CleverTapInboxMessageJSONParser.ParseJsonMessage(jsonString);
+            }
+            catch (Exception ex)
+            {
+                CleverTapLogger.LogError($"Unable to parse inbox message to CleverTapInboxMessage for id: {messageId}. Exception: {ex}.");
+                return null;
+            }
+        }
+
+        internal override JSONArray GetUnreadInboxMessages()
+        {
+            string jsonString = CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("getUnreadInboxMessages");
+            JSONArray json;
+            try
+            {
+                json = (JSONArray)JSON.Parse(jsonString);
+            }
+            catch (Exception ex)
+            {
+                CleverTapLogger.LogError($"Unable to parse unread inbox messages JSON: {ex}.");
+                json = new JSONArray();
+            }
+
+            return json;
+        }
+
+        internal override List<CleverTapInboxMessage> GetUnreadInboxMessagesParsed()
+        {
+            string jsonString = CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("getUnreadInboxMessages");
+            try
+            {
+                return CleverTapInboxMessageJSONParser.ParseJsonArray(jsonString);
+            }
+            catch (Exception ex)
+            {
+                CleverTapLogger.LogError($"Unable to parse unread inbox messages to CleverTapInboxMessage list: {ex}.");
+                return new List<CleverTapInboxMessage>();
+            }
         }
 
         internal override int GetInboxMessageCount() {
@@ -119,14 +226,6 @@ namespace CleverTapSDK.Android {
 
         internal override bool IsPushPermissionGranted() {
             return CleverTapAndroidJNI.CleverTapJNIInstance.Call<bool>("isPushPermissionGranted");
-        }
-
-        internal override void LaunchWithCredentials(string accountID, string token) {
-            CleverTapAndroidJNI.CleverTapJNIStatic.CallStatic("initialize", accountID, token, CleverTapAndroidJNI.UnityActivity);
-        }
-
-        internal override void LaunchWithCredentialsForRegion(string accountID, string token, string region) {
-            CleverTapAndroidJNI.CleverTapJNIStatic.CallStatic("initialize", accountID, token, region, CleverTapAndroidJNI.UnityActivity);
         }
 
         internal override void MarkReadInboxMessageForID(string messageId) {
@@ -314,6 +413,7 @@ namespace CleverTapSDK.Android {
             CleverTapAndroidJNI.CleverTapJNIInstance.Call("suspendInAppNotifications");
         }
 
+        [Obsolete]
         internal override JSONClass UserGetEventHistory() {
             string jsonString = CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("userGetEventHistory");
             JSONClass json;
@@ -326,6 +426,7 @@ namespace CleverTapSDK.Android {
             return json;
         }
 
+        [Obsolete]
         internal override int UserGetPreviousVisitTime() {
             return CleverTapAndroidJNI.CleverTapJNIInstance.Call<int>("userGetPreviousVisitTime");
         }
@@ -334,9 +435,125 @@ namespace CleverTapSDK.Android {
             return CleverTapAndroidJNI.CleverTapJNIInstance.Call<int>("userGetScreenCount");
         }
 
+        [Obsolete]
         internal override int UserGetTotalVisits() {
             return CleverTapAndroidJNI.CleverTapJNIInstance.Call<int>("userGetTotalVisits");
         }
+
+        internal override void GetUserEventLog(string eventName, CleverTapCallback<UserEventLog> callback)
+        {
+            CleverTapAndroidJNI.CleverTapJNIInstance.Call("getUserEventLog", eventName,
+             new AndroidPluginCallback(message => { callback?.Invoke(UserEventLog.Parse(message)); }));
+        }
+
+        internal override void GetUserEventLogCount(string eventName, CleverTapCallback<int> callback)
+        {
+            CleverTapAndroidJNI.CleverTapJNIInstance.Call("getUserEventLogCount", eventName,
+             new AndroidPluginIntCallback(count => { callback?.Invoke(count); }));
+        }
+
+        internal override void GetUserAppLaunchCount(CleverTapCallback<int> callback)
+        {
+            CleverTapAndroidJNI.CleverTapJNIInstance.Call("getUserAppLaunchCount",
+             new AndroidPluginIntCallback(count => { callback?.Invoke(count); }));
+        }
+
+        internal override void GetUserEventLogHistory(CleverTapCallback<Dictionary<string, UserEventLog>> callback)
+        {
+            CleverTapAndroidJNI.CleverTapJNIInstance.Call("getUserEventLogHistory",
+             new AndroidPluginCallback(message => { callback?.Invoke(UserEventLog.ParseLogsDictionary(message)); }));
+        }
+
+        internal override long GetUserLastVisitTs()
+        {
+            return CleverTapAndroidJNI.CleverTapJNIInstance.Call<long>("getUserLastVisitTs");
+        }
+
+        #region Feature Flags
+
+        [Obsolete("Feature Flags are deprecated, use variables instead.")]
+        internal override bool GetFeatureFlag(string key, bool defaultValue)
+        {
+            return CleverTapAndroidJNI.CleverTapJNIInstance.Call<bool>("getFeatureFlag", key, defaultValue);
+        }
+        #endregion
+        #region Product Config
+
+        [Obsolete]
+        internal override void SetProductConfigDefaults(Dictionary<string, object> defaults)
+        {
+            CleverTapAndroidJNI.CleverTapJNIInstance.Call("setProductConfigMapDefaults", Json.Serialize(defaults.ConvertDateObjects()));
+        }
+
+        [Obsolete]
+        internal override void SetProductConfigMinimumFetchInterval(double minimumFetchInterval)
+        {
+            CleverTapAndroidJNI.CleverTapJNIInstance.Call("setProductConfigMinimumFetchInterval", (long) minimumFetchInterval);
+        }
+
+        [Obsolete]
+        internal override void ResetProductConfig()
+        {
+            CleverTapAndroidJNI.CleverTapJNIInstance.Call("productConfigReset");
+        }
+
+        [Obsolete]
+        internal override void ActivateProductConfig()
+        {
+            CleverTapAndroidJNI.CleverTapJNIInstance.Call("activateProductConfig");
+        }
+
+        [Obsolete]
+        internal override void FetchAndActivateProductConfig()
+        {
+            CleverTapAndroidJNI.CleverTapJNIInstance.Call("fetchAndActivateProductConfig");
+        }
+
+               [Obsolete]
+        internal override void FetchProductConfig()
+        {
+            CleverTapAndroidJNI.CleverTapJNIInstance.Call("fetchProductConfig");
+        }
+
+        [Obsolete]
+        internal override void FetchProductConfigWithMinimumInterval(double minimumInterval)
+        {
+            CleverTapAndroidJNI.CleverTapJNIInstance.Call("fetchProductConfigWithMinimalInterval", (long) minimumInterval);
+        }
+
+        [Obsolete]
+        internal override double GetProductConfigLastFetchTimeStamp()
+        {
+            return CleverTapAndroidJNI.CleverTapJNIInstance.Call<long>("getProductConfigLastFetchTimeStampInMillis");    
+        }
+
+        [Obsolete]
+        internal override string GetProductConfigString(string key)
+        {
+            return CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("getProductConfigString", key);
+        }
+
+        [Obsolete]
+        internal override bool? GetProductConfigBoolean(string key)
+        {
+            var stringValue = CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("getProductConfigBoolean", key);
+            return bool.TryParse(stringValue, out var result) ? result : null;
+        }
+
+        [Obsolete]
+        internal override long? GetProductConfigLong(string key)
+        {
+            var stringValue = CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("getProductConfigLong", key);
+            return long.TryParse(stringValue, out var result) ? result : null;
+        }
+
+        [Obsolete]
+        internal override double? GetProductConfigDouble(string key)
+        {
+            var stringValue = CleverTapAndroidJNI.CleverTapJNIInstance.Call<string>("getProductConfigDouble", key);
+            return double.TryParse(stringValue, out var result) ? result : null;
+        }
+        #endregion
     }
 }
 #endif

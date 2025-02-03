@@ -114,6 +114,22 @@ namespace CleverTapSDK.Utilities
                 Value = value.ToString();
             }
         }
+
+        public virtual long AsLong
+        {
+            get
+            {
+                long v = 0;
+                if (long.TryParse(Value, out v))
+                    return v;
+                return 0;
+            }
+            set
+            {
+                Value = value.ToString();
+            }
+        }
+
         public virtual float AsFloat
         {
             get

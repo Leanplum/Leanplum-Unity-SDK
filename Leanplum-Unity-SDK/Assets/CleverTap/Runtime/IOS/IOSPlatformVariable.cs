@@ -1,5 +1,6 @@
 ﻿#if UNITY_IOS
 using CleverTapSDK.Common;
+using CleverTapSDK.Constants;
 using CleverTapSDK.Utilities;
 
 namespace CleverTapSDK.IOS {
@@ -14,7 +15,11 @@ namespace CleverTapSDK.IOS {
             IOSDllImport.CleverTap_fetchVariables(callbackId);
 
         protected override Var<T> DefineVariable<T>(string name, string kind, T defaultValue) {
-            IOSDllImport.CleverTap_defineVar(name, kind, Json.Serialize(defaultValue));
+            if (kind == CleverTapVariableKind.FILE) {
+                IOSDllImport.CleverTap_defineFileVar(name);
+            } else {
+                IOSDllImport.CleverTap_defineVar(name, kind, Json.Serialize(defaultValue));
+            }
             Var<T> result = new IOSVar<T>(name, kind, defaultValue);
             varCache.Add(name, result);
             return result;

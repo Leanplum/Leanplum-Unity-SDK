@@ -15,6 +15,7 @@ using CleverTapSDK.Android;
 
 namespace CleverTapSDK 
 {
+    [Obsolete]
     public class CleverTapBinding : MonoBehaviour 
     {
         [Obsolete("Please use CleverTap.VERSION instead.")]
