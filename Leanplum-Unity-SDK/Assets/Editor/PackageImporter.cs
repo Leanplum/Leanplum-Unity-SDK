@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -10,34 +9,13 @@ namespace Leanplum.Private
 {
     public static class PackageImporter
     {
-        private const string CLEVERTAP_UNITY_VERSION = "3.0.0";
+        private const string CLEVERTAP_UNITY_VERSION = "5.0.0";
 
         private static readonly string CLEVERTAP_UNITY_PACKAGE = "CleverTapSDK.unitypackage";
         private static readonly string CLEVERTAP_UNITY_PACKAGE_URL =
             $"https://github.com/CleverTap/clevertap-unity-sdk/raw/{CLEVERTAP_UNITY_VERSION}/{CLEVERTAP_UNITY_PACKAGE}";
 
-        private static readonly string ASSETS_CLEVERTAP_UNITY = "Assets/CleverTapUnity/";
-
-        private static readonly string[] FRAMEWORKS_PATHS_TO_REMOVE = new string[]
-        {
-            Path.Combine(Environment.CurrentDirectory, $"{ASSETS_CLEVERTAP_UNITY}/iOS/SDWebImage.framework"),
-            Path.Combine(Environment.CurrentDirectory, $"{ASSETS_CLEVERTAP_UNITY}/iOS/CleverTapSDK.framework")
-        };
-
-        private static string CleverTapAndroidSDKArchivePath
-        {
-            get
-            {
-                string androidAssets = Path.Combine(Environment.CurrentDirectory, $"{ASSETS_CLEVERTAP_UNITY}/Android/");
-                string file = Directory.GetFiles(androidAssets, "clevertap-android-sdk-*.aar").FirstOrDefault();
-                if (!string.IsNullOrEmpty(file))
-                {
-                    return Path.Combine(Environment.CurrentDirectory, $"{ASSETS_CLEVERTAP_UNITY}/Android/", file);
-                }
-
-                return file;
-            }
-        }
+        private static readonly string ASSETS_CLEVERTAP_UNITY = "Assets/CleverTap/";
 
         private static readonly HttpClient httpClient;
 
@@ -58,13 +36,16 @@ namespace Leanplum.Private
             if (!successful)
                 return;
 
+            // Delete CleverTap package folder.
+            // This ensures files deleted in the new package version are not left in project.
+            Directory.Delete(ASSETS_CLEVERTAP_UNITY, true);
+
             // Import the package
             Task<string> importPackageTask = ImportPackageAsync(packagePath);
             string result = await importPackageTask;
             if (string.IsNullOrEmpty(result))
                 return;
 
-            // Delete files from the CleverTap package that the Leanplum SDK will provide by itself
             // Delete the downloaded package file
             RemoveUnnecessaryFiles(packagePath);
             Debug.Log($"Import CleverTap Package {CLEVERTAP_UNITY_VERSION} Completed");
@@ -98,20 +79,6 @@ namespace Leanplum.Private
 
         private static void RemoveUnnecessaryFiles(string packagePath)
         {
-            foreach (string path in FRAMEWORKS_PATHS_TO_REMOVE)
-            {
-                if (Directory.Exists(path))
-                {
-                    Directory.Delete(path, true);
-                }
-            }
-
-            string archivePath = CleverTapAndroidSDKArchivePath;
-            if (!string.IsNullOrEmpty(archivePath) && File.Exists(archivePath))
-            {
-                File.Delete(archivePath);
-            }
-
             if (File.Exists(packagePath))
             {
                 File.Delete(packagePath);
