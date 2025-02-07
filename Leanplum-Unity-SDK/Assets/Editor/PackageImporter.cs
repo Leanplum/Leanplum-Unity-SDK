@@ -7,21 +7,33 @@ using UnityEngine;
 
 namespace Leanplum.Private
 {
+    [InitializeOnLoad]
     public static class PackageImporter
     {
         private const string CLEVERTAP_UNITY_VERSION = "5.0.0";
-
-        private static readonly string CLEVERTAP_UNITY_PACKAGE = "CleverTapSDK.unitypackage";
+        private static readonly string CLEVERTAP_UNITY_PACKAGE_NAME = "CleverTapSDK";
+        private static readonly string CLEVERTAP_UNITY_PACKAGE = $"{CLEVERTAP_UNITY_PACKAGE_NAME}.unitypackage";
         private static readonly string CLEVERTAP_UNITY_PACKAGE_URL =
             $"https://github.com/CleverTap/clevertap-unity-sdk/raw/{CLEVERTAP_UNITY_VERSION}/{CLEVERTAP_UNITY_PACKAGE}";
-
         private static readonly string ASSETS_CLEVERTAP_UNITY = "Assets/CleverTap/";
+
+        private const string EDM4U_VERSION = "1.2.185";
+        private static readonly string EDM4U_UNITY_PACKAGE_NAME = $"external-dependency-manager-{EDM4U_VERSION}";
+        private static readonly string EDM4U_UNITY_PACKAGE = $"{EDM4U_UNITY_PACKAGE_NAME}.unitypackage";
+        private static readonly string EDM4U_UNITY_PACKAGE_URL =
+            $"https://github.com/googlesamples/unity-jar-resolver/raw/v{EDM4U_VERSION}/external-dependency-manager-{EDM4U_VERSION}.unitypackage";
+        private static readonly string ASSETS_EDM4U = "Assets/ExternalDependencyManager/";
 
         private static readonly HttpClient httpClient;
 
         static PackageImporter()
         {
             httpClient = new HttpClient();
+
+            AssetDatabase.importPackageStarted += OnImportPackageStarted;
+            AssetDatabase.importPackageCancelled += OnImportPackageCancelled;
+            AssetDatabase.importPackageCompleted += OnImportPackageCompleted;
+            AssetDatabase.importPackageFailed += OnImportPackageFailed;
         }
 
         [MenuItem(MenuConstants.LEANPLUM_TOOLS_MENU + "Import CleverTap Package " + CLEVERTAP_UNITY_VERSION)]
@@ -38,17 +50,36 @@ namespace Leanplum.Private
 
             // Delete CleverTap package folder.
             // This ensures files deleted in the new package version are not left in project.
-            Directory.Delete(ASSETS_CLEVERTAP_UNITY, true);
+            if (Directory.Exists(ASSETS_CLEVERTAP_UNITY))
+            {
+                Directory.Delete(ASSETS_CLEVERTAP_UNITY, true);
+            }
 
             // Import the package
-            Task<string> importPackageTask = ImportPackageAsync(packagePath);
-            string result = await importPackageTask;
-            if (string.IsNullOrEmpty(result))
+            AssetDatabase.ImportPackage(packagePath, false);
+        }
+
+        [MenuItem(MenuConstants.LEANPLUM_TOOLS_MENU + "Import EDM4U " + EDM4U_VERSION)]
+        public static async void ImportEDM4U()
+        {
+            Debug.Log($"Import EDM4U Package {EDM4U_VERSION} Started");
+            // Path to save the downloaded package
+            string packagePath = Path.Combine(Environment.CurrentDirectory, EDM4U_UNITY_PACKAGE);
+            // Download the package
+            Task<bool> downloadPackageTask = DownloadFileAsync(EDM4U_UNITY_PACKAGE_URL, packagePath);
+            bool successful = await downloadPackageTask;
+            if (!successful)
                 return;
 
-            // Delete the downloaded package file
-            RemoveUnnecessaryFiles(packagePath);
-            Debug.Log($"Import CleverTap Package {CLEVERTAP_UNITY_VERSION} Completed");
+            // Delete CleverTap package folder.
+            // This ensures files deleted in the new package version are not left in project.
+            if (Directory.Exists(ASSETS_EDM4U))
+            {
+                Directory.Delete(ASSETS_EDM4U, true);
+            }
+
+            // Import the package
+            AssetDatabase.ImportPackage(packagePath, false);
         }
 
         private static async Task<bool> DownloadFileAsync(string url, string savePath)
@@ -77,58 +108,45 @@ namespace Leanplum.Private
             }
         }
 
-        private static void RemoveUnnecessaryFiles(string packagePath)
+        private static void OnImportPackageStarted(string packageName)
         {
-            if (File.Exists(packagePath))
-            {
-                File.Delete(packagePath);
-            }
+            Debug.Log($"Import Package Started: {packageName}");
         }
 
-        public static async Task<string> ImportPackageAsync(string packagePath)
+        private static void OnImportPackageCancelled(string packageName)
         {
-            TaskCompletionSource<string> taskCompletionSource = new TaskCompletionSource<string>();
-            try
-            {
-                AssetDatabase.importPackageStarted += OnImportPackageStarted;
-                AssetDatabase.importPackageCancelled += OnImportPackageCancelled;
-                AssetDatabase.importPackageCompleted += OnImportPackageCompleted;
-                AssetDatabase.importPackageFailed += OnImportPackageFailed;
-                AssetDatabase.ImportPackage(packagePath, false);
+            Debug.LogError($"Import Package Cancelled: {packageName}");
+            CleanUp(packageName);
+        }
 
-                return await taskCompletionSource.Task;
-            }
-            catch (Exception exception)
-            {
-                Debug.LogException(exception);
-                return null;
-            }
-            finally
-            {
-                AssetDatabase.importPackageCancelled -= OnImportPackageCancelled;
-                AssetDatabase.importPackageCompleted -= OnImportPackageCompleted;
-                AssetDatabase.importPackageFailed -= OnImportPackageFailed;
-            }
+        private static void OnImportPackageCompleted(string packageName)
+        {
+            Debug.Log($"Import Package Completed: {packageName}");
+            CleanUp(packageName);
+        }
 
-            void OnImportPackageStarted(string packageName)
-            {
-                Debug.Log($"Import Package Started: {packageName}");
-            }
+        private static void OnImportPackageFailed(string packageName, string errorMessage)
+        {
+            Debug.LogError($"Import Package Failed: {packageName}. Error: {errorMessage}");
+            CleanUp(packageName);
+        }
 
-            void OnImportPackageCancelled(string packageName)
+        private static void CleanUp(string packageName)
+        {
+            // Delete the downloaded package file
+            string packagePath = string.Empty;
+            if (packageName == CLEVERTAP_UNITY_PACKAGE_NAME)
             {
-                taskCompletionSource.SetCanceled();
+                packagePath = Path.Combine(Environment.CurrentDirectory, CLEVERTAP_UNITY_PACKAGE);
+            }
+            else if (packageName == EDM4U_UNITY_PACKAGE_NAME)
+            {
+                packagePath = Path.Combine(Environment.CurrentDirectory, EDM4U_UNITY_PACKAGE);
             }
 
-            void OnImportPackageCompleted(string packageName)
+            if (!string.IsNullOrEmpty(packagePath) && File.Exists(packagePath))
             {
-                Debug.Log($"Import Package Completed: {packageName}");
-                taskCompletionSource.SetResult(packageName);
-            }
-
-            void OnImportPackageFailed(string packageName, string errorMessage)
-            {
-                taskCompletionSource.SetException(new Exception(errorMessage));
+                File.Delete(packagePath);
             }
         }
     }
