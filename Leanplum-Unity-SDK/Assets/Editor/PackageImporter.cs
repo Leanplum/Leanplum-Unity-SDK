@@ -10,7 +10,7 @@ namespace Leanplum.Private
     [InitializeOnLoad]
     public static class PackageImporter
     {
-        private const string CLEVERTAP_UNITY_VERSION = "5.0.0";
+        private const string CLEVERTAP_UNITY_VERSION = "5.0.1";
         private static readonly string CLEVERTAP_UNITY_PACKAGE_NAME = "CleverTapSDK";
         private static readonly string CLEVERTAP_UNITY_PACKAGE = $"{CLEVERTAP_UNITY_PACKAGE_NAME}.unitypackage";
         private static readonly string CLEVERTAP_UNITY_PACKAGE_URL =

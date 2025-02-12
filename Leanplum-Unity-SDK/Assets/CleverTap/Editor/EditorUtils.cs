@@ -58,7 +58,7 @@ namespace CleverTapSDK.Private
                         continue;
                     }
                     string tempPath = Path.Combine(destDirName, subdir.Name);
-                    DirectoryCopy(subdir.FullName, tempPath, copyChangedOnly, copySubDirs);
+                    DirectoryCopy(subdir.FullName, tempPath, copyChangedOnly, copySubDirs, includeOnlySubDirsNamed);
                 }
             }
         }

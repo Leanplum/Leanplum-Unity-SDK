@@ -1,13 +1,20 @@
 package com.clevertap.unity;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Window;
+import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.clevertap.android.sdk.CleverTapAPI;
+import com.clevertap.android.sdk.InAppNotificationActivity;
 
 public class CleverTapUnityAPI {
 
@@ -30,9 +37,9 @@ public class CleverTapUnityAPI {
      * {@link Activity#onNewIntent(Intent)} or extend {@link CleverTapOverrideActivity}.
      *
      * @param activity The launcher Activity
-     * @param intent The intent received in {@link Activity#onNewIntent(Intent)}
+     * @param intent   The intent received in {@link Activity#onNewIntent(Intent)}
      */
-    public static void onLauncherActivityNewIntent(Activity activity, Intent intent) {
+    public static void onLauncherActivityNewIntent(@NonNull Activity activity, Intent intent) {
         handleIntent(activity, intent, true);
     }
 
@@ -42,11 +49,33 @@ public class CleverTapUnityAPI {
      *
      * @param activity The launcher Activity
      */
-    public static void onLauncherActivityCreate(Activity activity) {
+    public static void onLauncherActivityCreate(@NonNull Activity activity) {
         handleIntent(activity, activity.getIntent(), false);
+        setInAppActivityFullScreenFromOtherActivity(activity);
     }
 
-    private static void handleIntent(Activity activity, Intent intent, boolean isOnNewIntent) {
+    /**
+     * Show CleverTap in-app notifications in full screen.
+     *
+     * @param application  The application instance.
+     * @param isFullScreen Whether to show in-app notifications in full screen or not.
+     */
+    public static void setInAppsFullScreen(@NonNull Application application, boolean isFullScreen) {
+        CleverTapLifecycleCallbacks.register(application, isFullScreen);
+    }
+
+    private static void setInAppActivityFullScreenFromOtherActivity(@NonNull Activity activity) {
+        Window window = activity.getWindow();
+        if (window == null) {
+            return;
+        }
+
+        int flags = window.getAttributes().flags;
+        boolean isFullScreen = (flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0;
+        setInAppsFullScreen(activity.getApplication(), isFullScreen);
+    }
+
+    private static void handleIntent(@NonNull Activity activity, Intent intent, boolean isOnNewIntent) {
         if (intent == null || intent.getAction() == null) {
             return;
         }

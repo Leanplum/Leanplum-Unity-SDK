@@ -1,35 +1,37 @@
 ﻿#if UNITY_ANDROID && UNITY_EDITOR
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using UnityEditor;
-using UnityEditor.Callbacks;
+using UnityEditor.Android;
 using UnityEngine;
 
 namespace CleverTapSDK.Private
 {
-    public class AndroidPostBuildProcessor
-	{
+    public class AndroidProjectPostProcessor : IPostGenerateGradleAndroidProject
+    {
         private static readonly string ANDROID_XML_NS_URI = "http://schemas.android.com/apk/res/android";
 
-        [PostProcessBuild(99)]
-        public static void OnPostprocessBuild(BuildTarget target, string path)
+        public int callbackOrder => 99;
+
+        public void OnPostGenerateGradleAndroidProject(string path)
         {
-            if (target == BuildTarget.Android)
-            {
-                AndroidPostProcess(path);
-            }
+            string androidProjectPath = path + "/clevertap-android-wrapper.androidlib";
+
+            CopyAssetsToAndroidProject(androidProjectPath);
+            CopySettingsToAndroidManifest(androidProjectPath);
         }
 
-        private static void AndroidPostProcess(string path)
+        private static void CopyAssetsToAndroidProject(string androidProjectPath)
         {
-            string androidProjectPath = path + "/unityLibrary/clevertap-android-wrapper.androidlib";
-
-            // copy assets to the android project
-            EditorUtils.DirectoryCopy(Path.Combine(Application.dataPath, EditorUtils.CLEVERTAP_ASSETS_FOLDER),
-                Path.Combine(androidProjectPath, $"assets/{EditorUtils.CLEVERTAP_APP_ASSETS_FOLDER}"),
-                true, true, new System.Collections.Generic.HashSet<string>() { EditorUtils.CLEVERTAP_CUSTOM_TEMPLATES_FOLDER });
-            // copy CleverTapSettings to the project's AndroidManifest
-            CopySettingsToAndroidManifest(androidProjectPath);
+            var unityAssetsPath = Path.Combine(Application.dataPath, EditorUtils.CLEVERTAP_ASSETS_FOLDER);
+            if (!Directory.Exists(unityAssetsPath))
+            {
+                return;
+            }
+            var androidAssetsPath = Path.Combine(androidProjectPath, $"assets/{EditorUtils.CLEVERTAP_APP_ASSETS_FOLDER}");
+            EditorUtils.DirectoryCopy(unityAssetsPath, androidAssetsPath, true, true,
+                new HashSet<string>() { EditorUtils.CLEVERTAP_CUSTOM_TEMPLATES_FOLDER });
         }
 
         private static void CopySettingsToAndroidManifest(string androidProjectPath)
