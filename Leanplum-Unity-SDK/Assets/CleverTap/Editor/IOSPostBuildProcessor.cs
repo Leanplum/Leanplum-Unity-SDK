@@ -1,4 +1,5 @@
 ﻿#if UNITY_IOS && UNITY_EDITOR
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -27,13 +28,24 @@ namespace CleverTapSDK.Private
 #if UNITY_2019_3_OR_NEWER
             var projectTarget = proj.GetUnityFrameworkTargetGuid();
 #else
-			      var projectTarget = proj.TargetGuidByName(PBXProject.GetUnityTargetName());
+			var projectTarget = proj.TargetGuidByName(PBXProject.GetUnityTargetName());
 #endif
 
             // Add linker flags
             proj.AddBuildProperty(projectTarget, "OTHER_LDFLAGS", "-ObjC");
 
+            // Update project based on CleverTap Settings
             CleverTapSettings settings = AssetDatabase.LoadAssetAtPath<CleverTapSettings>(CleverTapSettings.settingsPath);
+            UpdateProjectWithSettings(path, proj, projectTarget, settings);
+
+            // Copy Assets to iOS project
+            CopyAssetsToIOSResources(path, proj);
+
+            File.WriteAllText(projPath, proj.WriteToString());
+        }
+
+        private static void UpdateProjectWithSettings(string path, PBXProject proj, string projectTarget, CleverTapSettings settings)
+        {
             if (settings != null)
             {
                 UpdatePlistWithSettings(path, settings);
@@ -46,10 +58,6 @@ namespace CleverTapSDK.Private
                     $"Please update them from {CleverTapSettingsWindow.ITEM_NAME} or " +
                     $"set them manually in the project Info.plist.");
             }
-
-            AddCleverTapFolder(path, proj);
-
-            File.WriteAllText(projPath, proj.WriteToString());
         }
 
         /// <summary>
@@ -98,8 +106,30 @@ namespace CleverTapSDK.Private
             plist.ReadFromString(File.ReadAllText(plistPath));
 
             PlistElementDict rootDict = plist.root;
-            rootDict.SetString("CleverTapAccountID", settings.CleverTapAccountId);
-            rootDict.SetString("CleverTapToken", settings.CleverTapAccountToken);
+            if (!string.IsNullOrWhiteSpace(settings.CleverTapAccountId))
+            {
+                rootDict.SetString("CleverTapAccountID", settings.CleverTapAccountId);
+            }
+            else
+            {
+                Debug.Log($"CleverTapAccountID has not been set.\n" +
+                    $"SDK initialization will fail without this. " +
+                    $"Please set it from {CleverTapSettingsWindow.ITEM_NAME} or " +
+                    $"manually in the project Info.plist.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(settings.CleverTapAccountToken))
+            {
+                rootDict.SetString("CleverTapToken", settings.CleverTapAccountToken);
+            }
+            else
+            {
+                Debug.Log($"CleverTapToken has not been set.\n" +
+                    $"SDK initialization will fail without this. " +
+                    $"Please set it from {CleverTapSettingsWindow.ITEM_NAME} or " +
+                    $"manually in the project Info.plist.");
+            }
+
             if (!string.IsNullOrWhiteSpace(settings.CleverTapAccountRegion))
             {
                 rootDict.SetString("CleverTapRegion", settings.CleverTapAccountRegion);
@@ -134,13 +164,27 @@ namespace CleverTapSDK.Private
 		/// </remarks>
 		/// <param name="path">The project path.</param>
 		/// <param name="proj">The Xcode project.</param>
-        private static void AddCleverTapFolder(string path, PBXProject proj)
+        private static void CopyAssetsToIOSResources(string path, PBXProject proj)
         {
-			// Copy CleverTap folder
             string sourceFolderPath = Path.Combine(Application.dataPath, EditorUtils.CLEVERTAP_ASSETS_FOLDER);
+            if (!Directory.Exists(sourceFolderPath))
+            {
+                return;
+            }
+
+            // Copy CleverTap folder
             string destinationFolderPath = Path.Combine(path, EditorUtils.CLEVERTAP_APP_ASSETS_FOLDER);
-            EditorUtils.DirectoryCopy(sourceFolderPath, destinationFolderPath,
-                true, true, new System.Collections.Generic.HashSet<string>() { EditorUtils.CLEVERTAP_CUSTOM_TEMPLATES_FOLDER });
+            HashSet<string> folderNamesToCopy = new HashSet<string>() { EditorUtils.CLEVERTAP_CUSTOM_TEMPLATES_FOLDER };
+            try
+            {
+                EditorUtils.DirectoryCopy(sourceFolderPath, destinationFolderPath, true, true, folderNamesToCopy);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Failed to Copy assets to iOS project. " +
+                    $"This affects Custom Templates and App Functions. Exception: {ex}");
+                return;
+            }
 
             string mainTargetGuid = proj.GetUnityMainTargetGuid();
             // Add CleverTap folder reference and target membership
