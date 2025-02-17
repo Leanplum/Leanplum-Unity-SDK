@@ -18,11 +18,22 @@
 //  specific language governing permissions and limitations
 //  under the License.
 
-#import "LeanplumUnityConstants.h"
+#import <Foundation/Foundation.h>
+#import "UnityAppController.h"
+#import <UserNotifications/UserNotifications.h>
 
-NSString *const ON_MESSAGE_DISPLAYED = @"OnMessageDisplayed";
-NSString *const ON_MESSAGE_DISMISSED = @"OnMessageDismissed";
-NSString *const ON_MESSAGE_ACTION = @"OnMessageAction";
+NS_ASSUME_NONNULL_BEGIN
 
-NSString *const ACTION_RESPONDER = @"ActionResponder";
-NSString *const ACTION_DISMISS = @"ActionDismiss";
+/**
+ * Leanplum class that subclasses UnityAppController.
+ * Calls CleverTapUnityManager to send messages to CleverTap Unity when in migration.
+ */
+@interface LeanplumUnityAppController : UnityAppController <UNUserNotificationCenterDelegate>
+
+@end
+
+#if !LP_NO_APP_CONTROLLER_SUBCLASS
+IMPL_APP_CONTROLLER_SUBCLASS(LeanplumUnityAppController)
+#endif
+
+NS_ASSUME_NONNULL_END
