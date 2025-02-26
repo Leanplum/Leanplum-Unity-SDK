@@ -15,9 +15,6 @@ UNITY_HUB="$HOME/Applications/Unity Hub.app/Contents/MacOS/Unity Hub"
 # It should be passed as an argument.
 UNITY_EDITOR_VERSION=""
 
-# Path to JDK to be used by the Android gradle build. Set to "" to use default.
-JAVA_VERSION_PATH="/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Home"
-
 #######################################
 # Replaces a string in a file and checks for success via git status.
 # Globals:
@@ -71,22 +68,6 @@ get_unity_from_hub() {
 #   None
 #######################################
 build() {
-  echo "Building Android SDK..."
-  # Build Android SDK
-  cd Leanplum-Android-SDK-Unity/
-  if [[ $JAVA_VERSION_PATH != "" ]]; then
-    ./gradlew clean assembleRelease -Dorg.gradle.java.home=$JAVA_VERSION_PATH
-  else
-    ./gradlew clean assembleRelease
-  fi
-
-  CLASSES_JAR=android-unity-wrapper/build/outputs/aar/android-unity-wrapper-release.aar
-  UNITY_DIR=Leanplum-Unity-SDK/Assets/Plugins/Android
-
-  cp "${CLASSES_JAR}" "../${UNITY_DIR}/com.leanplum.unity-wrapper-$UNITY_VERSION_STRING.aar"
-
-  cd ../
-
   echo "Exporting Unity SDK Package..."
   pwd
 
@@ -130,10 +111,6 @@ main() {
       ANDROID_SDK_VERSION="${i#*=}"
       shift # past argument=value
       ;;
-      --ct-android-sdk-version=*)
-      CT_ANDROID_SDK_VERSION="${i#*=}"
-      shift # past argument=value
-      ;;
       --version=*)
       UNITY_VERSION="${i#*=}"
       shift # past argument=value
@@ -158,11 +135,6 @@ main() {
     exit
   fi
 
-  if [[ -z ${CT_ANDROID_SDK_VERSION+x} ]]; then
-    echo "CleverTap Android SDK version not specified"
-    exit
-  fi
-
   if [[ -z "${UNITY_VERSION+x}" ]]; then
     echo "Unity SDK version not specified, using current: ${UNITY_VERSION}"
   fi
@@ -179,21 +151,16 @@ using Leanplum iOS ${APPLE_SDK_VERSION} and Leanplum Android ${ANDROID_SDK_VERSI
   echo "$INFO"
   sleep 3
 
-  replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
-  replace "Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
-  replace "Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle" "%CT_VERSION%" $CT_ANDROID_SDK_VERSION
-  replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%CT_VERSION%" $CT_ANDROID_SDK_VERSION
-  replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_UNITY_VERSION%" $UNITY_VERSION
+  replace "Leanplum-Unity-SDK/Assets/Plugins/Android/leanplum-unity-wrapper.androidlib/build.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
+  replace "Leanplum-Unity-SDK/Assets/Plugins/Android/leanplum-unity-wrapper.androidlib/build.gradle" "%LP_UNITY_VERSION%" $UNITY_VERSION
   awk -v value="\"$UNITY_VERSION\";" '!x{x=sub(/SDK_VERSION =.*/, "SDK_VERSION = "value)}1' "Leanplum-Unity-SDK/Assets/LeanplumSDK/Utilities/Constants.cs" > Constants_tmp.cs \
     && mv -v Constants_tmp.cs "Leanplum-Unity-SDK/Assets/LeanplumSDK/Utilities/Constants.cs"
 
   find Leanplum-Unity-Package -name '*.unitypackage' -delete
-  find Leanplum-Unity-SDK/Assets/Plugins/ -name '*.aar' -delete
 
   build
 
-  git checkout Leanplum-Android-SDK-Unity/
-  git checkout Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle
+  git restore Leanplum-Unity-SDK/Assets/Plugins/Android/leanplum-unity-wrapper.androidlib/build.gradle
 
   echo "Completed ${INFO}"
   echo "Done."
