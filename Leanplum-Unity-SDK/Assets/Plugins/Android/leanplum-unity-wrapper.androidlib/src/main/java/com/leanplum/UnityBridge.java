@@ -19,9 +19,16 @@
 //  under the License.
 package com.leanplum;
 
+import android.content.Context;
+import android.location.Location;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import com.clevertap.android.sdk.CleverTapAPI;
-import com.clevertap.unity.CleverTapUnityPlugin;
+import com.clevertap.unity.CleverTapUnityAPI;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.leanplum.actions.LeanplumActions;
 import com.leanplum.actions.MessageDisplayController;
 import com.leanplum.actions.MessageDisplayControllerImpl;
@@ -30,10 +37,24 @@ import com.leanplum.actions.MessageDisplayListenerImpl;
 import com.leanplum.actions.internal.ActionManagerTriggeringKt;
 import com.leanplum.actions.internal.ActionsTrigger;
 import com.leanplum.actions.internal.Priority;
+import com.leanplum.callbacks.ActionCallback;
 import com.leanplum.callbacks.CleverTapInstanceCallback;
+import com.leanplum.callbacks.ForceContentUpdateCallback;
+import com.leanplum.callbacks.InboxChangedCallback;
+import com.leanplum.callbacks.InboxSyncedCallback;
+import com.leanplum.callbacks.StartCallback;
+import com.leanplum.callbacks.VariableCallback;
+import com.leanplum.callbacks.VariablesChangedCallback;
 import com.leanplum.internal.ActionManager;
+import com.leanplum.internal.CollectionUtil;
+import com.leanplum.internal.Constants;
+import com.leanplum.internal.OperationQueue;
+import com.leanplum.internal.VarCache;
+import com.leanplum.json.JsonConverter;
 import com.leanplum.migration.MigrationManager;
 import com.leanplum.migration.model.MigrationConfig;
+import com.unity3d.player.UnityPlayer;
+
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,26 +63,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import android.content.Context;
-import android.util.Log;
-import android.location.Location;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.leanplum.callbacks.ActionCallback;
-import com.leanplum.callbacks.ForceContentUpdateCallback;
-import com.leanplum.callbacks.InboxChangedCallback;
-import com.leanplum.callbacks.InboxSyncedCallback;
-import com.leanplum.callbacks.StartCallback;
-import com.leanplum.callbacks.VariableCallback;
-import com.leanplum.callbacks.VariablesChangedCallback;
-import com.leanplum.internal.CollectionUtil;
-import com.leanplum.internal.Constants;
-import com.leanplum.internal.OperationQueue;
-import com.leanplum.internal.VarCache;
-import com.leanplum.json.JsonConverter;
-import com.unity3d.player.UnityPlayer;
 
 public class UnityBridge {
   private static String unityGameObject;
@@ -233,8 +234,9 @@ public class UnityBridge {
     Leanplum.addCleverTapInstanceCallback(new CleverTapInstanceCallback() {
       @Override
       public void onInstance(@NonNull CleverTapAPI cleverTapInstance) {
-          String accountId = MigrationConfig.INSTANCE.getAccountId();
-          makeCallbackToUnity("CleverTapInstance:" + accountId);
+        CleverTapUnityAPI.setCleverTapApiInstance(cleverTapInstance);
+        String accountId = MigrationConfig.INSTANCE.getAccountId();
+        makeCallbackToUnity("CleverTapInstance:" + accountId);
       }
     });
 

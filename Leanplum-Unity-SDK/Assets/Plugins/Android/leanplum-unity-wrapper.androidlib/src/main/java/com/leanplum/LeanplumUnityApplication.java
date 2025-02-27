@@ -19,17 +19,15 @@
  * under the License.
  */
 
-package com.leanplum;
+ package com.leanplum;
 
-import android.app.Application;
-import com.leanplum.annotations.Parser;
+ import android.app.Application;
 
-public class LeanplumUnityApplication extends Application {
+ public class LeanplumUnityApplication extends Application {
 
-  @Override
-  public void onCreate() {
-    super.onCreate();
-    LeanplumActivityHelper.enableLifecycleCallbacks(this);
-    Parser.parseVariables(this);
-  }
-}
+     @Override
+     public void onCreate() {
+         super.onCreate();
+         LeanplumUnity.initialize(this);
+     }
+ }
