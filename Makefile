@@ -6,7 +6,5 @@ UNITY_VERSION?=6.1.0
 
 UNITY_EDITOR_VERSION?=2022.3.50f1
 
-#export ANDROID_HOME?=$(shell echo ${HOME})/Library/Android/sdk
-
 unitypackage:
 	./build.sh  --android-sdk-version=${ANDROID_SDK_VERSION} --version=${UNITY_VERSION} --unity-editor-version=${UNITY_EDITOR_VERSION}

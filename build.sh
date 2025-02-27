@@ -160,7 +160,7 @@ using Leanplum iOS ${APPLE_SDK_VERSION} and Leanplum Android ${ANDROID_SDK_VERSI
 
   build
 
-  git restore Leanplum-Unity-SDK/Assets/Plugins/Android/leanplum-unity-wrapper.androidlib/build.gradle
+  git checkout Leanplum-Unity-SDK/Assets/Plugins/Android/leanplum-unity-wrapper.androidlib/build.gradle
 
   echo "Completed ${INFO}"
   echo "Done."

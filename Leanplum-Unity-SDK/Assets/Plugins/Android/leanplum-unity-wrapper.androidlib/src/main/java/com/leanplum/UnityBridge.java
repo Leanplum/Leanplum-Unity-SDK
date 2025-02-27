@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 
 import com.clevertap.android.sdk.CleverTapAPI;
 import com.clevertap.unity.CleverTapUnityAPI;
+import com.clevertap.unity.CleverTapUnityPlugin;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.leanplum.actions.LeanplumActions;
@@ -235,6 +236,10 @@ public class UnityBridge {
       @Override
       public void onInstance(@NonNull CleverTapAPI cleverTapInstance) {
         CleverTapUnityAPI.setCleverTapApiInstance(cleverTapInstance);
+        // Create the instance of the CT plugin. This would ensure the message
+        // buffers get disabled. The outside "start" method is called from the Unity
+        // Leanplum class, so this callback will be called after Unity is initialized.
+        CleverTapUnityPlugin.getInstance(bridgeContext);
         String accountId = MigrationConfig.INSTANCE.getAccountId();
         makeCallbackToUnity("CleverTapInstance:" + accountId);
       }
