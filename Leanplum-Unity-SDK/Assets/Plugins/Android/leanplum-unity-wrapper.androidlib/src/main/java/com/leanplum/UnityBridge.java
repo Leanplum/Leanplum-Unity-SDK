@@ -21,6 +21,7 @@ package com.leanplum;
 
 import androidx.annotation.NonNull;
 import com.clevertap.android.sdk.CleverTapAPI;
+import com.clevertap.unity.CleverTapUnityPlugin;
 import com.leanplum.actions.LeanplumActions;
 import com.leanplum.actions.MessageDisplayController;
 import com.leanplum.actions.MessageDisplayControllerImpl;
@@ -138,7 +139,7 @@ public class UnityBridge {
         break;
       }
     }
-    
+
     if (interval != null) {
       Leanplum.setEventsUploadInterval(interval);
     }
@@ -232,8 +233,8 @@ public class UnityBridge {
     Leanplum.addCleverTapInstanceCallback(new CleverTapInstanceCallback() {
       @Override
       public void onInstance(@NonNull CleverTapAPI cleverTapInstance) {
-        String accountId = MigrationConfig.INSTANCE.getAccountId();
-        makeCallbackToUnity("CleverTapInstance:" + accountId);
+          String accountId = MigrationConfig.INSTANCE.getAccountId();
+          makeCallbackToUnity("CleverTapInstance:" + accountId);
       }
     });
 
