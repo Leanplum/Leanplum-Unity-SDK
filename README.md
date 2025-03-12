@@ -50,16 +50,7 @@ Import `unitypackage` into your project, make sure you select `Editor, LeanplumS
 
 ### Android Export
 
-Make sure you add 
-```
-android.enableJetifier=true
-android.useAndroidX=true
-```
-in your `gradle.properties` file, because latest Leanplum SDK is using `androidx` support libraries.
-
-You can choose Leanplum dependencies in your `gradle.build` file of the exported project.
-
-If you are using FCM, download `google-service.json` file and put it into root of `Assets` folder. When Android project is exported it will automatically parse the file.
+Android specific setup is described in the [Android Instructions](Docs/Android-Instructions.md)
 
 ## iOS Export
 
