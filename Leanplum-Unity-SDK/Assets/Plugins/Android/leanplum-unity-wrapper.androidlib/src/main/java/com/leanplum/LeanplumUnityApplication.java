@@ -22,14 +22,12 @@
 package com.leanplum;
 
 import android.app.Application;
-import com.leanplum.annotations.Parser;
 
 public class LeanplumUnityApplication extends Application {
 
   @Override
   public void onCreate() {
     super.onCreate();
-    LeanplumActivityHelper.enableLifecycleCallbacks(this);
-    Parser.parseVariables(this);
+    LeanplumUnity.initialize(this);
   }
 }

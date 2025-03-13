@@ -1,6 +1,2 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.leanplum.unity" >
-
-  <application android:name="com.leanplum.LeanplumUnityApplication" />
-
-</manifest>
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.leanplum.unity" />
