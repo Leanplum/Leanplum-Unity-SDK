@@ -1,6 +1,6 @@
 # Specify the iOS SDK version in EDM4U Assets/Plugins/Editor/LeanplumDependencies.xml
 
-ANDROID_SDK_VERSION?=7.6.2
+ANDROID_SDK_VERSION?=7.6.3
 
 UNITY_VERSION?=6.1.0
 

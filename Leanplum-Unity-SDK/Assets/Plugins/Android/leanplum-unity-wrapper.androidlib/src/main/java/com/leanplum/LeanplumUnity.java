@@ -15,7 +15,8 @@ public class LeanplumUnity {
      */
     public static void initialize(Application application) {
         CleverTapCustomTemplates.registerCustomTemplates(application);
-        LeanplumActivityHelper.enableLifecycleCallbacks(application);
+        Leanplum.setApplicationContext(application);
         Parser.parseVariables(application);
+        LeanplumActivityHelper.enableLifecycleCallbacks(application);
     }
 }
