@@ -11,6 +11,7 @@ namespace Leanplum.Private
             "Assets/Plugins",
             "Assets/LeanplumSDK",
             "Assets/CleverTap",
+            "Assets/ExternalDependencyManager",
             "Assets/Editor/LeanplumAndroidBuildPreProcessor.cs",
             "Assets/Editor/LeanplumAndroidGradleBuildProcessor.cs",
             "Assets/Editor/LeanplumApplePostProcessor.cs",

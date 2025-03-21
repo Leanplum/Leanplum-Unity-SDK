@@ -6,6 +6,8 @@ namespace CleverTapSDK.Common {
         string Name { get; }
         string Kind { get; }
         void ValueChanged();
+        void FileIsReady();
+        bool IsFileReady { get; }
     }
 
     public abstract class Var<T> : IVar {
@@ -13,8 +15,10 @@ namespace CleverTapSDK.Common {
         protected string kind;
         protected T value;
         protected T defaultValue;
+        protected bool isFileReady;
 
         public virtual event CleverTapCallbackDelegate OnValueChanged;
+        public virtual event CleverTapCallbackDelegate OnFileReady;
 
         public Var(string name, string kind, T defaultValue) {
             this.name = name;
@@ -26,12 +30,31 @@ namespace CleverTapSDK.Common {
         public virtual string Name => name;
         public virtual T Value => value;
         public virtual T DefaultValue => defaultValue;
-        public virtual string StringValue => Kind == CleverTapVariableKind.DICTIONARY ? Json.Serialize(Value) : Value.ToString();
-
-        public virtual void ValueChanged() {
-            if (OnValueChanged != null) {
-                OnValueChanged();
+        public virtual string StringValue {
+            get {
+                if (Kind == CleverTapVariableKind.DICTIONARY) {
+                    return Json.Serialize(Value);
+                } else {
+                    return Value?.ToString();
+                }
             }
+        }
+
+        public virtual bool IsFileReady => Kind == CleverTapVariableKind.FILE && isFileReady;
+        public string FileValue => Kind == CleverTapVariableKind.FILE ? StringValue : null;
+        
+        public virtual void ValueChanged() {
+            OnValueChanged?.Invoke();
+        }
+
+        public virtual void FileIsReady() {
+            if (!Kind.Equals(CleverTapVariableKind.FILE)) {
+                CleverTapLogger.Log($"Var \"{name}\": FileIsReady is only available for File Variables.");
+                return;
+            }
+
+            isFileReady = true;
+            OnFileReady?.Invoke();
         }
 
         public static implicit operator T(Var<T> var) {

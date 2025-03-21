@@ -7,6 +7,7 @@ using UnityEditor;
 #endif
 
 namespace CleverTapSDK {
+    [Obsolete]
     public class CleverTapUnity : MonoBehaviour {
 
         public String CLEVERTAP_ACCOUNT_ID = "YOUR_CLEVERTAP_ACCOUNT_ID";

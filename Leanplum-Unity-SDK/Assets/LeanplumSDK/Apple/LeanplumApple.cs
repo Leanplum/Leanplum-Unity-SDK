@@ -208,13 +208,13 @@ namespace LeanplumSDK
         public override event VariablesChangedAndNoDownloadsPendingHandler VariablesChangedAndNoDownloadsPending;
 
         private event CleverTapInstanceHandler cleverTapInstanceReady;
-        private string accountId;
+        private bool cleverTapInitialized;
         public override event CleverTapInstanceHandler CleverTapInstanceReady
         {
             add
             {
                 cleverTapInstanceReady += value;
-                if (!string.IsNullOrEmpty(accountId))
+                if (cleverTapInitialized)
                 {
                     value?.Invoke();
                 }
@@ -815,14 +815,8 @@ namespace LeanplumSDK
             }
             else if (message.StartsWith(CLEVERTAP_INSTANCE))
             {
-                string id = message[CLEVERTAP_INSTANCE.Length..];
-                if (accountId != id)
-                {
-                    accountId = id;
-                    MigrationConfig config = MigrationConfig();
-                    CleverTapSDK.CleverTap.LaunchWithCredentialsForRegion(config.AccountId, config.AccountToken, config.AccountRegion);
-                    cleverTapInstanceReady?.Invoke();
-                }
+                cleverTapInitialized = true;
+                cleverTapInstanceReady?.Invoke();
             }
             else if (message.StartsWith(VARIABLE_VALUE_CHANGED))
             {

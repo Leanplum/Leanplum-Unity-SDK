@@ -1,5 +1,6 @@
 namespace CleverTapSDK.Constants {
-    internal static class CleverTapVersion {
-        internal const string CLEVERTAP_SDK_VERSION = "3.0.0";
+    public static class CleverTapVersion {
+        public const string CLEVERTAP_SDK_VERSION = "5.1.0";
+        public const string CLEVERTAP_SDK_REVISION = "50100";
     }
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2023 Leanplum Inc. All rights reserved.
+# Copyright (c) 2025 Leanplum Inc. All rights reserved.
 #
 
 set -o noglob
@@ -14,139 +14,6 @@ UNITY_HUB="$HOME/Applications/Unity Hub.app/Contents/MacOS/Unity Hub"
 # Unity Editor version to be used for building the package. 
 # It should be passed as an argument.
 UNITY_EDITOR_VERSION=""
-
-# Path to JDK to be used by the Android gradle build. Set to "" to use default.
-JAVA_VERSION_PATH="/Library/Java/JavaVirtualMachines/temurin-8.jdk/Contents/Home"
-
-XCFRAMEWORKS=("Leanplum" "CleverTapSDK" "SDWebImage")
-
-#######################################
-# Gets the latest version of specified repo.
-# Globals:
-#   None
-# Arguments:
-#   Repo to get from
-# Returns:
-#   Latest published version
-#######################################
-get_latest_version() {
-    curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
-    grep '"tag_name":' |                                            # Get tag line
-    sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
-}
-
-#######################################
-# Downloads the iOS SDK from GitHub releases.
-# Globals:
-#   None
-# Arguments:
-#   The version to download, e.g. "1.2.3"
-# Returns:
-#   None
-#######################################
-download_ios_sdk() {
-  local version=$1
-  local repo=https://github.com/Leanplum/Leanplum-iOS-SDK
-
-  echo "Downloading AppleSDK ${version} ..."
-  if [ -d "/tmp/Leanplum-${version}.xcframework" ]; then
-    rm -rf "/tmp/Leanplum-${version}.xcframework"
-  fi
-
-  # Download from official git repo.
-  local destination="/tmp/Leanplum-${version}.zip"
-
-  # Download the framework zip.
-  wget --show-progress -O "$destination" \
-    "${repo}/releases/download/${version}/Leanplum.zip"
-
-  extract_ios_sdk $version
-
-  echo "Finished downloading iOS SDK."
-}
-
-
-
-#######################################
-# Extracts Leanplum dynamic xcframework and its dependencies.
-# Globals:
-#   None
-# Arguments:
-#   The version to use, e.g. "1.2.3"
-# Returns:
-#   None
-#######################################
-extract_ios_sdk()
-{
-  local version=$1
-  echo "Extracting AppleSDK ..."
-  rm -rf "/tmp/Leanplum"
-  rm -rf "/tmp/Leanplum-${version}-dynamic"
-
-  unzip -q "/tmp/Leanplum-${version}.zip" -d "/tmp/Leanplum-${version}"
-  mv "/tmp/Leanplum-${version}/dynamic/" "/tmp/Leanplum-${version}-dynamic"
-
-  rm -rf "/tmp/Leanplum-${version}.zip"
-  rm -rf "/tmp/Leanplum-${version}"
-}
-
-#######################################
-# Copies Leanplum dynamic xcframework and its dependencies.
-# Globals:
-#   XCFRAMEWORKS
-# Arguments:
-#   The version to use, e.g. "1.2.3"
-# Returns:
-#   None
-#######################################
-prepare_ios()
-{
-  local version=$1
-  echo "Preparing iOS dependencies..."
-
-  # Remove all xcframeworks
-  ## Find and remove all xcframework directories in the iOS Plugins folder.
-  ## Use -depth option to process each directory's contents before 
-  ## the directory itself. This prevents errors when deleting the directory.
-  find "Leanplum-Unity-SDK/Assets/Plugins/iOS" \
-  -name "*.xcframework" \
-  -type d \
-  -depth \
-  -exec sh -c 'if [ -d {} ]; then rm -rf {};fi' \;
-
-  # Add all xcframeworks for specified version
-  for i in "${XCFRAMEWORKS[@]}"
-  do
-    cp -r "/tmp/Leanplum-$version-dynamic/$i.xcframework" \
-    "Leanplum-Unity-SDK/Assets/Plugins/iOS/"
-  done
-}
-
-#######################################
-# Copies the iOS SDK from project directory. Name should be in format Leanplum-${version}.zip
-# Globals:
-#   None
-# Arguments:
-#   The version to copy.
-# Returns:
-#   None
-#######################################
-copy_ios_sdk() {
-  local version=$1
-
-  echo "Copying AppleSDK ${version} (Leanplum-${version}.zip)..."
-  local destination="/tmp/Leanplum-${version}.zip"
-
-  if [ -d "/tmp/Leanplum-${version}.zip" ]; then
-    rm -rf "/tmp/Leanplum-${version}.zip"
-  fi
-
-  cp "Leanplum-${version}.zip" $destination
-
-  extract_ios_sdk $version
-
-  echo "Finished copying iOS SDK."
-}
 
 #######################################
 # Replaces a string in a file and checks for success via git status.
@@ -191,7 +58,6 @@ get_unity_from_hub() {
   echo ${path}
 }
 
-
 #######################################
 # Builds the Unity SDK.
 # Globals:
@@ -202,22 +68,6 @@ get_unity_from_hub() {
 #   None
 #######################################
 build() {
-  echo "Building Android SDK..."
-  # Build Android SDK
-  cd Leanplum-Android-SDK-Unity/
-  if [[ $JAVA_VERSION_PATH != "" ]]; then
-    ./gradlew clean assembleRelease -Dorg.gradle.java.home=$JAVA_VERSION_PATH
-  else
-    ./gradlew clean assembleRelease
-  fi
-
-  CLASSES_JAR=android-unity-wrapper/build/outputs/aar/android-unity-wrapper-release.aar
-  UNITY_DIR=Leanplum-Unity-SDK/Assets/Plugins/Android
-
-  cp "${CLASSES_JAR}" "../${UNITY_DIR}/com.leanplum.unity-wrapper-$UNITY_VERSION_STRING.aar"
-
-  cd ../
-
   echo "Exporting Unity SDK Package..."
   pwd
 
@@ -257,16 +107,8 @@ main() {
 
   for i in "$@"; do
     case $i in
-      --apple-sdk-version=*)
-      APPLE_SDK_VERSION="${i#*=}"
-      shift # past argument=value
-      ;;
       --android-sdk-version=*)
       ANDROID_SDK_VERSION="${i#*=}"
-      shift # past argument=value
-      ;;
-      --ct-android-sdk-version=*)
-      CT_ANDROID_SDK_VERSION="${i#*=}"
       shift # past argument=value
       ;;
       --version=*)
@@ -288,54 +130,37 @@ main() {
     esac
   done
 
-  if [[ -z "${UNITY_VERSION+x}" ]]; then
-    echo "Unity SDK version not specified, using current: ${UNITY_VERSION}"
+  if [[ -z ${ANDROID_SDK_VERSION+x} ]]; then
+    echo "Leanplum Android SDK version not specified"
+    exit
   fi
 
-  if [[ -z ${APPLE_SDK_VERSION+x} ]]; then
-    APPLE_SDK_VERSION=$(get_latest_version "Leanplum/Leanplum-iOS-SDK")
-    echo "iOS SDK version not specified, using latest: ${APPLE_SDK_VERSION}"
-  fi
-  if [[ -z ${ANDROID_SDK_VERSION+x} ]]; then
-    ANDROID_SDK_VERSION=$(get_latest_version "Leanplum/Leanplum-Android-SDK")
-    echo "Android SDK version not specified, using latest: ${ANDROID_SDK_VERSION}"
+  if [[ -z "${UNITY_VERSION+x}" ]]; then
+    echo "Unity SDK version not specified, using current: ${UNITY_VERSION}"
   fi
 
   export UNITY_VERSION_STRING=${UNITY_VERSION_STRING:-"$UNITY_VERSION"}
 
   PACKAGE_IMPORTER_PATH="Leanplum-Unity-SDK/Assets/Editor/PackageImporter.cs"
   CLEVERTAP_UNITY_VERSION=$(sed -n 's/.*CLEVERTAP_UNITY_VERSION = "\(.*\)";/\1/p' "$PACKAGE_IMPORTER_PATH")
+  IOS_DEPENDENCIES_PATH="Leanplum-Unity-SDK/Assets/Plugins/Editor/LeanplumDependencies.xml"
+  APPLE_SDK_VERSION=$(sed -n 's/.*name="Leanplum-iOS-SDK" version="\([^"]*\)".*/\1/p' "$IOS_DEPENDENCIES_PATH")
   INFO="Building unitypackage with version ${UNITY_VERSION_STRING},
 including CleverTapUnity version ${CLEVERTAP_UNITY_VERSION},
 using Leanplum iOS ${APPLE_SDK_VERSION} and Leanplum Android ${ANDROID_SDK_VERSION}."
   echo "$INFO"
   sleep 3
 
-  if [ "$APPLE_COPY" = true ]; then
-      copy_ios_sdk $APPLE_SDK_VERSION
-  else 
-      download_ios_sdk $APPLE_SDK_VERSION
-  fi
-
-  replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
-  replace "Leanplum-Unity-SDK/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml" "%LP_VERSION%" $ANDROID_SDK_VERSION
-  replace "Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
-  replace "Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle" "%CT_VERSION%" $CT_ANDROID_SDK_VERSION
-  replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%CT_VERSION%" $CT_ANDROID_SDK_VERSION
-  replace "Leanplum-Android-SDK-Unity/android-unity-wrapper/build.gradle" "%LP_UNITY_VERSION%" $UNITY_VERSION
+  replace "Leanplum-Unity-SDK/Assets/Plugins/Android/leanplum-unity-wrapper.androidlib/build.gradle" "%LP_VERSION%" $ANDROID_SDK_VERSION
+  replace "Leanplum-Unity-SDK/Assets/Plugins/Android/leanplum-unity-wrapper.androidlib/build.gradle" "%LP_UNITY_VERSION%" $UNITY_VERSION
   awk -v value="\"$UNITY_VERSION\";" '!x{x=sub(/SDK_VERSION =.*/, "SDK_VERSION = "value)}1' "Leanplum-Unity-SDK/Assets/LeanplumSDK/Utilities/Constants.cs" > Constants_tmp.cs \
     && mv -v Constants_tmp.cs "Leanplum-Unity-SDK/Assets/LeanplumSDK/Utilities/Constants.cs"
 
   find Leanplum-Unity-Package -name '*.unitypackage' -delete
-  find Leanplum-Unity-SDK/Assets/Plugins/ -name '*.aar' -delete
-
-  prepare_ios $APPLE_SDK_VERSION
 
   build
 
-  git checkout Leanplum-Android-SDK-Unity/
-  git checkout Leanplum-Unity-SDK/Assets/LeanplumSDK/Editor/LeanplumDependencies.xml
-  git checkout Leanplum-Unity-SDK/Assets/Plugins/Android/mainTemplate.gradle
+  git checkout Leanplum-Unity-SDK/Assets/Plugins/Android/leanplum-unity-wrapper.androidlib/build.gradle
 
   echo "Completed ${INFO}"
   echo "Done."

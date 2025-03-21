@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2023 Leanplum. All rights reserved.
+//  Copyright (c) 2025 Leanplum. All rights reserved.
 //
 //  Licensed to the Apache Software Foundation (ASF) under one
 //  or more contributor license agreements.  See the NOTICE file
@@ -28,6 +28,7 @@
 #import "LeanplumUnityConstants.h"
 #import <Leanplum/Leanplum-Swift.h>
 #import <CleverTapSDK/CleverTap.h>
+#import "CleverTapUnityManager.h"
 
 #define LEANPLUM_CLIENT @"unity-nativeios"
 
@@ -109,7 +110,8 @@ extern "C"
         }];
 
         CleverTapInstanceCallback *callback = [[CleverTapInstanceCallback alloc] initWithCallback:^(CleverTap * _Nonnull instance) {
-            [LeanplumIOSBridge sendMessageToUnity:@"CleverTapInstance:" withKey:[instance getAccountID]];
+            [LeanplumIOSBridge sendMessageToUnity:@"CleverTapInstance:"];
+            [[CleverTapUnityManager sharedInstance] setCleverTapInstance:instance];
         }];
         [Leanplum addCleverTapInstanceCallback:callback];
         

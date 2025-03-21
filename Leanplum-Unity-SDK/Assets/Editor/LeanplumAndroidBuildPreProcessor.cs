@@ -91,6 +91,7 @@ namespace Leanplum.Private
                 var dict = Json.Deserialize(json) as Dictionary<string, object>;
                 var projectInfo = dict["project_info"] as Dictionary<string, object>;
                 var projectId = projectInfo["project_id"] as string;
+                var gcmSenderId = projectInfo["project_number"] as string;
 
                 var client = dict["client"] as List<object>;
                 var element = client[0] as Dictionary<string, object>;
@@ -105,7 +106,7 @@ namespace Leanplum.Private
                 var apiKeyValues = apiKey[0] as Dictionary<string, object>;
                 var key = apiKeyValues["current_key"] as string;
 
-                var xml = CreateGoogleServicesXml(projectId, key, clientId, appId);
+                var xml = CreateGoogleServicesXml(projectId, key, clientId, appId, gcmSenderId);
                 string destPath = Path.Combine(libPath, "res", "values", GOOGLE_SERVICES_XML);
                 WriteFile(xml, destPath);
             }
@@ -156,15 +157,17 @@ namespace Leanplum.Private
             writer.Close();
         }
 
-        private string CreateGoogleServicesXml(string projectId, string apiKey, string clientId, object appId)
+        private string CreateGoogleServicesXml(string projectId, string apiKey, string clientId, object appId, string gcmSenderId)
         {
             return "<?xml version='1.0' encoding='utf-8'?>\n<resources tools:keep=\"@string/project_id," +
-                "@string/default_web_client_id,@string/google_app_id,@string/google_api_key\"" +
+                "@string/default_web_client_id,@string/google_app_id,@string/google_api_key,@string/gcm_defaultSenderId\"" +
                 " xmlns:tools=\"http://schemas.android.com/tools\">\n " +
                 "<string name=\"default_web_client_id\" translatable=\"false\">" + clientId + "</string>\n" +
                 "<string name=\"google_app_id\" translatable=\"false\">" + appId + "</string>\n" +
                 "<string name=\"google_api_key\" translatable=\"false\">" + apiKey + "</string>\n" +
                 "<string name=\"project_id\" translatable=\"false\">" + projectId + "</string>\n" +
+                "<string name=\"gcm_defaultSenderId\" translatable=\"false\">" + gcmSenderId + "</string>\n" +
+
                 "</resources>";
         }
     }

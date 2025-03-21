@@ -1,4 +1,5 @@
 #import "CleverTapUnityManager.h"
+#import "CleverTapMessageSender.h"
 
 #pragma mark - Utils
 
@@ -68,6 +69,7 @@ NSMutableArray* clevertap_NSArrayFromJsonString(const char* jsonString) {
     return arr;
 }
 
+__attribute__((deprecated("Used by deprecated methods only.")))
 NSMutableDictionary* clevertap_eventDetailToDict(CleverTapEventDetail* detail) {
     
     NSMutableDictionary *_dict = [NSMutableDictionary new];
@@ -127,12 +129,47 @@ char* clevertap_cStringCopy(const char* string) {
 
 #pragma mark - Admin
 
-void CleverTap_launchWithCredentials(const char* accountID, const char* token) {
-    [CleverTapUnityManager launchWithAccountID:clevertap_stringToNSString(accountID) andToken:clevertap_stringToNSString(token)];
+void CleverTap_onPlatformInit(){
+    [[CleverTapUnityManager sharedInstance] onPlatformInit];
 }
 
-void CleverTap_launchWithCredentialsForRegion(const char* accountID, const char* token, const char* region) {
-    [CleverTapUnityManager launchWithAccountID:clevertap_stringToNSString(accountID) token:clevertap_stringToNSString(token) region:clevertap_stringToNSString(region)];
+void CleverTap_onCallbackAdded(const char* callbackName) {
+    [[CleverTapUnityManager sharedInstance]
+     onCallbackAdded:clevertap_stringToNSString(callbackName)];
+}
+
+void CleverTap_onVariablesCallbackAdded(const char* callbackName, int callbackId) {
+    [[CleverTapUnityManager sharedInstance]
+     onVariablesCallbackAdded:clevertap_stringToNSString(callbackName) callbackId:callbackId];
+}
+
+void CleverTap_setInAppNotificationButtonTappedCallback(InAppNotificationButtonTapped callback) {
+    [[CleverTapMessageSender sharedInstance]
+     setInAppNotificationButtonTappedCallback:callback];
+}
+
+void CleverTap_getUserEventLog(const char* eventName, const char* key, UserEventLogCallback callback) {
+    [[CleverTapUnityManager sharedInstance]
+     getUserEventLog:clevertap_stringToNSString(eventName) forKey:clevertap_stringToNSString(key) withCallback:callback];
+}
+
+void CleverTap_getUserAppLaunchCount(const char* key, UserEventLogCallback callback) {
+    [[CleverTapUnityManager sharedInstance]
+     getUserAppLaunchCount:clevertap_stringToNSString(key) withCallback:callback];
+}
+
+void CleverTap_getUserEventLogCount(const char* eventName, const char* key, UserEventLogCallback callback) {
+    [[CleverTapUnityManager sharedInstance]
+     getUserEventLogCount:clevertap_stringToNSString(eventName) forKey:clevertap_stringToNSString(key) withCallback:callback];
+}
+
+void CleverTap_getUserEventLogHistory(const char* key, UserEventLogCallback callback) {
+    [[CleverTapUnityManager sharedInstance]
+     getUserEventLogHistory:clevertap_stringToNSString(key) withCallback:callback];
+}
+
+int64_t CleverTap_getUserLastVisitTs() {
+    return [[CleverTapUnityManager sharedInstance] getUserLastVisitTs];
 }
 
 void CleverTap_setDebugLevel(int level) {
@@ -311,18 +348,22 @@ void CleverTap_recordChargedEventWithDetailsAndItems(const char* chargeDetails, 
     [[CleverTapUnityManager sharedInstance] recordChargedEventWithDetails:details andItems:_items];
 }
 
+__attribute__((deprecated("Deprecated, use getUserEventLog instead")))
 int CleverTap_eventGetFirstTime(const char* eventName) {
     return [[CleverTapUnityManager sharedInstance] eventGetFirstTime:clevertap_stringToNSString(eventName)];
 }
 
+__attribute__((deprecated("Deprecated, use getUserEventLog instead")))
 int CleverTap_eventGetLastTime(const char* eventName) {
     return [[CleverTapUnityManager sharedInstance] eventGetLastTime:clevertap_stringToNSString(eventName)];
 }
 
+__attribute__((deprecated("Deprecated, use getUserEventLogCount instead")))
 int CleverTap_eventGetOccurrences(const char* eventName) {
     return [[CleverTapUnityManager sharedInstance] eventGetOccurrences:clevertap_stringToNSString(eventName)];
 }
 
+__attribute__((deprecated("Deprecated, use getUserEventLogHistory instead")))
 char* CleverTap_userGetEventHistory() {
     NSDictionary *history = [[CleverTapUnityManager sharedInstance] userGetEventHistory];
     
@@ -340,7 +381,6 @@ char* CleverTap_userGetEventHistory() {
     
     return clevertap_cStringCopy([jsonString UTF8String]);
 }
-
 
 #pragma mark - User Session
 
@@ -362,6 +402,7 @@ int CleverTap_sessionGetTimeElapsed() {
     return [[CleverTapUnityManager sharedInstance] sessionGetTimeElapsed];
 }
 
+__attribute__((deprecated("Deprecated, use getUserEventLog instead")))
 char* CleverTap_eventGetDetail(const char* eventName) {
     CleverTapEventDetail *detail = [[CleverTapUnityManager sharedInstance] eventGetDetail:clevertap_stringToNSString(eventName)];
     
@@ -376,6 +417,7 @@ char* CleverTap_eventGetDetail(const char* eventName) {
     return clevertap_cStringCopy([jsonString UTF8String]);
 }
 
+__attribute__((deprecated("Deprecated, use getUserAppLaunchCount instead")))
 int CleverTap_userGetTotalVisits() {
     return [[CleverTapUnityManager sharedInstance] userGetTotalVisits];
 }
@@ -384,10 +426,10 @@ int CleverTap_userGetScreenCount() {
     return [[CleverTapUnityManager sharedInstance] userGetScreenCount];
 }
 
+__attribute__((deprecated("Deprecated, use getUserLastVisitTs instead")))
 int CleverTap_userGetPreviousVisitTime() {
     return [[CleverTapUnityManager sharedInstance] userGetPreviousVisitTime];
 }
-
 
 #pragma mark - Push Notifications
 
@@ -441,7 +483,7 @@ char* CleverTap_getInboxMessageForId(const char* messageId) {
     id ret = [[CleverTapUnityManager sharedInstance] getInboxMessageForId:clevertap_stringToNSString(messageId)];
     NSString *jsonString = clevertap_toJsonString(ret);
     if (jsonString == nil) {
-        return NULL;
+        return clevertap_cStringCopy([@"{}" UTF8String]);
     }
     return clevertap_cStringCopy([jsonString UTF8String]);
 }
@@ -587,42 +629,132 @@ void CleverTap_isPushPermissionGranted() {
 
 #pragma mark - Variables
 
-void CleverTap_defineVar(const char* name, const char* kind, const char* value)
-{
+void CleverTap_defineVar(const char* name, const char* kind, const char* value) {
     [[CleverTapUnityManager sharedInstance] defineVar:clevertap_stringToNSString(name)
                                                  kind:clevertap_stringToNSString(kind)
                                       andDefaultValue:clevertap_stringToNSString(value)];
 }
 
-char* CleverTap_getVariableValue(const char* name)
-{
+void CleverTap_defineFileVar(const char* name) {
+    [[CleverTapUnityManager sharedInstance] defineFileVar:clevertap_stringToNSString(name)];
+}
+
+char* CleverTap_getVariableValue(const char* name) {
     NSString* json = [[CleverTapUnityManager sharedInstance]
                       getVariableValue:clevertap_stringToNSString(name)];
     return clevertap_cStringCopy([json UTF8String]);
 }
 
-void CleverTap_syncVariables()
-{
+char* CleverTap_getFileVariableValue(const char* name) {
+    NSString* json = [[CleverTapUnityManager sharedInstance]
+                      getFileVariableValue:clevertap_stringToNSString(name)];
+    return clevertap_cStringCopy([json UTF8String]);
+}
+
+void CleverTap_syncVariables() {
     [[CleverTapUnityManager sharedInstance] syncVariables];
 }
 
-void CleverTap_syncVariablesProduction(const BOOL isProduction)
-{
+void CleverTap_syncVariablesProduction(const BOOL isProduction) {
     [[CleverTapUnityManager sharedInstance] syncVariables: isProduction];
 }
 
-void CleverTap_fetchVariables(int callbackId)
-{
+void CleverTap_fetchVariables(int callbackId) {
     [[CleverTapUnityManager sharedInstance] fetchVariables:callbackId];
 }
 
 #pragma mark - Client-side In-Apps
-void CleverTap_fetchInApps(int callbackId)
-{
+
+void CleverTap_fetchInApps(int callbackId) {
     [[CleverTapUnityManager sharedInstance] fetchInApps:callbackId];
 }
 
-void CleverTap_clearInAppResources(const BOOL expiredOnly)
-{
+void CleverTap_clearInAppResources(const BOOL expiredOnly) {
     [[CleverTapUnityManager sharedInstance] clearInAppResources:expiredOnly];
+}
+
+#pragma mark - Custom Templates
+
+void CleverTap_customTemplateSetPresented(const char* name) {
+    [[CleverTapUnityManager sharedInstance]
+                      customTemplateSetPresented:clevertap_stringToNSString(name)];
+}
+
+void CleverTap_customTemplateSetDismissed(const char* name) {
+    [[CleverTapUnityManager sharedInstance]
+                      customTemplateSetDismissed:clevertap_stringToNSString(name)];
+}
+
+char* CleverTap_customTemplateContextToString(const char* name) {
+    NSString* value = [[CleverTapUnityManager sharedInstance]
+                       customTemplateContextToString:clevertap_stringToNSString(name)];
+    return clevertap_cStringCopy([value UTF8String]);
+}
+
+void CleverTap_customTemplateTriggerAction(const char* templateName, const char* argumentName) {
+    [[CleverTapUnityManager sharedInstance]
+     customTemplateTriggerAction:clevertap_stringToNSString(templateName) named:clevertap_stringToNSString(argumentName)];
+}
+
+char* CleverTap_customTemplateGetStringArg(const char* templateName, const char* argumentName) {
+    NSString* value = [[CleverTapUnityManager sharedInstance]
+                      customTemplateGetStringArg:clevertap_stringToNSString(templateName) named:clevertap_stringToNSString(argumentName)];
+    return clevertap_cStringCopy([value UTF8String]);
+}
+
+bool CleverTap_customTemplateGetBooleanArg(const char* templateName, const char* argumentName) {
+    return [[CleverTapUnityManager sharedInstance]
+                       customTemplateGetBooleanArg:clevertap_stringToNSString(templateName) named:clevertap_stringToNSString(argumentName)];
+}
+
+char* CleverTap_customTemplateGetFileArg(const char* templateName, const char* argumentName) {
+    NSString* value = [[CleverTapUnityManager sharedInstance]
+                       customTemplateGetFileArg:clevertap_stringToNSString(templateName) named:clevertap_stringToNSString(argumentName)];
+    return clevertap_cStringCopy([value UTF8String]);
+}
+
+char* CleverTap_customTemplateGetDictionaryArg(const char* templateName, const char* argumentName) {
+    NSDictionary* json = [[CleverTapUnityManager sharedInstance]
+                       customTemplateGetDictionaryArg:clevertap_stringToNSString(templateName) named:clevertap_stringToNSString(argumentName)];
+    NSString *jsonString = clevertap_toJsonString(json);
+    if (jsonString == nil) {
+        return NULL;
+    }
+    
+    return clevertap_cStringCopy([jsonString UTF8String]);
+}
+
+int CleverTap_customTemplateGetIntArg(const char* templateName, const char* argumentName) {
+    return [[CleverTapUnityManager sharedInstance]
+            customTemplateGetIntArg:clevertap_stringToNSString(templateName) named:clevertap_stringToNSString(argumentName)];
+}
+
+double CleverTap_customTemplateGetDoubleArg(const char* templateName, const char* argumentName) {
+    return [[CleverTapUnityManager sharedInstance]
+            customTemplateGetDoubleArg:clevertap_stringToNSString(templateName) named:clevertap_stringToNSString(argumentName)];
+}
+
+float CleverTap_customTemplateGetFloatArg(const char* templateName, const char* argumentName) {
+    return [[CleverTapUnityManager sharedInstance]
+            customTemplateGetFloatArg:clevertap_stringToNSString(templateName) named:clevertap_stringToNSString(argumentName)];
+}
+
+int64_t CleverTap_customTemplateGetLongArg(const char* templateName, const char* argumentName) {
+    return [[CleverTapUnityManager sharedInstance]
+            customTemplateGetLongArg:clevertap_stringToNSString(templateName) named:clevertap_stringToNSString(argumentName)];
+}
+
+int16_t CleverTap_customTemplateGetShortArg(const char* templateName, const char* argumentName) {
+    return [[CleverTapUnityManager sharedInstance]
+            customTemplateGetShortArg:clevertap_stringToNSString(templateName) named:clevertap_stringToNSString(argumentName)];
+}
+
+int8_t CleverTap_customTemplateGetByteArg(const char* templateName, const char* argumentName) {
+    return [[CleverTapUnityManager sharedInstance]
+            customTemplateGetByteArg:clevertap_stringToNSString(templateName) named:clevertap_stringToNSString(argumentName)];
+}
+
+void CleverTap_syncCustomTemplates(bool isProduction) {
+    return [[CleverTapUnityManager sharedInstance]
+            syncCustomTemplates:isProduction];
 }
