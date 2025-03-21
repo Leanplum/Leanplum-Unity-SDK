@@ -1,5 +1,6 @@
 using CleverTapSDK.Utilities;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CleverTapSDK.Common {
@@ -8,6 +9,9 @@ namespace CleverTapSDK.Common {
         private readonly object CallbackLock = new();
 
         internal virtual void OnCallbackAdded(Action<string> callbackMethod) { }
+
+        internal virtual void OnVariablesCallbackAdded(Action<string> callbackMethod, int callbackId) { }
+        internal virtual void OnVariablesCallbackRemoved(int callbackId) { }
 
         #region Callback Events
 
@@ -422,49 +426,86 @@ namespace CleverTapSDK.Common {
             }
         }
 
-        private CleverTapCallbackDelegate _OnVariablesChanged;
-        public event CleverTapCallbackDelegate OnVariablesChanged
+        protected readonly IDictionary<int, CleverTapCallbackDelegate> variablesCallbacks = new Dictionary<int, CleverTapCallbackDelegate>();
+        internal readonly CleverTapCounter counter = new CleverTapCounter();
+
+        private void AddVariableCallback(CleverTapCallbackDelegate value, Action<string> action)
         {
-            add
+            lock (CallbackLock)
             {
-                lock (CallbackLock)
-                {
-                    _OnVariablesChanged += value;
-                    OnCallbackAdded(CleverTapVariablesChanged);
-                }
+                int id = counter.GetNextAndIncreaseCounter();
+                variablesCallbacks[id] = value;
+                OnVariablesCallbackAdded(action, id);
             }
-            remove
+        }
+
+        private void RemoveVariableCallback(CleverTapCallbackDelegate value)
+        {
+            lock (CallbackLock)
             {
-                lock (CallbackLock)
+                int id = -1;
+                foreach (var kv in variablesCallbacks)
                 {
-                    _OnVariablesChanged -= value;
+                    if (kv.Value == value)
+                    {
+                        id = kv.Key;
+                        break;
+                    }
+                }
+
+                if (id != -1)
+                {
+                    variablesCallbacks.Remove(id);
+                    OnVariablesCallbackRemoved(id);
                 }
             }
         }
 
-        // This event is handled by this class, no corresponding callback is needed
-        public event CleverTapCallbackDelegate OnOneTimeVariablesChanged;
+        public event CleverTapCallbackDelegate OnVariablesChanged
+        {
+            add
+            {
+                AddVariableCallback(value, CleverTapVariablesChanged);
+            }
+            remove
+            {
+                RemoveVariableCallback(value);
+            }
+        }
 
-        // This event is handled by this class, no corresponding callback is needed
-        public event CleverTapCallbackDelegate OnOneTimeVariablesChangedAndNoDownloadsPending;
+        public event CleverTapCallbackDelegate OnOneTimeVariablesChanged
+        {
+            add
+            {
+                AddVariableCallback(value, OneTimeCleverTapVariablesChanged);
+            }
+            remove
+            {
+                RemoveVariableCallback(value);
+            }
+        }
 
-        private CleverTapCallbackDelegate _OnVariablesChangedAndNoDownloadsPending;
+        public event CleverTapCallbackDelegate OnOneTimeVariablesChangedAndNoDownloadsPending
+        {
+            add
+            {
+                AddVariableCallback(value, OneTimeCleverTapVariablesChangedAndNoDownloadsPending);
+            }
+            remove
+            {
+                RemoveVariableCallback(value);
+            }
+        }
+
         public event CleverTapCallbackDelegate OnVariablesChangedAndNoDownloadsPending
         {
             add
             {
-                lock (CallbackLock)
-                {
-                    _OnVariablesChangedAndNoDownloadsPending += value;
-                    OnCallbackAdded(CleverTapVariablesChangedAndNoDownloadsPending);
-                }
+                AddVariableCallback(value, CleverTapVariablesChangedAndNoDownloadsPending);
             }
             remove
             {
-                lock (CallbackLock)
-                {
-                    _OnVariablesChangedAndNoDownloadsPending -= value;
-                }
+                RemoveVariableCallback(value);
             }
         }
 
@@ -510,7 +551,7 @@ namespace CleverTapSDK.Common {
 
         private CleverTapCallbackWithTemplateContext _OnCustomFunctionPresent;
         public event CleverTapCallbackWithTemplateContext OnCustomFunctionPresent
-      {
+        {
             add
             {
                 lock (CallbackLock)
@@ -737,28 +778,52 @@ namespace CleverTapSDK.Common {
 
         #region Default - Variables Callbacks
 
+        private void InvokeVariablesCallback(string message, bool isOnce = false)
+        {
+            try
+            {
+                JSONClass json = (JSONClass)JSON.Parse(message);
+                int id = json["callbackId"].AsInt;
+
+                if (variablesCallbacks.TryGetValue(id, out CleverTapCallbackDelegate callback))
+                {
+                    callback?.Invoke();
+                    if (isOnce)
+                    {
+                        variablesCallbacks.Remove(id);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CleverTapLogger.LogError($"Exception invoking variables callback. Message: {message}, Exception: {ex}");
+            }
+        }
+
         // invoked when any variable changed
         public virtual void CleverTapVariablesChanged(string message) {
             CleverTapLogger.Log("Unity received variables changed");
-            _OnVariablesChanged?.Invoke();
-
-            if (OnOneTimeVariablesChanged != null) {
-                OnOneTimeVariablesChanged();
-                OnOneTimeVariablesChanged = null;
-            }
+            InvokeVariablesCallback(message);
         }
         
         //invoked when variable values are changed and the files associated with them are downloaded and ready to be used.
         public virtual void CleverTapVariablesChangedAndNoDownloadsPending(string message) {
             CleverTapLogger.Log("Unity received variables changed and no downloads pending ");
-            _OnVariablesChangedAndNoDownloadsPending?.Invoke();
-
-            if (OnOneTimeVariablesChangedAndNoDownloadsPending != null) {
-                OnOneTimeVariablesChangedAndNoDownloadsPending();
-                OnOneTimeVariablesChangedAndNoDownloadsPending = null;
-            }
+            InvokeVariablesCallback(message);
         }
-        
+
+        public virtual void OneTimeCleverTapVariablesChanged(string message)
+        {
+            CleverTapLogger.Log("Unity received one time variables changed");
+            InvokeVariablesCallback(message, true);
+        }
+
+        public virtual void OneTimeCleverTapVariablesChangedAndNoDownloadsPending(string message)
+        {
+            CleverTapLogger.Log("Unity received one time variables changed and no downloads pending ");
+            InvokeVariablesCallback(message, true);
+        }
+
         public virtual void CleverTapVariableFileIsReady(string variableName) {
             CleverTapLogger.Log("Unity received file is ready: " + (!string.IsNullOrEmpty(variableName) ? variableName : "NULL"));
             VariableFactory.CleverTapVariable.VariableFileIsReady(variableName);

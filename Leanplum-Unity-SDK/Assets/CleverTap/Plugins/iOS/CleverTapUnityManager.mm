@@ -37,20 +37,34 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.cleverTap = [CleverTap sharedInstance];
-        NSLog(@"CleverTap default instance: %@", self.cleverTap);
-        [self.cleverTap setLibrary:@"Unity"];
-        self.callbackHandler = [CleverTapUnityCallbackHandler sharedInstance];
-        [self.callbackHandler attachInstance:self.cleverTap];
+        [self setCleverTapInstance:[CleverTap sharedInstance]];
     }
     return self;
 }
 
-const double PENDING_EVENTS_TIME_OUT = 10.0;
+- (void)setCleverTapInstance:(CleverTap *)instance {
+    if (!instance) {
+        NSLog(@"Cannot set nil CleverTap instance.");
+        return;
+    }
+    NSLog(@"Setting CleverTap instance: %@", instance);
+    self.cleverTap = instance;
+    [self.cleverTap setLibrary:@"Unity"];
+    self.callbackHandler = [CleverTapUnityCallbackHandler sharedInstance];
+    [self.callbackHandler attachInstance:self.cleverTap];
+    if (platformDidInit && shouldDisableBuffers) {
+        [self disableMessageBuffers];
+    }
+}
+
+static BOOL platformDidInit = NO;
 
 - (void)onPlatformInit {
     NSLog(@"CleverTap Platform Init");
-    [self disableMessageBuffers];
+    platformDidInit = YES;
+    if (self.cleverTap && shouldDisableBuffers) {
+        [self disableMessageBuffers];
+    }
 }
 
 - (void)onCallbackAdded:(NSString *)callbackName {
@@ -64,10 +78,43 @@ const double PENDING_EVENTS_TIME_OUT = 10.0;
     [[CleverTapMessageSender sharedInstance] flushBuffer:callback];
 }
 
+- (void)onVariablesCallbackAdded:(NSString *)callbackName callbackId:(int)callbackId {
+    NSNumber *callbackEnum = [CleverTapUnityCallbackInfo callbackEnumForName:callbackName];
+    if (!callbackEnum) {
+        NSLog(@"Unsupported callback added: %@", callbackName);
+        return;
+    }
+    
+    CleverTapUnityCallback callback = (CleverTapUnityCallback)[callbackEnum integerValue];
+    CleverTapUnityCallbackHandler *handler = [CleverTapUnityCallbackHandler sharedInstance];
+    
+    switch (callback) {
+        case CleverTapUnityCallbackVariablesChanged:
+            [self.cleverTap onVariablesChanged:[handler variablesCallback:CleverTapUnityCallbackVariablesChanged callbackId:callbackId]];
+            break;
+        case CleverTapUnityCallbackVariablesChangedAndNoDownloadsPending:
+            [self.cleverTap onVariablesChangedAndNoDownloadsPending:[handler variablesCallback:CleverTapUnityCallbackVariablesChangedAndNoDownloadsPending callbackId:callbackId]];
+            break;
+        case CleverTapUnityCallbackOneTimeVariablesChanged:
+            [self.cleverTap onceVariablesChanged:[handler variablesCallback:CleverTapUnityCallbackOneTimeVariablesChanged callbackId:callbackId]];
+            break;
+        case CleverTapUnityCallbackOneTimeVariablesChangedAndNoDownloadsPending:
+            [self.cleverTap onceVariablesChangedAndNoDownloadsPending:[handler variablesCallback:CleverTapUnityCallbackOneTimeVariablesChangedAndNoDownloadsPending callbackId:callbackId]];
+            break;
+        default:
+            NSLog(@"Callback is not a Variables Callback: %@", callbackName);
+            break;
+    }
+}
+
+const double PENDING_EVENTS_TIME_OUT = 10.0;
+static BOOL shouldDisableBuffers = YES;
+
 - (void)disableMessageBuffers {
     // disable buffers after a delay in order to give some time for callback delegates to attach
     // and receive initially buffered messages. After that all buffers will be cleared and disabled
     // and messages will continue to be sent immediately.
+    shouldDisableBuffers = NO;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(PENDING_EVENTS_TIME_OUT * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         NSLog(@"CleverTap resetting all buffers.");
         [[CleverTapMessageSender sharedInstance] resetAllBuffers];
@@ -376,13 +423,13 @@ const double PENDING_EVENTS_TIME_OUT = 10.0;
 
 - (void)didReceiveRemoteNotification:(NSDictionary *)notification
                               isOpen:(BOOL)isOpen
-           openInForeground:(BOOL)openInForeground {
+                    openInForeground:(BOOL)openInForeground {
     if (openInForeground) {
         [self.cleverTap handleNotificationWithData:notification openDeepLinksInForeground:YES];
     } else {
         [self.cleverTap handleNotificationWithData:notification];
     }
-
+    
     [self sendRemoteNotificationCallbackToUnity:notification isOpen:isOpen];
 }
 
@@ -726,7 +773,7 @@ const double PENDING_EVENTS_TIME_OUT = 10.0;
     if (json[@"negativeBtnText"]) {
         negativeBtnText = [json valueForKey:@"negativeBtnText"];
     }
-
+    
     //creates the builder instance with all the required parameters
     inAppBuilder = [[CTLocalInApp alloc] initWithInAppType:inAppType
                                                  titleText:titleText
@@ -773,7 +820,7 @@ const double PENDING_EVENTS_TIME_OUT = 10.0;
         [inAppBuilder setBtnBorderRadius:btnBorderRadius];
     }
     return inAppBuilder;
-}  
+}
 
 - (void)promptForPushPermission:(BOOL)showFallbackSettings {
     [self.cleverTap promptForPushPermission:showFallbackSettings];
@@ -788,12 +835,12 @@ const double PENDING_EVENTS_TIME_OUT = 10.0;
     if (@available(iOS 10.0, *)) {
         [self.cleverTap getNotificationPermissionStatusWithCompletionHandler:^(UNAuthorizationStatus status) {
             BOOL isPushEnabled = YES;
-                    if (status == UNAuthorizationStatusNotDetermined || status == UNAuthorizationStatusDenied) {
-                        isPushEnabled = NO;
-                    }
+            if (status == UNAuthorizationStatusNotDetermined || status == UNAuthorizationStatusDenied) {
+                isPushEnabled = NO;
+            }
             NSLog(@"[CleverTap isPushPermissionGranted: %d]", isPushEnabled);
             [[CleverTapUnityCallbackHandler sharedInstance] pushPermissionCallback:isPushEnabled];
-            }];
+        }];
     }
     else {
         // Fallback on earlier versions
@@ -836,7 +883,7 @@ const double PENDING_EVENTS_TIME_OUT = 10.0;
 }
 
 - (void)syncVariables:(BOOL)isProduction {
-	[self.cleverTap syncVariables:isProduction];
+    [self.cleverTap syncVariables:isProduction];
 }
 
 - (void)fetchVariables:(int) callbackId
@@ -850,7 +897,7 @@ const double PENDING_EVENTS_TIME_OUT = 10.0;
     NSError *error = nil;
     
     CTVar *var = nil;
-
+    
     if ([kind isEqualToString:@"integer"])
     {
         var = [self.cleverTap defineVar:name withInt:[defaultValue intValue]];
@@ -903,7 +950,7 @@ const double PENDING_EVENTS_TIME_OUT = 10.0;
     if (value) {
         NSError *error;
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:value options:NSUTF8StringEncoding error:&error];
-
+        
         if (!jsonData) {
             NSLog(@"Error serializing JSON: %@", error);
             return nil;
@@ -937,7 +984,7 @@ NSDictionary *cleverTap_convertDateValues(NSDictionary *dictionary) {
     if (dictionary == nil) {
         return dictionary;
     }
-
+    
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithDictionary:dictionary];
     for (id key in dictionary) {
         id value = [dict objectForKey:key];
@@ -1092,7 +1139,7 @@ NSDictionary *cleverTap_convertDateValues(NSDictionary *dictionary) {
         NSLog(@"Custom template: %@ is not currently being presented", templateName);
         return nil;
     }
-
+    
     return context;
 }
 

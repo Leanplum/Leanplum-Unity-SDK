@@ -23,7 +23,7 @@
     // Set UNUserNotificationCenter delegate to self based on settings
     [UNUserNotificationCenter currentNotificationCenter].delegate = (id <UNUserNotificationCenterDelegate>)self;
     
-    NSString *presentNotificationInForegroundMeta = [self getMetaDataForAttribute:CT_PRESENT_NOTIF_FOREGROUND];
+    NSString *presentNotificationInForegroundMeta = [self metaDataForAttribute:CT_PRESENT_NOTIF_FOREGROUND];
     self.presentNotificationInForeground = [presentNotificationInForegroundMeta boolValue];
 #endif
     
@@ -113,15 +113,15 @@
 #pragma mark - Utils
 static NSDictionary *plistRootInfoDict;
 
-- (id)getValueForKey:(NSString *)key {
+- (id)infoDictionaryValueForKey:(NSString *)key {
     if (!plistRootInfoDict) {
         plistRootInfoDict = [[NSBundle mainBundle] infoDictionary];
     }
     return plistRootInfoDict[key];
 }
 
-- (NSString *)getMetaDataForAttribute:(NSString *)name {
-    id _value = [self getValueForKey:name];
+- (NSString *)metaDataForAttribute:(NSString *)name {
+    id _value = [self infoDictionaryValueForKey:name];
     
     if(_value && ![_value isKindOfClass:[NSString class]]) {
         _value = [NSString stringWithFormat:@"%@", _value];

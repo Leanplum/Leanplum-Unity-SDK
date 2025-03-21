@@ -14,6 +14,9 @@ namespace CleverTapSDK.IOS {
         internal static extern void CleverTap_onCallbackAdded(string name);
 
         [DllImport("__Internal")]
+        internal static extern void CleverTap_onVariablesCallbackAdded(string name, int callbackId);
+
+        [DllImport("__Internal")]
         internal static extern void CleverTap_setInAppNotificationButtonTappedCallback(InAppNotificationButtonTapped callback);
 
         [DllImport("__Internal")]

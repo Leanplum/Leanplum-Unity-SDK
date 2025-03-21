@@ -87,13 +87,7 @@ class CleverTapUnityCallbackHandler implements SyncListener, InAppNotificationLi
         CleverTapMessageSender.getInstance().send(callback, data);
     }
 
-    private final VariablesChangedCallback variablesChangedCallback;
-    private final VariablesChangedCallback variablesChangedAndNoDownloadsPendingCallback;
-
-    private CleverTapUnityCallbackHandler() {
-        variablesChangedCallback = getVariablesChangedCallback();
-        variablesChangedAndNoDownloadsPendingCallback = getVariablesChangedAndNoDownloadsPending();
-    }
+    private final Map<Integer, UnityVariablesChangedCallback> variableChangedCallbacks = new HashMap<>();
 
     public void attachToApiInstance(CleverTapAPI clevertap) {
         clevertap.unregisterPushPermissionNotificationResponseListener(this);
@@ -108,9 +102,21 @@ class CleverTapUnityCallbackHandler implements SyncListener, InAppNotificationLi
         clevertap.setDisplayUnitListener(this);
         clevertap.setCTFeatureFlagsListener(this);
         clevertap.setCTProductConfigListener(this);
-        clevertap.removeVariablesChangedCallback(variablesChangedCallback);
-        clevertap.addVariablesChangedCallback(variablesChangedCallback);
-        clevertap.onVariablesChangedAndNoDownloadsPending(variablesChangedAndNoDownloadsPendingCallback);
+    }
+
+    public void detachFromApiInstance(CleverTapAPI clevertap) {
+        clevertap.unregisterPushPermissionNotificationResponseListener(this);
+        clevertap.setCTPushNotificationListener(null);
+        clevertap.setInAppNotificationListener(null);
+        clevertap.setSyncListener(null);
+        clevertap.setCTNotificationInboxListener(null);
+        clevertap.setInboxMessageButtonListener(null);
+        clevertap.setCTInboxMessageListener(null);
+        clevertap.setInAppNotificationButtonListener(null);
+        clevertap.setDisplayUnitListener(null);
+        clevertap.setCTFeatureFlagsListener(null);
+        clevertap.setCTProductConfigListener(null);
+        clevertap.removeAllVariablesChangedCallbacks();
     }
 
     //OnInitCleverTapIDListener
@@ -275,22 +281,19 @@ class CleverTapUnityCallbackHandler implements SyncListener, InAppNotificationLi
         };
     }
 
-    public VariablesChangedCallback getVariablesChangedCallback() {
-        return new VariablesChangedCallback() {
-            @Override
-            public void variablesChanged() {
-                sendToUnity(CLEVERTAP_VARIABLES_CHANGED, "Variables Changed Callback");
-            }
-        };
+    public UnityVariablesChangedCallback createVariablesChangedCallback(
+            CleverTapUnityCallback callbackType,
+            int callbackId) {
+        UnityVariablesChangedCallback callback = variableChangedCallbacks.get(callbackId);
+        if (callback == null) {
+            callback = new UnityVariablesChangedCallback(callbackId, callbackType);
+            variableChangedCallbacks.put(callbackId, callback);
+        }
+        return callback;
     }
 
-    public VariablesChangedCallback getVariablesChangedAndNoDownloadsPending() {
-        return new VariablesChangedCallback() {
-            @Override
-            public void variablesChanged() {
-                sendToUnity(CLEVERTAP_VARIABLES_CHANGED_AND_NO_DOWNLOADS_PENDING, "Variables Changed No Downloads Pending Callback");
-            }
-        };
+    public UnityVariablesChangedCallback getVariablesChangedCallback(int callbackId) {
+        return variableChangedCallbacks.get(callbackId);
     }
 
     //FetchInAppsCallback
@@ -361,5 +364,26 @@ class CleverTapUnityCallbackHandler implements SyncListener, InAppNotificationLi
     public void onActivated() {
         final String message = "CleverTap App Product Config Activated";
         sendToUnity(CLEVERTAP_PRODUCT_CONFIG_ACTIVATED, message);
+    }
+
+    static class UnityVariablesChangedCallback extends VariablesChangedCallback {
+        public final int callbackId;
+        public final CleverTapUnityCallback callbackType;
+
+        UnityVariablesChangedCallback(int callbackId, CleverTapUnityCallback callbackType) {
+            this.callbackId = callbackId;
+            this.callbackType = callbackType;
+        }
+
+        @Override
+        public void variablesChanged() {
+            JSONObject json = new JSONObject();
+            try {
+                json.put("callbackId", callbackId);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            sendToUnity(callbackType, json.toString());
+        }
     }
 }

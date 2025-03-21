@@ -15,6 +15,8 @@ typedef void (*UserEventLogCallback) (const char *, const char *);
 
 - (void)onPlatformInit;
 - (void)onCallbackAdded:(NSString *)callbackName;
+- (void)onVariablesCallbackAdded:(NSString *)callbackName callbackId:(int)callbackId;
+- (void)setCleverTapInstance:(CleverTap *)instance;
 
 #pragma mark - Admin
 

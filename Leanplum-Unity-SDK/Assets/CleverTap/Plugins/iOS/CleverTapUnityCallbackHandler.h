@@ -8,6 +8,7 @@
 #import <CleverTapSDK/CleverTapInAppNotificationDelegate.h>
 #import <CleverTapSDK/Clevertap+PushPermission.h>
 #import <CleverTapSDK/CleverTapPushNotificationDelegate.h>
+#import "CleverTapUnityCallbackInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)attachInstance:(CleverTap *)instance;
 
 - (void)pushPermissionCallback:(BOOL)isPushEnabled;
+
+- (CleverTapVariablesChangedBlock)variablesCallback:(CleverTapUnityCallback)callback callbackId:(int)callbackId;
 
 - (CleverTapFetchVariablesBlock)fetchVariablesBlock:(int)callbackId;
 
