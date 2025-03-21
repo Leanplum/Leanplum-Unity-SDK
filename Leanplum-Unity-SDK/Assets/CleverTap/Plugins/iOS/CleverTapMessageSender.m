@@ -31,7 +31,7 @@ static NSString * kCleverTapGameObjectName = @"IOSCallbackHandler";
 
 - (NSDictionary<CleverTapUnityCallbackInfo *, CleverTapMessageBuffer *> *)createBuffers:(BOOL)enabled {
     NSMutableDictionary<CleverTapUnityCallbackInfo *, CleverTapMessageBuffer *> *buffers = [NSMutableDictionary dictionary];
-    NSArray *callbackInfos = [CleverTapUnityCallbackInfo callbackInfos];
+    NSArray *callbackInfos = [[CleverTapUnityCallbackInfo callbackInfos] allValues];
     for (CleverTapUnityCallbackInfo *info in callbackInfos) {
         if (info.isBufferable) {
             buffers[info] = [[CleverTapMessageBuffer alloc] initWithEnabled:enabled];

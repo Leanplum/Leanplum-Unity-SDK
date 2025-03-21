@@ -13,21 +13,28 @@
     return _sharedObject;
 }
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [self registerListeners];
+    }
+    return self;
+}
+
 - (void)callUnityObject:(CleverTapUnityCallback)callback withMessage:(NSString *)message {
     [[CleverTapMessageSender sharedInstance] send:callback withMessage:message];
 }
 
 - (void)attachInstance:(CleverTap *)instance {
-    [self registerListeners];
+    if (!instance){
+        return;
+    }
     
     [instance setPushNotificationDelegate:self];
     [instance setInAppNotificationDelegate:self];
     [instance setDisplayUnitDelegate:self];
     [instance setPushPermissionDelegate:self];
-    
-    [instance onVariablesChanged:[self variablesChanged]];
-    [instance onVariablesChangedAndNoDownloadsPending:[self variablesChangedAndNoDownloadsPending]];
-    
+     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [[instance productConfig] setDelegate:self];
@@ -77,15 +84,14 @@
 
 #pragma mark - Variables
 
-- (CleverTapVariablesChangedBlock)variablesChanged {
+- (CleverTapVariablesChangedBlock)variablesCallback:(CleverTapUnityCallback)callback callbackId:(int)callbackId {
     return ^{
-        [self callUnityObject:CleverTapUnityCallbackVariablesChanged withMessage:@"VariablesChanged"];
-    };
-}
-
-- (CleverTapVariablesChangedBlock)variablesChangedAndNoDownloadsPending {
-    return ^{
-        [self callUnityObject:CleverTapUnityCallbackVariablesChangedAndNoDownloadsPending withMessage:@"VariablesChangedAndNoDownloadsPending"];
+        NSDictionary* response = @{
+            @"callbackId": @(callbackId)
+        };
+        
+        NSString* json = [self dictToJson:response];
+        [self callUnityObject:callback withMessage:json];
     };
 }
 

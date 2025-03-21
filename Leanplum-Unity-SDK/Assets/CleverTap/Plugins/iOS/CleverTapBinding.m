@@ -138,6 +138,11 @@ void CleverTap_onCallbackAdded(const char* callbackName) {
      onCallbackAdded:clevertap_stringToNSString(callbackName)];
 }
 
+void CleverTap_onVariablesCallbackAdded(const char* callbackName, int callbackId) {
+    [[CleverTapUnityManager sharedInstance]
+     onVariablesCallbackAdded:clevertap_stringToNSString(callbackName) callbackId:callbackId];
+}
+
 void CleverTap_setInAppNotificationButtonTappedCallback(InAppNotificationButtonTapped callback) {
     [[CleverTapMessageSender sharedInstance]
      setInAppNotificationButtonTappedCallback:callback];

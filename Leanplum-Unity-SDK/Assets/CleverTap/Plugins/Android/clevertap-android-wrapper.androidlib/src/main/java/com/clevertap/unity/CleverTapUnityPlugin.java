@@ -3,10 +3,11 @@ package com.clevertap.unity;
 import android.content.Context;
 import android.location.Location;
 import android.os.Build.VERSION_CODES;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.clevertap.android.sdk.CTInboxStyleConfig;
@@ -19,6 +20,7 @@ import com.clevertap.android.sdk.inapp.customtemplates.CustomTemplateContext;
 import com.clevertap.android.sdk.inbox.CTInboxMessage;
 import com.clevertap.android.sdk.pushnotification.PushConstants;
 import com.clevertap.android.sdk.variables.Var;
+import com.clevertap.unity.CleverTapUnityCallbackHandler.UnityVariablesChangedCallback;
 import com.clevertap.unity.callback.PluginCallback;
 import com.clevertap.unity.callback.PluginIntCallback;
 
@@ -32,6 +34,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @SuppressWarnings("unused")
 public class CleverTapUnityPlugin {
@@ -40,6 +44,7 @@ public class CleverTapUnityPlugin {
 
     private static CleverTapUnityPlugin instance = null;
 
+    private static CleverTapAPI initialCleverTapApiInstance = null;
     private CleverTapAPI clevertap = null;
     private final CleverTapUnityCallbackHandler callbackHandler;
 
@@ -50,9 +55,24 @@ public class CleverTapUnityPlugin {
     }
 
     public static synchronized CleverTapUnityPlugin getInstance(final Context context) {
-        if (instance == null && context != null) {
-            instance = new CleverTapUnityPlugin(context.getApplicationContext());
+        if (instance != null) {
+            return instance;
         }
+        CleverTapAPI cleverTapInstance = null;
+        if (initialCleverTapApiInstance != null) {
+            cleverTapInstance = initialCleverTapApiInstance;
+            initialCleverTapApiInstance = null;
+        } else if (context != null) {
+            cleverTapInstance = CleverTapAPI.getDefaultInstance(context.getApplicationContext());
+        }
+
+        if (cleverTapInstance != null) {
+            instance = new CleverTapUnityPlugin(cleverTapInstance);
+            Log.d(LOG_TAG, "Initialized with instance " + cleverTapInstance);
+        } else {
+            Log.e(LOG_TAG, "Initialization error");
+        }
+
         return instance;
     }
 
@@ -118,25 +138,51 @@ public class CleverTapUnityPlugin {
         }
     }
 
-    private CleverTapUnityPlugin(final Context context) {
+    static synchronized void setCleverTapApiInstance(final CleverTapAPI cleverTapAPI) {
+        if (cleverTapAPI != null) {
+            if (instance != null) {
+                CleverTapAPI currentCleverTapAPI = instance.clevertap;
+                if (currentCleverTapAPI == cleverTapAPI) {
+                    // the same CleverTapAPI instance is already set
+                    return;
+                }
+                instance.clevertap = cleverTapAPI;
+            } else {
+                initialCleverTapApiInstance = cleverTapAPI;
+            }
+        }
+    }
+
+    @Nullable
+    static synchronized CleverTapAPI getCleverTapApiInstance() {
+        if (initialCleverTapApiInstance != null) {
+            return initialCleverTapApiInstance;
+        } else if (instance != null) {
+            return instance.clevertap;
+        } else {
+            return null;
+        }
+    }
+
+    private CleverTapUnityPlugin(final @NonNull CleverTapAPI cleverTapApi) {
         callbackHandler = CleverTapUnityCallbackHandler.getInstance();
         backgroundExecutor = new BackgroundExecutor();
         disableMessageBuffers();
-        try {
-            clevertap = CleverTapAPI.getDefaultInstance(context);
-            if (clevertap != null) {
-                Log.d(LOG_TAG, "getDefaultInstance-" + clevertap);
-            }
-        } catch (Throwable t) {
-            Log.e(LOG_TAG, "initialization error", t);
-        }
+        clevertap = cleverTapApi;
     }
 
     private void disableMessageBuffers() {
         // disable buffers after a delay in order to give some time for callback delegates to attach
         // and receive initially buffered messages. After that all buffers will be cleared and disabled
         // and messages will continue to be sent immediately.
-        new Handler().postDelayed(() -> CleverTapMessageSender.getInstance().resetAllBuffers(false), 5000);
+        final Timer disableBuffersTimer = new Timer();
+        disableBuffersTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                CleverTapMessageSender.getInstance().resetAllBuffers(false);
+                disableBuffersTimer.cancel();
+            }
+        }, 5000);
     }
 
     public void onCallbackAdded(String callbackName) {
@@ -655,6 +701,55 @@ public class CleverTapUnityPlugin {
 
     public void fetchVariables(final int callbackId) {
         clevertap.fetchVariables(callbackHandler.getFetchVariablesCallback(callbackId));
+    }
+
+    public void onVariablesCallbackAdded(String callbackName, int callbackId) {
+        CleverTapUnityCallback callbackType = CleverTapUnityCallback.fromName(callbackName);
+        if (callbackType == null) {
+            Log.e(LOG_TAG, "onVariablesCallbackAdded with null callback");
+            return;
+        }
+
+        UnityVariablesChangedCallback callback = callbackHandler.createVariablesChangedCallback(callbackType, callbackId);
+        switch (callbackType) {
+            case CLEVERTAP_VARIABLES_CHANGED:
+                clevertap.addVariablesChangedCallback(callback);
+                break;
+            case CLEVERTAP_ONE_TIME_VARIABLES_CHANGED:
+                clevertap.addOneTimeVariablesChangedCallback(callback);
+                break;
+            case CLEVERTAP_VARIABLES_CHANGED_AND_NO_DOWNLOADS_PENDING:
+                clevertap.onVariablesChangedAndNoDownloadsPending(callback);
+                break;
+            case CLEVERTAP_ONE_TIME_VARIABLES_CHANGED_AND_NO_DOWNLOADS_PENDING:
+                clevertap.onceVariablesChangedAndNoDownloadsPending(callback);
+                break;
+            default:
+                Log.e(LOG_TAG, "onVariablesCallbackAdded called with unsupported callback type " + callbackType.callbackName);
+                break;
+        }
+    }
+
+    public void onVariablesCallbackRemoved(int callbackId) {
+        UnityVariablesChangedCallback callback = callbackHandler.getVariablesChangedCallback(callbackId);
+        if (callback != null) {
+            switch (callback.callbackType) {
+                case CLEVERTAP_VARIABLES_CHANGED:
+                    clevertap.removeVariablesChangedCallback(callback);
+                    break;
+                case CLEVERTAP_ONE_TIME_VARIABLES_CHANGED:
+                    clevertap.removeOneTimeVariablesChangedCallback(callback);
+                    break;
+                case CLEVERTAP_VARIABLES_CHANGED_AND_NO_DOWNLOADS_PENDING:
+                    // TODO no corresponding remove method
+                    break;
+                case CLEVERTAP_ONE_TIME_VARIABLES_CHANGED_AND_NO_DOWNLOADS_PENDING:
+                    // TODO no corresponding remove method
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     // InApps

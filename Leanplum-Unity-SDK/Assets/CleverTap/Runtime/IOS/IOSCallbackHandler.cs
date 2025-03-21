@@ -10,6 +10,11 @@ namespace CleverTapSDK.IOS {
             IOSDllImport.CleverTap_onCallbackAdded(callbackMethod.Method.Name);
         }
 
+        internal override void OnVariablesCallbackAdded(Action<string> callbackMethod, int callbackId)
+        {
+            IOSDllImport.CleverTap_onVariablesCallbackAdded(callbackMethod.Method.Name, callbackId);
+        }
+
         internal delegate void InAppNotificationButtonTapped(string customData);
 
         internal delegate void UserEventLogCallback(string key, string message);
