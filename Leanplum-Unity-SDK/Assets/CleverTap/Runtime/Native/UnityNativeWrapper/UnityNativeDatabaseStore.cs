@@ -11,7 +11,7 @@ namespace CleverTapSDK.Native {
         private IDataService dataService;
 
         internal UnityNativeDatabaseStore(string databaseName) {
-            InitilazeDatabase(databaseName);
+            InitializeDatabase(databaseName);
         }
 
         internal void AddEvent(UnityNativeEvent newEvent) {
@@ -26,9 +26,7 @@ namespace CleverTapSDK.Native {
             var storedEvent = new UnityNativeEvent(dbEventId, newEvent.EventType, newEvent.JsonContent, newEvent.Timestamp);
 
             CleverTapLogger.Log($"Event added to Queue id: {dbEventId} type: {newEvent.EventType} jsonContent: {newEvent.JsonContent}");
-            if (OnEventStored != null) {
-                OnEventStored(storedEvent);
-            }
+            OnEventStored?.Invoke(storedEvent);
         }
 
         internal void AddEventsFromDB() {
@@ -55,7 +53,7 @@ namespace CleverTapSDK.Native {
         internal void DeleteEvents(List<UnityNativeEvent> eventsToRemove) {
             if (dataService == null)
             {
-                CleverTapLogger.LogError("Database not intiallised");
+                CleverTapLogger.LogError("Database not initialized");
                 return;
             }
 
@@ -66,7 +64,7 @@ namespace CleverTapSDK.Native {
 
             foreach (var events in eventsToRemove)
             {
-                int id =  events.Id ?? -1;
+                int id = events.Id ?? -1;
                 if (id != -1)
                 {
                     dataService.Delete<UnityNativeEventDBEntry>(id);
@@ -74,7 +72,7 @@ namespace CleverTapSDK.Native {
             }
         }
 
-        private void InitilazeDatabase(string databaseName)
+        private void InitializeDatabase(string databaseName)
         {
             if (dataService == null)
             {   
@@ -82,7 +80,7 @@ namespace CleverTapSDK.Native {
                 CleverTapLogger.Log("Database connection created");
             }
 
-            //Create Table If Doesn't Exist
+            // Create table if it does not exist
             dataService.CreateTable<UnityNativeEventDBEntry>();
         }
     }

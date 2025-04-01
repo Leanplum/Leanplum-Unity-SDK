@@ -85,7 +85,6 @@ function deleteEntry(Id) {
 }
 
 // Function to get all entries from the current table
-// Function to get all entries from the current table
 function getAllEntries() {
     if (!currentTable) {
         console.error("Current table is not set.");
@@ -100,12 +99,18 @@ function getAllEntries() {
     return JSON.stringify(entries);
 }
 
-
-
 function generateNextId() {
     let lastIdKey = "lastRecordId";
     let id = parseInt(localStorage.getItem(lastIdKey), 10) || 0;
     id += 1;
     localStorage.setItem(lastIdKey, id);
     return id;
+}
+
+// Helper function to allocate memory for a string and return a pointer
+function allocateString(str) {
+    var size = lengthBytesUTF8(str) + 1;
+    var ptr = _malloc(size);
+    stringToUTF8(str, ptr, size);
+    return ptr;
 }

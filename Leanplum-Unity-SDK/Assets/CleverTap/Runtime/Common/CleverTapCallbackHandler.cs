@@ -6,7 +6,7 @@ using UnityEngine;
 namespace CleverTapSDK.Common {
     public abstract class CleverTapCallbackHandler : MonoBehaviour {
 
-        private readonly object CallbackLock = new();
+        protected readonly object CallbackLock = new();
 
         internal virtual void OnCallbackAdded(Action<string> callbackMethod) { }
 
@@ -461,7 +461,7 @@ namespace CleverTapSDK.Common {
             }
         }
 
-        public event CleverTapCallbackDelegate OnVariablesChanged
+        public virtual event CleverTapCallbackDelegate OnVariablesChanged
         {
             add
             {
@@ -473,7 +473,7 @@ namespace CleverTapSDK.Common {
             }
         }
 
-        public event CleverTapCallbackDelegate OnOneTimeVariablesChanged
+        public virtual event CleverTapCallbackDelegate OnOneTimeVariablesChanged
         {
             add
             {
@@ -485,7 +485,7 @@ namespace CleverTapSDK.Common {
             }
         }
 
-        public event CleverTapCallbackDelegate OnOneTimeVariablesChangedAndNoDownloadsPending
+        public virtual event CleverTapCallbackDelegate OnOneTimeVariablesChangedAndNoDownloadsPending
         {
             add
             {
@@ -497,7 +497,7 @@ namespace CleverTapSDK.Common {
             }
         }
 
-        public event CleverTapCallbackDelegate OnVariablesChangedAndNoDownloadsPending
+        public virtual event CleverTapCallbackDelegate OnVariablesChangedAndNoDownloadsPending
         {
             add
             {
@@ -800,13 +800,13 @@ namespace CleverTapSDK.Common {
             }
         }
 
-        // invoked when any variable changed
+        // Invoked when variables changed
         public virtual void CleverTapVariablesChanged(string message) {
             CleverTapLogger.Log("Unity received variables changed");
             InvokeVariablesCallback(message);
         }
         
-        //invoked when variable values are changed and the files associated with them are downloaded and ready to be used.
+        // Invoked when variable values are changed and the files associated with them are downloaded and ready to be used.
         public virtual void CleverTapVariablesChangedAndNoDownloadsPending(string message) {
             CleverTapLogger.Log("Unity received variables changed and no downloads pending ");
             InvokeVariablesCallback(message);
@@ -829,7 +829,7 @@ namespace CleverTapSDK.Common {
             VariableFactory.CleverTapVariable.VariableFileIsReady(variableName);
         }
         
-        // invoked when an variable value changed
+        // Invoked when a variable value changed
         public virtual void CleverTapVariableValueChanged(string variableName) {
             CleverTapLogger.Log("Unity received variable changed: " + (!String.IsNullOrEmpty(variableName) ? variableName : "NULL"));
             VariableFactory.CleverTapVariable.VariableChanged(variableName);

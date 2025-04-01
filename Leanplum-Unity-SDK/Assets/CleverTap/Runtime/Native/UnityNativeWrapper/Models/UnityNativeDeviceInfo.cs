@@ -6,7 +6,7 @@ using CleverTapSDK.Constants;
 namespace CleverTapSDK.Native {
 
     internal class UnityNativeDeviceInfo {
-        private readonly string _sdkVersion;
+        private readonly int _sdkVersion;
         private readonly string _appVersion;
         private readonly string _appBuild;
         private readonly string _osName;
@@ -46,7 +46,7 @@ namespace CleverTapSDK.Native {
             _locale = null;
         }
 
-        internal string SdkVersion => _sdkVersion;
+        internal int SdkVersion => _sdkVersion;
 
         internal string AppVersion => _appVersion;
 

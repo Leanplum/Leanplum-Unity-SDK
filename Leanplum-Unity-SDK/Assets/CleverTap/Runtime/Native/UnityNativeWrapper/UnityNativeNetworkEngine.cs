@@ -237,7 +237,7 @@ namespace CleverTapSDK.Native {
                     }
                     else
                     {
-                        return new UnityNativeResponse(request, HttpStatusCode.InternalServerError, null, null, "Internet connection is not reachable");
+                        return new UnityNativeResponse(HttpStatusCode.InternalServerError, null, null, "Internet connection is not reachable");
                     }
                 }
                 else
@@ -272,7 +272,7 @@ namespace CleverTapSDK.Native {
                 ProcessIncomingHeaders(response);
             }
 
-            // Intercept reponse before retuning
+            // Intercept response before returning
             if (request.ResponseInterceptors?.Count > 0)
             {
                 foreach (var responseInterceptors in request.ResponseInterceptors)
@@ -338,11 +338,12 @@ namespace CleverTapSDK.Native {
             if (Application.internetReachability == NetworkReachability.NotReachable)
             {
                 CleverTapLogger.LogError("Internet connection is not reachable!");
-                return new UnityNativeResponse(request, HttpStatusCode.InternalServerError, null, null, "Internet connection is not reachable");
+                return new UnityNativeResponse(HttpStatusCode.InternalServerError, null, null, "Internet connection is not reachable");
             }
 
+            UnityWebRequest unityWebRequest = null;
             try {
-                var unityWebRequest = request.BuildRequest(_baseURI);
+                unityWebRequest = request.BuildRequest(_baseURI);
                 CleverTapLogger.Log("Sending web request");
                 // Workaround for async
                 var unityWebRequestAsyncOperation = unityWebRequest.SendWebRequest();
@@ -362,28 +363,30 @@ namespace CleverTapSDK.Native {
                 switch (unityWebRequest.result)
                 {
                     case UnityWebRequest.Result.Success:
-                        return new UnityNativeResponse(request, (HttpStatusCode)unityWebRequest.responseCode, unityWebRequest.GetResponseHeaders(), unityWebRequest.downloadHandler.text);
+                        return new UnityNativeResponse((HttpStatusCode)unityWebRequest.responseCode, unityWebRequest.GetResponseHeaders(), unityWebRequest.downloadHandler.text);
 
                     case UnityWebRequest.Result.ConnectionError:
                         CleverTapLogger.LogError($"Failed ConnectionError: {(HttpStatusCode)unityWebRequest.responseCode}, error: {unityWebRequest.downloadHandler.text}, request: {request.RequestBody}");
-                        return new UnityNativeResponse(request, HttpStatusCode.InternalServerError, null, null, "Internet connection is not reachable");
+                        return new UnityNativeResponse(HttpStatusCode.InternalServerError, null, null, "Internet connection is not reachable");
 
                     case UnityWebRequest.Result.ProtocolError:
-                        CleverTapLogger.LogError($"Failed ProtocolError: {(HttpStatusCode)unityWebRequest.responseCode}, error: {unityWebRequest.downloadHandler.text}, request: {request.RequestBody}");
-                        return new UnityNativeResponse(request, HttpStatusCode.InternalServerError, null, null, "Internet connection is not reachable");
+                        CleverTapLogger.LogError($"Failed ProtocolError: {(HttpStatusCode)unityWebRequest.responseCode}, error: {unityWebRequest.downloadHandler?.text}, request: {request.RequestBody}");
+                        return new UnityNativeResponse((HttpStatusCode)unityWebRequest.responseCode, unityWebRequest.GetResponseHeaders(), unityWebRequest.downloadHandler?.text, "Protocol Error");
 
                     case UnityWebRequest.Result.DataProcessingError:
                         CleverTapLogger.LogError("Failed Data Processing");
-                        return new UnityNativeResponse(request, HttpStatusCode.InternalServerError, null, null, "Failed to Process Data");
+                        return new UnityNativeResponse((HttpStatusCode)unityWebRequest.responseCode, null, null, "Failed to Process Data");
 
                     default:
                         CleverTapLogger.LogError("Failed");
-                        return new UnityNativeResponse(request, (HttpStatusCode)unityWebRequest.responseCode, unityWebRequest.GetResponseHeaders(), unityWebRequest.downloadHandler.text, errorMessage: unityWebRequest.error);
+                        return new UnityNativeResponse((HttpStatusCode)unityWebRequest.responseCode, unityWebRequest.GetResponseHeaders(), unityWebRequest.downloadHandler.text, errorMessage: unityWebRequest.error);
                 }
 
             } catch (Exception ex) {
                 CleverTapLogger.LogError($"Failed: {ex.Message}, Stack Trace: {ex.StackTrace}, Data: {ex.Data}");
-                return new UnityNativeResponse(request, HttpStatusCode.InternalServerError, null, null, ex.Message);
+                return new UnityNativeResponse(HttpStatusCode.InternalServerError, null, null, ex.Message);
+            } finally {
+                unityWebRequest?.Dispose();
             }
         }
     }

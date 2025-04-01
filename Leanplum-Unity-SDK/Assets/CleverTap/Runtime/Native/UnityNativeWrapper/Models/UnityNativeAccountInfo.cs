@@ -1,18 +1,14 @@
 #if (!UNITY_IOS && !UNITY_ANDROID) || UNITY_EDITOR
-namespace CleverTapSDK.Native {
-    internal class UnityNativeAccountInfo {
+namespace CleverTapSDK.Native
+{
+    internal class UnityNativeAccountInfo
+    {
         private readonly string _accountId;
         private readonly string _accountToken;
         private readonly string _region;
 
-        public UnityNativeAccountInfo()
+        public UnityNativeAccountInfo(string accountId, string accountToken, string region = null)
         {
-            _accountId = null;
-            _accountToken = null;
-            _region = null;
-        }
-
-        public UnityNativeAccountInfo(string accountId, string accountToken, string region = null) {
             _accountId = accountId;
             _accountToken = accountToken;
             _region = region;

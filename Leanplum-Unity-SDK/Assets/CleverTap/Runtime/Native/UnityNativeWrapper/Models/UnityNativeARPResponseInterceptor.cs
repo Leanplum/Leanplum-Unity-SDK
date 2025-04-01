@@ -134,7 +134,6 @@ namespace CleverTapSDK.Native
         {
             if (!arp.ContainsKey(UnityNativeConstants.EventMeta.DISCARDED_EVENTS_KEY))
             {
-                CleverTapLogger.Log("ARP doesn't contain the Discarded Events key");
                 return;
             }
 
