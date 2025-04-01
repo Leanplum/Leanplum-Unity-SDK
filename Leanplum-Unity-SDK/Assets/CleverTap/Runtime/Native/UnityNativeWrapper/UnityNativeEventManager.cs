@@ -1,13 +1,14 @@
 #if (!UNITY_IOS && !UNITY_ANDROID) || UNITY_EDITOR
-using CleverTapSDK.Common;
-using CleverTapSDK.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using CleverTapSDK.Common;
+using CleverTapSDK.Utilities;
 using UnityEngine;
 
-namespace CleverTapSDK.Native {
+namespace CleverTapSDK.Native
+{
     internal class UnityNativeEventManager {
         private static readonly string NATIVE_EVENTS_DB_CACHE = "NativeEventsDbCache";
         private static readonly int DEFER_EVENT_UNTIL_APP_LAUNCHED_SECONDS = 2;
@@ -22,8 +23,14 @@ namespace CleverTapSDK.Native {
         private string _accountId;
         private int _enableNetworkInfoReporting = -1;
 
-        internal UnityNativeEventManager(UnityNativeCallbackHandler callbackHandler) {
+        private readonly UnityNativePlatformVariable _platformVariable;
+
+        internal UnityNativeEventManager(UnityNativeCallbackHandler callbackHandler) : this(callbackHandler, null) { }
+
+        internal UnityNativeEventManager(UnityNativeCallbackHandler callbackHandler, UnityNativePlatformVariable platformVariable)
+        {
             _callbackHandler = callbackHandler;
+            _platformVariable = platformVariable;
         }
 
         private void Initialize(string accountId, string token, string region = null) {
@@ -36,6 +43,11 @@ namespace CleverTapSDK.Native {
 
             _eventValidator = new UnityNativeEventValidator(LoadDiscardedEvents());
             _networkEngine = UnityNativeNetworkEngine.Create(_accountId);
+
+            _platformVariable?.Load(this, _callbackHandler, _coreState);
+
+            // Requires network engine
+            SetRequestInterceptors();
             SetResponseInterceptors();
             _eventQueueManager = new UnityNativeEventQueueManager(_coreState, _networkEngine, _databaseStore);
         }
@@ -51,15 +63,42 @@ namespace CleverTapSDK.Native {
             return discardedEventNames;
         }
 
+        /// <summary>
+        /// Sets response interceptors.
+        /// Requires network engine to be initialized.
+        /// </summary>
         private void SetResponseInterceptors() {
             List<IUnityNativeResponseInterceptor> responseInterceptors = new List<IUnityNativeResponseInterceptor>
             {
                 new UnityNativeARPResponseInterceptor(_accountId, _coreState.DeviceInfo.DeviceId, _eventValidator),
                 new UnityNativeMetadataResponseInterceptor(_preferenceManager)
             };
+
+            if (_platformVariable != null)
+            {
+                responseInterceptors.Add(new UnityNativeVariablesResponseInterceptor(_platformVariable));
+            }
+            else
+            {
+                CleverTapLogger.LogError("PlatformVariable is null, cannot process variables responses.");
+            }
+
             _networkEngine.SetResponseInterceptors(responseInterceptors);
         }
-        
+
+        /// <summary>
+        /// Sets request interceptors.
+        /// Requires network engine to be initialized.
+        /// </summary>
+        private void SetRequestInterceptors() {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            _networkEngine.SetRequestInterceptors(new List<IUnityNativeRequestInterceptor>
+            {
+                new UnityNativeVariablesRequestInterceptor()
+            });
+#endif
+        }
+
         #region Launch
 
         internal void LaunchWithCredentials(string accountId, string token, string region = null) {
@@ -176,7 +215,7 @@ namespace CleverTapSDK.Native {
             try
             {
                 CleverTapLogger.Log($"asyncProfileSwitchUser:[profile {string.Join(Environment.NewLine, profile)}]" +
-                    $" with Cached GUID {(cacheGuid != null ? cacheGuid : "NULL")}");
+                    $" with Cached GUID {cacheGuid ?? "null"}");
 
                 // Flush the queues
                 _eventQueueManager.FlushQueues();
@@ -192,6 +231,9 @@ namespace CleverTapSDK.Native {
                 {
                     _coreState.DeviceInfo.ForceNewDeviceID();
                 }
+
+                // Load Variables for new user
+                _platformVariable?.ReloadCache();
 
                 // Load discarded events for new user
                 _eventValidator = new UnityNativeEventValidator(LoadDiscardedEvents());
@@ -337,6 +379,47 @@ namespace CleverTapSDK.Native {
             var eventBuilderResult = new UnityNativeRaisedEventBuilder(_eventValidator).BuildChargedEvent(details, items);
             var eventDetails = eventBuilderResult.EventResult;
             return BuildEvent(UnityNativeEventType.RaisedEvent, eventDetails);
+        }
+
+        #endregion
+
+        #region Variables
+
+        internal void SyncVariables(Dictionary<string, object> varsSyncPayload)
+        {
+            if (ShouldDeferEvent(() =>
+            {
+                SyncVariables(varsSyncPayload);
+            }))
+            {
+                return;
+            }
+
+            UnityNativeEvent @event = BuildEvent(UnityNativeEventType.DefineVarsEvent, varsSyncPayload, false);
+            _eventQueueManager.QueueEvent(@event);
+        }
+
+        internal void FetchVariables()
+        {
+            if (ShouldDeferEvent(() =>
+            {
+                FetchVariables();
+            }))
+            {
+                return;
+            }
+
+            var eventBuilderResult = new UnityNativeRaisedEventBuilder(_eventValidator)
+                .BuildFetchEvent(UnityNativeConstants.Event.WZRK_FETCH_TYPE_VARIABLES);
+            if (eventBuilderResult.EventResult == null || eventBuilderResult.ValidationResults.Any(vr => !vr.IsSuccess))
+            {
+                CleverTapLogger.LogError($"Failed to build fetch event: " +
+                    $"{ string.Join(", ", eventBuilderResult.ValidationResults.Select(vr => vr.ErrorMessage)) }");
+                return;
+            }
+            var eventDetails = eventBuilderResult.EventResult;
+            UnityNativeEvent @event = BuildEvent(UnityNativeEventType.FetchEvent, eventDetails, true);
+            _eventQueueManager.QueueEvent(@event);
         }
 
         #endregion

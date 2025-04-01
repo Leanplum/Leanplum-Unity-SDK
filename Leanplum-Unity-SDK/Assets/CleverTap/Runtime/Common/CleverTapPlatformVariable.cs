@@ -1,12 +1,14 @@
-﻿using CleverTapSDK.Constants;
-using CleverTapSDK.Utilities;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using CleverTapSDK.Constants;
+using CleverTapSDK.Utilities;
 
-namespace CleverTapSDK.Common {
-    internal abstract class CleverTapPlatformVariable {
+namespace CleverTapSDK.Common
+{
+    internal abstract class CleverTapPlatformVariable
+    {
         protected readonly IDictionary<string, IVar> varCache = new Dictionary<string, IVar>();
         protected readonly IDictionary<int, Action<bool>> variablesFetchedCallbacks = new Dictionary<int, Action<bool>>();
 
@@ -14,9 +16,11 @@ namespace CleverTapSDK.Common {
 
         #region Default - Variables
 
-        internal virtual Var<T> GetVariable<T>(string name) {
+        internal virtual Var<T> GetVariable<T>(string name)
+        {
             var kindName = GetKindNameFromGenericType<T>();
-            if (!string.IsNullOrEmpty(kindName) && varCache.ContainsKey(name) && varCache[name].Kind == kindName) {
+            if (!string.IsNullOrEmpty(kindName) && varCache.ContainsKey(name) && varCache[name].Kind == kindName)
+            {
                 return (Var<T>)varCache[name];
             }
 
@@ -55,75 +59,112 @@ namespace CleverTapSDK.Common {
 
         internal Var<string> DefineFileVariable(string name) =>
             GetOrDefineFileVariable(name);
-        
-        internal void FetchVariables(Action<bool> isSucessCallback) {
+
+        internal void FetchVariables(Action<bool> isSucessCallback)
+        {
             var callbackId = variablesFetchedIdCounter.GetNextAndIncreaseCounter();
-            if (!variablesFetchedCallbacks.ContainsKey(callbackId)) {
+            if (!variablesFetchedCallbacks.ContainsKey(callbackId))
+            {
                 variablesFetchedCallbacks.Add(callbackId, isSucessCallback);
                 FetchVariables(callbackId);
             }
         }
 
-        internal void VariablesFetched(int callbackId, bool isSuccess) {
-            if (variablesFetchedCallbacks.ContainsKey(callbackId)) {
+        internal void VariablesFetched(int callbackId, bool isSuccess)
+        {
+            if (variablesFetchedCallbacks.ContainsKey(callbackId))
+            {
                 variablesFetchedCallbacks[callbackId].Invoke(isSuccess);
                 variablesFetchedCallbacks.Remove(callbackId);
             }
         }
 
-        internal void VariableFileIsReady(string name) {
-            if (varCache.ContainsKey(name)) {
+        internal void VariableFileIsReady(string name)
+        {
+            if (varCache.ContainsKey(name))
+            {
                 varCache[name].FileIsReady();
             }
         }
-        
-        internal void VariableChanged(string name) {
-            if (varCache.ContainsKey(name)) {
+
+        internal void VariableChanged(string name)
+        {
+            if (varCache.ContainsKey(name))
+            {
                 varCache[name].ValueChanged();
             }
         }
 
-        protected virtual Var<T> GetOrDefineVariable<T>(string name, T defaultValue) {
-            var kindName = GetKindNameFromGenericType<T>();
-            if (string.IsNullOrEmpty(kindName)) {
-                CleverTapLogger.LogError("CleverTap Error: Default value for \"" + name + "\" not recognized or supported.");
+        protected virtual Var<T> GetOrDefineVariable<T>(string name, T defaultValue)
+        {
+            string kindName = GetKindNameFromGenericType<T>();
+            return GetOrDefineVariable<T>(name, kindName, defaultValue);
+        }
+
+        protected virtual Var<string> GetOrDefineFileVariable(string name)
+        {
+            return GetOrDefineVariable<string>(name, CleverTapVariableKind.FILE, null);
+        }
+
+        protected virtual Var<T> GetOrDefineVariable<T>(string name, string kindName, T defaultValue)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                CleverTapLogger.LogError("CleverTap Error: Variable name cannot be empty.");
                 return null;
             }
 
-            if (varCache.ContainsKey(name)) {
-                if (varCache[name].Kind != kindName) {
-                    CleverTapLogger.LogError("CleverTap Error: Variable " + "\"" + name + "\" was already defined with a different kind");
+            if (name.StartsWith(".") || name.EndsWith("."))
+            {
+                CleverTapLogger.LogError($"CleverTap Error: Variable name \"{name}\" starts or ends with a `.` which is not allowed");
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(kindName))
+            {
+                CleverTapLogger.LogError($"CleverTap Error: Default value for \"{name}\" not recognized or not supported.");
+                return null;
+            }
+
+            if (varCache.ContainsKey(name))
+            {
+                if (varCache[name].Kind != kindName)
+                {
+                    CleverTapLogger.LogError($"CleverTap Error: Variable \"{name}\" was already defined with a different kind");
                     return null;
                 }
                 return (Var<T>)varCache[name];
             }
-            
+
             return DefineVariable<T>(name, kindName, defaultValue);
         }
 
-        protected virtual Var<string> GetOrDefineFileVariable(string name) {
-            if (varCache.ContainsKey(name)) {
-                if (varCache[name].Kind != CleverTapVariableKind.FILE) {
-                    CleverTapLogger.LogError("CleverTap Error: Variable " + "\"" + name + "\" was already defined with a different kind");
-                    return null;
-                }
-                return (Var<string>)varCache[name];
-            }
-
-            return DefineVariable<string>(name, CleverTapVariableKind.FILE, null);
-        }
-        
-        protected virtual string GetKindNameFromGenericType<T>() {
+        protected virtual string GetKindNameFromGenericType<T>()
+        {
             Type type = typeof(T);
-            if (type == typeof(int) || type == typeof(long) || type == typeof(short) || type == typeof(char) || type == typeof(sbyte) || type == typeof(byte)) {
+            return GetKindNameFromType(type);
+        }
+
+        internal static string GetKindNameFromType(Type type)
+        {
+            if (type == typeof(int) || type == typeof(long) || type == typeof(short) || type == typeof(char) || type == typeof(sbyte) || type == typeof(byte))
+            {
                 return CleverTapVariableKind.INT;
-            } else if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) {
+            }
+            else if (type == typeof(float) || type == typeof(double) || type == typeof(decimal))
+            {
                 return CleverTapVariableKind.FLOAT;
-            } else if (type == typeof(string)) {
+            }
+            else if (type == typeof(string))
+            {
                 return CleverTapVariableKind.STRING;
-            } else if (type.GetInterfaces().Contains(typeof(IDictionary))) {
+            }
+            else if (type.GetInterfaces().Contains(typeof(IDictionary)))
+            {
                 return CleverTapVariableKind.DICTIONARY;
-            } else if (type == typeof(bool)) {
+            }
+            else if (type == typeof(bool))
+            {
                 return CleverTapVariableKind.BOOLEAN;
             }
 

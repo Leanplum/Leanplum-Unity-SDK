@@ -108,6 +108,8 @@ namespace CleverTapSDK.Native {
             internal const string EVENT_APP_LUNACH = "App Launched";
             internal const string EVENT_CHARGED = "Charged";
             internal const string EVENT_CHARGED_ITEMS = "Items";
+            internal const string EVENT_WZRK_FETCH = "wzrk_fetch";
+            internal const int WZRK_FETCH_TYPE_VARIABLES = 4;
 
             internal const string EVENT_TYPE = "type";
             internal const string EVENT_TYPE_PROFILE = "profile";
@@ -210,19 +212,16 @@ namespace CleverTapSDK.Native {
             internal const int DEFAUL_REQUEST_TIMEOUT_SEC = 10;
 
             internal const string QUERY_OS = "os";
-            internal const string QUERY_SKD_REVISION = "t";
+            internal const string QUERY_SDK_REVISION = "t";
             internal const string QUERY_ACCOUNT_ID = "z";
             internal const string QUERY_CURRENT_TIMESTAMP = "ts";
 
             internal const string REQUEST_GET = "GET";
-#if UNITY_WEBGL && !UNITY_EDITOR
+
             internal const string REQUEST_POST = "POST";
             internal const string REQUEST_PATH_RECORD = "a1";
-#else
-            internal const string REQUEST_POST = "POST";
-            internal const string REQUEST_PATH_RECORD = "a1";
-#endif
-            internal const string REQUEST_PATH_USER_VARIABLES = "defineVars";
+
+            internal const string REQUEST_PATH_DEFINE_VARIABLES = "defineVars";
             internal const string REQUEST_PATH_HAND_SHAKE = "hello";
         }
 

@@ -29,7 +29,10 @@ namespace CleverTapSDK.Native {
                     eventData.Add(UnityNativeConstants.Event.EVENT_TYPE, UnityNativeConstants.Event.EVENT_TYPE_PROFILE);
                     break;
                 case UnityNativeEventType.RaisedEvent:
-                    eventData.Add(UnityNativeConstants.Event.EVENT_TYPE, UnityNativeConstants.Event.EVENT_TYPE_EVENT); 
+                case UnityNativeEventType.FetchEvent:
+                    eventData.Add(UnityNativeConstants.Event.EVENT_TYPE, UnityNativeConstants.Event.EVENT_TYPE_EVENT);
+                    break;
+                case UnityNativeEventType.DefineVarsEvent:
                     break;
                 default:
                     // NOT Supported YET

@@ -1,13 +1,12 @@
 ﻿#if (!UNITY_IOS && !UNITY_ANDROID) || UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using CleverTapSDK.Utilities;
-using UnityEngine;
 using UnityEngine.Networking;
 
-namespace CleverTapSDK.Native {
+namespace CleverTapSDK.Native
+{
     internal class UnityNativeRequest {
         private readonly string _path;
         private readonly string _method;
@@ -28,6 +27,7 @@ namespace CleverTapSDK.Native {
         }
 
         internal int? Timeout => _timeout;
+        internal string Path => _path;
         internal IReadOnlyList<KeyValuePair<string, string>> QueryParameters => _queryParameters;
         internal string RequestBody => _requestBody;
         internal IReadOnlyDictionary<string, string> Headers => _headers;
@@ -78,7 +78,17 @@ namespace CleverTapSDK.Native {
                 request = UnityWebRequest.Get(uri);
             }
             else if (_method == UnityNativeConstants.Network.REQUEST_POST) {
+#if UNITY_2022_1_OR_NEWER
+                // Use the new overload available in Unity 2022+
                 request = UnityWebRequest.Post(uri, _requestBody, "application/json");
+#else
+                // Unity 2021 and older: Use UploadHandlerRaw for JSON requests
+                byte[] bodyRaw = Encoding.UTF8.GetBytes(_requestBody);
+                request = new UnityWebRequest(uri, "POST");
+                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+#endif
             }
             else {
                 throw new NotSupportedException("Http method is not supported");
