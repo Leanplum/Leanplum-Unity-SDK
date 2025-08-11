@@ -4,6 +4,48 @@ namespace CleverTapSDK.Utilities
 {
     public class CleverTapInboxMessageJSONParser
     {
+        public static JSONArray ToJSONArray(Dictionary<string, string> messagesDict)
+        {
+            JSONArray jsonArray = new JSONArray();
+
+            if (messagesDict == null || messagesDict.Count == 0)
+                return jsonArray;
+
+            foreach (KeyValuePair<string, string> item in messagesDict)
+            {
+                jsonArray.Add(JSON.Parse(item.Value));
+            }
+
+            return jsonArray;
+        }
+
+        public static JSONClass ToJSONClass(string message)
+        {
+            JSONClass jsonClass = new JSONClass();
+
+            if (string.IsNullOrEmpty(message))
+                return jsonClass;
+
+            jsonClass = (JSONClass)JSON.Parse(message);
+
+            return jsonClass;
+        }
+
+        public static List<CleverTapInboxMessage> ParseMessagesDict(Dictionary<string, string> messagesDict)
+        {
+            List<CleverTapInboxMessage> result = new List<CleverTapInboxMessage>();
+
+            if (messagesDict == null || messagesDict.Count == 0)
+                return result;
+
+            foreach (KeyValuePair<string, string> item in messagesDict)
+            {
+                result.Add(ParseJsonMessage(item.Value));
+            }
+
+            return result;
+        }
+
         public static List<CleverTapInboxMessage> ParseJsonArray(string jsonString)
         {
             var result = new List<CleverTapInboxMessage>();

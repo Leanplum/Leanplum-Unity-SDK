@@ -3,6 +3,7 @@ using CleverTapSDK.Common;
 using CleverTapSDK.Utilities;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace CleverTapSDK.Android {
     internal class AndroidTemplateContext : CleverTapTemplateContext
@@ -11,7 +12,8 @@ namespace CleverTapSDK.Android {
 
         public override bool? GetBoolean(string name)
         {
-           return CleverTapAndroidJNI.CleverTapJNIInstance.Call<bool?>("customTemplateGetBooleanArg", TemplateName, name);
+            var booleanResult = CleverTapAndroidJNI.CleverTapJNIInstance.Call<AndroidJavaObject>("customTemplateGetBooleanArg", TemplateName, name);
+            return booleanResult?.Call<bool>("booleanValue");
         }
 
         public override Dictionary<string, object> GetDictionary(string name)
@@ -42,32 +44,33 @@ namespace CleverTapSDK.Android {
 
         public override byte? GetByte(string name)
         {
-            return CleverTapAndroidJNI.CleverTapJNIInstance.Call<byte?>("customTemplateGetByteArg", TemplateName, name);
+            return (byte?) GetDouble(name);
         }
 
         public override short? GetShort(string name)
         {
-            return CleverTapAndroidJNI.CleverTapJNIInstance.Call<short?>("customTemplateGetShortArg", TemplateName, name);
+            return (short?) GetDouble(name);
         }
 
         public override int? GetInt(string name)
         {
-            return CleverTapAndroidJNI.CleverTapJNIInstance.Call<int?>("customTemplateGetIntArg", TemplateName, name);
+            return (int?) GetDouble(name);
         }
 
         public override long? GetLong(string name)
         {
-            return CleverTapAndroidJNI.CleverTapJNIInstance.Call<long?>("customTemplateGetLongArg", TemplateName, name);
+            return (long?) GetDouble(name);
         }
 
         public override float? GetFloat(string name)
         {
-            return CleverTapAndroidJNI.CleverTapJNIInstance.Call<float?>("customTemplateGetFloatArg", TemplateName, name);
+            return (float?) GetDouble(name);
         }
 
         public override double? GetDouble(string name)
         {
-            return CleverTapAndroidJNI.CleverTapJNIInstance.Call<double?>("customTemplateGetDoubleArg", TemplateName, name);
+            var doubleResult = CleverTapAndroidJNI.CleverTapJNIInstance.Call<AndroidJavaObject>("customTemplateGetDoubleArg", TemplateName, name);
+            return doubleResult?.Call<double>("doubleValue");
         }
 
         public override string GetString(string name)

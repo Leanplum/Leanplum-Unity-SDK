@@ -9,10 +9,13 @@ namespace CleverTapSDK.Native {
         private UnityNativeSession _currentSession;
 
         private string _accountId;
+        
+        public Dictionary<string, object> SessionData { get; private set; }
 
         internal UnityNativeSessionManager(string accountId) {
             _accountId = accountId;
             _currentSession = new UnityNativeSession(_accountId);
+            SessionData = new Dictionary<string, object>();
         }
 
         public UnityNativeSession CurrentSession {
@@ -27,6 +30,7 @@ namespace CleverTapSDK.Native {
 
         internal void ResetSession() {
             _currentSession = new UnityNativeSession(_accountId);
+            SessionData = new Dictionary<string, object>();
         }
 
         internal bool IsFirstSession() {

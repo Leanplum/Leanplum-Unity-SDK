@@ -188,7 +188,7 @@ namespace CleverTapSDK.Private
 
             string mainTargetGuid = proj.GetUnityMainTargetGuid();
             // Add CleverTap folder reference and target membership
-            string folderGuid = proj.AddFolderReference(destinationFolderPath, EditorUtils.CLEVERTAP_APP_ASSETS_FOLDER);
+            string folderGuid = proj.AddFolderReference(EditorUtils.CLEVERTAP_APP_ASSETS_FOLDER, EditorUtils.CLEVERTAP_APP_ASSETS_FOLDER);
             proj.AddFileToBuild(mainTargetGuid, folderGuid);
         }
 	}

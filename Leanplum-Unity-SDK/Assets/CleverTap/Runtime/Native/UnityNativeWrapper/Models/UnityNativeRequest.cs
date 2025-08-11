@@ -1,7 +1,6 @@
 ﻿#if (!UNITY_IOS && !UNITY_ANDROID) || UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using System.Text;
 using CleverTapSDK.Utilities;
 using UnityEngine.Networking;
 
@@ -11,6 +10,7 @@ namespace CleverTapSDK.Native
         private readonly string _path;
         private readonly string _method;
 
+        private string _requestBaseURL = null;
         private int? _timeout;
         private IReadOnlyList<KeyValuePair<string, string>> _queryParameters;
         private string _requestBody;
@@ -20,14 +20,14 @@ namespace CleverTapSDK.Native
         private IReadOnlyList<IUnityNativeResponseInterceptor> _responseInterceptors;
         private IReadOnlyDictionary<string, string> _additionalProperties;
 
-        internal UnityNativeRequest(string path, string method, Dictionary<string, string> additionalProperties = null) {
+        internal UnityNativeRequest(string path, string method, Dictionary<string, string> additionalProperties = null)
+        {
             _path = path;
             _method = method?.ToUpper();
             _additionalProperties = additionalProperties;
         }
 
         internal int? Timeout => _timeout;
-        internal string Path => _path;
         internal IReadOnlyList<KeyValuePair<string, string>> QueryParameters => _queryParameters;
         internal string RequestBody => _requestBody;
         internal IReadOnlyDictionary<string, string> Headers => _headers;
@@ -36,7 +36,14 @@ namespace CleverTapSDK.Native
         internal IReadOnlyList<IUnityNativeResponseInterceptor> ResponseInterceptors => _responseInterceptors;
         internal IReadOnlyDictionary<string, string> AdditionalProperties => _additionalProperties;
 
-        internal UnityNativeRequest SetTimeout(int? timeout) {
+        internal UnityNativeRequest SetBaseURL(string baseURL)
+        {
+            _requestBaseURL = baseURL;
+            return this;
+        }
+
+        internal UnityNativeRequest SetTimeout(int? timeout)
+        {
             _timeout = timeout;
             return this;
         }
@@ -71,8 +78,8 @@ namespace CleverTapSDK.Native
             return this;
         }
 
-        internal UnityWebRequest BuildRequest(string baseURI) {
-            Uri uri = BuildURI(baseURI);
+        internal UnityWebRequest BuildRequest(string baseURL) {
+            Uri uri = BuildURI(baseURL);
             UnityWebRequest request;
             if (_method == UnityNativeConstants.Network.REQUEST_GET) {
                 request = UnityWebRequest.Get(uri);
@@ -118,14 +125,26 @@ namespace CleverTapSDK.Native
             return request;
         }
 
-        private Uri BuildURI(string baseURI) {
-            var uriString = baseURI +"/"+ _path;
+        private Uri BuildURI(string baseURL) {
+            string uriString;
 
-            if (_queryParameters?.Count > 0) {
+            if (string.IsNullOrEmpty(_requestBaseURL))
+            {
+                uriString = $"{baseURL}/{_path}";
+            }
+            else
+            {
+                uriString = _requestBaseURL.Equals(baseURL) ? $"{baseURL}/{_path}" : $"{_requestBaseURL}/{_path}";
+            }
+            
+            if (_queryParameters?.Count > 0)
+            {
                 uriString += "?";
-                for (int i = 0; i < _queryParameters.Count; i++) {
+                for (int i = 0; i < _queryParameters.Count; i++)
+                {
                     uriString += $"{_queryParameters[i].Key}={_queryParameters[i].Value}";
-                    if (i != _queryParameters.Count - 1) {
+                    if (i != _queryParameters.Count - 1)
+                    {
                         uriString += "&";
                     }
                 }

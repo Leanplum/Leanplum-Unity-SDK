@@ -28,11 +28,11 @@
 #endif
     
 #ifdef NO_AUTOINTEGRATE
-    NSString *_accountId = [self getMetaDataForAttribute:CT_ACCOUNT_ID_LABEL];
-    NSString *_accountToken = [self getMetaDataForAttribute:CT_TOKEN_LABEL];
-    NSString *_accountRegion = [self getMetaDataForAttribute:CT_REGION_LABEL];
-    NSString *_proxyDomain = [self getMetaDataForAttribute:CT_PROXY_DOMAIN_LABEL];
-    NSString *_spikyProxyDomain = [self getMetaDataForAttribute:CT_SPIKY_PROXY_DOMAIN_LABEL];
+    NSString *_accountId = [self metaDataForAttribute:CT_ACCOUNT_ID_LABEL];
+    NSString *_accountToken = [self metaDataForAttribute:CT_TOKEN_LABEL];
+    NSString *_accountRegion = [self metaDataForAttribute:CT_REGION_LABEL];
+    NSString *_proxyDomain = [self metaDataForAttribute:CT_PROXY_DOMAIN_LABEL];
+    NSString *_spikyProxyDomain = [self metaDataForAttribute:CT_SPIKY_PROXY_DOMAIN_LABEL];
     if (_accountRegion) {
         [CleverTap setCredentialsWithAccountID:_accountId token:_accountToken region:_accountRegion];
     } else {

@@ -95,13 +95,19 @@ namespace CleverTapSDK.Native {
                 return null;
             }
         }
+        
+        internal static class AppInbox
+        {
+            internal const string INBOX_NOTIFS_KEY = "inbox_notifs";
+        }
 
         internal static class Session {
             internal const string SESSION_ID_KEY = "SESSION_ID";
             internal const string LAST_SESSION_TIME_KEY = "LAST_SESSION_TIME";
         }
 
-        internal static class Event {
+        internal static class Event
+        {
             internal const string EVENT_NAME = "evtName";
             internal const string EVENT_DATA = "evtData";
 
@@ -149,6 +155,9 @@ namespace CleverTapSDK.Native {
             internal const string LIBRARY = "lib";
 
             internal const string LOCALE_IDENTIFIER = "locale";
+
+            internal const string CLTAP_NOTIFICATION_CLICKED_EVENT_NAME = "Notification Clicked";
+            internal const string CLTAP_NOTIFICATION_VIEWED_EVENT_NAME = "Notification Viewed";
         }
 
         internal static class EventMeta {
@@ -204,9 +213,11 @@ namespace CleverTapSDK.Native {
         internal static class Network {
             internal const string CT_BASE_URL = "clevertap-prod.com";
             internal const string REDIRECT_DOMAIN_KEY = "CLTAP_REDIRECT_DOMAIN_KEY";
+            internal const string SPIKY_DOMAIN_KEY = "CLTAP_SPIKY_DOMAIN_KEY";
             internal const string HEADER_ACCOUNT_ID_NAME = "X-CleverTap-Account-Id";
             internal const string HEADER_ACCOUNT_TOKEN_NAME = "X-CleverTap-Token";
             internal const string HEADER_DOMAIN_NAME = "X-WZRK-RD";
+            internal const string SPIKY_HEADER_DOMAIN_NAME = "X-WZRK-SPIKY-RD";
             internal const string HEADER_DOMAIN_MUTE = "X-WZRK-MUTE";
 
             internal const int DEFAUL_REQUEST_TIMEOUT_SEC = 10;
@@ -220,8 +231,10 @@ namespace CleverTapSDK.Native {
 
             internal const string REQUEST_POST = "POST";
             internal const string REQUEST_PATH_RECORD = "a1";
+            internal const string SPIKY_SUFFIX = "-spiky";
 
             internal const string REQUEST_PATH_DEFINE_VARIABLES = "defineVars";
+            internal const string REQUEST_PATH_DEFINE_TEMPLATES = "defineTemplates";
             internal const string REQUEST_PATH_HAND_SHAKE = "hello";
         }
 
@@ -232,6 +245,13 @@ namespace CleverTapSDK.Native {
             internal const string COMMAND_INCREMENT = "$incr";
             internal const string COMMAND_DECREMENT = "$decr";
             internal const string COMMAND_DELETE = "$delete";
+        }
+
+        internal static class CustomTemplates
+        {
+            internal const string TEMPLATE_TYPE = "template";
+            internal const string FUNCTION_TYPE = "function";
+            internal const string DOT = ".";
         }
     }
 }
