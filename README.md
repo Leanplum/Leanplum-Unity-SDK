@@ -52,6 +52,8 @@ Import `unitypackage` into your project, make sure you select `Editor, LeanplumS
 
 Android specific setup is described in the [Android Instructions](Docs/Android-Instructions.md)
 
+Leanplum Unity SDK 7.2.0 bundles CleverTap Android SDK 7.5.0, which requires Android Gradle Plugin (AGP) 8.6.0 and Gradle 8.6+ for compatibility.
+
 ## iOS Export
 
 No additional setup is needed.
