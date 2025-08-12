@@ -4,6 +4,7 @@ def LP_VERSION = "%LP_VERSION%"
 def LP_UNITY_VERSION = "%LP_UNITY_VERSION%"
 
 android {
+    namespace "com.leanplum.unitywrapper"
     compileSdkVersion 34
     buildToolsVersion "34.0.0"
 

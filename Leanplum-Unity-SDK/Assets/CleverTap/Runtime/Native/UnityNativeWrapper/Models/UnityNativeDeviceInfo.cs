@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using CleverTapSDK.Constants;
+using UnityEditor;
 
 namespace CleverTapSDK.Native {
 
@@ -94,7 +95,9 @@ namespace CleverTapSDK.Native {
         }
 
         private string GetOSName() {
-#if UNITY_WEBGL
+#if UNITY_EDITOR
+            return EditorUserBuildSettings.activeBuildTarget.ToString();
+#elif UNITY_WEBGL
             return UnityNativeConstants.OSNames.OTHERS;
 #elif UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
             return UnityNativeConstants.OSNames.MACOS;

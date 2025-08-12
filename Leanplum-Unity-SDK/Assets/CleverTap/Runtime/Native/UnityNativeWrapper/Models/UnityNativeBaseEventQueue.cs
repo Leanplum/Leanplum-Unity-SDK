@@ -90,9 +90,11 @@ namespace CleverTapSDK.Native
                     allEventsJson.AddRange(events.Select(e => e.JsonContent));
                     var jsonContent = "[" + string.Join(",", allEventsJson) + "]";
 
+                    string baseURL = GetRequestBaseURL();
                     string requestPath = GetRequestPath(events);
                     var queryStringParameters = GetQueryStringParameters();
                     var request = new UnityNativeRequest(requestPath, UnityNativeConstants.Network.REQUEST_POST)
+                        .SetBaseURL(baseURL)
                         .SetRequestBody(jsonContent)
                         .SetQueryParameters(queryStringParameters);
 
@@ -191,6 +193,11 @@ namespace CleverTapSDK.Native
             return UnityNativeConstants.Network.REQUEST_PATH_RECORD;
         }
 
+        protected virtual string GetRequestBaseURL()
+        {
+            return networkEngine.BaseURI;
+        }
+
         protected void OnEventsError()
         {
             retryCount++;
@@ -271,6 +278,11 @@ namespace CleverTapSDK.Native
                 { UnityNativeConstants.EventMeta.KEY_I, GetI() },
                 { UnityNativeConstants.EventMeta.KEY_J, GetJ() }
             };
+
+            object wzrkRef = GetWZRKRef();
+            if (wzrkRef != null)
+                metaDetails[UnityNativeConstants.EventMeta.WZRK_REF] = wzrkRef;
+
             return metaDetails;
         }
 
@@ -288,6 +300,15 @@ namespace CleverTapSDK.Native
             }
 
             return new Dictionary<string, object>();
+        }
+
+        private object GetWZRKRef()
+        {
+            if (coreState.SessionManager.SessionData.TryGetValue(UnityNativeConstants.EventMeta.WZRK_REF, out object wzrkRefObj))
+            {
+                return wzrkRefObj;
+            }
+            return null;
         }
 
         private long GetI()

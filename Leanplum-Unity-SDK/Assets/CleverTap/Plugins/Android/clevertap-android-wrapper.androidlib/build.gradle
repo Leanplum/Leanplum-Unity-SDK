@@ -6,22 +6,36 @@ ext {
     artifact = 'clevertap-android-wrapper'
     libraryDescription = 'The CleverTap Android Wrapper for Unity SDK'
 
-    mindSdkVersionVal = 19
-    compileSdkVersionVal = 34
+    mindSdkVersionVal = 21
+    compileSdkVersionVal = 35
     targetSdkVersionVal = compileSdkVersionVal
-    buildToolsVersionVal = "34.0.0"
 
-    libraryVersion = "3.1.0"
+    libraryVersion = "5.3.0"
 }
 
 android {
-    compileSdkVersion compileSdkVersionVal
-    buildToolsVersion buildToolsVersionVal
+    // Checks if new new build properties exists are needed for 2021.3 (AGP 4.0.1)
+    // When 2021.3 is dropped, remove these checks
+    if (project.android.hasProperty("namespace")) {
+        namespace "com.clevertap.unity"
+    }
+    if (project.android.hasProperty('compileSdk')) {
+        compileSdk compileSdkVersionVal
+    } else {
+        compileSdkVersion compileSdkVersionVal
+    }
 
     defaultConfig {
-        minSdkVersion mindSdkVersionVal
-        targetSdkVersion targetSdkVersionVal
-
+        if (project.android.hasProperty('minSdk')) {
+            minSdk mindSdkVersionVal
+        } else {
+            minSdkVersion mindSdkVersionVal
+        }
+        if (project.android.hasProperty('targetSdk')) {
+            targetSdk targetSdkVersionVal
+        } else {
+            targetSdkVersion targetSdkVersionVal
+        }
         versionCode libraryVersion.replaceAll('\\.', '').toInteger()
         versionName libraryVersion
     }
@@ -38,14 +52,10 @@ android {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     compileOnly fileTree('libs')
 
-    api 'com.clevertap.android:clevertap-android-sdk:7.1.2'
-    implementation 'com.google.firebase:firebase-messaging:23.0.6'
-    implementation 'androidx.core:core:1.9.0'
+    api 'com.clevertap.android:clevertap-android-sdk:7.5.0'
+    implementation "androidx.core:core:1.13.0"
+    implementation "com.google.firebase:firebase-messaging:24.0.0"
 }

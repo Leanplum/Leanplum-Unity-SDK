@@ -197,16 +197,6 @@ public class CleverTapUnityPlugin {
         CleverTapMessageSender.getInstance().flushBuffer(callback);
     }
 
-    public void setPushToken(String token, String region, String type) {
-        if (PushConstants.PushType.valueOf(type.toLowerCase()).equals(PushConstants.PushType.FCM)) {
-            clevertap.pushFcmRegistrationId(token, true);
-        } else if (PushConstants.PushType.valueOf(type.toLowerCase()).equals(PushConstants.PushType.BPS)) {
-            clevertap.pushBaiduRegistrationId(token, true);
-        } else if (PushConstants.PushType.valueOf(type.toLowerCase()).equals(PushConstants.PushType.HPS)) {
-            clevertap.pushHuaweiRegistrationId(token, true);
-        }
-    }
-
     public void setOptOut(boolean value) {
         try {
             clevertap.setOptOut(value);
@@ -808,51 +798,6 @@ public class CleverTapUnityPlugin {
         CustomTemplateContext templateContext = clevertap.getActiveContextForTemplate(templateName);
         if (templateContext != null) {
             return templateContext.getBoolean(argName);
-        } else {
-            return null;
-        }
-    }
-
-    public Byte customTemplateGetByteArg(String templateName, String argName) {
-        CustomTemplateContext templateContext = clevertap.getActiveContextForTemplate(templateName);
-        if (templateContext != null) {
-            return templateContext.getByte(argName);
-        } else {
-            return null;
-        }
-    }
-
-    public Short customTemplateGetShortArg(String templateName, String argName) {
-        CustomTemplateContext templateContext = clevertap.getActiveContextForTemplate(templateName);
-        if (templateContext != null) {
-            return templateContext.getShort(argName);
-        } else {
-            return null;
-        }
-    }
-
-    public Integer customTemplateGetIntArg(String templateName, String argName) {
-        CustomTemplateContext templateContext = clevertap.getActiveContextForTemplate(templateName);
-        if (templateContext != null) {
-            return templateContext.getInt(argName);
-        } else {
-            return null;
-        }
-    }
-
-    public Long customTemplateGetLongArg(String templateName, String argName) {
-        CustomTemplateContext templateContext = clevertap.getActiveContextForTemplate(templateName);
-        if (templateContext != null) {
-            return templateContext.getLong(argName);
-        } else {
-            return null;
-        }
-    }
-
-    public Float customTemplateGetFloatArg(String templateName, String argName) {
-        CustomTemplateContext templateContext = clevertap.getActiveContextForTemplate(templateName);
-        if (templateContext != null) {
-            return templateContext.getFloat(argName);
         } else {
             return null;
         }

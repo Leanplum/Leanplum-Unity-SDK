@@ -28,12 +28,12 @@ namespace CleverTapSDK.Native
             }
 
             UnityNativeEvent @event = events[0];
-            if (@event.EventType == UnityNativeEventType.DefineVarsEvent)
+            return @event.EventType switch
             {
-                return UnityNativeConstants.Network.REQUEST_PATH_DEFINE_VARIABLES;
-            }
-
-            return path;
+                UnityNativeEventType.DefineVarsEvent => UnityNativeConstants.Network.REQUEST_PATH_DEFINE_VARIABLES,
+                UnityNativeEventType.DefineCustomTemplatesEvent => UnityNativeConstants.Network.REQUEST_PATH_DEFINE_TEMPLATES,
+                _ => path,
+            };
         }
 
         internal override async Task<List<UnityNativeEvent>> FlushEvents()
@@ -50,16 +50,31 @@ namespace CleverTapSDK.Native
             }
 
             UnityNativeEvent @event = sentEvents[0];
-            if (@event.EventType == UnityNativeEventType.DefineVarsEvent)
+            if (@event.EventType == UnityNativeEventType.DefineVarsEvent ||
+                @event.EventType == UnityNativeEventType.DefineCustomTemplatesEvent)
             {
-                return CanProcessSyncVarsResponse(response);
+                return CanProcessSyncVarsResponse(response, @event.EventType);
             }
 
             return response.IsSuccess();
         }
 
-        private static bool CanProcessSyncVarsResponse(UnityNativeResponse response)
+        private static bool CanProcessSyncVarsResponse(UnityNativeResponse response,
+            UnityNativeEventType eventType)
         {
+            string syncType = string.Empty;
+            switch (eventType)
+            {
+                case UnityNativeEventType.DefineVarsEvent:
+                    syncType = "Variables";
+                    break;
+                case UnityNativeEventType.DefineCustomTemplatesEvent:
+                    syncType = "Custom Templates";
+                    break;
+                default:
+                    break;
+            }
+
             if (!response.IsSuccess())
             {
                 CleverTapLogger.LogError("Error Message: " + response.ErrorMessage);
@@ -75,23 +90,23 @@ namespace CleverTapSDK.Native
                                 errorMessage = error as string;
                             }
                         }
-                        CleverTapLogger.LogError($"Error while syncing (BadRequest). {errorMessage ?? $"Error: {errorMessage}."}");
+                        CleverTapLogger.LogError($"Error while syncing {syncType} (BadRequest). {errorMessage ?? $"Error: {errorMessage}."}");
                         break;
                     case HttpStatusCode.Unauthorized:
-                        CleverTapLogger.LogError($"Error while syncing (Unauthorized). " +
+                        CleverTapLogger.LogError($"Error while syncing {syncType} (Unauthorized). " +
                             $"Unauthorized access from a non-test profile. " +
                             $"Please mark this profile as a test profile from the CleverTap dashboard.");
                         break;
                     default:
-                        CleverTapLogger.LogError($"Error while syncing ({response.StatusCode})");
+                        CleverTapLogger.LogError($"Error while syncing {syncType}: ({response.StatusCode})");
                         break;
                 }
             }
             else
             {
-                CleverTapLogger.Log("Variables Successfully synced");
+                CleverTapLogger.Log($"{syncType} Successfully synced");
             }
-            // Do not retry defineVars requests
+            // Do not retry define requests
             return true;
         }
 
@@ -104,9 +119,10 @@ namespace CleverTapSDK.Native
             }
 
             UnityNativeEvent @event = sentEvents[0];
-            if (@event.EventType == UnityNativeEventType.DefineVarsEvent)
+            if (@event.EventType == UnityNativeEventType.DefineVarsEvent
+                || @event.EventType == UnityNativeEventType.DefineCustomTemplatesEvent)
             {
-                // Do not retry defineVars requests
+                // Do not retry define requests
                 return false;
             }
 

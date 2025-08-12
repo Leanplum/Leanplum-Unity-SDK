@@ -11,7 +11,8 @@ namespace CleverTapSDK.Native
         DataEvent = 5,
         NotificationViewEvent = 6,
         FetchEvent = 7,
-        DefineVarsEvent = 8
+        DefineVarsEvent = 8,
+        DefineCustomTemplatesEvent = 9
     }
 }
 #endif

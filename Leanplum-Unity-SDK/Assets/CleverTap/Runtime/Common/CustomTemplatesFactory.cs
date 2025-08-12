@@ -1,6 +1,6 @@
-﻿#if UNITY_ANDROID
+﻿#if UNITY_ANDROID && !UNITY_EDITOR
 using CleverTapSDK.Android;
-#elif UNITY_IOS
+#elif UNITY_IOS && !UNITY_EDITOR
 using CleverTapSDK.IOS;
 #else
 using CleverTapSDK.Native;
@@ -16,9 +16,9 @@ namespace CleverTapSDK.Common
 
         static CustomTemplatesFactory()
         {
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
             cleverTapCustomTemplates = new AndroidPlatformCustomTemplates();
-#elif UNITY_IOS
+#elif UNITY_IOS && !UNITY_EDITOR
             cleverTapCustomTemplates = new IOSPlatformCustomTemplates();
 #else
             cleverTapCustomTemplates = new UnityNativePlatformCustomTemplates();
