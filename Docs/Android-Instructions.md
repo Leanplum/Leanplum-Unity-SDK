@@ -82,6 +82,17 @@ dependencies {
         </application>
     </manifest>
    ```
+    #### Unity 6 – Application Entry Point Consideration
+    In **Unity 6**, the Android Player settings provide two application entry point options:
+
+    - **Activity**
+    - **GameActivity**
+
+    For CleverTap integration, ensure that the **Activity** option is selected in:
+
+    ```
+    Project Settings → Player → Android → Others Settings → Appication Entry Point
+    ```
 2. Use CleverTap Unity API after `Leanplum.CleverTapInstanceReady` event is received:
     ```csharp
         Leanplum.CleverTapInstanceReady += () =>
